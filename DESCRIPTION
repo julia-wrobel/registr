@@ -1,0 +1,25 @@
+Package: registration.fpca
+Title: Registering curves from exponential family functional data
+Version: 0.0.0.9000
+Authors@R: c(
+    person("Julia", "Wrobel", role = c("aut", "cre"), email = "jw3134@cumc.columbia.edu"),
+    person("Jeff", "Goldsmith", role = "aut", email = "jeff.goldsmith@columbia.edu")
+    )
+Description: Registering curves from exponential family functional data.
+Depends:
+    R (>= 3.3.3)
+Imports:
+    ggplot2,
+    tidyr,
+    magrittr,	
+    dplyr,
+    gridExtra,
+    boot,
+    refund.shiny,
+    Rcpp,
+    RcppArmadillo
+License: GPL (>= 2)
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.0.1
+LinkingTo: Rcpp, RcppArmadillo
