@@ -67,8 +67,8 @@ bfpca <- function(Y,index = NULL, id = NULL, npc = 1, Kt = 10, maxiter = 30, t.m
   while( curr_iter < maxiter){
 
     if(print.iter){
-      print(paste0("current iteration: ", curr_iter))
-      print(paste0("current error: ", error[curr_iter]))
+      message("current iteration: ", curr_iter)
+      message("current error: ", error[curr_iter])
     }
     
     for(i in 1:I){
