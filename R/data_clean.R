@@ -27,7 +27,7 @@ data_clean <- function(data, family = "gaussian"){
   # create a stop here if value is not binary when family is binomial
   
   # get row numbers for each subject
-  data_rows = data %>% mutate(row = row_number()) %>% group_by(id) %>% 
+  data_rows = data %>% select(id, index, value) %>% mutate(row = row_number()) %>% group_by(id) %>% 
     filter(row_number()==1 | row_number()==n()) %>% mutate(index = ifelse(round(index) == 0, "first", "last")) %>%
     select(-value )  %>% spread(index, row) %>% ungroup() %>% mutate(subject = row_number())
   
