@@ -74,7 +74,7 @@ register = function(obj = NULL, Y = NULL, Kt = 10, Kh = 5, family = "gaussian", 
   ### Calculate warping functions  
   t.hat = rep(NA, dim(Y)[1])
   loss.subjects = rep(NA, I)
-  for(i in 1:I){
+  for (i in 1:I) {
     
     subject_rows = rows$first_row[i]:rows$last_row[i]
     
@@ -84,8 +84,8 @@ register = function(obj = NULL, Y = NULL, Kt = 10, Kh = 5, family = "gaussian", 
     tstar.i = tstar[subject_rows]
     basis.tstar.i = basis.tstar[subject_rows ,]
     
-    if(is.null(obj)){mean.coefs.i = mean.coefs}else{mean.coefs.i = mean.coefs[, i]}
-    if(gradient){gradf = loss_h_gradient}else{gradf = NULL}
+    if (is.null(obj)) {mean.coefs.i = mean.coefs} else {mean.coefs.i = mean.coefs[, i]}
+    if (gradient) {gradf = loss_h_gradient} else {gradf = NULL}
     
     coefs.inner = constrOptim(beta.0, loss_h, grad = gradf, ui = ui, ci = ci, Y = Yi, 
                               basis.tstar = basis.tstar.i, mean.coefs = mean.coefs.i, knots = global_knots,

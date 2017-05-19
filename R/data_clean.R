@@ -22,14 +22,27 @@ data_clean <- function(data, family = "gaussian"){
     data = as_refundObj(data, index = index)
   }
   
+	# check if data are sorted by id and index; if not do so and return message
+	if (!identical(data, data %>% arrange(id, index))) {
+		message("Data have been sorted by id and index; all output will be in this format")
+		data = data %>% arrange(id, index)
+	}
+	
   # insert check for matrix names
   # create a stop here if names index, id, value do not exist
   # create a stop here if value is not binary when family is binomial
   
   # get row numbers for each subject
-  data_rows = data %>% select(id, index, value) %>% mutate(row = row_number()) %>% group_by(id) %>% 
-    filter(row_number()==1 | row_number()==n()) %>% mutate(index = ifelse(round(index) == 0, "first", "last")) %>%
-    select(-value )  %>% spread(index, row) %>% ungroup() %>% mutate(subject = row_number())
+  data_rows = data %>% 
+  	select(id, index, value) %>%
+  	mutate(row = row_number()) %>% 
+  	group_by(id) %>% 
+    filter(row_number() == 1 | row_number() == n()) %>% 
+  	mutate(index = c("first", "last")) %>%
+    select(-value ) %>% 
+  	spread(index, row) %>% 
+  	ungroup() %>% 
+  	mutate(subject = row_number())
   
   colnames(data_rows) <- c("id", "first_row", "last_row", "subject")
   I = dim(data_rows)[1]
