@@ -3,7 +3,8 @@
 #' Function combines constrained optimization and FPCA to estimate warping functions for exponential family data.
 #'
 #' @param Y dataframe. Should have values id, value, index.
-#' @param Kt number of B-spline basis functions used to estimate mean functions. Defaults to 10.
+#' @param Kt number of B-spline basis functions used to estimate mean functions. 
+#' Defaults to (N^1/5 + 4).
 #' @param Kh number of B-spline basis functions used to estimate warping functions \emph{h}. Defaults to 5.
 #' @param family \code{gaussian} or \code{binomial}.
 #' @param iterations number of iterations between fpca step and registration step.
@@ -85,7 +86,7 @@
 #'
 #' }
 #'
-register_fpca <- function(Y, Kt, Kh, family = "binomial", iterations = 10, first.step = "registration", npc = 1, gradient = TRUE, ...){
+register_fpca <- function(Y, Kt = NULL, Kh, family = "binomial", iterations = 10, first.step = "registration", npc = 1, gradient = TRUE, ...){
   # ... argument should take care of anything that has a default value, but I also should be change it if I want to
       # for example I should be able to put maxiter= 50 as an argument, if I want. Test this out.
 
@@ -93,7 +94,7 @@ register_fpca <- function(Y, Kt, Kh, family = "binomial", iterations = 10, first
   # should have a plot that handles just registration, just fpca, and both
 
   ## clean data
-
+  
   # save original tstar values and all other t values calculated
   time_warps = list(NA, iterations + 2)
   time_warps[[1]] = Y$index
@@ -102,7 +103,12 @@ register_fpca <- function(Y, Kt, Kh, family = "binomial", iterations = 10, first
   data = data_clean(Y)
   Y = data$Y
   rows = data$Y_rows
-
+  
+  # calculate default number of basis functions for fpca
+  if(is.null(Kt)){ ## average number of timpoints to the 1/5th power
+    Kt = round((dim(Y)[1])^(1/5)) + 4
+  }
+  
   if(first.step == "registration"){
     # first register values to the overall mean. Really should replace old t values.
     register_step = register(Y = Y, Kt = Kt, Kh = Kh, family = family, gradient = gradient, row_obj = rows)
