@@ -32,8 +32,17 @@ loss_h_gradient = function(Y, basis.tstar, mean.coefs, knots, beta.inner, family
     grad = crossprod(B.tstar, (Y * mu.t.deriv)) - 
       t(B.tstar) %*% (1/(1 + exp(mu.t)) * exp(mu.t) * mu.t.deriv )
   }else{
-    grad = -2 * t(B.tstar) %*% Y.vec %*% mu.t.deriv + 
-      2 * as.numeric(t(mean.coefs) %*% (basis.h.quad %*% mean.coefs)) * matrix(colSums(B.tstar), ncol = 1)
+    D = length(Y)
+    Y.diag = diag(Y)
+    #grad = -2 * t(B.tstar) %*% (Y.diag %*% mu.t.deriv) + 2 * rowSums(t(B.tstar) %*% tcrossprod(mu.t.deriv))
+    grad_A =  -2 * t(B.tstar) %*% (Y.diag %*% mu.t.deriv)
+    grad_B = list(NA, D)
+    for(t in 1:D){
+      mu.t.deriv.temp = basis.h.deriv[t,] %*% mean.coefs
+      grad_B[[t]] = crossprod(mu.t.deriv.temp) * B.tstar[t,] 
+    }
+    grad_B_sum = Reduce("+", grad_B)
+    grad = grad_A = grad_B_sum
   }
   
   grad.last = length(grad)

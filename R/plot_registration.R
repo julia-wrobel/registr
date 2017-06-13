@@ -24,13 +24,15 @@
 #'
 #'
 
-plot_registration = function(reg_obj, fpca_obj = NULL, family = "gaussian", alpha = 0.25, tstar, t.min = NULL, t.max = NULL, Kt = NULL){
+plot_registration = function(reg_obj, fpca_obj = NULL, family = "gaussian", alpha = 0.25, tstar, t.min = NULL, t.max = NULL){
 
   Y = reg_obj$Y$value
+  Kt = reg_obj$Kt
   
   if(is.null(fpca_obj)){
-    global_knots = define_basis(tstar, t.min, t.max, Kt)$knots
-    basis = define_basis(tstar, t.min, t.max, Kt)$basis
+    global_knots = quantile(tstar, probs = seq(0, 1, length = Kt - 2))[-c(1, Kt - 2)]
+    basis = bs(c(t.min, t.max, tstar), knots = global_knots, intercept = TRUE)[-(1:2),] 
+    
     mean.coefs = coef(glm(Y ~ 0 + basis, family = family))
     mu = basis %*% mean.coefs
     mean.df = NULL

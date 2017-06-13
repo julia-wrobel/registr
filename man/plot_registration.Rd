@@ -5,7 +5,7 @@
 \title{Visualize results of registration}
 \usage{
 plot_registration(reg_obj, fpca_obj = NULL, family = "gaussian",
-  alpha = 0.25, tstar, t.min = NULL, t.max = NULL, Kt = NULL)
+  alpha = 0.25, tstar, t.min = NULL, t.max = NULL)
 }
 \arguments{
 \item{reg_obj}{registration object to be plotted.}
