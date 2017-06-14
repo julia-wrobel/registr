@@ -23,8 +23,6 @@ if `NULL`, taken to be minimum observed value.}
 
 \item{t.max}{maximum value to be evaluated on the time domain (useful if data are sparse and / or irregular). 
 if `NULL`, taken to be maximum observed value.}
-
-\item{Kt}{number of B-spline basis functions used to estimate coefficient functions. Defaults to 10.}
 }
 \description{
 Function takes in registration object and plots unregistered curves, registered curves, 

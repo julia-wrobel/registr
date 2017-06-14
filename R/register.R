@@ -30,7 +30,8 @@
 #' @examples
 #' 
 #' \dontrun{
-#'    register_step = register(obj = NULL, Y = Y_sim, Kt = 10, Kh = 5, family = "binomial", gradient = TRUE)
+#'    register_step = register(obj = NULL, Y = Y_sim, Kt = 10, Kh = 5, family = "binomial", 
+#'    gradient = TRUE)
 #' }
 #'
 register = function(obj = NULL, Y = NULL, Kt = 10, Kh = 5, family = "gaussian", gradient = TRUE,

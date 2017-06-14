@@ -13,7 +13,6 @@
 #' if `NULL`, taken to be minimum observed value.
 #' @param t.max maximum value to be evaluated on the time domain (useful if data are sparse and / or irregular). 
 #' if `NULL`, taken to be maximum observed value.
-#' @param Kt number of B-spline basis functions used to estimate coefficient functions. Defaults to 10.
 #' 
 #' @author Julia Wrobel \email{jw3134@@cumc.columbia.edu}
 #' 

@@ -42,7 +42,8 @@ respectively. If Y is input, then we automatically calculate a template using gl
 \examples{
 
 \dontrun{
-   register_step = register(obj = NULL, Y = Y_sim, Kt = 10, Kh = 5, family = "binomial", gradient = TRUE)
+   register_step = register(obj = NULL, Y = Y_sim, Kt = 10, Kh = 5, family = "binomial", 
+   gradient = TRUE)
 }
 
 }

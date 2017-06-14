@@ -1,4 +1,4 @@
-# registration.fpca
+# registr
 Register exponential family curves
 
 ---------------
@@ -7,5 +7,5 @@ Register exponential family curves
 
 To install the latest version directly from Github, please use:
 <pre><code>install.packages("devtools")
-devtools::install_github("julia-wrobel/registration.fpca")
+devtools::install_github("julia-wrobel/registr")
 </code></pre>
