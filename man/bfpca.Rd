@@ -4,7 +4,7 @@
 \alias{bfpca}
 \title{Binary functional principal components analysis}
 \usage{
-bfpca(Y, index = NULL, id = NULL, npc = 1, Kt = 10, maxiter = 30,
+bfpca(Y, index = NULL, id = NULL, npc = 1, Kt = NULL, maxiter = 20,
   t.min = NULL, t.max = NULL, print.iter = FALSE, row_obj = NULL)
 }
 \arguments{
@@ -16,7 +16,8 @@ bfpca(Y, index = NULL, id = NULL, npc = 1, Kt = 10, maxiter = 30,
 
 \item{npc}{defaults to 1. Number of principal components to calculate.}
 
-\item{Kt}{number of B-spline basis functions used to estimate coefficient functions. Defaults to 10.}
+\item{Kt}{number of B-spline basis functions used to estimate mean functions. 
+Defaults to (N^1/5 + 4).}
 
 \item{maxiter}{maximum number of iterations to perform.}
 

@@ -26,7 +26,7 @@
 #' @export
 #'
 
-bfpca <- function(Y,index = NULL, id = NULL, npc = 1, Kt = NULL, maxiter = 30, t.min = NULL, t.max = NULL, 
+bfpca <- function(Y,index = NULL, id = NULL, npc = 1, Kt = NULL, maxiter = 20, t.min = NULL, t.max = NULL, 
                   print.iter = FALSE, row_obj= NULL){
    
   curr_iter = 1
@@ -139,11 +139,10 @@ bfpca <- function(Y,index = NULL, id = NULL, npc = 1, Kt = NULL, maxiter = 30, t
    for(i in 1:I){
     subject_rows = rows$first_row[i]:rows$last_row[i]
     fits[subject_rows] = Theta[subject_rows, ] %*% subject_coef[,i]
-  }
-
-  fittedVals = data.frame(id = Y$id, index = Y$index, value = fits)
+   }
   
-  Theta2 = bs(c(t.min, t.max, unique(sort(time))), knots = knots, intercept = TRUE)[-(1:2),] 
+  fittedVals = data.frame(id = Y$id, index = Y$index, value = fits)
+  Theta2 = bs(seq(t.min, t.max, length.out = 100), knots = knots, intercept = TRUE) 
   
   ret = list(
     "knots" = knots, 
@@ -162,6 +161,3 @@ bfpca <- function(Y,index = NULL, id = NULL, npc = 1, Kt = NULL, maxiter = 30, t
   class(ret) = "fpca" 
   return(ret)
 } 
-
-
-
