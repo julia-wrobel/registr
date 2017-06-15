@@ -137,10 +137,12 @@ bfpca <- function(Y,index = NULL, id = NULL, npc = 1, Kt = 10, maxiter = 30, t.m
 
   fittedVals = data.frame(id = Y$id, index = Y$index, value = fits)
   
+  Theta2 = bs(c(t.min, t.max, unique(sort(time))), knots = knots, intercept = TRUE)[-(1:2),] 
+  
   ret = list(
     "knots" = knots, 
-    "mu" = Theta_i %*% mu_coef,#
-    "efunctions" = Theta_i %*% psi_coef, #
+    "mu" = Theta2 %*% mu_coef,#
+    "efunctions" = Theta2 %*% psi_coef, #
     "evalues" =  rep(1, npc),#
     "npc" = npc,#
     "scores" = scores,#
@@ -148,7 +150,7 @@ bfpca <- function(Y,index = NULL, id = NULL, npc = 1, Kt = 10, maxiter = 30, t.m
     "subject_coefs" = subject_coef,
     "Yhat" = fittedVals, #
     "Y" = Y, #
-    "family" = "binomial"#
+    "family" = "binomial"
   )
 
   class(ret) = "fpca" 
