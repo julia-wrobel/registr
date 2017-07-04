@@ -128,21 +128,16 @@ register_fpca <- function(Y, Kt = NULL, Kh, family = "binomial", iterations = 10
     message("current iteration: ", iter)
 
     fpca_step = bfpca(register_step$Y, index = NULL, id = NULL, npc = npc, Kt = Kt, row_obj = rows)
-
-    if(iter == 1){
-      fpca_init = fpca_step
-      reg_init = register_step
-    }
-
-    register_step = register(obj = fpca_step, Kt = Kt, Kh = Kh, family = family, gradient = gradient, row_obj = rows)
+    register_step = register(obj = fpca_step, Kt = Kt, Kh = Kh, family = family, gradient = gradient, 
+    												 row_obj = rows)
 
     time_warps[[iter + 2]] = register_step$Y$index
     loss[iter + 1] = register_step$loss
 
   }
   
-	ret = list(fpca_obj = fpca_step, reg_object = register_step, time_warps = time_warps, fpca_init = fpca_init,
-						 reg_init = reg_init, loss = loss)
+	ret = list(fpca_obj = fpca_step, reg_object = register_step, time_warps = time_warps,
+						 loss = loss, family = family)
 	class(ret) <- "registration"
   return(ret)
 } # end function
