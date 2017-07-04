@@ -140,7 +140,9 @@ register_fpca <- function(Y, Kt = NULL, Kh, family = "binomial", iterations = 10
     loss[iter + 1] = register_step$loss
 
   }
-
-  return(list(fpca_obj = fpca_step, reg_object = register_step, time_warps = time_warps, fpca_init = fpca_init,
-              reg_init = reg_init, loss = loss))
+  
+	ret = list(fpca_obj = fpca_step, reg_object = register_step, time_warps = time_warps, fpca_init = fpca_init,
+						 reg_init = reg_init, loss = loss)
+	class(ret) <- "registration"
+  return(ret)
 } # end function
