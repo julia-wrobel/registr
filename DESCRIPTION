@@ -15,7 +15,6 @@ Imports:
     dplyr,
     gridExtra,
     boot,
-    refund.shiny,
     Rcpp,
     RcppArmadillo
 License: GPL (>= 2)

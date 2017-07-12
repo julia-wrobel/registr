@@ -5,10 +5,9 @@
 #' @param data input data. Can be long format dataframe or wide format matrix. If you provide a matrix
 #' @param family \code{gaussian} or \code{binomial}.
 #' 
-#' @importFrom dplyr mutate group_by filter select ungroup
+#' @importFrom dplyr mutate group_by filter select ungroup arrange
 #' @importFrom tidyr spread
 #' @importFrom magrittr %>%
-#' @importFrom refund.shiny as_refundObj
 #' 
 #' @export
 
