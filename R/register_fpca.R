@@ -20,12 +20,9 @@
 #' @examples
 #'
 #' \dontrun{
-#'  #' library(dplyr)
-#' library(tidyr)
-#' library(purrr)
-#'
+#' library(tidyverse)
+#' 
 #' library(gridExtra)
-#' library(ggplot2)
 #' library(refund.shiny)
 #'
 #' library(mvtnorm)
