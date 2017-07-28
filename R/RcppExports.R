@@ -12,7 +12,7 @@
 #' @param theta_quad quadratic form of theta for the current subject.
 #' @return A list with expected score mean and variance for the current subject.
 expectedScores <- function(Y, mu, psi, theta, theta_quad) {
-    .Call('registr_expectedScores', PACKAGE = 'registr', Y, mu, psi, theta, theta_quad)
+    .Call('_registr_expectedScores', PACKAGE = 'registr', Y, mu, psi, theta, theta_quad)
 }
 
 #' Estimate variational parameter for the current subject.
@@ -26,7 +26,7 @@ expectedScores <- function(Y, mu, psi, theta, theta_quad) {
 #' @param Ci expected covariance matrix of scores for the current subject.
 #' @return A vector of variational parameters for the current subject.
 expectedXi <- function(theta, mu, mi, psi, Ci) {
-    .Call('registr_expectedXi', PACKAGE = 'registr', theta, mu, mi, psi, Ci)
+    .Call('_registr_expectedXi', PACKAGE = 'registr', theta, mu, mi, psi, Ci)
 }
 
 #' Apply lambda transformation of variational parameter.
@@ -36,7 +36,7 @@ expectedXi <- function(theta, mu, mi, psi, Ci) {
 #' @param x The value to which you apply the function
 #' @return A numeric value that has been transformed.
 lambdaF <- function(x) {
-    .Call('registr_lambdaF', PACKAGE = 'registr', x)
+    .Call('_registr_lambdaF', PACKAGE = 'registr', x)
 }
 
 #' Calculate quadratic form of spline basis functions for the current subject.
@@ -47,6 +47,6 @@ lambdaF <- function(x) {
 #' @param theta spline basis functions for the current subject.
 #' @return A matrix of the quadratic form of theta for the current subject.
 squareTheta <- function(xi, theta) {
-    .Call('registr_squareTheta', PACKAGE = 'registr', xi, theta)
+    .Call('_registr_squareTheta', PACKAGE = 'registr', xi, theta)
 }
 

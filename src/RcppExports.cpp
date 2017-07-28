@@ -8,7 +8,7 @@ using namespace Rcpp;
 
 // expectedScores
 List expectedScores(arma::vec Y, arma::vec mu, arma::mat psi, arma::mat theta, arma::mat theta_quad);
-RcppExport SEXP registr_expectedScores(SEXP YSEXP, SEXP muSEXP, SEXP psiSEXP, SEXP thetaSEXP, SEXP theta_quadSEXP) {
+RcppExport SEXP _registr_expectedScores(SEXP YSEXP, SEXP muSEXP, SEXP psiSEXP, SEXP thetaSEXP, SEXP theta_quadSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -23,7 +23,7 @@ END_RCPP
 }
 // expectedXi
 std::vector<double> expectedXi(arma::mat theta, arma::vec mu, arma::vec mi, arma::mat psi, arma::mat Ci);
-RcppExport SEXP registr_expectedXi(SEXP thetaSEXP, SEXP muSEXP, SEXP miSEXP, SEXP psiSEXP, SEXP CiSEXP) {
+RcppExport SEXP _registr_expectedXi(SEXP thetaSEXP, SEXP muSEXP, SEXP miSEXP, SEXP psiSEXP, SEXP CiSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -38,7 +38,7 @@ END_RCPP
 }
 // lambdaF
 double lambdaF(double x);
-RcppExport SEXP registr_lambdaF(SEXP xSEXP) {
+RcppExport SEXP _registr_lambdaF(SEXP xSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -49,7 +49,7 @@ END_RCPP
 }
 // squareTheta
 arma::mat squareTheta(arma::vec xi, arma::mat theta);
-RcppExport SEXP registr_squareTheta(SEXP xiSEXP, SEXP thetaSEXP) {
+RcppExport SEXP _registr_squareTheta(SEXP xiSEXP, SEXP thetaSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -61,10 +61,10 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"registr_expectedScores", (DL_FUNC) &registr_expectedScores, 5},
-    {"registr_expectedXi", (DL_FUNC) &registr_expectedXi, 5},
-    {"registr_lambdaF", (DL_FUNC) &registr_lambdaF, 1},
-    {"registr_squareTheta", (DL_FUNC) &registr_squareTheta, 2},
+    {"_registr_expectedScores", (DL_FUNC) &_registr_expectedScores, 5},
+    {"_registr_expectedXi", (DL_FUNC) &_registr_expectedXi, 5},
+    {"_registr_lambdaF", (DL_FUNC) &_registr_lambdaF, 1},
+    {"_registr_squareTheta", (DL_FUNC) &_registr_squareTheta, 2},
     {NULL, NULL, 0}
 };
 
