@@ -6,6 +6,6 @@
 #' @docType package
 #'
 #' @useDynLib registr
-#' @importFrom Rcpp sourceCpp
+#' @importFrom Rcpp evalCpp
 #' @import RcppArmadillo
 NULL

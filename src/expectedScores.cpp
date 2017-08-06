@@ -1,6 +1,7 @@
 #include <RcppArmadillo.h>
 using namespace Rcpp;
 using namespace arma;
+using namespace std;
 // [[Rcpp::depends(RcppArmadillo)]]
 //' Calculate expected score and score variance for the current subject.
 //'
