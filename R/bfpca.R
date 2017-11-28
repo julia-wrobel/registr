@@ -133,6 +133,7 @@ bfpca <- function(Y,index = NULL, id = NULL, npc = 1, Kt = 10, maxiter = 20, t.m
   ## vectorize
    for(i in 1:I){
     subject_rows = rows$first_row[i]:rows$last_row[i]
+    
     fits[subject_rows] = Theta[subject_rows, ] %*% subject_coef[,i]
    }
   
@@ -141,13 +142,19 @@ bfpca <- function(Y,index = NULL, id = NULL, npc = 1, Kt = 10, maxiter = 20, t.m
   ### what do we do if unevenly spaced grids?
   Theta2 = bs(seq(t.min, t.max, length.out = Di), knots = knots, intercept = TRUE) 
   
+  # orthogonalize eigenvectors and extract eigenvalues
+  psi_svd = svd(Theta[subject_rows, ] %*% psi_coef)
+  efunctions = psi_svd$u
+  evalues = psi_svd$d
+  scores = scores %*% psi_svd$v
+  
   ret = list(
     "knots" = knots, 
     "test" = Theta2 %*% tcrossprod(psi_coef, scores),
     "alpha" = Theta2 %*% alpha_coef,#
     "mu" = Theta2 %*% alpha_coef, # return this to be consistent with refund.shiny, same as below 
-    "efunctions" = Theta2 %*% psi_coef, #
-    "evalues" =  rep(1, npc),#
+    "efunctions" = efunctions, #
+    "evalues" =  evalues,#
     "npc" = npc,#
     "scores" = scores,#
     "error" = error,
