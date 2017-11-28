@@ -8,8 +8,7 @@
 #' @param index defaults to NULL. Indicates which column is the x-axis if Y input is a dataframe.
 #' @param id defaults to NULL. Indicates which column gives the subject ids if Y input is a dataframe.
 #' @param npc defaults to 1. Number of principal components to calculate.
-#' @param Kt number of B-spline basis functions used to estimate mean functions. 
-#' Defaults to (N^1/5 + 4).
+#' @param Kt number of B-spline basis functions used to estimate mean functions. Defaults to 10.
 #' @param maxiter maximum number of iterations to perform.
 #' @param t.min minimum value to be evaluated on the time domain (useful if data are sparse and / or irregular). 
 #' if `NULL`, taken to be minimum observed value.
@@ -26,7 +25,7 @@
 #' @export
 #'
 
-bfpca <- function(Y,index = NULL, id = NULL, npc = 1, Kt = NULL, maxiter = 20, t.min = NULL, t.max = NULL, 
+bfpca <- function(Y,index = NULL, id = NULL, npc = 1, Kt = 10, maxiter = 20, t.min = NULL, t.max = NULL, 
                   print.iter = FALSE, row_obj= NULL){
    
   curr_iter = 1
@@ -50,10 +49,6 @@ bfpca <- function(Y,index = NULL, id = NULL, npc = 1, Kt = NULL, maxiter = 20, t
   if (is.null(t.min)) {t.min = min(time)}
   if (is.null(t.max)) {t.max = max(time)}
   
-  ## calculate Kt if not prespecified
-  if(is.null(Kt)){
-  	Kt = round((dim(Y)[1])^(1/5)) + 4
-  }
   
   knots = quantile(time, probs = seq(0, 1, length = Kt - 2))[-c(1, Kt - 2)]
   Theta = bs(c(t.min, t.max, time), knots = knots, intercept = TRUE)[-(1:2),] 

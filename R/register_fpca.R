@@ -4,7 +4,7 @@
 #'
 #' @param Y dataframe. Should have values id, value, index.
 #' @param Kt number of B-spline basis functions used to estimate mean functions. 
-#' Defaults to (N^1/5 + 4).
+#' Defaults to 10.
 #' @param Kh number of B-spline basis functions used to estimate warping functions \emph{h}. Defaults to 5.
 #' @param family \code{gaussian} or \code{binomial}.
 #' @param iterations number of iterations between fpca step and registration step.
@@ -90,7 +90,7 @@
 #'
 #' }
 #'
-register_fpca <- function(Y, Kt = NULL, Kh, family = "binomial", iterations = 10, first.step = "registration", npc = 1, gradient = TRUE, ...){
+register_fpca <- function(Y, Kt = 10, Kh, family = "binomial", iterations = 10, first.step = "registration", npc = 1, gradient = TRUE, ...){
   # ... argument should take care of anything that has a default value, but I also should be change it if I want to
       # for example I should be able to put maxiter= 50 as an argument, if I want. Test this out.
 
@@ -107,11 +107,6 @@ register_fpca <- function(Y, Kt = NULL, Kh, family = "binomial", iterations = 10
   data = data_clean(Y)
   Y = data$Y
   rows = data$Y_rows
-  
-  # calculate default number of basis functions for fpca
-  if(is.null(Kt)){ ## average number of timpoints to the 1/5th power
-    Kt = round((dim(Y)[1])^(1/5)) + 4
-  }
   
   if(first.step == "registration"){
     # first register values to the overall mean. Really should replace old t values.
