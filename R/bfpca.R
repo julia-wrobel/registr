@@ -150,7 +150,6 @@ bfpca <- function(Y,index = NULL, id = NULL, npc = 1, Kt = 10, maxiter = 20, t.m
   
   ret = list(
     "knots" = knots, 
-    "test" = Theta2 %*% tcrossprod(psi_coef, scores),
     "alpha" = Theta2 %*% alpha_coef,#
     "mu" = Theta2 %*% alpha_coef, # return this to be consistent with refund.shiny, same as below 
     "efunctions" = efunctions, #
