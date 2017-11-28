@@ -16,7 +16,14 @@
 #' @author Julia Wrobel \email{jw3134@@cumc.columbia.edu}
 #' @export
 #' 
-#' 
+#' @return fpca_obj list of items from FPCA step
+#' @return reg_object some registration stuff, should be cleaned up
+#' @return time_warps list of time values for each iteration of the algorithm. time_warps[1] returns original (observed) time 
+#' and time_warps[n] provides time values for the final iteration
+#' @return loss Loss for each iteration of the algorithm. Loss is calculated in the registration step using an 
+#' exponential family likelihood with natural parameter calculated in the FPCA step.
+#' @return family \code{gaussian} or \code{binomial}.
+#'  
 #' @examples
 #'
 #' \dontrun{
