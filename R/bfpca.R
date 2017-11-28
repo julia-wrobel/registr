@@ -54,11 +54,11 @@ bfpca <- function(Y,index = NULL, id = NULL, npc = 1, Kt = 10, maxiter = 20, t.m
   Theta = bs(c(t.min, t.max, time), knots = knots, intercept = TRUE)[-(1:2),] 
 
   ## initialize all your vectors
-  mu_coef = matrix(rnorm(Kt), Kt, 1)
+  alpha_coef = matrix(rnorm(Kt), Kt, 1)
   psi_coef = matrix(rnorm(Kt * npc), Kt, npc) * 0.5
   xi = matrix(rnorm(dim(Y)[1]), ncol = 1) * 0.5
   
-  temp_mu_coef = mu_coef
+  temp_alpha_coef = alpha_coef
   temp_psi_coef = psi_coef
   
   phi_a = list(NA, I)
@@ -83,14 +83,14 @@ bfpca <- function(Y,index = NULL, id = NULL, npc = 1, Kt = 10, maxiter = 20, t.m
       Theta_i_quad = squareTheta(xi_i, Theta_i)
        
       ##### posterior scores
-      mlist = expectedScores(Yi, temp_mu_coef, temp_psi_coef, Theta_i, Theta_i_quad)
+      mlist = expectedScores(Yi, temp_alpha_coef, temp_psi_coef, Theta_i, Theta_i_quad)
       
       Ci = mlist$Ci
       mi = mlist$mi
       mm = Ci + tcrossprod(mi)
       
       ##### variational parameter xi
-      xi[ subject_rows, 1] = expectedXi(Theta_i, temp_mu_coef, mi, temp_psi_coef, Ci)
+      xi[ subject_rows, 1] = expectedXi(Theta_i, temp_alpha_coef, mi, temp_psi_coef, Ci)
       xi_i = xi[subject_rows, ]
       
       Theta_i_quad = squareTheta(xi_i, Theta_i)
@@ -113,22 +113,22 @@ bfpca <- function(Y,index = NULL, id = NULL, npc = 1, Kt = 10, maxiter = 20, t.m
     phi_vec = -solve(phi_a_sum) %*% rowSums(phi_b)
     phi_mat = matrix(phi_vec, nrow = Kt, ncol = npc + 1, byrow = TRUE)
     
-    mu_coef = phi_mat[, npc+1]
+    alpha_coef = phi_mat[, npc+1]
     psi_coef = phi_mat[, 1:npc]
     
     if(npc == 1){ psi_coef = matrix(psi_coef, ncol = 1)}
     
     ## calculate error
     curr_iter = curr_iter + 1;
-    error[curr_iter] = sum((psi_coef-temp_psi_coef)^2) + sum((mu_coef-temp_mu_coef)^2);
+    error[curr_iter] = sum((psi_coef-temp_psi_coef)^2) + sum((alpha_coef-temp_alpha_coef)^2);
 
     temp_psi_coef = psi_coef
-    temp_mu_coef = mu_coef
+    temp_alpha_coef = alpha_coef
     
   } ## end while loop
 
   fits = rep(NA, dim(Y)[1])
-  subject_coef = mu_coef + tcrossprod(psi_coef, scores)
+  subject_coef = alpha_coef + tcrossprod(psi_coef, scores)
  
   ## vectorize
    for(i in 1:I){
@@ -143,7 +143,7 @@ bfpca <- function(Y,index = NULL, id = NULL, npc = 1, Kt = 10, maxiter = 20, t.m
   
   ret = list(
     "knots" = knots, 
-    "mu" = Theta2 %*% mu_coef,#
+    "alpha" = Theta2 %*% alpha_coef,#
     "efunctions" = Theta2 %*% psi_coef, #
     "evalues" =  rep(1, npc),#
     "npc" = npc,#
