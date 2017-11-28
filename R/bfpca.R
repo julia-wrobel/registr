@@ -142,7 +142,9 @@ bfpca <- function(Y,index = NULL, id = NULL, npc = 1, Kt = NULL, maxiter = 20, t
    }
   
   fittedVals = data.frame(id = Y$id, index = Y$index, value = fits)
-  Theta2 = bs(seq(t.min, t.max, length.out = 100), knots = knots, intercept = TRUE) 
+  
+  ### what do we do if unevenly spaced grids?
+  Theta2 = bs(seq(t.min, t.max, length.out = Di), knots = knots, intercept = TRUE) 
   
   ret = list(
     "knots" = knots, 

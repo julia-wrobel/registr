@@ -27,6 +27,19 @@ Defaults to (N^1/5 + 4).}
 
 \item{...}{additional arguments passed to registration and fpca functions}
 }
+\value{
+fpca_obj list of items from FPCA step
+
+reg_object some registration stuff, should be cleaned up
+
+time_warps list of time values for each iteration of the algorithm. time_warps[1] returns original (observed) time 
+and time_warps[n] provides time values for the final iteration
+
+loss Loss for each iteration of the algorithm. Loss is calculated in the registration step using an 
+exponential family likelihood with natural parameter calculated in the FPCA step.
+
+family \code{gaussian} or \code{binomial}.
+}
 \description{
 Function combines constrained optimization and FPCA to estimate warping functions for exponential family data.
 }
