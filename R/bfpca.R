@@ -143,9 +143,9 @@ bfpca <- function(Y,index = NULL, id = NULL, npc = 1, Kt = 10, maxiter = 20, t.m
   Theta2 = bs(seq(t.min, t.max, length.out = Di), knots = knots, intercept = TRUE) 
   
   # orthogonalize eigenvectors and extract eigenvalues
-  psi_svd = svd(Theta[subject_rows, ] %*% psi_coef)
+  psi_svd = svd(Theta2 %*% psi_coef)
   efunctions = psi_svd$u
-  evalues = psi_svd$d
+  evalues = ( psi_svd$d ) ^ 2
   scores = scores %*% psi_svd$v
   
   ret = list(

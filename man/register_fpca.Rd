@@ -4,14 +4,14 @@
 \alias{register_fpca}
 \title{Register curves from exponential family using constrained optimization and generalized FPCA}
 \usage{
-register_fpca(Y, Kt = NULL, Kh, family = "binomial", iterations = 10,
+register_fpca(Y, Kt = 10, Kh, family = "binomial", iterations = 10,
   first.step = "registration", npc = 1, gradient = TRUE, ...)
 }
 \arguments{
 \item{Y}{dataframe. Should have values id, value, index.}
 
 \item{Kt}{number of B-spline basis functions used to estimate mean functions. 
-Defaults to (N^1/5 + 4).}
+Defaults to 10.}
 
 \item{Kh}{number of B-spline basis functions used to estimate warping functions \emph{h}. Defaults to 5.}
 
