@@ -8,7 +8,7 @@
 \title{registr- a package for exponential family registration that I am working on.}
 \usage{
 registr(obj = NULL, Y = NULL, Kt = 10, Kh = 5, family = "gaussian",
-  gradient = TRUE, beta = NULL, t.min = NULL, t.max = NULL,
+  gradient = TRUE, beta = NULL, t_min = NULL, t_max = NULL,
   row_obj = NULL)
 }
 \arguments{
@@ -27,10 +27,10 @@ If FALSE, calculates gradient nuemrically.}
 
 \item{beta}{Initial values for beta for each subject. If NULL, these are chosen using seq().}
 
-\item{t.min}{minimum value to be evaluated on the time domain (useful if data are sparse and / or irregular). 
+\item{t_min}{minimum value to be evaluated on the time domain (useful if data are sparse and / or irregular). 
 if `NULL`, taken to be minimum observed value.}
 
-\item{t.max}{maximum value to be evaluated on the time domain (useful if data are sparse and / or irregular). 
+\item{t_max}{maximum value to be evaluated on the time domain (useful if data are sparse and / or irregular). 
 if `NULL`, taken to be maximum observed value.}
 
 \item{row_obj}{if NULL, the function cleans the data and calculates row indices. Keep this NULL if you are using 

@@ -4,12 +4,12 @@
 \alias{loss_h}
 \title{Loss function for registration step optimization}
 \usage{
-loss_h(Y, basis.tstar, mean.coefs, knots, beta.inner, family, t.min, t.max)
+loss_h(Y, Theta_phi, mean.coefs, knots, beta.inner, family, t_min, t_max)
 }
 \arguments{
 \item{Y}{vector of observed points.}
 
-\item{basis.tstar}{B-spline basis for vector Y.}
+\item{Theta_phi}{B-spline basis for vector Y.}
 
 \item{mean.coefs}{spline coefficient vector for mean curve.}
 
@@ -19,9 +19,9 @@ loss_h(Y, basis.tstar, mean.coefs, knots, beta.inner, family, t.min, t.max)
 
 \item{family}{\code{gaussian} or \code{binomial}.}
 
-\item{t.min}{minimum value to be evaluated on the time domain (useful if data are sparse and / or irregular).}
+\item{t_min}{minimum value to be evaluated on the time domain (useful if data are sparse and / or irregular).}
 
-\item{t.max}{maximum value to be evaluated on the time domain (useful if data are sparse and / or irregular).}
+\item{t_max}{maximum value to be evaluated on the time domain (useful if data are sparse and / or irregular).}
 }
 \description{
 Loss function for registration step optimization

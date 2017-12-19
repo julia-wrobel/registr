@@ -16,9 +16,9 @@
 #' @param gradient if TRUE, uses analytic gradient to calculate derivative. 
 #' If FALSE, calculates gradient nuemrically.
 #' @param beta Initial values for beta for each subject. If NULL, these are chosen using seq().
-#' @param t.min minimum value to be evaluated on the time domain (useful if data are sparse and / or irregular). 
+#' @param t_min minimum value to be evaluated on the time domain (useful if data are sparse and / or irregular). 
 #' if `NULL`, taken to be minimum observed value.
-#' @param t.max maximum value to be evaluated on the time domain (useful if data are sparse and / or irregular). 
+#' @param t_max maximum value to be evaluated on the time domain (useful if data are sparse and / or irregular). 
 #' if `NULL`, taken to be maximum observed value.
 #' @param row_obj if NULL, the function cleans the data and calculates row indices. Keep this NULL if you are using 
 #' standalone \code{registr} function.
@@ -36,7 +36,7 @@
 #' }
 #'
 registr = function(obj = NULL, Y = NULL, Kt = 10, Kh = 5, family = "gaussian", gradient = TRUE,
-									 beta = NULL, t.min = NULL, t.max = NULL, row_obj = NULL){
+									 beta = NULL, t_min = NULL, t_max = NULL, row_obj = NULL){
   
   if(is.null(Y)) { Y = obj$Y}
   
@@ -51,14 +51,14 @@ registr = function(obj = NULL, Y = NULL, Kt = 10, Kh = 5, family = "gaussian", g
   }
   
   tstar = Y$index
-  if (is.null(t.min)) {t.min = min(tstar)}
-  if (is.null(t.max)) {t.max = max(tstar)}
-  basis.tstar = bs(tstar, df = Kh, intercept = FALSE)
+  if (is.null(t_min)) {t_min = min(tstar)}
+  if (is.null(t_max)) {t_max = max(tstar)}
+  Theta_phi = bs(tstar, df = Kh, intercept = FALSE)
   
   if(is.null(obj)){
     # define population mean
     global_knots = quantile(tstar, probs = seq(0, 1, length = Kt - 2))[-c(1, Kt - 2)]
-    basis = bs(c(t.min, t.max, tstar), knots = global_knots, intercept = TRUE)[-(1:2),] 
+    basis = bs(c(t_min, t_max, tstar), knots = global_knots, intercept = TRUE)[-(1:2),] 
     mean.coefs = coef(glm(Y$value ~ 0 + basis, family = family))
   }else{
     global_knots = obj$knots
@@ -72,10 +72,10 @@ registr = function(obj = NULL, Y = NULL, Kt = 10, Kh = 5, family = "gaussian", g
   ci = constrs$ci
 
   ### Calculate warping functions  
-  t.hat = rep(NA, dim(Y)[1])
-  loss.subjects = rep(NA, I)
+  t_hat = rep(NA, dim(Y)[1])
+  loss_subjects = rep(NA, I)
   beta_new = matrix(NA, Kh - 1, I)
-  beta.0 = seq(t.min, t.max, length.out = Kh + 1)[-c(1, Kh + 1)]
+  beta.0 = seq(t_min, t_max, length.out = Kh + 1)[-c(1, Kh + 1)]
   for (i in 1:I) {
     
     subject_rows = rows$first_row[i]:rows$last_row[i]
@@ -83,25 +83,25 @@ registr = function(obj = NULL, Y = NULL, Kt = 10, Kh = 5, family = "gaussian", g
     Yi = Y$value[subject_rows]
     Di = length(Yi)
     
-    tstar.i = tstar[subject_rows]
-    basis.tstar.i = basis.tstar[subject_rows ,]
+    tstar_i = tstar[subject_rows]
+    Theta_phi_i = Theta_phi[subject_rows ,]
    
     
-    if (is.null(beta)) {beta.i = beta.0} else {beta.i = beta[, i]}
+    if (is.null(beta)) {beta_i = beta.0} else {beta_i = beta[, i]}
     if (is.null(obj)) {mean.coefs.i = mean.coefs} else {mean.coefs.i = mean.coefs[, i]}
     if (gradient) {gradf = loss_h_gradient} else {gradf = NULL}
     
-    beta_new[,i] = coefs.inner = constrOptim(beta.i, loss_h, grad = gradf, ui = ui, ci = ci, Y = Yi, 
-                              basis.tstar = basis.tstar.i, mean.coefs = mean.coefs.i, knots = global_knots,
-                              family = family, t.min = t.min, t.max = t.max)$par
+    beta_new[,i] = constrOptim(beta_i, loss_h, grad = gradf, ui = ui, ci = ci, Y = Yi, 
+                              Theta_phi = Theta_phi_i, mean.coefs = mean.coefs.i, knots = global_knots,
+                              family = family, t_min = t_min, t_max = t_max)$par
     
-    coefs.h = c(0, coefs.inner, 1)
+    beta_full_i = c(0, beta_new[,i], 1)
     
-    t.hat[subject_rows] = cbind(1, basis.tstar.i) %*% coefs.h
-    loss.subjects[i] = loss_h(Yi, basis.tstar.i, mean.coefs.i, global_knots, coefs.inner, family = family, 
-                              t.min = t.min, t.max = t.max)
+    t_hat[subject_rows] = cbind(1, Theta_phi_i) %*% beta_full_i
+    loss_subjects[i] = loss_h(Yi, Theta_phi_i, mean.coefs.i, global_knots, beta_new[,i], family = family, 
+                              t_min = t_min, t_max = t_max)
   }
-  Y$index = t.hat
+  Y$index = t_hat
 
-  return(list(Y = Y, Kt = Kt, Kh = Kh, loss = sum(loss.subjects), beta = beta_new)) 
+  return(list(Y = Y, Kt = Kt, Kh = Kh, loss = sum(loss_subjects), beta = beta_new)) 
 } # end registration function

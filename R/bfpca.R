@@ -10,9 +10,9 @@
 #' @param npc defaults to 1. Number of principal components to calculate.
 #' @param Kt number of B-spline basis functions used to estimate mean functions. Defaults to 10.
 #' @param maxiter maximum number of iterations to perform.
-#' @param t.min minimum value to be evaluated on the time domain (useful if data are sparse and / or irregular). 
+#' @param t_min minimum value to be evaluated on the time domain (useful if data are sparse and / or irregular). 
 #' if `NULL`, taken to be minimum observed value.
-#' @param t.max maximum value to be evaluated on the time domain (useful if data are sparse and / or irregular). 
+#' @param t_max maximum value to be evaluated on the time domain (useful if data are sparse and / or irregular). 
 #' if `NULL`, taken to be maximum observed value.
 #' @param print.iter prints current error and iteration
 #' @param row_obj if NULL, the function cleans the data and calculates row indices. Keep this NULL if you are using 
@@ -26,7 +26,7 @@
 #' @export
 #'
 
-bfpca <- function(Y,index = NULL, id = NULL, npc = 1, Kt = 10, maxiter = 20, t.min = NULL, t.max = NULL, 
+bfpca <- function(Y,index = NULL, id = NULL, npc = 1, Kt = 10, maxiter = 50, t_min = NULL, t_max = NULL, 
                   print.iter = FALSE, row_obj= NULL, seed = 1988){
    
   curr_iter = 1
@@ -47,11 +47,11 @@ bfpca <- function(Y,index = NULL, id = NULL, npc = 1, Kt = 10, maxiter = 20, t.m
   time = Y$index
   
   ## construct theta matrix
-  if (is.null(t.min)) {t.min = min(time)}
-  if (is.null(t.max)) {t.max = max(time)}
+  if (is.null(t_min)) {t_min = min(time)}
+  if (is.null(t_max)) {t_max = max(time)}
   
   knots = quantile(time, probs = seq(0, 1, length = Kt - 2))[-c(1, Kt - 2)]
-  Theta_phi = bs(c(t.min, t.max, time), knots = knots, intercept = TRUE)[-(1:2),] 
+  Theta_phi = bs(c(t_min, t_max, time), knots = knots, intercept = TRUE)[-(1:2),] 
   
   
   ## initialize all your vectors
@@ -140,7 +140,7 @@ bfpca <- function(Y,index = NULL, id = NULL, npc = 1, Kt = 10, maxiter = 20, t.m
   fittedVals = data.frame(id = Y$id, index = Y$index, value = fits)
   
   ## mean and eigenfuntions will have same number of grid points as last subject
-  Theta_phi_mean = bs(seq(t.min, t.max, length.out = Di), knots = knots, intercept = TRUE) 
+  Theta_phi_mean = bs(seq(t_min, t_max, length.out = Di), knots = knots, intercept = TRUE) 
   
   # orthogonalize eigenvectors and extract eigenvalues
   psi_svd = svd(Theta_phi_mean %*% psi_coefs)

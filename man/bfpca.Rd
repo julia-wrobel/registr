@@ -5,7 +5,7 @@
 \title{Binary functional principal components analysis}
 \usage{
 bfpca(Y, index = NULL, id = NULL, npc = 1, Kt = 10, maxiter = 20,
-  t.min = NULL, t.max = NULL, print.iter = FALSE, row_obj = NULL,
+  t_min = NULL, t_max = NULL, print.iter = FALSE, row_obj = NULL,
   seed = 1988)
 }
 \arguments{
@@ -21,10 +21,10 @@ bfpca(Y, index = NULL, id = NULL, npc = 1, Kt = 10, maxiter = 20,
 
 \item{maxiter}{maximum number of iterations to perform.}
 
-\item{t.min}{minimum value to be evaluated on the time domain (useful if data are sparse and / or irregular). 
+\item{t_min}{minimum value to be evaluated on the time domain (useful if data are sparse and / or irregular). 
 if `NULL`, taken to be minimum observed value.}
 
-\item{t.max}{maximum value to be evaluated on the time domain (useful if data are sparse and / or irregular). 
+\item{t_max}{maximum value to be evaluated on the time domain (useful if data are sparse and / or irregular). 
 if `NULL`, taken to be maximum observed value.}
 
 \item{print.iter}{prints current error and iteration}
