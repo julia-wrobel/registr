@@ -25,7 +25,7 @@
 #' @export
 #'
 
-bfpca <- function(Y,index = NULL, id = NULL, npc = 1, Kt = 10, maxiter = 20, t.min = NULL, t.max = NULL, 
+bfpca <- function(Y,index = NULL, id = NULL, npc = 1, Kt = 10, maxiter = 50, t.min = NULL, t.max = NULL, 
                   print.iter = FALSE, row_obj= NULL){
    
   curr_iter = 1
@@ -65,7 +65,7 @@ bfpca <- function(Y,index = NULL, id = NULL, npc = 1, Kt = 10, maxiter = 20, t.m
   phi_b = matrix(0, nrow = Kt * (npc+1), ncol = I)
   scores = matrix(NA, I, npc)
   
-  while( curr_iter < maxiter){
+  while(curr_iter < maxiter && error[curr_iter] > 0.001){
 
     if(print.iter){
       message("current iteration: ", curr_iter)
@@ -102,9 +102,7 @@ bfpca <- function(Y,index = NULL, id = NULL, npc = 1, Kt = 10, maxiter = 20, t.m
       phi_a[[i]] = 2.0 * kronecker(Theta_i_quad, ss)  
       phi_b[,i] = t((Yi - 0.5) %*% kronecker(Theta_i, t(si)) )
       
-      if(curr_iter == (maxiter - 1) ){
-        scores[i,] = mi
-      }
+      scores[i,] = mi
       
     } # end loop over I
     
@@ -133,7 +131,7 @@ bfpca <- function(Y,index = NULL, id = NULL, npc = 1, Kt = 10, maxiter = 20, t.m
   ## vectorize
    for(i in 1:I){
     subject_rows = rows$first_row[i]:rows$last_row[i]
-    
+   
     fits[subject_rows] = Theta[subject_rows, ] %*% subject_coef[,i]
    }
   
@@ -160,7 +158,9 @@ bfpca <- function(Y,index = NULL, id = NULL, npc = 1, Kt = 10, maxiter = 20, t.m
     "subject_coefs" = subject_coef,
     "Yhat" = fittedVals, #
     "Y" = Y, #
-    "family" = "binomial"
+    "family" = "binomial",
+    "alpha_coef" = alpha_coef,
+    "psi_coef" = psi_coef
   )
 
   class(ret) = "fpca" 
