@@ -52,9 +52,10 @@ bfpca <- function(Y,index = NULL, id = NULL, npc = 1, Kt = 10, maxiter = 50, t.m
   
   knots = quantile(time, probs = seq(0, 1, length = Kt - 2))[-c(1, Kt - 2)]
   Theta = bs(c(t.min, t.max, time), knots = knots, intercept = TRUE)[-(1:2),] 
-
+  
   ## initialize all your vectors
-  alpha_coef = matrix(rnorm(Kt), Kt, 1)
+  #alpha_coef = matrix(rnorm(Kt), Kt, 1)
+  alpha_coef = matrix(coef(glm(Y$value ~ 0 + Theta, family = "binomial")), Kt, 1)
   psi_coef = matrix(rnorm(Kt * npc), Kt, npc) * 0.5
   xi = matrix(rnorm(dim(Y)[1]), ncol = 1) * 0.5
   

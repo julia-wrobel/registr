@@ -8,7 +8,6 @@
 #' @param Kh number of B-spline basis functions used to estimate warping functions \emph{h}. Defaults to 5.
 #' @param family \code{gaussian} or \code{binomial}.
 #' @param iterations number of iterations between fpca step and registration step.
-#' @param first.step \code{registration} or \code{fpca}. If \code{registration} we initialize values with the population mean.
 #' @param npc defaults to 1. Number of principal components to calculate.
 #' @param gradient if TRUE, uses analytic gradient to calculate derivative. 
 #' @param ... additional arguments passed to registration and fpca functions
@@ -82,15 +81,14 @@
 #' }
 #'
 #'  Y_sim = as_refundObj(Yi.obs)
-#'  reg_sim = register_fpca(Y_sim, Kt = 8, Kh = 4, family = "binomial", iterations = 10, npc = 1,
-#'      first.step = "registration")
+#'  reg_sim = register_fpca(Y_sim, Kt = 8, Kh = 4, family = "binomial", iterations = 10, npc = 1)
 #'
 #'  plot_binary(reg_sim$reg_object, tstar = Y_sim$index)
 #'
 #'
 #' }
 #'
-register_fpca <- function(Y, Kt = 10, Kh, family = "binomial", iterations = 10, first.step = "registration", npc = 1, gradient = TRUE, ...){
+register_fpca <- function(Y, Kt = 10, Kh, family = "binomial", iterations = 10, npc = 1, gradient = TRUE, ...){
   # ... argument should take care of anything that has a default value, but I also should be change it if I want to
       # for example I should be able to put maxiter= 50 as an argument, if I want. Test this out.
 
@@ -108,20 +106,13 @@ register_fpca <- function(Y, Kt = 10, Kh, family = "binomial", iterations = 10, 
   Y = data$Y
   rows = data$Y_rows
   
-  if(first.step == "registration"){
-    # first register values to the overall mean. Really should replace old t values.
-    register_step = register(Y = Y, Kt = Kt, Kh = Kh, family = family, gradient = gradient, row_obj = rows)
-    time_warps[[2]] = register_step$Y$index
-    loss[1] = register_step$loss
-  }else{
 
-    fpca_step = bfpca(Y, index = NULL, id = NULL, npc = npc, Kt = Kt)
-    register_step = register(obj = fpca_step, Kt = Kt, Kh = Kh, family = family, gradient = gradient, row_obj = rows)
-    time_warps[[2]] = register_step$Y$index
-    loss[1] = register_step$loss
-  }
-
-
+  # first register values to the overall mean
+  register_step = register(Y = Y, Kt = Kt, Kh = Kh, family = family, gradient = gradient, row_obj = rows)
+  time_warps[[2]] = register_step$Y$index
+  loss[1] = register_step$loss
+  
+ 
   # iteratively do fpca and register to newly calculated subject-specific means.
   for(iter in 1:iterations){
     message("current iteration: ", iter)

@@ -5,7 +5,7 @@
 \title{Register curves from exponential family using constrained optimization and generalized FPCA}
 \usage{
 register_fpca(Y, Kt = 10, Kh, family = "binomial", iterations = 10,
-  first.step = "registration", npc = 1, gradient = TRUE, ...)
+  npc = 1, gradient = TRUE, ...)
 }
 \arguments{
 \item{Y}{dataframe. Should have values id, value, index.}
@@ -18,8 +18,6 @@ Defaults to 10.}
 \item{family}{\code{gaussian} or \code{binomial}.}
 
 \item{iterations}{number of iterations between fpca step and registration step.}
-
-\item{first.step}{\code{registration} or \code{fpca}. If \code{registration} we initialize values with the population mean.}
 
 \item{npc}{defaults to 1. Number of principal components to calculate.}
 
@@ -101,8 +99,7 @@ for (i in 1:I) {
 }
 
  Y_sim = as_refundObj(Yi.obs)
- reg_sim = register_fpca(Y_sim, Kt = 8, Kh = 4, family = "binomial", iterations = 10, npc = 1,
-     first.step = "registration")
+ reg_sim = register_fpca(Y_sim, Kt = 8, Kh = 4, family = "binomial", iterations = 10, npc = 1)
 
  plot_binary(reg_sim$reg_object, tstar = Y_sim$index)
 
