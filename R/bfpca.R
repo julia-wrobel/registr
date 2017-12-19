@@ -49,18 +49,17 @@ bfpca <- function(Y,index = NULL, id = NULL, npc = 1, Kt = 10, maxiter = 50, t.m
   if (is.null(t.min)) {t.min = min(time)}
   if (is.null(t.max)) {t.max = max(time)}
   
-  
   knots = quantile(time, probs = seq(0, 1, length = Kt - 2))[-c(1, Kt - 2)]
   Theta = bs(c(t.min, t.max, time), knots = knots, intercept = TRUE)[-(1:2),] 
   
+  
   ## initialize all your vectors
-  #alpha_coef = matrix(rnorm(Kt), Kt, 1)
-  alpha_coef = matrix(coef(glm(Y$value ~ 0 + Theta, family = "binomial")), Kt, 1)
-  psi_coef = matrix(rnorm(Kt * npc), Kt, npc) * 0.5
+  psi_coefs = matrix(rnorm(Kt * npc), Kt, npc) * 0.5
+  alpha_coefs = matrix(coef(glm(Y$value ~ 0 + Theta, family = "binomial")), Kt, 1)
   xi = matrix(rnorm(dim(Y)[1]), ncol = 1) * 0.5
   
-  temp_alpha_coef = alpha_coef
-  temp_psi_coef = psi_coef
+  temp_alpha_coefs = alpha_coefs
+  temp_psi_coefs = psi_coefs
   
   phi_a = list(NA, I)
   phi_b = matrix(0, nrow = Kt * (npc+1), ncol = I)
@@ -84,14 +83,14 @@ bfpca <- function(Y,index = NULL, id = NULL, npc = 1, Kt = 10, maxiter = 50, t.m
       Theta_i_quad = squareTheta(xi_i, Theta_i)
        
       ##### posterior scores
-      mlist = expectedScores(Yi, temp_alpha_coef, temp_psi_coef, Theta_i, Theta_i_quad)
+      mlist = expectedScores(Yi, temp_alpha_coefs, temp_psi_coefs, Theta_i, Theta_i_quad)
       
       Ci = mlist$Ci
       mi = mlist$mi
       mm = Ci + tcrossprod(mi)
       
       ##### variational parameter xi
-      xi[ subject_rows, 1] = expectedXi(Theta_i, temp_alpha_coef, mi, temp_psi_coef, Ci)
+      xi[ subject_rows, 1] = expectedXi(Theta_i, temp_alpha_coefs, mi, temp_psi_coefs, Ci)
       xi_i = xi[subject_rows, ]
       
       Theta_i_quad = squareTheta(xi_i, Theta_i)
@@ -112,22 +111,22 @@ bfpca <- function(Y,index = NULL, id = NULL, npc = 1, Kt = 10, maxiter = 50, t.m
     phi_vec = -solve(phi_a_sum) %*% rowSums(phi_b)
     phi_mat = matrix(phi_vec, nrow = Kt, ncol = npc + 1, byrow = TRUE)
     
-    alpha_coef = phi_mat[, npc+1]
-    psi_coef = phi_mat[, 1:npc]
+    alpha_coefs = phi_mat[, npc+1]
+    psi_coefs = phi_mat[, 1:npc]
     
-    if(npc == 1){ psi_coef = matrix(psi_coef, ncol = 1)}
+    if(npc == 1){ psi_coefs = matrix(psi_coefs, ncol = 1)}
     
     ## calculate error
     curr_iter = curr_iter + 1;
-    error[curr_iter] = sum((psi_coef-temp_psi_coef)^2) + sum((alpha_coef-temp_alpha_coef)^2);
+    error[curr_iter] = sum((psi_coefs-temp_psi_coefs)^2) + sum((alpha_coefs-temp_alpha_coefs)^2);
 
-    temp_psi_coef = psi_coef
-    temp_alpha_coef = alpha_coef
+    temp_psi_coefs = psi_coefs
+    temp_alpha_coefs = alpha_coefs
     
   } ## end while loop
 
   fits = rep(NA, dim(Y)[1])
-  subject_coef = alpha_coef + tcrossprod(psi_coef, scores)
+  subject_coef = alpha_coefs + tcrossprod(psi_coefs, scores)
  
   ## vectorize
    for(i in 1:I){
@@ -142,15 +141,15 @@ bfpca <- function(Y,index = NULL, id = NULL, npc = 1, Kt = 10, maxiter = 50, t.m
   Theta2 = bs(seq(t.min, t.max, length.out = Di), knots = knots, intercept = TRUE) 
   
   # orthogonalize eigenvectors and extract eigenvalues
-  psi_svd = svd(Theta2 %*% psi_coef)
+  psi_svd = svd(Theta2 %*% psi_coefs)
   efunctions = psi_svd$u
   evalues = ( psi_svd$d ) ^ 2
   scores = scores %*% psi_svd$v
   
   ret = list(
     "knots" = knots, 
-    "alpha" = Theta2 %*% alpha_coef,#
-    "mu" = Theta2 %*% alpha_coef, # return this to be consistent with refund.shiny, same as below 
+    "alpha" = Theta2 %*% alpha_coefs,#
+    "mu" = Theta2 %*% alpha_coefs, # return this to be consistent with refund.shiny, same as below 
     "efunctions" = efunctions, #
     "evalues" =  evalues,#
     "npc" = npc,#
@@ -159,9 +158,7 @@ bfpca <- function(Y,index = NULL, id = NULL, npc = 1, Kt = 10, maxiter = 50, t.m
     "subject_coefs" = subject_coef,
     "Yhat" = fittedVals, #
     "Y" = Y, #
-    "family" = "binomial",
-    "alpha_coef" = alpha_coef,
-    "psi_coef" = psi_coef
+    "family" = "binomial"
   )
 
   class(ret) = "fpca" 

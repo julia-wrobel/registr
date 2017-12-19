@@ -116,8 +116,8 @@ register_fpca <- function(Y, Kt = 10, Kh, family = "binomial", iterations = 10, 
   # iteratively do fpca and register to newly calculated subject-specific means.
   for(iter in 1:iterations){
     message("current iteration: ", iter)
-
-    fpca_step = bfpca(register_step$Y, index = NULL, id = NULL, npc = npc, Kt = Kt, row_obj = rows)
+  	
+  	fpca_step = bfpca(register_step$Y, index = NULL, id = NULL, npc = npc, Kt = Kt, row_obj = rows)
     register_step = register(obj = fpca_step, Kt = Kt, Kh = Kh, family = family, gradient = gradient, 
     												 row_obj = rows)
 
