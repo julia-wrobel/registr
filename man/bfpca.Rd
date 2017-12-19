@@ -5,7 +5,8 @@
 \title{Binary functional principal components analysis}
 \usage{
 bfpca(Y, index = NULL, id = NULL, npc = 1, Kt = 10, maxiter = 50,
-  t.min = NULL, t.max = NULL, print.iter = FALSE, row_obj = NULL)
+  t.min = NULL, t.max = NULL, print.iter = FALSE, row_obj = NULL,
+  seed = 1988)
 }
 \arguments{
 \item{Y}{input data. Can be long format dataframe or wide format matrix. If you provide a matrix}
@@ -30,6 +31,8 @@ if `NULL`, taken to be maximum observed value.}
 
 \item{row_obj}{if NULL, the function cleans the data and calculates row indices. Keep this NULL if you are using 
 standalone \code{register} function.}
+
+\item{seed}{set seed for reproducibility. Seed value defaults to 1988.}
 }
 \description{
 Function used in the FPCA step for registering binary functional data. 
