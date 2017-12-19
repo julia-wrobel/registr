@@ -8,7 +8,8 @@
 \title{registr- a package for exponential family registration that I am working on.}
 \usage{
 registr(obj = NULL, Y = NULL, Kt = 10, Kh = 5, family = "gaussian",
-  gradient = TRUE, t.min = NULL, t.max = NULL, row_obj = NULL)
+  gradient = TRUE, beta = NULL, t.min = NULL, t.max = NULL,
+  row_obj = NULL)
 }
 \arguments{
 \item{obj}{current estimate of FPC objects (including spline coefs and scores). Can be NULL only if Y argument is selected.}
@@ -23,6 +24,8 @@ registr(obj = NULL, Y = NULL, Kt = 10, Kh = 5, family = "gaussian",
 
 \item{gradient}{if TRUE, uses analytic gradient to calculate derivative. 
 If FALSE, calculates gradient nuemrically.}
+
+\item{beta}{Initial values for beta for each subject. If NULL, these are chosen using seq().}
 
 \item{t.min}{minimum value to be evaluated on the time domain (useful if data are sparse and / or irregular). 
 if `NULL`, taken to be minimum observed value.}

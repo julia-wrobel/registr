@@ -15,6 +15,7 @@
 #' @param family \code{gaussian} or \code{binomial}.
 #' @param gradient if TRUE, uses analytic gradient to calculate derivative. 
 #' If FALSE, calculates gradient nuemrically.
+#' @param beta Initial values for beta for each subject. If NULL, these are chosen using seq().
 #' @param t.min minimum value to be evaluated on the time domain (useful if data are sparse and / or irregular). 
 #' if `NULL`, taken to be minimum observed value.
 #' @param t.max maximum value to be evaluated on the time domain (useful if data are sparse and / or irregular). 
@@ -35,7 +36,7 @@
 #' }
 #'
 registr = function(obj = NULL, Y = NULL, Kt = 10, Kh = 5, family = "gaussian", gradient = TRUE,
-                    t.min = NULL, t.max = NULL, row_obj = NULL){
+									 beta = NULL, t.min = NULL, t.max = NULL, row_obj = NULL){
   
   if(is.null(Y)) { Y = obj$Y}
   
@@ -69,12 +70,12 @@ registr = function(obj = NULL, Y = NULL, Kt = 10, Kh = 5, family = "gaussian", g
   constrs = constraints(Kh)
   ui = constrs$ui
   ci = constrs$ci
-  
-  beta.0 = seq(t.min, t.max, length.out = Kh + 1)[-c(1, Kh + 1)]
-  
+
   ### Calculate warping functions  
   t.hat = rep(NA, dim(Y)[1])
   loss.subjects = rep(NA, I)
+  beta_new = matrix(NA, Kh - 1, I)
+  beta.0 = seq(t.min, t.max, length.out = Kh + 1)[-c(1, Kh + 1)]
   for (i in 1:I) {
     
     subject_rows = rows$first_row[i]:rows$last_row[i]
@@ -84,21 +85,23 @@ registr = function(obj = NULL, Y = NULL, Kt = 10, Kh = 5, family = "gaussian", g
     
     tstar.i = tstar[subject_rows]
     basis.tstar.i = basis.tstar[subject_rows ,]
+   
     
+    if (is.null(beta)) {beta.i = beta.0} else {beta.i = beta[, i]}
     if (is.null(obj)) {mean.coefs.i = mean.coefs} else {mean.coefs.i = mean.coefs[, i]}
     if (gradient) {gradf = loss_h_gradient} else {gradf = NULL}
     
-    coefs.inner = constrOptim(beta.0, loss_h, grad = gradf, ui = ui, ci = ci, Y = Yi, 
+    beta_new[,i] = coefs.inner = constrOptim(beta.i, loss_h, grad = gradf, ui = ui, ci = ci, Y = Yi, 
                               basis.tstar = basis.tstar.i, mean.coefs = mean.coefs.i, knots = global_knots,
                               family = family, t.min = t.min, t.max = t.max)$par
     
     coefs.h = c(0, coefs.inner, 1)
-
+    
     t.hat[subject_rows] = cbind(1, basis.tstar.i) %*% coefs.h
     loss.subjects[i] = loss_h(Yi, basis.tstar.i, mean.coefs.i, global_knots, coefs.inner, family = family, 
                               t.min = t.min, t.max = t.max)
   }
   Y$index = t.hat
 
-  return(list(Y = Y, Kt = Kt, Kh = Kh, loss = sum(loss.subjects))) 
+  return(list(Y = Y, Kt = Kt, Kh = Kh, loss = sum(loss.subjects), beta = beta_new)) 
 } # end registration function

@@ -108,26 +108,26 @@ register_fpca <- function(Y, Kt = 10, Kh, family = "binomial", iterations = 10, 
   
 
   # first register values to the overall mean
-  register_step = register(Y = Y, Kt = Kt, Kh = Kh, family = family, gradient = gradient, row_obj = rows)
-  time_warps[[2]] = register_step$Y$index
-  loss[1] = register_step$loss
+  registr_step = registr(Y = Y, Kt = Kt, Kh = Kh, family = family, gradient = gradient, row_obj = rows)
+  time_warps[[2]] = registr_step$Y$index
+  loss[1] = registr_step$loss
   
  
   # iteratively do fpca and register to newly calculated subject-specific means.
   for(iter in 1:iterations){
     message("current iteration: ", iter)
   	
-  	fpca_step = bfpca(register_step$Y, index = NULL, id = NULL, npc = npc, Kt = Kt, row_obj = rows,
-  										seed = 1988 + i)
-    register_step = register(obj = fpca_step, Kt = Kt, Kh = Kh, family = family, gradient = gradient, 
-    												 row_obj = rows)
+  	fpca_step = bfpca(registr_step$Y, index = NULL, id = NULL, npc = npc, Kt = Kt, row_obj = rows,
+  										seed = 1988 + iter)
+    registr_step = registr(obj = fpca_step, Kt = Kt, Kh = Kh, family = family, gradient = gradient, 
+    												 row_obj = rows, beta = registr_step$beta)
 
-    time_warps[[iter + 2]] = register_step$Y$index
-    loss[iter + 1] = register_step$loss
+    time_warps[[iter + 2]] = registr_step$Y$index
+    loss[iter + 1] = registr_step$loss
 
   }
   
-	ret = list(fpca_obj = fpca_step, reg_object = register_step, time_warps = time_warps,
+	ret = list(fpca_obj = fpca_step, reg_object = registr_step, time_warps = time_warps,
 						 loss = loss, family = family)
 	class(ret) <- "registration"
   return(ret)

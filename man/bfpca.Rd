@@ -4,7 +4,7 @@
 \alias{bfpca}
 \title{Binary functional principal components analysis}
 \usage{
-bfpca(Y, index = NULL, id = NULL, npc = 1, Kt = 10, maxiter = 50,
+bfpca(Y, index = NULL, id = NULL, npc = 1, Kt = 10, maxiter = 20,
   t.min = NULL, t.max = NULL, print.iter = FALSE, row_obj = NULL,
   seed = 1988)
 }

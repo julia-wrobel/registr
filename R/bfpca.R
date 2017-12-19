@@ -26,7 +26,7 @@
 #' @export
 #'
 
-bfpca <- function(Y,index = NULL, id = NULL, npc = 1, Kt = 10, maxiter = 50, t.min = NULL, t.max = NULL, 
+bfpca <- function(Y,index = NULL, id = NULL, npc = 1, Kt = 10, maxiter = 20, t.min = NULL, t.max = NULL, 
                   print.iter = FALSE, row_obj= NULL, seed = 1988){
    
   curr_iter = 1
