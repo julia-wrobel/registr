@@ -50,12 +50,12 @@ bfpca <- function(Y,index = NULL, id = NULL, npc = 1, Kt = 10, maxiter = 50, t.m
   if (is.null(t.max)) {t.max = max(time)}
   
   knots = quantile(time, probs = seq(0, 1, length = Kt - 2))[-c(1, Kt - 2)]
-  Theta = bs(c(t.min, t.max, time), knots = knots, intercept = TRUE)[-(1:2),] 
+  Theta_phi = bs(c(t.min, t.max, time), knots = knots, intercept = TRUE)[-(1:2),] 
   
   
   ## initialize all your vectors
   psi_coefs = matrix(rnorm(Kt * npc), Kt, npc) * 0.5
-  alpha_coefs = matrix(coef(glm(Y$value ~ 0 + Theta, family = "binomial")), Kt, 1)
+  alpha_coefs = matrix(coef(glm(Y$value ~ 0 + Theta_phi, family = "binomial")), Kt, 1)
   xi = matrix(rnorm(dim(Y)[1]), ncol = 1) * 0.5
   
   temp_alpha_coefs = alpha_coefs
@@ -78,7 +78,7 @@ bfpca <- function(Y,index = NULL, id = NULL, npc = 1, Kt = 10, maxiter = 50, t.m
       
       Yi = Y$value[subject_rows]
       Di = length(Yi)
-      Theta_i = Theta[subject_rows, ] 
+      Theta_i = Theta_phi[subject_rows, ] 
       xi_i = xi[subject_rows,]
       Theta_i_quad = squareTheta(xi_i, Theta_i)
        
@@ -132,24 +132,24 @@ bfpca <- function(Y,index = NULL, id = NULL, npc = 1, Kt = 10, maxiter = 50, t.m
    for(i in 1:I){
     subject_rows = rows$first_row[i]:rows$last_row[i]
    
-    fits[subject_rows] = Theta[subject_rows, ] %*% subject_coef[,i]
+    fits[subject_rows] = Theta_phi[subject_rows, ] %*% subject_coef[,i]
    }
   
   fittedVals = data.frame(id = Y$id, index = Y$index, value = fits)
   
-  ### what do we do if unevenly spaced grids?
-  Theta2 = bs(seq(t.min, t.max, length.out = Di), knots = knots, intercept = TRUE) 
+  ## mean and eigenfuntions will have same number of grid points as last subject
+  Theta_phi_mean = bs(seq(t.min, t.max, length.out = Di), knots = knots, intercept = TRUE) 
   
   # orthogonalize eigenvectors and extract eigenvalues
-  psi_svd = svd(Theta2 %*% psi_coefs)
+  psi_svd = svd(Theta_phi_mean %*% psi_coefs)
   efunctions = psi_svd$u
   evalues = ( psi_svd$d ) ^ 2
   scores = scores %*% psi_svd$v
   
   ret = list(
     "knots" = knots, 
-    "alpha" = Theta2 %*% alpha_coefs,#
-    "mu" = Theta2 %*% alpha_coefs, # return this to be consistent with refund.shiny, same as below 
+    "alpha" = Theta_phi_mean %*% alpha_coefs,#
+    "mu" = Theta_phi_mean %*% alpha_coefs, # return this to be consistent with refund.shiny, same as below 
     "efunctions" = efunctions, #
     "evalues" =  evalues,#
     "npc" = npc,#
