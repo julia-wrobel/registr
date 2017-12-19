@@ -20,7 +20,7 @@
 #' @param t.max maximum value to be evaluated on the time domain (useful if data are sparse and / or irregular). 
 #' if `NULL`, taken to be maximum observed value.
 #' @param row_obj if NULL, the function cleans the data and calculates row indices. Keep this NULL if you are using 
-#' standalone \code{register} function.
+#' standalone \code{registr} function.
 #' 
 #' @author Julia Wrobel \email{jw3134@@cumc.columbia.edu}
 #' @export
@@ -30,11 +30,11 @@
 #' @examples
 #' 
 #' \dontrun{
-#'    register_step = register(obj = NULL, Y = Y_sim, Kt = 10, Kh = 5, family = "binomial", 
+#'    register_step = registr(obj = NULL, Y = Y_sim, Kt = 10, Kh = 5, family = "binomial", 
 #'    gradient = TRUE)
 #' }
 #'
-register = function(obj = NULL, Y = NULL, Kt = 10, Kh = 5, family = "gaussian", gradient = TRUE,
+registr = function(obj = NULL, Y = NULL, Kt = 10, Kh = 5, family = "gaussian", gradient = TRUE,
                     t.min = NULL, t.max = NULL, row_obj = NULL){
   
   if(is.null(Y)) { Y = obj$Y}
