@@ -2,7 +2,7 @@
 #'
 #' @param Y vector of observed points.
 #' @param Theta_phi B-spline basis for vector Y.
-#' @param mean.coefs spline coefficient vector for mean curve.
+#' @param mean_coefs spline coefficient vector for mean curve.
 #' @param knots knot locations for B-spline basis used to estimate mean and FPC basis function.
 #' @param beta.inner spline coefficient vector to be estimated for warping function h.
 #' @param family \code{gaussian} or \code{binomial}.
@@ -13,13 +13,13 @@
 #' @export
 #'
 
-loss_h = function(Y, Theta_phi, mean.coefs, knots, beta.inner, family, t_min, t_max){
+loss_h = function(Y, Theta_phi, mean_coefs, knots, beta.inner, family, t_min, t_max){
   
   beta = c(t_min, beta.inner, t_max)
   
   htstar = cbind(1, Theta_phi) %*% beta
   Theta_h = bs(htstar, knots = knots, intercept = TRUE)
-  mu.h = Theta_h %*% mean.coefs
+  mu.h = Theta_h %*% mean_coefs
   
   
   if (family == "gaussian") {

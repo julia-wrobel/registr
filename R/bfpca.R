@@ -5,7 +5,7 @@
 #' binary functional data. The returned values subject_coef are subject specific means.
 #'
 #' @param Y input data. Can be long format dataframe or wide format matrix. If you provide a matrix
-#' @param index defaults to NULL. Indicates which column is the x-axis if Y input is a dataframe.
+#' @param t_star defaults to NULL. Indicates which column is the x-axis if Y input is a dataframe.
 #' @param id defaults to NULL. Indicates which column gives the subject ids if Y input is a dataframe.
 #' @param npc defaults to 1. Number of principal components to calculate.
 #' @param Kt number of B-spline basis functions used to estimate mean functions. Defaults to 10.
@@ -26,7 +26,7 @@
 #' @export
 #'
 
-bfpca <- function(Y,index = NULL, id = NULL, npc = 1, Kt = 10, maxiter = 50, t_min = NULL, t_max = NULL, 
+bfpca <- function(Y,t_star = NULL, id = NULL, npc = 1, Kt = 10, maxiter = 50, t_min = NULL, t_max = NULL, 
                   print.iter = FALSE, row_obj= NULL, seed = 1988){
    
   curr_iter = 1
@@ -44,7 +44,7 @@ bfpca <- function(Y,index = NULL, id = NULL, npc = 1, Kt = 10, maxiter = 50, t_m
     I = dim(rows)[1]
   }
   
-  time = Y$index
+  time = Y$t_star
   
   ## construct theta matrix
   if (is.null(t_min)) {t_min = min(time)}
@@ -137,7 +137,7 @@ bfpca <- function(Y,index = NULL, id = NULL, npc = 1, Kt = 10, maxiter = 50, t_m
     fits[subject_rows] = Theta_phi[subject_rows, ] %*% subject_coef[,i]
    }
   
-  fittedVals = data.frame(id = Y$id, index = Y$index, value = fits)
+  fittedVals = data.frame(id = Y$id, t_star = Y$t_star, value = fits)
   
   ## mean and eigenfuntions will have same number of grid points as last subject
   Theta_phi_mean = bs(seq(t_min, t_max, length.out = Di), knots = knots, intercept = TRUE) 

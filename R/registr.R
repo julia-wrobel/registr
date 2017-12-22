@@ -5,7 +5,7 @@
 #' where the objective function for optimization comes from maximizing the EF likelihood 
 #' subject to monotonicity constraints on the warping functions. You have to either specify \code{obj}, which is a fpca 
 #' object from an earlier step, or \code{Y}, which can be a matrix in wide format or a dataframe in long format. If 
-#' \code{Y} is a dataframe, the subjects IDs, times, and observations should have column names id, index, and value, 
+#' \code{Y} is a dataframe, the subjects IDs, times, and observations should have column names id, t_star, and value, 
 #' respectively. If Y is input, then we automatically calculate a template using glm.
 #'
 #' @param obj current estimate of FPC objects (including spline coefs and scores). Can be NULL only if Y argument is selected.
@@ -50,7 +50,7 @@ registr = function(obj = NULL, Y = NULL, Kt = 10, Kh = 5, family = "gaussian", g
     I = dim(rows)[1]
   }
   
-  tstar = Y$index
+  tstar = Y$t_star
   if (is.null(t_min)) {t_min = min(tstar)}
   if (is.null(t_max)) {t_max = max(tstar)}
   Theta_phi = bs(tstar, df = Kh, intercept = FALSE)
@@ -59,10 +59,10 @@ registr = function(obj = NULL, Y = NULL, Kt = 10, Kh = 5, family = "gaussian", g
     # define population mean
     global_knots = quantile(tstar, probs = seq(0, 1, length = Kt - 2))[-c(1, Kt - 2)]
     basis = bs(c(t_min, t_max, tstar), knots = global_knots, intercept = TRUE)[-(1:2),] 
-    mean.coefs = coef(glm(Y$value ~ 0 + basis, family = family))
+    mean_coefs = coef(glm(Y$value ~ 0 + basis, family = family))
   }else{
     global_knots = obj$knots
-    mean.coefs = obj$subject_coefs
+    mean_coefs = obj$subject_coefs
   }
 
   
@@ -75,7 +75,7 @@ registr = function(obj = NULL, Y = NULL, Kt = 10, Kh = 5, family = "gaussian", g
   t_hat = rep(NA, dim(Y)[1])
   loss_subjects = rep(NA, I)
   beta_new = matrix(NA, Kh - 1, I)
-  beta.0 = seq(t_min, t_max, length.out = Kh + 1)[-c(1, Kh + 1)]
+	beta_0 = seq(t_min, t_max, length.out = Kh + 1)[-c(1, Kh + 1)]
   for (i in 1:I) {
     
     subject_rows = rows$first_row[i]:rows$last_row[i]
@@ -87,21 +87,21 @@ registr = function(obj = NULL, Y = NULL, Kt = 10, Kh = 5, family = "gaussian", g
     Theta_phi_i = Theta_phi[subject_rows ,]
    
     
-    if (is.null(beta)) {beta_i = beta.0} else {beta_i = beta[, i]}
-    if (is.null(obj)) {mean.coefs.i = mean.coefs} else {mean.coefs.i = mean.coefs[, i]}
+    if (is.null(beta)) {beta_i = beta_0} else {beta_i = beta[, i]}
+    if (is.null(obj)) {mean_coefs_i = mean_coefs} else {mean_coefs_i = mean_coefs[, i]}
     if (gradient) {gradf = loss_h_gradient} else {gradf = NULL}
     
     beta_new[,i] = constrOptim(beta_i, loss_h, grad = gradf, ui = ui, ci = ci, Y = Yi, 
-                              Theta_phi = Theta_phi_i, mean.coefs = mean.coefs.i, knots = global_knots,
+                              Theta_phi = Theta_phi_i, mean_coefs = mean_coefs_i, knots = global_knots,
                               family = family, t_min = t_min, t_max = t_max)$par
     
     beta_full_i = c(0, beta_new[,i], 1)
     
     t_hat[subject_rows] = cbind(1, Theta_phi_i) %*% beta_full_i
-    loss_subjects[i] = loss_h(Yi, Theta_phi_i, mean.coefs.i, global_knots, beta_new[,i], family = family, 
+    loss_subjects[i] = loss_h(Yi, Theta_phi_i, mean_coefs_i, global_knots, beta_new[,i], family = family, 
                               t_min = t_min, t_max = t_max)
   }
-  Y$index = t_hat
+  Y$t_star = t_hat
 
   return(list(Y = Y, Kt = Kt, Kh = Kh, loss = sum(loss_subjects), beta = beta_new)) 
 } # end registration function
