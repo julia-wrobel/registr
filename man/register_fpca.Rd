@@ -8,7 +8,7 @@ register_fpca(Y, Kt = 10, Kh, family = "binomial", iterations = 10,
   npc = 1, gradient = TRUE, ...)
 }
 \arguments{
-\item{Y}{dataframe. Should have values id, value, index.}
+\item{Y}{dataframe. Should have values id, value, t_star.}
 
 \item{Kt}{number of B-spline basis functions used to estimate mean functions. 
 Defaults to 10.}
@@ -100,10 +100,6 @@ for (i in 1:I) {
 
  Y_sim = as_refundObj(Yi.obs)
  reg_sim = register_fpca(Y_sim, Kt = 8, Kh = 4, family = "binomial", iterations = 10, npc = 1)
-
- plot_binary(reg_sim$reg_object, tstar = Y_sim$index)
-
-
 }
 
 }

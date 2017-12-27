@@ -4,7 +4,7 @@
 \alias{loss_h_gradient}
 \title{Gradient of loss function for registration step}
 \usage{
-loss_h_gradient(Y, Theta_phi, mean.coefs, knots, beta.inner,
+loss_h_gradient(Y, Theta_phi, mean_coefs, knots, beta.inner,
   family = "gaussian", t_min, t_max)
 }
 \arguments{
@@ -12,7 +12,7 @@ loss_h_gradient(Y, Theta_phi, mean.coefs, knots, beta.inner,
 
 \item{Theta_phi}{B-spline basis for vector Y.}
 
-\item{mean.coefs}{spline coefficient vector for mean curve.}
+\item{mean_coefs}{spline coefficient vector for mean curve.}
 
 \item{knots}{knot locations for B-spline basis used to estimate mean and FPC basis function.}
 

@@ -44,7 +44,7 @@ This method uses constrained optimization to estimate spline coefficients for wa
 where the objective function for optimization comes from maximizing the EF likelihood 
 subject to monotonicity constraints on the warping functions. You have to either specify \code{obj}, which is a fpca 
 object from an earlier step, or \code{Y}, which can be a matrix in wide format or a dataframe in long format. If 
-\code{Y} is a dataframe, the subjects IDs, times, and observations should have column names id, index, and value, 
+\code{Y} is a dataframe, the subjects IDs, times, and observations should have column names id, t_star, and value, 
 respectively. If Y is input, then we automatically calculate a template using glm.
 }
 \examples{
