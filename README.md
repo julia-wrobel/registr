@@ -1,5 +1,8 @@
-# registr
-Register exponential family curves
+# `registr`
+
+[![](https://travis-ci.org/refunders/registr.svg?branch=master)](https://travis-ci.org/refunders/registr)
+
+Register exponential family functional data
 
 ---------------
 
