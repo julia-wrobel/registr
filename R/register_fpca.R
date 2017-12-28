@@ -2,7 +2,7 @@
 #'
 #' Function combines constrained optimization and FPCA to estimate warping functions for exponential family data.
 #'
-#' @param Y dataframe. Should have values id, value, t_star.
+#' @param Y dataframe. Should have values id, value, index.
 #' @param Kt number of B-spline basis functions used to estimate mean functions. 
 #' Defaults to 10.
 #' @param Kh number of B-spline basis functions used to estimate warping functions \emph{h}. Defaults to 5.
@@ -95,7 +95,7 @@ register_fpca <- function(Y, Kt = 10, Kh, family = "binomial", iterations = 10, 
   
   # save original tstar values and all other t values calculated
   time_warps = list(NA, iterations + 2)
-  time_warps[[1]] = Y$t_star
+  time_warps[[1]] = Y$index
   loss = rep(NA, iterations + 1)
 
   data = data_clean(Y)
@@ -105,7 +105,7 @@ register_fpca <- function(Y, Kt = 10, Kh, family = "binomial", iterations = 10, 
 
   # first register values to the overall mean
   registr_step = registr(Y = Y, Kt = Kt, Kh = Kh, family = family, gradient = gradient, row_obj = rows)
-  time_warps[[2]] = registr_step$Y$t_star
+  time_warps[[2]] = registr_step$Y$index
   loss[1] = registr_step$loss
   
  
@@ -113,12 +113,12 @@ register_fpca <- function(Y, Kt = 10, Kh, family = "binomial", iterations = 10, 
   for(iter in 1:iterations){
     message("current iteration: ", iter)
   	
-  	fpca_step = bfpca(registr_step$Y, t_star = NULL, id = NULL, npc = npc, Kt = Kt, row_obj = rows,
+  	fpca_step = bfpca(registr_step$Y, index = NULL, id = NULL, npc = npc, Kt = Kt, row_obj = rows,
   										seed = 1988 + iter)
     registr_step = registr(obj = fpca_step, Kt = Kt, Kh = Kh, family = family, gradient = gradient, 
     												 row_obj = rows, beta = registr_step$beta)
 
-    time_warps[[iter + 2]] = registr_step$Y$t_star
+    time_warps[[iter + 2]] = registr_step$Y$index
     loss[iter + 1] = registr_step$loss
 
   }

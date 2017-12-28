@@ -5,7 +5,7 @@
 #' where the objective function for optimization comes from maximizing the EF likelihood 
 #' subject to monotonicity constraints on the warping functions. You have to either specify \code{obj}, which is a fpca 
 #' object from an earlier step, or \code{Y}, which can be a matrix in wide format or a dataframe in long format. If 
-#' \code{Y} is a dataframe, the subjects IDs, times, and observations should have column names id, t_star, and value, 
+#' \code{Y} is a dataframe, the subjects IDs, times, and observations should have column names id, index, and value, 
 #' respectively. If Y is input, then we automatically calculate a template using glm.
 #'
 #' @param obj current estimate of FPC objects (including spline coefs and scores). Can be NULL only if Y argument is selected.
@@ -50,7 +50,7 @@ registr = function(obj = NULL, Y = NULL, Kt = 10, Kh = 5, family = "gaussian", g
     I = dim(rows)[1]
   }
   
-  tstar = Y$t_star
+  tstar = Y$index
   if (is.null(t_min)) {t_min = min(tstar)}
   if (is.null(t_max)) {t_max = max(tstar)}
   Theta_phi = bs(tstar, df = Kh, intercept = FALSE)
@@ -101,7 +101,7 @@ registr = function(obj = NULL, Y = NULL, Kt = 10, Kh = 5, family = "gaussian", g
     loss_subjects[i] = loss_h(Yi, Theta_phi_i, mean_coefs_i, global_knots, beta_new[,i], family = family, 
                               t_min = t_min, t_max = t_max)
   }
-  Y$t_star = t_hat
+  Y$index = t_hat
 
   return(list(Y = Y, Kt = Kt, Kh = Kh, loss = sum(loss_subjects), beta = beta_new)) 
 } # end registration function

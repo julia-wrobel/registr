@@ -4,14 +4,14 @@
 \alias{bfpca}
 \title{Binary functional principal components analysis}
 \usage{
-bfpca(Y, t_star = NULL, id = NULL, npc = 1, Kt = 10, maxiter = 50,
+bfpca(Y, index = NULL, id = NULL, npc = 1, Kt = 10, maxiter = 50,
   t_min = NULL, t_max = NULL, print.iter = FALSE, row_obj = NULL,
   seed = 1988)
 }
 \arguments{
 \item{Y}{input data. Can be long format dataframe or wide format matrix. If you provide a matrix}
 
-\item{t_star}{defaults to NULL. Indicates which column is the x-axis if Y input is a dataframe.}
+\item{index}{defaults to NULL. Indicates which column is the x-axis if Y input is a dataframe.}
 
 \item{id}{defaults to NULL. Indicates which column gives the subject ids if Y input is a dataframe.}
 

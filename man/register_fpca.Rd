@@ -8,7 +8,7 @@ register_fpca(Y, Kt = 10, Kh, family = "binomial", iterations = 10,
   npc = 1, gradient = TRUE, ...)
 }
 \arguments{
-\item{Y}{dataframe. Should have values id, value, t_star.}
+\item{Y}{dataframe. Should have values id, value, index.}
 
 \item{Kt}{number of B-spline basis functions used to estimate mean functions. 
 Defaults to 10.}
