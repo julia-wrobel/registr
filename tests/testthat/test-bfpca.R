@@ -1,10 +1,16 @@
 context("bfpca")
 
 test_that("bfpca only accepts binary input values",{
-	#Y = simulate_functional_data()$Y
-	# run with acceptable input
-	# run with factor input
-	# run with unacceptable input
+	Y = simulate_functional_data()$Y
+	Y$value = Y$value + 2
+	
+	expect_that(bfpca(Y), 
+							throws_error("'binomial' family requires data with binary values of 0 or 1"))
+	
+	Y$value = Y$prob
+	
+	expect_that(bfpca(Y), 
+							throws_error("'binomial' family requires data with binary values of 0 or 1"))
 })
 
 test_that("bfpca output is a list with non-null items and class fpca",{

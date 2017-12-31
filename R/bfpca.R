@@ -46,6 +46,12 @@ bfpca <- function(Y,index = NULL, id = NULL, npc = 1, Kt = 10, maxiter = 50, t_m
   
   time = Y$index
   
+  ## check that data is binary
+  if(any( !(Y$value %in% c(0, 1)))){
+  	stop("'binomial' family requires data with binary values of 0 or 1")
+  }
+  
+  
   ## construct theta matrix
   if (is.null(t_min)) {t_min = min(time)}
   if (is.null(t_max)) {t_max = max(time)}
