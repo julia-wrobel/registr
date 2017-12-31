@@ -35,16 +35,15 @@ test_that("bfpca output has correct number of dimensions",{
 	expect_equal(dim(bfpca_object$efunctions), c(200, 1))
 })
 
-
-test_that("bfpca works for time values on different grids",{
+test_that("bfpca works for time domains other than (0, 1)",{
 	Y = simulate_functional_data()$Y
 	Y$index = Y$index + 1
 	bfpca_object = bfpca(Y, npc = 2, print.iter = TRUE)
+	t_min = min(Y$index)
+	t_max = max(Y$index)
 	
-	# works meaning doesn't break
-	# test min and max so that t_min and t_max are necessary
-	# this doesnt do what you want - mean alpha is evaluated on wrong grid
-	
+	expect_equal(range(Y$index), range(bfpca_object$Yhat$index))
+	expect_equal(range(Y$index), range(bfpca_object$Y$index))
 })
 
 

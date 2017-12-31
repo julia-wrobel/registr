@@ -4,7 +4,7 @@
 \alias{data_clean}
 \title{convert data to a refund object}
 \usage{
-data_clean(data, family = "gaussian")
+data_clean(data, family = "binomial")
 }
 \arguments{
 \item{data}{input data. Can be long format dataframe or wide format matrix. If you provide a matrix}

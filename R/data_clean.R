@@ -11,15 +11,7 @@
 #' 
 #' @export
 
-data_clean <- function(data, family = "gaussian"){
-  # eventually want to create this function with no extra packages
-  # that way we do not have to include them as recquired
-  
-  # if matrix in wide format convert to refund object
-  if (is.matrix(data)) {
-    index = seq(0, 1, length.out = dim(data)[2])
-    data = as_refundObj(data, index = index)
-  }
+data_clean <- function(data, family = "binomial"){
   
 	# check if data are sorted by id and index; if not do so and return message
 	if (!identical(data, data %>% arrange(id, index))) {
