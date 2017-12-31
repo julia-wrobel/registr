@@ -1,6 +1,6 @@
 # `registr`
 
-[![](https://travis-ci.org/refunders/registr.svg?branch=master)](https://travis-ci.org/refunders/registr)
+[![](https://travis-ci.org/julia-wrobel/registr.svg?branch=master)](https://travis-ci.org/julia-wrobel/registr)
 
 Register exponential family functional data
 
