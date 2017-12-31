@@ -17,8 +17,6 @@ test_that("bfpca output is a list with non-null items and class fpca",{
 	Y = simulate_functional_data()$Y
 	bfpca_object = bfpca(Y, npc = 2, print.iter = TRUE)
 	
-	#expect_output(str(bfpca_object), "List of 2") ## figure out final number of items
-	
 	expect_equal(class(bfpca_object), "fpca")
 	expect_equal(bfpca_object$family, "binomial")
 	
