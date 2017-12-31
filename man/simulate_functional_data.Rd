@@ -5,7 +5,7 @@
 \title{Simulate functional data}
 \usage{
 simulate_functional_data(lambda1 = 2, lambda2 = 1, I = 50, D = 100,
-  seed = 1988)
+  seed = 1988, vary_D = FALSE)
 }
 \arguments{
 \item{lambda1}{Standard deviation for PC1 scores.}
@@ -17,6 +17,8 @@ simulate_functional_data(lambda1 = 2, lambda2 = 1, I = 50, D = 100,
 \item{D}{Number of grid points per subject. Default is 100.}
 
 \item{seed}{Seed for reprodicibility. Default is 1988.}
+
+\item{vary_D}{Indicates if grid length vary by subject. If FALSE all subjects have grid length D.}
 }
 \description{
 This function simulates functional data. The data it outputs is generated from a mean function

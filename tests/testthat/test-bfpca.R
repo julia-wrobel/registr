@@ -48,14 +48,10 @@ test_that("bfpca works for time domains other than (0, 1)",{
 
 
 test_that("bfpca works for subjects with different grid lengths",{
-	# works meaning doesn't break
-	# test min and max so that t_min and t_max are necessary
+	Y = simulate_functional_data(vary_D = TRUE)$Y
+	bfpca_object = bfpca(Y, npc = 2, print.iter = TRUE)
+	
+	expect_equal(class(bfpca_object), "fpca")
+	expect_true(length(unique(table(Y$id))) > 1)
 })
 
-
-test_that("bfpca function works as intended",{
-	# set simulated dataset
-	# check that true mean is close to simulated mean,
-		# check that fitted values are close for some subject
-	# ok to use function that generates values?
-})

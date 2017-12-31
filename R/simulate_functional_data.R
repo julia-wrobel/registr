@@ -47,6 +47,7 @@ psi2_sim = function(grid){
 #' @param I Number of subjects. Defaults is 50.
 #' @param D Number of grid points per subject. Default is 100.
 #' @param seed Seed for reprodicibility. Default is 1988.
+#' @param vary_D Indicates if grid length vary by subject. If FALSE all subjects have grid length D.
 #' 
 #' @author Julia Wrobel \email{jw3134@@cumc.columbia.edu}
 #' @importFrom magrittr %>%
@@ -57,7 +58,8 @@ psi2_sim = function(grid){
 #' @import dplyr
 #' @export
 #'
-simulate_functional_data = function(lambda1 = 2, lambda2 = 1, I = 50, D = 100, seed = 1988){
+simulate_functional_data = function(lambda1 = 2, lambda2 = 1, I = 50, D = 100, seed = 1988,
+																		vary_D = FALSE){
 	###
 	grid = seq(0, 1, length.out = D)
 	set.seed(seed)
@@ -76,7 +78,27 @@ simulate_functional_data = function(lambda1 = 2, lambda2 = 1, I = 50, D = 100, s
 		mutate(index = rep(grid, I),
 					 prob = inv.logit(value),
 					 value = rbinom(I*D, 1, prob)) 
+	
+	if(vary_D){
+		D_vec = D + as.integer(runif(I, -(D/10), D/10))
+		Y = data.frame(
+			id = rep(1:I,  D_vec),
+			index = rep(NA, sum(D_vec)),
+			value = rep(NA, sum(D_vec))
+		)
 		
+		for(i in 1:I){
+			grid = seq(0, 1, length.out = D_vec[i])
+			Y_i = mean_sim(grid) + psi1_sim(grid) * rnorm(1, 0, lambda1) + psi2_sim(grid) * rnorm(1, 0, lambda2)
+			
+			Y[which(Y$id == i), "index"] = grid
+			Y[which(Y$id == i), "value"] = Y_i
+		}
+		
+		Y = Y %>% 
+			mutate(prob = inv.logit(value),
+						 value = rbinom( sum(D_vec), 1, prob) )
+	}
 	
 	return(list(
 		Y = Y,
