@@ -42,61 +42,7 @@ Function combines constrained optimization and FPCA to estimate warping function
 \examples{
 
 \dontrun{
-library(tidyverse)
-
-library(gridExtra)
-library(refund.shiny)
-
-library(mvtnorm)
-library(splines)
-library(boot)
-
-## design elements for simulated data
-I = 50                            ## number of subjects
-D = 100                           ## size of grid for observations
-tstar = seq(0, 1, length = D)     ## shared time grid across subjects
-Kt = 10                           ## dimension of bspline basis for mean and fpc functions
-Kt_h = 5                          ## dimension of spline basis for warping functions
-lambda.true = c(20)               ## variance of fpca scores
-
-## functions to create mean and fpca functions on specified grid
-mean.curve = function(grid) {
-  3*(0 - sin(2*grid*pi) - cos(2*grid*pi) )
-}
-amp.curve = function(grid) {
-  (0 - sin(2*grid*pi) - cos(2*grid*pi) )  / sqrt(322)
-}
-
-## function to create subject-specific time grid
-grid.subj.create = function(coefs) {
-  BS = bs(1:D, df = 3, intercept = FALSE, degree = 3)
-  coefs = cumsum(coefs) / sum(coefs)
-  (BS \%*\% coefs)
-}
-
-
-###############################################################
-## registration for binary curves using logistic models for
-## fpca and registration
-###############################################################
-
-## generate features for curves
-c.true = rmvnorm(I, mean = rep(0, 1), sigma = diag(lambda.true, 1, 1))
-
-## generate curves
-Yi.obs = Yi.latent = pi.true = t.subj = matrix(NA, I, D)
-Yi.regis.true = matrix(NA, I, D)
-for (i in 1:I) {
-  t.subj[i,] = runif(3, 0, 1) \%>\% grid.subj.create \%>\% as.vector
-  Yi.latent[i,] = mean.curve(grid = t.subj[i,]) + c.true[i] * amp.curve(grid = t.subj[i,])
-  pi.true[i,] = inv.logit(Yi.latent[i,])
-  Yi.regis.true[i,] = mean.curve(grid = tstar) + c.true[i] * amp.curve(grid = tstar)
-  for (j in 1:D) {
-    Yi.obs[i,j] = rbinom(1, 1, pi.true[i,j])
-  }
-}
-
- Y_sim = as_refundObj(Yi.obs)
+ simulate_unregistered_curves()
  reg_sim = register_fpca(Y_sim, Kt = 8, Kh = 4, family = "binomial", iterations = 10, npc = 1)
 }
 
