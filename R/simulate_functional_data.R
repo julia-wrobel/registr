@@ -52,7 +52,7 @@ psi2_sim = function(grid){
 #' @author Julia Wrobel \email{jw3134@@cumc.columbia.edu}
 #' @importFrom magrittr %>%
 #' @importFrom tidyr gather
-#' @importFrom stats rnorm rbinom
+#' @importFrom stats rnorm rbinom runif
 #' @importFrom boot inv.logit
 #' 
 #' @import dplyr
@@ -60,6 +60,10 @@ psi2_sim = function(grid){
 #'
 simulate_functional_data = function(lambda1 = 2, lambda2 = 1, I = 50, D = 100, seed = 1988,
 																		vary_D = FALSE){
+	
+	## NULLify global values called by tidyverse functions
+	value = key = time1 = prob =  NULL
+	
 	###
 	grid = seq(0, 1, length.out = D)
 	set.seed(seed)

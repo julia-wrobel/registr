@@ -13,6 +13,9 @@
 
 data_clean <- function(data, family = "binomial"){
   
+	## NULLify global values called by tidyverse functions
+	value = index = NULL
+	
 	# check if data are sorted by id and index; if not do so and return message
 	if (!identical(data, data %>% arrange(id, index))) {
 		message("Data have been sorted by id and index; all output will be in this format")
