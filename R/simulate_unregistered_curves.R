@@ -38,30 +38,31 @@ grid_subj_create = function(coefs, D) {
 #' @param D Number of grid points per subject. Default is 100.
 #' @param lambda Standard deviation for subject-specific amplitudes.
 #' @param seed Seed for reprodicibility. Default is 1988.
-#' @param vary_D Indicates if grid length vary by subject. If FALSE all subjects have grid length D.
 #' 
 #' @author Jeff Goldsmith \email{ajg2202@@cumc.columbia.edu}
 #' @importFrom magrittr %>%
 #' @importFrom stats rbinom runif
 #' @importFrom boot inv.logit
-#' @importFrom mvtnorm rmvnorm
 #' 
 #' @export
 #'
 simulate_unregistered_curves = function(I = 50, D = 100, lambda = 15, seed = 1988) {
+	
+	## NULLify global values called by tidyverse functions
+	value = index = NULL
 	
 	grid = seq(0, 1, length = D)
 	
 	set.seed(seed)
 	
 	## generate features for curves
-	c_true = rmvnorm(I, mean = rep(0, 1), sigma = diag(lambda, 1, 1))
+	c_true = rnorm(I, mean = 0, sd = sqrt(lambda))
 	
 	## generate curves
 	Yi_obs = Yi_latent = pi_true = t_subj = matrix(NA, I, D)
 	Yi_regis.true = matrix(NA, I, D)
 	for (i in 1:I) {
-		t_subj[i,] = runif(3, 0, 1) %>% grid_subj_create(., D = D) %>% as.vector
+		t_subj[i,] =  grid_subj_create(runif(3, 0, 1), D = D) %>% as.vector
 		Yi_latent[i,] = mean_curve(grid = t_subj[i,]) + c_true[i] * amp_curve(grid = t_subj[i,])
 		pi_true[i,] = inv.logit(Yi_latent[i,])
 		Yi_regis.true[i,] = mean_curve(grid = grid) + c_true[i] * amp_curve(grid = grid)

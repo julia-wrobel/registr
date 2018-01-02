@@ -14,8 +14,6 @@ simulate_unregistered_curves(I = 50, D = 100, lambda = 15, seed = 1988)
 \item{lambda}{Standard deviation for subject-specific amplitudes.}
 
 \item{seed}{Seed for reprodicibility. Default is 1988.}
-
-\item{vary_D}{Indicates if grid length vary by subject. If FALSE all subjects have grid length D.}
 }
 \description{
 This function simulates unregistered curves, providing the time values for both 
