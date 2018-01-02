@@ -1,6 +1,8 @@
 # R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
 
-language: R
+# use c as catch-all language
+language: c
+
 sudo: required
 # Be strict when checking our package
 warnings_are_errors: true
