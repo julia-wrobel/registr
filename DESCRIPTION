@@ -7,7 +7,7 @@ Authors@R: c(
     )
 Description: Registering curves from exponential family functional data.
 Depends:
-    R (>= 3.1.2)
+    R (>= 3.2)
 Imports:
     ggplot2,
     tidyr,
