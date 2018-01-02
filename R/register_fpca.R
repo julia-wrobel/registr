@@ -91,7 +91,10 @@ register_fpca <- function(Y, Kt = 10, Kh = 4, family = "binomial", iterations = 
   # should have a plot that handles just registration, just fpca, and both
 
   ## clean data
-  
+  if( !(family %in% c("binomial", "gaussian")) ){
+  	stop("Package currently handles only 'binomial' or 'gaussian' families.")
+  }
+	
   # save original tstar values and all other t values calculated
   time_warps = list(NA, iterations + 2)
   time_warps[[1]] = Y$index
@@ -112,9 +115,14 @@ register_fpca <- function(Y, Kt = 10, Kh = 4, family = "binomial", iterations = 
   for(iter in 1:iterations){
     message("current iteration: ", iter)
   	
-  	fpca_step = bfpca(registr_step$Y, index = NULL, id = NULL, npc = npc, Kt = Kt, 
-  										row_obj = rows, seed = 1988 + iter, ...)
-    registr_step = registr(obj = fpca_step, Kt = Kt, Kh = Kh, family = family, 
+		if(family == "binomial"){
+			fpca_step = bfpca(registr_step$Y, index = NULL, id = NULL, npc = npc, Kt = Kt, 
+												row_obj = rows, seed = 1988 + iter, ...)
+		}else if(family == "gaussian"){
+			stop("'gaussian' family not yet implemented for fpca step")
+		} 
+  	
+  	registr_step = registr(obj = fpca_step, Kt = Kt, Kh = Kh, family = family, 
     												 row_obj = rows, beta = registr_step$beta, ...)
 
     time_warps[[iter + 2]] = registr_step$Y$index
