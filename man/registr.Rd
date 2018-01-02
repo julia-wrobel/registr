@@ -7,9 +7,9 @@
 \alias{registr}
 \title{registr- a package for exponential family registration that I am working on.}
 \usage{
-registr(obj = NULL, Y = NULL, Kt = 10, Kh = 5, family = "gaussian",
+registr(obj = NULL, Y = NULL, Kt = 10, Kh = 5, family = "binomial",
   gradient = TRUE, beta = NULL, t_min = NULL, t_max = NULL,
-  row_obj = NULL)
+  row_obj = NULL, ...)
 }
 \arguments{
 \item{obj}{current estimate of FPC objects (including spline coefs and scores). Can be NULL only if Y argument is selected.}
@@ -35,6 +35,8 @@ if `NULL`, taken to be maximum observed value.}
 
 \item{row_obj}{if NULL, the function cleans the data and calculates row indices. Keep this NULL if you are using 
 standalone \code{registr} function.}
+
+\item{...}{additional arguments passed to or from other functions}
 }
 \description{
 It does registration stuff

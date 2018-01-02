@@ -18,6 +18,7 @@
 #' @param row_obj if NULL, the function cleans the data and calculates row indices. Keep this NULL if you are using 
 #' standalone \code{register} function.
 #' @param seed set seed for reproducibility. Seed value defaults to 1988.
+#' @param ... additional arguments passed to or from other functions
 #' 
 #' @author Julia Wrobel \email{jw3134@@cumc.columbia.edu}
 #' @importFrom splines bs
@@ -27,7 +28,7 @@
 #'
 
 bfpca <- function(Y,index = NULL, id = NULL, npc = 1, Kt = 10, maxiter = 50, t_min = NULL, t_max = NULL, 
-                  print.iter = FALSE, row_obj= NULL, seed = 1988){
+                  print.iter = FALSE, row_obj= NULL, seed = 1988, ...){
    
   curr_iter = 1
   error = rep(NA, maxiter)

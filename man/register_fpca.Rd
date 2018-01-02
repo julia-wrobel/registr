@@ -4,8 +4,8 @@
 \alias{register_fpca}
 \title{Register curves from exponential family using constrained optimization and generalized FPCA}
 \usage{
-register_fpca(Y, Kt = 10, Kh, family = "binomial", iterations = 10,
-  npc = 1, gradient = TRUE, ...)
+register_fpca(Y, Kt = 10, Kh = 4, family = "binomial", iterations = 10,
+  npc = 1, ...)
 }
 \arguments{
 \item{Y}{dataframe. Should have values id, value, index.}
@@ -21,9 +21,7 @@ Defaults to 10.}
 
 \item{npc}{defaults to 1. Number of principal components to calculate.}
 
-\item{gradient}{if TRUE, uses analytic gradient to calculate derivative.}
-
-\item{...}{additional arguments passed to registration and fpca functions}
+\item{...}{additional arguments passed to registr and fpca functions}
 }
 \value{
 fpca_obj list of items from FPCA step

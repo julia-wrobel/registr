@@ -22,6 +22,7 @@
 #' if `NULL`, taken to be maximum observed value.
 #' @param row_obj if NULL, the function cleans the data and calculates row indices. Keep this NULL if you are using 
 #' standalone \code{registr} function.
+#' @param ... additional arguments passed to or from other functions
 #' 
 #' @author Julia Wrobel \email{jw3134@@cumc.columbia.edu}
 #' @export
@@ -35,8 +36,8 @@
 #'    gradient = TRUE)
 #' }
 #'
-registr = function(obj = NULL, Y = NULL, Kt = 10, Kh = 5, family = "gaussian", gradient = TRUE,
-									 beta = NULL, t_min = NULL, t_max = NULL, row_obj = NULL){
+registr = function(obj = NULL, Y = NULL, Kt = 10, Kh = 5, family = "binomial", gradient = TRUE,
+									 beta = NULL, t_min = NULL, t_max = NULL, row_obj = NULL, ...){
   
   if(is.null(Y)) { Y = obj$Y}
   

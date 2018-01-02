@@ -9,8 +9,7 @@
 #' @param family \code{gaussian} or \code{binomial}.
 #' @param iterations number of iterations between fpca step and registration step.
 #' @param npc defaults to 1. Number of principal components to calculate.
-#' @param gradient if TRUE, uses analytic gradient to calculate derivative. 
-#' @param ... additional arguments passed to registration and fpca functions
+#' @param ... additional arguments passed to registr and fpca functions
 #'
 #' @author Julia Wrobel \email{jw3134@@cumc.columbia.edu}
 #' @export
@@ -84,7 +83,7 @@
 #'  reg_sim = register_fpca(Y_sim, Kt = 8, Kh = 4, family = "binomial", iterations = 10, npc = 1)
 #' }
 #'
-register_fpca <- function(Y, Kt = 10, Kh, family = "binomial", iterations = 10, npc = 1, gradient = TRUE, ...){
+register_fpca <- function(Y, Kt = 10, Kh = 4, family = "binomial", iterations = 10, npc = 1, ...){
   # ... argument should take care of anything that has a default value, but I also should be change it if I want to
       # for example I should be able to put maxiter= 50 as an argument, if I want. Test this out.
 
@@ -104,7 +103,7 @@ register_fpca <- function(Y, Kt = 10, Kh, family = "binomial", iterations = 10, 
   
 
   # first register values to the overall mean
-  registr_step = registr(Y = Y, Kt = Kt, Kh = Kh, family = family, gradient = gradient, row_obj = rows)
+  registr_step = registr(Y = Y, Kt = Kt, Kh = Kh, family = family, row_obj = rows, ...)
   time_warps[[2]] = registr_step$Y$index
   loss[1] = registr_step$loss
   
@@ -113,10 +112,10 @@ register_fpca <- function(Y, Kt = 10, Kh, family = "binomial", iterations = 10, 
   for(iter in 1:iterations){
     message("current iteration: ", iter)
   	
-  	fpca_step = bfpca(registr_step$Y, index = NULL, id = NULL, npc = npc, Kt = Kt, row_obj = rows,
-  										seed = 1988 + iter)
-    registr_step = registr(obj = fpca_step, Kt = Kt, Kh = Kh, family = family, gradient = gradient, 
-    												 row_obj = rows, beta = registr_step$beta)
+  	fpca_step = bfpca(registr_step$Y, index = NULL, id = NULL, npc = npc, Kt = Kt, 
+  										row_obj = rows, seed = 1988 + iter, ...)
+    registr_step = registr(obj = fpca_step, Kt = Kt, Kh = Kh, family = family, 
+    												 row_obj = rows, beta = registr_step$beta, ...)
 
     time_warps[[iter + 2]] = registr_step$Y$index
     loss[iter + 1] = registr_step$loss
