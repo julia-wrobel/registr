@@ -126,8 +126,8 @@ bfpca <- function(Y,index = NULL, id = NULL, npc = 1, Kt = 10, maxiter = 50, t_m
     if(npc == 1){ psi_coefs = matrix(psi_coefs, ncol = 1)}
     
     ## calculate error
-    curr_iter = curr_iter + 1;
-    error[curr_iter] = sum((psi_coefs-temp_psi_coefs)^2) + sum((alpha_coefs-temp_alpha_coefs)^2);
+    curr_iter = curr_iter + 1
+    error[curr_iter] = sum((psi_coefs-temp_psi_coefs)^2) + sum((alpha_coefs-temp_alpha_coefs)^2)
 
     temp_psi_coefs = psi_coefs
     temp_alpha_coefs = alpha_coefs

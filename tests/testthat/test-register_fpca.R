@@ -10,12 +10,12 @@ test_that("code only accepts supported family of distributions", {
 	expect_error(register_fpca(Y, family = "poisson"),
 							 "Package currently handles only 'binomial' or 'gaussian' families.")
 	
-	
-	
+
 })
 
 test_that("registering binary data works",{
 	Y = simulate_unregistered_curves()
+	registr_object = register_fpca(Y, family = "binomial", iterations = 20)
 	# these are just going to be overall tests that stuff works
 	# 
 	#registration_object = register_fpca(Y, Kt = 8, Kh = 4, family = "binomial", npc = 2)

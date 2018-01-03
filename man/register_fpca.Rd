@@ -4,7 +4,7 @@
 \alias{register_fpca}
 \title{Register curves from exponential family using constrained optimization and generalized FPCA}
 \usage{
-register_fpca(Y, Kt = 10, Kh = 4, family = "binomial", iterations = 10,
+register_fpca(Y, Kt = 10, Kh = 4, family = "binomial", iterations = 20,
   npc = 1, ...)
 }
 \arguments{
