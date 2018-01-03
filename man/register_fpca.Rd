@@ -4,8 +4,8 @@
 \alias{register_fpca}
 \title{Register curves from exponential family using constrained optimization and generalized FPCA}
 \usage{
-register_fpca(Y, Kt = 10, Kh = 4, family = "binomial", iterations = 20,
-  npc = 1, ...)
+register_fpca(Y, Kt = 10, Kh = 4, family = "binomial",
+  max_iterations = 20, npc = 1, ...)
 }
 \arguments{
 \item{Y}{dataframe. Should have values id, value, index.}
@@ -17,7 +17,7 @@ Defaults to 10.}
 
 \item{family}{\code{gaussian} or \code{binomial}.}
 
-\item{iterations}{number of iterations between fpca step and registration step.}
+\item{max_iterations}{number of iterations between fpca step and registration step.}
 
 \item{npc}{defaults to 1. Number of principal components to calculate.}
 
@@ -26,7 +26,7 @@ Defaults to 10.}
 \value{
 fpca_obj list of items from FPCA step
 
-reg_object some registration stuff, should be cleaned up
+Y dataframe of data plus unregistered grid t_star and registered grid t_hat
 
 time_warps list of time values for each iteration of the algorithm. time_warps[1] returns original (observed) time 
 and time_warps[n] provides time values for the final iteration
@@ -42,8 +42,8 @@ Function combines constrained optimization and FPCA to estimate warping function
 \examples{
 
 \dontrun{
- simulate_unregistered_curves()
- reg_sim = register_fpca(Y_sim, Kt = 8, Kh = 4, family = "binomial", iterations = 10, npc = 1)
+ Y = simulate_unregistered_curves(I = 50, D = 200)
+ registr_object = register_fpca(Y, family = "binomial", max_iterations = 25)
 }
 
 }

@@ -17,12 +17,15 @@ test_that("registr function returns items of expected length", {
 })
 
 test_that("registr function works for time domains other than (0, 1)", {
-	
+	Y = simulate_functional_data()$Y
+	#Y$index = Y$index + 1
+	#expect_error(registr(Y = Y, family = "binomial"), NA)
 })
 
 
 test_that("registr function works for subjects with different grid lengths",{
-	Y = simulate_functional_data(vary_D = TRUE)$Y
-	#bfpca_object = bfpca(Y, npc = 2, print.iter = TRUE)
-	#expect_true(length(unique(table(Y$id))) > 1)
+	Y = simulate_functional_data(seed = 40, vary_D = TRUE)$Y
+	
+	expect_true(length(unique(table(Y$id))) > 1)
+	expect_error(registr(Y = Y, family = "binomial"), NA)
 })

@@ -4,26 +4,56 @@ context("register_fpca")
 # for all tests implement for both gaussian and binary data
 test_that("code only accepts supported family of distributions", {
 	Y = simulate_unregistered_curves()
-	registr_object = register_fpca(Y, family = "binomial", iterations = 3)
+	registr_object = register_fpca(Y, family = "binomial", max_iterations = 3)
 	
-	#expect_error(register_fpca(Y, family = "gaussian", iterations = 3))
+	#expect_error(register_fpca(Y, family = "gaussian", max_iterations = 3))
 	expect_error(register_fpca(Y, family = "poisson"),
 							 "Package currently handles only 'binomial' or 'gaussian' families.")
-	
 
+	expect_error(register_fpca(Y, family = 25),
+							 "Package currently handles only 'binomial' or 'gaussian' families.")
 })
 
-test_that("registering binary data works",{
-	Y = simulate_unregistered_curves()
-	registr_object = register_fpca(Y, family = "binomial", iterations = 20)
-	# these are just going to be overall tests that stuff works
-	# 
-	#registration_object = register_fpca(Y, Kt = 8, Kh = 4, family = "binomial", npc = 2)
+test_that("registering binary and gaussian data throws no errors",{
+	Y = simulate_unregistered_curves(seed = 10001)
+	expect_error(register_fpca(Y, family = "binomial"), NA)
+	#expect_error(register_fpca(Y, family = "gaussian"), NA)
+})
+
+test_that("registering binary and gaussian data throws no errors",{
+	Y = simulate_unregistered_curves(seed = 10001)
+	expect_error(register_fpca(Y, family = "binomial"), NA)
+	#expect_error(register_fpca(Y, family = "gaussian"), NA)
+})
+
+test_that("register_fpca output is a list with non-null items and class registration",{
+	Y = simulate_unregistered_curves(seed = 1001)
+	registr_object = register_fpca(Y, family = "binomial", max_iterations = 10)
+	
+	expect_equal(class(registr_object), "registration")
+	
+	expect_false(any(is.na(registr_object$loss)))
+	expect_false(any(is.na(registr_object$time_warps)))
+	expect_false(any(is.na(registr_object$Y$t_hat)))
+	
+	# throws error in code:
+	# Y = simulate_unregistered_curves(seed = 101)
+	# registr_object = register_fpca(Y, family = "binomial", max_iterations = 25)
 	
 	
 })
 
 
 test_that("loss function is generally decreasing", {
-	## use diff function and losses that are returned
+	#seed = as.integer(runif(2, 10, 100))
+	#Y = simulate_unregistered_curves(seed = seed[1])
+	#registr_object = register_fpca(Y, family = "binomial", iterations = 20)
+	#expect_true(sum(diff(registr_object$loss), na.rm = TRUE) < 0)
+	
+	#Y = simulate_unregistered_curves(seed = seed[2])
+	#registr_object = register_fpca(Y, family = "binomial", iterations = 20)
+	#expect_true(sum(diff(registr_object$loss), na.rm = TRUE) < 0)
+	
+	#error for dataset with seed = 65
+	
 })

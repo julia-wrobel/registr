@@ -23,7 +23,7 @@ registr(obj = NULL, Y = NULL, Kt = 10, Kh = 5, family = "binomial",
 \item{family}{\code{gaussian} or \code{binomial}.}
 
 \item{gradient}{if TRUE, uses analytic gradient to calculate derivative. 
-If FALSE, calculates gradient nuemrically.}
+If FALSE, calculates gradient numerically.}
 
 \item{beta}{Initial values for beta for each subject. If NULL, these are chosen using seq().}
 

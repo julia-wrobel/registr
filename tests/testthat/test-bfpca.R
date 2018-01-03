@@ -59,3 +59,13 @@ test_that("bfpca works for subjects with different grid lengths",{
 	expect_true(length(unique(table(Y$id))) > 1)
 })
 
+
+test_that("bfpca works for different start seeds",{
+	Y = simulate_functional_data(vary_D = TRUE)$Y
+	seeds = as.integer(runif(3, 10, 100))
+	
+	expect_error(bfpca(Y, npc = 2, print.iter = TRUE, seed = seeds[1]), NA)
+	expect_error(bfpca(Y, npc = 2, print.iter = TRUE, seed = seeds[2]), NA)
+	expect_error(bfpca(Y, npc = 2, print.iter = TRUE, seed = seeds[3]), NA)
+})
+

@@ -7,7 +7,7 @@
 #' Defaults to 10.
 #' @param Kh number of B-spline basis functions used to estimate warping functions \emph{h}. Defaults to 5.
 #' @param family \code{gaussian} or \code{binomial}.
-#' @param iterations number of iterations between fpca step and registration step.
+#' @param max_iterations number of iterations between fpca step and registration step.
 #' @param npc defaults to 1. Number of principal components to calculate.
 #' @param ... additional arguments passed to registr and fpca functions
 #'
@@ -15,7 +15,7 @@
 #' @export
 #' 
 #' @return fpca_obj list of items from FPCA step
-#' @return reg_object some registration stuff, should be cleaned up
+#' @return Y dataframe of data plus unregistered grid t_star and registered grid t_hat
 #' @return time_warps list of time values for each iteration of the algorithm. time_warps[1] returns original (observed) time 
 #' and time_warps[n] provides time values for the final iteration
 #' @return loss Loss for each iteration of the algorithm. Loss is calculated in the registration step using an 
@@ -25,26 +25,20 @@
 #' @examples
 #'
 #' \dontrun{
-#'  simulate_unregistered_curves()
-#'  reg_sim = register_fpca(Y_sim, Kt = 8, Kh = 4, family = "binomial", iterations = 10, npc = 1)
+#'  Y = simulate_unregistered_curves(I = 50, D = 200)
+#'  registr_object = register_fpca(Y, family = "binomial", max_iterations = 25)
 #' }
 #'
-register_fpca <- function(Y, Kt = 10, Kh = 4, family = "binomial", iterations = 20, npc = 1, ...){
-  # ... argument should take care of anything that has a default value, but I also should be change it if I want to
-      # for example I should be able to put maxiter= 50 as an argument, if I want. Test this out.
-
-  # should include all the returns for this function too
-  # should have a plot that handles just registration, just fpca, and both
-
+register_fpca <- function(Y, Kt = 10, Kh = 4, family = "binomial", max_iterations = 20, npc = 1, ...){
   ## clean data
   if( !(family %in% c("binomial", "gaussian")) ){
   	stop("Package currently handles only 'binomial' or 'gaussian' families.")
   }
 	
   # save original tstar values and all other t values calculated
-  time_warps = list(NA, iterations + 2)
+  time_warps = list(NA, max_iterations + 2)
   time_warps[[1]] = Y$index
-  loss = rep(NA, iterations + 1)
+  loss = rep(NA, max_iterations + 1)
 
   data = data_clean(Y)
   Y = data$Y
@@ -56,15 +50,13 @@ register_fpca <- function(Y, Kt = 10, Kh = 4, family = "binomial", iterations = 
   loss[1] = registr_step$loss
   
   iter = 1
-  error = rep(NA, iterations)
+  error = rep(NA, max_iterations)
   error[iter] = 100
-  while( iter < iterations && error[iter] > 0.01 ){
+  while( iter < max_iterations && error[iter] > 0.01 ){
   	message("current iteration: ", iter)
-  	#message("current error: ", error[iter])
-  	
+ 
   	if(family == "binomial"){
-  		fpca_step = bfpca(registr_step$Y, index = NULL, id = NULL, npc = npc, Kt = Kt, 
-  											row_obj = rows, seed = 1988 + iter, ...)
+  		fpca_step = bfpca(registr_step$Y, npc = npc, Kt = Kt, row_obj = rows, seed = 1988 + iter, ...)
   	}else if(family == "gaussian"){
   		stop("'gaussian' family not yet implemented for fpca step")
   	}
@@ -81,9 +73,18 @@ register_fpca <- function(Y, Kt = 10, Kh = 4, family = "binomial", iterations = 
   	
   }
 
+  # final fpca step
+  if(family == "binomial"){
+  	fpca_step = bfpca(registr_step$Y,npc = npc, Kt = Kt, row_obj = rows)
+  }else if(family == "gaussian"){
+  	stop("'gaussian' family not yet implemented for fpca step")
+  }
   
-	ret = list(fpca_obj = fpca_step, reg_object = registr_step, time_warps = time_warps,
-						 loss = loss, family = family)
+  Y$tstar = time_warps[[1]]
+  Y$t_hat = registr_step$Y$index
+  
+	ret = list(fpca_obj = fpca_step, Y = Y, time_warps = time_warps[!is.na(time_warps)],
+						 loss = loss[!is.na(loss)], family = family)
 	class(ret) <- "registration"
   return(ret)
 } # end function

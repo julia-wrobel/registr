@@ -14,7 +14,7 @@
 #' @param Kh number of B-spline basis functions used to estimate warping functions \emph{h}. Defaults to 5.
 #' @param family \code{gaussian} or \code{binomial}.
 #' @param gradient if TRUE, uses analytic gradient to calculate derivative. 
-#' If FALSE, calculates gradient nuemrically.
+#' If FALSE, calculates gradient numerically.
 #' @param beta Initial values for beta for each subject. If NULL, these are chosen using seq().
 #' @param t_min minimum value to be evaluated on the time domain (useful if data are sparse and / or irregular). 
 #' if `NULL`, taken to be minimum observed value.
@@ -104,5 +104,5 @@ registr = function(obj = NULL, Y = NULL, Kt = 10, Kh = 5, family = "binomial", g
   }
   Y$index = t_hat
 
-  return(list(Y = Y, Kt = Kt, Kh = Kh, loss = sum(loss_subjects), beta = beta_new)) 
+  return(list(Y = Y, loss = sum(loss_subjects), beta = beta_new)) 
 } # end registration function
