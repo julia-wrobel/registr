@@ -18,8 +18,8 @@ test_that("registr function returns items of expected length", {
 
 test_that("registr function works for time domains other than (0, 1)", {
 	Y = simulate_functional_data()$Y
-	#Y$index = Y$index + 1
-	#expect_error(registr(Y = Y, family = "binomial"), NA)
+	Y$index = Y$index + 5
+	expect_error(registr(Y = Y, family = "binomial"), NA)
 })
 
 

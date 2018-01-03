@@ -4,10 +4,14 @@
 \alias{constraints}
 \title{Define constraints for optimization of warping functions}
 \usage{
-constraints(Kh)
+constraints(Kh, t_min = 0, t_max = 1)
 }
 \arguments{
-\item{Kh}{number of B-spline basis functions used to estimate warping functions \emph{h}.}
+\item{Kh}{Number of B-spline basis functions used to estimate warping functions \emph{h}.}
+
+\item{t_min}{Minimum value to be evaluated on the time domain.}
+
+\item{t_max}{Maximum value to be evaluated on the time domain.}
 }
 \description{
 Constraints ensure monotonicty of spline coefficients for warping functions for use with \code{constrOptim()} function.

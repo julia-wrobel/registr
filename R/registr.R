@@ -68,7 +68,7 @@ registr = function(obj = NULL, Y = NULL, Kt = 10, Kh = 5, family = "binomial", g
 
   
   #### Define optimization constraints
-  constrs = constraints(Kh)
+  constrs = constraints(Kh, t_min, t_max)
   ui = constrs$ui
   ci = constrs$ci
 
@@ -96,7 +96,7 @@ registr = function(obj = NULL, Y = NULL, Kt = 10, Kh = 5, family = "binomial", g
                               Theta_phi = Theta_phi_i, mean_coefs = mean_coefs_i, knots = global_knots,
                               family = family, t_min = t_min, t_max = t_max)$par
     
-    beta_full_i = c(0, beta_new[,i], 1)
+    beta_full_i = c(t_min, beta_new[,i], t_max)
     
     t_hat[subject_rows] = cbind(1, Theta_phi_i) %*% beta_full_i
     loss_subjects[i] = loss_h(Yi, Theta_phi_i, mean_coefs_i, global_knots, beta_new[,i], family = family, 
