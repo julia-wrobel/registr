@@ -54,7 +54,7 @@ registr = function(obj = NULL, Y = NULL, Kt = 10, Kh = 5, family = "binomial", g
   tstar = Y$index
   if (is.null(t_min)) {t_min = min(tstar)}
   if (is.null(t_max)) {t_max = max(tstar)}
-  Theta_phi = bs(tstar, df = Kh, intercept = FALSE)
+  Theta_h = bs(tstar, df = Kh, intercept = FALSE)
   
   if(is.null(obj)){
     # define population mean
@@ -66,7 +66,6 @@ registr = function(obj = NULL, Y = NULL, Kt = 10, Kh = 5, family = "binomial", g
     mean_coefs = obj$subject_coefs
   }
 
-  
   #### Define optimization constraints
   constrs = constraints(Kh, t_min, t_max)
   ui = constrs$ui
@@ -85,21 +84,20 @@ registr = function(obj = NULL, Y = NULL, Kt = 10, Kh = 5, family = "binomial", g
     Di = length(Yi)
     
     tstar_i = tstar[subject_rows]
-    Theta_phi_i = Theta_phi[subject_rows ,]
-   
+    Theta_h_i = Theta_h[subject_rows ,]
     
     if (is.null(beta)) {beta_i = beta_0} else {beta_i = beta[, i]}
     if (is.null(obj)) {mean_coefs_i = mean_coefs} else {mean_coefs_i = mean_coefs[, i]}
     if (gradient) {gradf = loss_h_gradient} else {gradf = NULL}
     
     beta_new[,i] = constrOptim(beta_i, loss_h, grad = gradf, ui = ui, ci = ci, Y = Yi, 
-                              Theta_phi = Theta_phi_i, mean_coefs = mean_coefs_i, knots = global_knots,
+                              Theta_h = Theta_h_i, mean_coefs = mean_coefs_i, knots = global_knots,
                               family = family, t_min = t_min, t_max = t_max)$par
     
     beta_full_i = c(t_min, beta_new[,i], t_max)
     
-    t_hat[subject_rows] = cbind(1, Theta_phi_i) %*% beta_full_i
-    loss_subjects[i] = loss_h(Yi, Theta_phi_i, mean_coefs_i, global_knots, beta_new[,i], family = family, 
+    t_hat[subject_rows] = cbind(1, Theta_h_i) %*% beta_full_i
+    loss_subjects[i] = loss_h(Yi, Theta_h_i, mean_coefs_i, global_knots, beta_new[,i], family = family, 
                               t_min = t_min, t_max = t_max)
   }
   Y$index = t_hat

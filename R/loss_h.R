@@ -1,7 +1,7 @@
 #' Loss function for registration step optimization
 #'
 #' @param Y vector of observed points.
-#' @param Theta_phi B-spline basis for vector Y.
+#' @param Theta_h B-spline basis for inverse warping functions.
 #' @param mean_coefs spline coefficient vector for mean curve.
 #' @param knots knot locations for B-spline basis used to estimate mean and FPC basis function.
 #' @param beta.inner spline coefficient vector to be estimated for warping function h.
@@ -13,19 +13,18 @@
 #' @export
 #'
 
-loss_h = function(Y, Theta_phi, mean_coefs, knots, beta.inner, family, t_min, t_max){
+loss_h = function(Y, Theta_h, mean_coefs, knots, beta.inner, family, t_min, t_max){
   
   beta = c(t_min, beta.inner, t_max)
   
-  htstar = cbind(1, Theta_phi) %*% beta
-  Theta_h = bs(htstar, knots = knots, intercept = TRUE)
-  mu.h = Theta_h %*% mean_coefs
-  
+  hinv_tstar = cbind(1, Theta_h) %*% beta
+  Theta_phi = bs(hinv_tstar, knots = knots, intercept = TRUE)
+  g_mu_t = Theta_phi %*% mean_coefs
   
   if (family == "gaussian") {
-    return(sum((Y - mu.h) ^ 2))
+    return(sum((Y - g_mu_t) ^ 2))
   } else if (family == "binomial") {
-    pi.h = inv.logit(mu.h)
-    return(-1 * sum(Y * log(pi.h) + (1 - Y) * log(1 - pi.h) ))
+    pi_h = inv.logit(g_mu_t)
+    return(-1 * sum(Y * log(pi_h) + (1 - Y) * log(1 - pi_h) ))
   }
 }

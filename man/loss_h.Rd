@@ -4,12 +4,12 @@
 \alias{loss_h}
 \title{Loss function for registration step optimization}
 \usage{
-loss_h(Y, Theta_phi, mean_coefs, knots, beta.inner, family, t_min, t_max)
+loss_h(Y, Theta_h, mean_coefs, knots, beta.inner, family, t_min, t_max)
 }
 \arguments{
 \item{Y}{vector of observed points.}
 
-\item{Theta_phi}{B-spline basis for vector Y.}
+\item{Theta_h}{B-spline basis for inverse warping functions.}
 
 \item{mean_coefs}{spline coefficient vector for mean curve.}
 

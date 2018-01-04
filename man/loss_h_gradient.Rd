@@ -4,13 +4,13 @@
 \alias{loss_h_gradient}
 \title{Gradient of loss function for registration step}
 \usage{
-loss_h_gradient(Y, Theta_phi, mean_coefs, knots, beta.inner,
+loss_h_gradient(Y, Theta_h, mean_coefs, knots, beta.inner,
   family = "gaussian", t_min, t_max)
 }
 \arguments{
 \item{Y}{vector of observed points.}
 
-\item{Theta_phi}{B-spline basis for vector Y.}
+\item{Theta_h}{B-spline basis for inverse warping functions.}
 
 \item{mean_coefs}{spline coefficient vector for mean curve.}
 

@@ -6,14 +6,17 @@ context("registr")
 
 ## do both binary and gaussian checks for the following
 
-test_that("registr function returns non-null items", {
-	## tests stuff it returns
-})
-
-
 test_that("registr function returns items of expected length", {
-	## tests stuff it returns
-	## test based on values of Kt, Kh that are input
+	I = 50
+	Kt = 11
+	Kh = 3
+	Y = simulate_functional_data(I = I)$Y
+	registr_object = registr(Y = Y, family = "binomial", Kt = Kt, Kh = Kh)
+	
+	expect_equal(dim(registr_object$beta), c(Kh-1, I))
+	
+	Y$value = Y$prob
+	expect_error(registr(Y = Y, family = "gaussian", Kt = Kt, Kh = Kh), NA)
 })
 
 test_that("registr function works for time domains other than (0, 1)", {

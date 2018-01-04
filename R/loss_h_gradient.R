@@ -1,7 +1,7 @@
 #' Gradient of loss function for registration step
 #'
 #' @param Y vector of observed points.
-#' @param Theta_phi B-spline basis for vector Y.
+#' @param Theta_h B-spline basis for inverse warping functions.
 #' @param mean_coefs spline coefficient vector for mean curve.
 #' @param knots knot locations for B-spline basis used to estimate mean and FPC basis function.
 #' @param beta.inner spline coefficient vector to be estimated for warping function h.
@@ -9,41 +9,41 @@
 #' @param t_min minimum value to be evaluated on the time domain (useful if data are sparse and / or irregular). 
 #' @param t_max maximum value to be evaluated on the time domain (useful if data are sparse and / or irregular). 
 #' 
+#' @importFrom boot inv.logit
 #' @author Julia Wrobel \email{jw3134@@cumc.columbia.edu}
 #' @export
 #'
-loss_h_gradient = function(Y, Theta_phi, mean_coefs, knots, beta.inner, family = "gaussian",
+loss_h_gradient = function(Y, Theta_h, mean_coefs, knots, beta.inner, family = "gaussian",
                            t_min, t_max){
   
+	Di = length(Y)
+	Kh = dim(Theta_h)[2]
   beta = c(t_min, beta.inner, t_max)
-  B.tstar = cbind(1, Theta_phi)
-  htstar = B.tstar %*% beta
+
+  Theta_h = cbind(1, Theta_h)
+  
+  hinv_tstar = Theta_h %*% beta
   mean_coefs = matrix(mean_coefs, ncol = 1)
   
-  Theta_h = bs(htstar, knots = knots, intercept = TRUE)
-  Theta_h_deriv = bs_deriv(htstar, knots)
-  
-  Theta_h_quad = crossprod(Theta_h, Theta_h_deriv)
-  
-  mu.t = Theta_h %*% mean_coefs
-  mu.t.deriv = Theta_h_deriv %*% mean_coefs
+  Theta_phi = bs(hinv_tstar, knots = knots, intercept = TRUE)
+  Theta_phi_deriv = bs_deriv(hinv_tstar, knots)
   
   if(family == "binomial"){
-    grad = crossprod(B.tstar, (Y * mu.t.deriv)) - 
-      t(B.tstar) %*% (1/(1 + exp(mu.t)) * exp(mu.t) * mu.t.deriv )
+  	varphi = 1
+  	b_g_deriv = inv.logit(Theta_phi %*% mean_coefs)
+  }else if (family == "gaussian"){
+  	varphi = 1
+  	b_g_deriv = 1
   }else{
-    D = length(Y)
-    Y.diag = diag(Y)
-    #grad = -2 * t(B.tstar) %*% (Y.diag %*% mu.t.deriv) + 2 * rowSums(t(B.tstar) %*% tcrossprod(mu.t.deriv))
-    grad_A =  -2 * t(B.tstar) %*% (Y.diag %*% mu.t.deriv)
-    grad_B = list(NA, D)
-    for(t in 1:D){
-      mu.t.deriv.temp = Theta_h_deriv[t,] %*% mean_coefs
-      grad_B[[t]] = crossprod(mu.t.deriv.temp) * B.tstar[t,] 
-    }
-    grad_B_sum = Reduce("+", grad_B)
-    grad = grad_A = grad_B_sum
+  	stop("Package currently handles only 'binomial' or 'gaussian' families.")
   }
+  
+  gradient_mat = matrix(NA, Kh + 1, Di)
+  for(j in 1:Di){
+  	gradient_mat[, j] = (Y - b_g_deriv)[j] * (Theta_phi_deriv %*% mean_coefs)[j] * Theta_h[j,]
+  }
+  
+  grad = 1/varphi * rowSums(gradient_mat)
   
   grad.last = length(grad)
   grad.inner = grad[-c(1, grad.last)]
