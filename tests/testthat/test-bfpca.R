@@ -7,7 +7,7 @@ test_that("bfpca only accepts binary input values",{
 	expect_that(bfpca(Y), 
 							throws_error("'binomial' family requires data with binary values of 0 or 1"))
 	
-	Y$value = Y$prob
+	Y$value = Y$latent_mean
 	
 	expect_that(bfpca(Y), 
 							throws_error("'binomial' family requires data with binary values of 0 or 1"))

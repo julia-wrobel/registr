@@ -62,7 +62,7 @@ simulate_functional_data = function(lambda1 = 2, lambda2 = 1, I = 50, D = 100, s
 																		vary_D = FALSE){
 	
 	## NULLify global values called by tidyverse functions
-	value = key = time1 = prob =  NULL
+	value = key = time1 = latent_mean =  NULL
 	
 	###
 	grid = seq(0, 1, length.out = D)
