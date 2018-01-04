@@ -78,10 +78,9 @@ simulate_unregistered_curves = function(I = 50, D = 100, lambda = 15, seed = 198
 	simulated_data = data.frame(
 		id = subject,
 		index = tstar_vec,
-		tstar = tstar_vec,
-		t = t_vec,
 		value = as.vector(t(Yi_obs)),
-		latent_prob = as.vector(t(Yi_latent))
+		latent_mean = as.vector(t(Yi_latent)),
+		t = t_vec
 	)
 	
 	simulated_data

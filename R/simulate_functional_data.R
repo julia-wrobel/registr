@@ -80,8 +80,9 @@ simulate_functional_data = function(lambda1 = 2, lambda2 = 1, I = 50, D = 100, s
 		gather(key, value, time1:last_time) %>%
 		arrange(id) %>%
 		mutate(index = rep(grid, I),
-					 prob = inv.logit(value),
-					 value = rbinom(I*D, 1, prob)) 
+					 latent_mean = value,
+					 value = rbinom(I*D, 1, inv.logit(latent_mean))) %>%
+		select(-key)
 	
 	if(vary_D){
 		D_vec = D + as.integer(runif(I, -(D/10), D/10))
@@ -100,8 +101,9 @@ simulate_functional_data = function(lambda1 = 2, lambda2 = 1, I = 50, D = 100, s
 		}
 		
 		Y = Y %>% 
-			mutate(prob = inv.logit(value),
-						 value = rbinom( sum(D_vec), 1, prob) )
+			mutate(latent_mean = value,
+						 value = rbinom( sum(D_vec), 1, inv.logit(latent_mean)) ) %>%
+			select(-key)
 	}
 	
 	return(list(

@@ -21,7 +21,10 @@ The `registr` package is for registering, or aligning, exponential family functi
 
 ```{r load_libraries, echo = FALSE}
 library(registr)
+library(boot)
 library(ggplot2)
+library(dplyr)
+library(gridExtra)
 ```
 
 
@@ -34,10 +37,85 @@ This vignette provides examples that highlight the functionality of the package.
 
 ## Simulated data
 
-There are two functions for simulating data included in the package. One, ___name, simulates data with two orthogonal principal components. It outputs a dataset with binary values, and a continuous latent mean for each subject. Use it to generate data for testing the fpca functions. Plot the simulated data.
+There are two functions for simulating data included in the package: `simulate_functional_data()` and `simulate_unregistered_curves()`. Both functions simulate functional data; the first is intended for testing the gfpca functions in our package and the second is for demonstrating our registration algorithm.
+
+### Simulate data for gfpca
+
+`simulate_functional_data()` simulates data with a population-level mean and two orthogonal principal components based on sine and cosine functions. Below I generate data using this function:
+
+```{r sim_data1}
+fpca_data = simulate_functional_data(I = 100, D = 200)
+
+ls(fpca_data)
+
+head(fpca_data$Y)
+```
+
+I simulated data with $I = 100$ subjects and $D = 200$ time points per subject. The resulting object,`fpca_data`, is a list that contains the true population-level mean (`alpha`) and principal components (`psi1` and `psi2`), and a dataframe (`Y`). The dataframe `Y` contains variables `id`, `value`, `index` and `latent_mean`, which is consistent with the format our `registr` software requires. `id` indicates data for a particular subject, `index` is the time grid for that subject, evaluated on $[0,1]$, the `value` variable contains binary observations, and `latent_mean` contains continuous observations used to generate the binary observations for the `value` variable. Note that when `family = "binomial"` we will use the binary `value` variable as the observations for each subject and when `family = "gaussian"` we use the `latent_mean` variable as the outcome. This data is plotted below.
+
+```{r plot1_sim1, fig.width=6, echo = FALSE}
+
+Y = fpca_data$Y
+pc_df = data.frame(pop_mean = fpca_data$alpha, 
+									 psi1 = fpca_data$psi1,
+									 psi2 = fpca_data$psi2,
+									 index = seq(0, 1, length.out = 200),
+									 id = 1)
+
+latent_means = ggplot(Y, aes(index, latent_mean, group = id)) + theme_bw() +
+	geom_line(alpha = 0.25) + geom_line(data = pc_df, aes(y = pop_mean), color = "red") 
+
+psi1 = ggplot(pc_df, aes(index, psi1)) + theme_bw() + geom_line(color = "blue") 
+psi2 = ggplot(pc_df, aes(index, psi2)) + theme_bw() + geom_line(color = "blue") 
+
+grid.arrange(latent_means, psi1, psi2, ncol = 3)
+
+```
+
+The left panel of the figure above shows the latent means for each subject, along with the population-level mean,  $\alpha(t)$, in red. The middle and right panels show the first and second principal components, $\psi_1(t)$ and $\psi_2(t)$, respectively. Using the $\logit^{-1}$ function we can convert the subject-specific means to probabilities; these probabilities are used to generate the binary values. Binary values and latent probability for one subject in the dataset is shown below.
+
+```{r plot2_sim1, echo = FALSE}
+Y %>%
+	filter(id == 7) %>%
+	ggplot(aes(index, value)) + theme_bw() +
+	geom_point(alpha = 0.75, size = 0.25) + geom_line(aes(y = inv.logit(latent_mean))) +
+	labs(y = "Pr(Y = 1)")
+
+```
+
+We can alter the score variance for the principal components using the arguments `lambda1` and `lambda2`. The default setting is for all subjects to have the same number of time points. However, by specifying `vary_D = TRUE`, we can generate data with uneven grid lengths for each subject.
+
+### Simulate data for registration
+
+The second function for simulating data, `simulate_unregistered_curves()`, generates curves intended to mimic accelerometer data. Use it to test out the `registr()` and `register_fpca()` functions.
+
+Below I generate data using this function:
+
+```{r sim_data2}
+registration_data = simulate_unregistered_curves(I = 100, D = 200)
+
+head(registration_data)
+
+```
+
+I simulated data with $I = 100$ subjects and $D = 200$ time points per subject. The resulting object,`registration_data`, is a data frame with variables `id`, `value`, `index`, `latent_mean`, and `t`. Variables `id`, `value`, and `latent_mean` are the same as those from the `fpca_object` data. The variables `index` and `t` are both time grids. Evaluated on the grid `index` the data is unregistered, and on the grid `t` the data is registered. Registered and unregistered curves are plotted below.
+
+```{r plot_sim2, echo = FALSE, fig.width = 6}
+
+unregistered = registration_data %>%
+	ggplot(aes(index, inv.logit(latent_mean), group = id)) + theme_bw() + 
+	geom_line(alpha = 0.25) + labs(y = "Pr(Y = 1)")
+
+registered = registration_data %>%
+	ggplot(aes(t, inv.logit(latent_mean), group = id)) + theme_bw() + 
+	geom_line(alpha = 0.25) + labs(y = "Pr(Y = 1)")
+
+grid.arrange(unregistered, registered, ncol = 2)
+```
+
+Each curve has one main peak, but the location of that peak is shifted. When curves are registered the peaks align.
 
 
-The second function generates unregistered curves, along with the true values that generate those curves. Use it to test out the `registr()` and `register_fpca()` functions. Pot the simulated data.
 
 ## Registration using `register_fpca()`
 
