@@ -45,6 +45,10 @@ bfpca <- function(Y,index = NULL, id = NULL, npc = 1, Kt = 10, maxiter = 50, t_m
     I = dim(rows)[1]
   }
   
+  if(Kt < 3){
+  	stop("Kt must be greater than or equal to 3.")
+  }
+  
   time = Y$index
   
   ## check that data is binary

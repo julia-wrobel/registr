@@ -33,7 +33,7 @@ loss_h_gradient = function(Y, Theta_h, mean_coefs, knots, beta.inner, family = "
   	b_g_deriv = inv.logit(Theta_phi %*% mean_coefs)
   }else if (family == "gaussian"){
   	varphi = 1
-  	b_g_deriv = 1
+  	b_g_deriv = Theta_phi %*% mean_coefs
   }else{
   	stop("Package currently handles only 'binomial' or 'gaussian' families.")
   }

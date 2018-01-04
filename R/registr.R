@@ -50,6 +50,13 @@ registr = function(obj = NULL, Y = NULL, Kt = 10, Kh = 5, family = "binomial", g
     rows = row_obj
     I = dim(rows)[1]
   }
+	
+	if(Kh < 3){
+		stop("Kh must be greater than or equal to 3.")
+	}
+	if(Kt < 3){
+		stop("Kt must be greater than or equal to 3.")
+	}
   
   tstar = Y$index
   if (is.null(t_min)) {t_min = min(tstar)}
