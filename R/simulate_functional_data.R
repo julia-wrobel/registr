@@ -102,8 +102,7 @@ simulate_functional_data = function(lambda1 = 2, lambda2 = 1, I = 50, D = 100, s
 		
 		Y = Y %>% 
 			mutate(latent_mean = value,
-						 value = rbinom( sum(D_vec), 1, inv.logit(latent_mean)) ) %>%
-			select(-key)
+						 value = rbinom( sum(D_vec), 1, inv.logit(latent_mean)) ) 
 	}
 	
 	return(list(

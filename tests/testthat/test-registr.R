@@ -10,7 +10,7 @@ test_that("registr function returns items of expected length", {
 	
 	expect_equal(dim(registr_object$beta), c(Kh-1, I))
 	
-	Y$value = Y$prob
+	Y$value = Y$latent_mean
 	expect_error(registr(Y = Y, family = "gaussian", Kt = Kt, Kh = Kh), NA)
 })
 
@@ -26,7 +26,7 @@ test_that("registr function works for time domains other than (0, 1)", {
 	Y$index = Y$index + 5
 	expect_error(registr(Y = Y, family = "binomial"), NA)
 	
-	Y$value = Y$prob
+	Y$value = Y$latent_mean
 	expect_error(registr(Y = Y, family = "gaussian"), NA)
 })
 
@@ -37,6 +37,6 @@ test_that("registr function works for subjects with different grid lengths",{
 	expect_true(length(unique(table(Y$id))) > 1)
 	expect_error(registr(Y = Y, family = "binomial"), NA)
 	
-	Y$value = Y$prob
+	Y$value = Y$latent_mean
 	expect_error(registr(Y = Y, family = "gaussian"), NA)
 })
