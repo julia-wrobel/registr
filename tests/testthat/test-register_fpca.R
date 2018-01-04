@@ -42,18 +42,3 @@ test_that("register_fpca output is a list with non-null items and class registra
 	
 	
 })
-
-
-test_that("loss function is generally decreasing", {
-	#seed = as.integer(runif(2, 10, 100))
-	#Y = simulate_unregistered_curves(seed = seed[1])
-	#registr_object = register_fpca(Y, family = "binomial", iterations = 20)
-	#expect_true(sum(diff(registr_object$loss), na.rm = TRUE) < 0)
-	
-	#Y = simulate_unregistered_curves(seed = seed[2])
-	#registr_object = register_fpca(Y, family = "binomial", iterations = 20)
-	#expect_true(sum(diff(registr_object$loss), na.rm = TRUE) < 0)
-	
-	#error for dataset with seed = 65
-	
-})

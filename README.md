@@ -10,5 +10,6 @@ Register exponential family functional data
 
 To install the latest version directly from Github, please use:
 <pre><code>install.packages("devtools")
-devtools::install_github("julia-wrobel/registr")
+devtools::install_github("julia-wrobel/registr", build_vignettes = TRUE)
 </code></pre>
+
