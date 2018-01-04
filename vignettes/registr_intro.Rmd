@@ -1,0 +1,96 @@
+---
+title: "registr: a vignette"
+author: "Julia Wrobel"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{registr: a vignette}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  message = FALSE
+)
+```
+
+The `registr` package is for registering, or aligning, exponential family functional data. Right now it works for binary or continuous data.
+
+```{r load_libraries, echo = FALSE}
+library(registr)
+library(ggplot2)
+```
+
+
+## 'registr package'
+
+The main function in the package is `register_fpca()`. It calls a registration function, `registr()`, performs curve alignment and an gfpca function which calculates a template to which curves are registered using generalized functional principal component analysis (gfpca). The function that calculates gfpca depends on the family. For `family = "binomial"` the `bfpca()` function performs this step and for `family = "gaussian"` the `fpca_gauss()` function performs this step. The `register_fpca()` function iterates between the alignment and template calculation steps until curves are registered. 
+
+This vignette provides examples that highlight the functionality of the package. 	
+
+
+## Simulated data
+
+There are two functions for simulating data included in the package. One, ___name, simulates data with two orthogonal principal components. It outputs a dataset with binary values, and a continuous latent mean for each subject. Use it to generate data for testing the fpca functions. Plot the simulated data.
+
+
+The second function generates unregistered curves, along with the true values that generate those curves. Use it to test out the `registr()` and `register_fpca()` functions. Pot the simulated data.
+
+## Registration using `register_fpca()`
+
+### binary data
+
+The main functionality is for binary data.
+
+### continuous data
+
+
+## `bfpca()` function
+
+Show example of running this code separately. Show subjects and their estimated curves. Show true and estimated means and fpcs.
+
+## `registr()` function
+
+Additional options for registration. Talk about gradient.
+
+
+## Styles
+
+The `html_vignette` template includes a basic CSS theme. To override this theme you can specify your own CSS in the document metadata as follows:
+
+    output: 
+      rmarkdown::html_vignette:
+        css: mystyles.css
+
+## Figures
+
+The figure sizes have been customised so that you can easily put two images side-by-side. 
+
+```{r, fig.show='hold'}
+plot(1:10)
+plot(10:1)
+```
+
+You can enable figure captions by `fig_caption: yes` in YAML:
+
+    output:
+      rmarkdown::html_vignette:
+        fig_caption: yes
+
+Then you can use the chunk option `fig.cap = "Your figure caption."` in **knitr**.
+
+## More Examples
+
+You can write math expressions, e.g. $Y = X\beta + \epsilon$, footnotes^[A footnote here.], and tables, e.g. using `knitr::kable()`.
+
+```{r, echo=FALSE, results='asis'}
+knitr::kable(head(mtcars, 10))
+```
+
+Also a quote using `>`:
+
+> "He who gives up [code] safety for [code] speed deserves neither."
+([via](https://twitter.com/hadleywickham/status/504368538874703872))
