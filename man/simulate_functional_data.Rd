@@ -20,6 +20,13 @@ simulate_functional_data(lambda1 = 2, lambda2 = 1, I = 50, D = 100,
 
 \item{vary_D}{Indicates if grid length vary by subject. If FALSE all subjects have grid length D.}
 }
+\value{
+A list containing:
+\item{Y}{Simulated dataframe with variables id, value, index, and latent_mean.}
+\item{psi1}{True values for first principal component.}
+\item{psi2}{True values for second principal component.}
+\item{alpha}{True values for population-level mean.}
+}
 \description{
 This function simulates functional data. The data it outputs is generated from a mean function
 and two orthogonal principal component basis functions. The mean and principal components are 

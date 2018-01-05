@@ -39,11 +39,14 @@ grid_subj_create = function(coefs, D) {
 #' @param lambda Standard deviation for subject-specific amplitudes.
 #' @param seed Seed for reprodicibility. Default is 1988.
 #' 
-#' @author Jeff Goldsmith \email{ajg2202@@cumc.columbia.edu}
+#' @author Julia Wrobel \email{jw3134@@cumc.columbia.edu},
+#' Jeff Goldsmith \email{ajg2202@@cumc.columbia.edu}
 #' @importFrom magrittr %>%
 #' @importFrom stats rbinom runif
 #' @importFrom boot inv.logit
 #' 
+#' @return A simulated dataframe with variables id, value, index, latent_mean, and t. Index is the domain
+#' on which curves are unregistered and t is the domain on which curves are registered.
 #' @export
 #'
 simulate_unregistered_curves = function(I = 50, D = 100, lambda = 15, seed = 1988) {

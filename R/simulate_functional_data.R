@@ -57,7 +57,11 @@ psi2_sim = function(grid){
 #' 
 #' @import dplyr
 #' 
-#' @return 
+#' @return A list containing:
+#' \item{Y}{Simulated dataframe with variables id, value, index, and latent_mean.}
+#' \item{psi1}{True values for first principal component.}
+#' \item{psi2}{True values for second principal component.}
+#' \item{alpha}{True values for population-level mean.}
 #' @export
 #'
 simulate_functional_data = function(lambda1 = 2, lambda2 = 1, I = 50, D = 100, seed = 1988,
@@ -114,8 +118,6 @@ simulate_functional_data = function(lambda1 = 2, lambda2 = 1, I = 50, D = 100, s
 	
 	return(list(
 		Y = Y,
-		#psi1 = psi1_sim(grid),
-		#psi2 = psi2_sim(grid),
 		psi1 = efunctions[, 1],
 		psi2 = efunctions[, 2], 
 		alpha = mean_sim(grid)

@@ -2,7 +2,7 @@
 #' 
 #' Function used in the FPCA step for registering binary functional data. 
 #' This method uses a variational EM algorithm to estimate scores and principal components for 
-#' binary functional data. The returned values subject_coef are subject specific means.
+#' binary functional data.
 #'
 #' @param Y Input data. 
 #' @param index Defaults to NULL. Indicates which column is the x-axis if Y input is a dataframe.
@@ -20,14 +20,42 @@
 #' @param seed Set seed for reproducibility. Seed value defaults to 1988.
 #' @param ... Additional arguments passed to or from other functions
 #' 
-#' @author Julia Wrobel \email{jw3134@@cumc.columbia.edu}
+#' @author Julia Wrobel \email{jw3134@@cumc.columbia.edu},
+#' Jeff Goldsmith \email{ajg2202@@cumc.columbia.edu}
 #' @importFrom splines bs
 #' @importFrom stats rnorm quantile
 #' 
+#' @return An object of class \code{fpca} containing:
+#' \item{knots}{Cutpoints for B-spline basis used to rebuild \code{alpha}.}
+#' \item{efunctions}{\eqn{D \times npc} matrix of estimated FPC basis functions.}
+#' \item{evalues}{Estimated variance of the FPC scores.}
+#' \item{npc}{number of FPCs.}
+#' \item{scores}{\eqn{I\times npc} matrix of estimated FPC scores.}
+#' \item{Y}{Simulated dataframe with variables id, value, index, and latent_mean.}
+#' \item{alpha}{Estimated population-level mean.}
+#' \item{mu}{Estimated population-level mean. Same value as \code{alpha} but included for compatibility
+#' with \code{refund.shiny} package.}
+#' \item{subject_coefs}{B-spline basis coefficients used to build subject-specific means. 
+#' For use in \code{registr()} function.}
+#' \item{Yhat}{FPC approximation of subject-specific means.}
+#' \item{Y}{The observed data.}
+#' \item{family}{\code{gaussian} or \code{binomial}, for compatibility with \code{refund.shiny} package.}
 #' @export
+#' @references Jaakkola, T. S. and Jordan, M. I. (1997).
+##' A variational approach to Bayesian logistic regression models and their extensions. 
+##' \emph{A variational approach to Bayesian logistic regression models and their extensions.}.
+#' 
+#' Tipping, M. E. (1999). Probabilistic Visualisation of High-dimensional binary data.
+#' \emph{Advances in neural information processing systems}, 592--598.
+#' 
+#' @examples
+##' \dontrun{
+##' Y = simulate_functional_data()$Y
+##' bfpca_object = bfpca(Y, npc = 2, print.iter = TRUE)
+##' }
 #'
 
-bfpca <- function(Y,index = NULL, id = NULL, npc = 1, Kt = 6, maxiter = 20, t_min = NULL, t_max = NULL, 
+bfpca <- function(Y,index = NULL, id = NULL, npc = 1, Kt = 6, maxiter = 50, t_min = NULL, t_max = NULL, 
                   print.iter = FALSE, row_obj= NULL, seed = 1988, ...){
    
   curr_iter = 1
@@ -167,7 +195,6 @@ bfpca <- function(Y,index = NULL, id = NULL, npc = 1, Kt = 6, maxiter = 20, t_mi
     "evalues" =  evalues,
     "npc" = npc,
     "scores" = scores,
-    "error" = error,
     "subject_coefs" = subject_coef,
     "Yhat" = fittedVals, 
     "Y" = Y, #

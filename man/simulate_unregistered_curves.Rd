@@ -15,11 +15,16 @@ simulate_unregistered_curves(I = 50, D = 100, lambda = 15, seed = 1988)
 
 \item{seed}{Seed for reprodicibility. Default is 1988.}
 }
+\value{
+A simulated dataframe with variables id, value, index, latent_mean, and t. Index is the domain
+on which curves are unregistered and t is the domain on which curves are registered.
+}
 \description{
 This function simulates unregistered curves, providing the time values for both 
 the unregistered curves (t_star) and the registered curves (t). Curves all have one peak, the location
 of which is shifted on the unregistered domain, meant to mimic accelerometer data.
 }
 \author{
+Julia Wrobel \email{jw3134@cumc.columbia.edu},
 Jeff Goldsmith \email{ajg2202@cumc.columbia.edu}
 }
