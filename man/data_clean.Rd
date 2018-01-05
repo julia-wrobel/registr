@@ -2,15 +2,15 @@
 % Please edit documentation in R/data_clean.R
 \name{data_clean}
 \alias{data_clean}
-\title{convert data to a refund object}
+\title{Convert data to a \code{refund} object.}
 \usage{
 data_clean(data, family = "binomial")
 }
 \arguments{
-\item{data}{input data. Can be long format dataframe or wide format matrix. If you provide a matrix}
+\item{data}{Dataframe. Should have values id, value, index.}
 
 \item{family}{\code{gaussian} or \code{binomial}.}
 }
 \description{
-Function used for data cleaning
+Function used for data cleaning.
 }

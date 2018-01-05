@@ -4,24 +4,23 @@
 \alias{register_fpca}
 \title{Register curves from exponential family using constrained optimization and generalized FPCA}
 \usage{
-register_fpca(Y, Kt = 10, Kh = 4, family = "binomial",
-  max_iterations = 20, npc = 1, ...)
+register_fpca(Y, Kt = 6, Kh = 3, family = "binomial",
+  max_iterations = 10, npc = 1, ...)
 }
 \arguments{
-\item{Y}{dataframe. Should have values id, value, index.}
+\item{Y}{Dataframe. Should have values id, value, index.}
 
-\item{Kt}{number of B-spline basis functions used to estimate mean functions. 
-Defaults to 10.}
+\item{Kt}{Number of B-spline basis functions used to estimate mean functions. Defaults to 6.}
 
-\item{Kh}{number of B-spline basis functions used to estimate warping functions \emph{h}. Defaults to 5.}
+\item{Kh}{Number of B-spline basis functions used to estimate warping functions \emph{h}. Defaults to 3.}
 
 \item{family}{\code{gaussian} or \code{binomial}.}
 
-\item{max_iterations}{number of iterations between fpca step and registration step.}
+\item{max_iterations}{Number of iterations for overall algorithm. Defaults to 10.}
 
-\item{npc}{defaults to 1. Number of principal components to calculate.}
+\item{npc}{Number of principal components to calculate. Defaults to 1.}
 
-\item{...}{additional arguments passed to registr and fpca functions}
+\item{...}{Additional arguments passed to registr and fpca functions.}
 }
 \value{
 An object of class \code{registration} containing:
@@ -38,7 +37,9 @@ family \code{gaussian} or \code{binomial}.
 }
 \description{
 Function combines constrained optimization and FPCA to estimate warping functions for 
-exponential family curves.
+exponential family curves. Requires input data \code{Y} to be a dataframe in long format with variables 
+\code{id}, \code{index}, and \code{value} to indicate subject IDs, times, and observations, 
+respectively.
 }
 \examples{
 

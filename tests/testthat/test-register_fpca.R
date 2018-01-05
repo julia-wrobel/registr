@@ -18,6 +18,10 @@ test_that("registering binary and gaussian data throws no errors",{
 	Y = simulate_unregistered_curves(seed = 10001)
 	expect_error(register_fpca(Y, family = "binomial"), NA)
 	#expect_error(register_fpca(Y, family = "gaussian"), NA)
+	
+	dat = Y$index
+	expect_error(register_fpca(dat, family = "binomial"), 
+							 "Input dataset must have variables 'id', 'index', and 'value'.")
 })
 
 test_that("registering binary and gaussian data throws no errors",{

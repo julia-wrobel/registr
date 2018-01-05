@@ -4,9 +4,7 @@
 #' This method uses a variational EM algorithm to estimate scores and principal components for 
 #' binary functional data.
 #'
-#' @param Y Input data. 
-#' @param index Defaults to NULL. Indicates which column is the x-axis if Y input is a dataframe.
-#' @param id Defaults to NULL. Indicates which column gives the subject ids if Y input is a dataframe.
+#' @param Y Dataframe. Should have values id, value, index. 
 #' @param npc Defaults to 1. Number of principal components to calculate.
 #' @param Kt Number of B-spline basis functions used to estimate mean functions. Defaults to 6.
 #' @param maxiter Maximum number of iterations to perform for EM algorithm. Default is 20.
@@ -53,7 +51,7 @@
 ##' bfpca_object = bfpca(Y, npc = 2, print.iter = TRUE)
 ##' }
 #'
-bfpca <- function(Y,index = NULL, id = NULL, npc = 1, Kt = 6, maxiter = 50, t_min = NULL, t_max = NULL, 
+bfpca <- function(Y, npc = 1, Kt = 6, maxiter = 50, t_min = NULL, t_max = NULL, 
                   print.iter = FALSE, row_obj= NULL, seed = 1988, ...){
    
   curr_iter = 1

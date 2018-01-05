@@ -12,31 +12,30 @@ registr(obj = NULL, Y = NULL, Kt = 10, Kh = 5, family = "binomial",
   row_obj = NULL, ...)
 }
 \arguments{
-\item{obj}{current estimate of FPC objects (including spline coefs and scores). 
+\item{obj}{Current estimate of FPC object. 
 Can be NULL only if Y argument is selected.}
 
-\item{Y}{data matrix, each row is a subject.}
+\item{Y}{Dataframe. Should have values id, value, index.}
 
-\item{Kt}{number of B-spline basis functions used to estimate mean functions. Defaults to 6.}
+\item{Kt}{Number of B-spline basis functions used to estimate mean functions. Defaults to 6.}
 
-\item{Kh}{number of B-spline basis functions used to estimate warping functions \emph{h}. Defaults to 3.}
+\item{Kh}{Number of B-spline basis functions used to estimate warping functions \emph{h}. Defaults to 3.}
 
 \item{family}{\code{gaussian} or \code{binomial}.}
 
-\item{gradient}{if TRUE, uses analytic gradient to calculate derivative. 
-If FALSE, calculates gradient numerically.}
+\item{gradient}{if \code{TRUE}, uses analytic gradient to calculate derivative. 
+If \code{FALSE}, calculates gradient numerically.}
 
-\item{beta}{Initial values for beta for each subject.}
+\item{beta}{Current estimates for beta for each subject. Defaults to NULL.}
 
-\item{t_min}{minimum value to be evaluated on the time domain.
+\item{t_min}{Minimum value to be evaluated on the time domain.
 if `NULL`, taken to be minimum observed value.}
 
-\item{t_max}{maximum value to be evaluated on the time domain. 
+\item{t_max}{Maximum value to be evaluated on the time domain. 
 if `NULL`, taken to be maximum observed value.}
 
-\item{row_obj}{if NULL, the function cleans the data and calculates row indices. 
-Keep this NULL if you are using 
-standalone \code{registr} function.}
+\item{row_obj}{If NULL, the function cleans the data and calculates row indices. 
+Keep this NULL if you are using standalone \code{registr} function.}
 
 \item{...}{additional arguments passed to or from other functions}
 }

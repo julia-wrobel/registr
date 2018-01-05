@@ -1,8 +1,8 @@
-#' convert data to a refund object
+#' Convert data to a \code{refund} object.
 #' 
-#' Function used for data cleaning
+#' Function used for data cleaning.
 #'
-#' @param data input data. Can be long format dataframe or wide format matrix. If you provide a matrix
+#' @param data Dataframe. Should have values id, value, index.
 #' @param family \code{gaussian} or \code{binomial}.
 #' 
 #' @importFrom dplyr mutate group_by filter select ungroup arrange
@@ -16,16 +16,17 @@ data_clean <- function(data, family = "binomial"){
 	## NULLify global values called by tidyverse functions
 	value = index = NULL
 	
+	# create a stop here if names index, id, value do not exist
+	if(!all(c("id", "index", "value") %in% names(data)) ){
+		stop("Input dataset must have variables 'id', 'index', and 'value'.")
+	}
+	
 	# check if data are sorted by id and index; if not do so and return message
 	if (!identical(data, data %>% arrange(id, index))) {
 		message("Data have been sorted by id and index; all output will be in this format")
 		data = data %>% arrange(id, index)
 	}
 	
-  # insert check for matrix names
-  # create a stop here if names index, id, value do not exist
-  # create a stop here if value is not binary when family is binomial
-  
   # get row numbers for each subject
   data_rows = data %>% 
   	select(id, index, value) %>%

@@ -4,16 +4,11 @@
 \alias{bfpca}
 \title{Binary functional principal components analysis}
 \usage{
-bfpca(Y, index = NULL, id = NULL, npc = 1, Kt = 6, maxiter = 50,
-  t_min = NULL, t_max = NULL, print.iter = FALSE, row_obj = NULL,
-  seed = 1988, ...)
+bfpca(Y, npc = 1, Kt = 6, maxiter = 50, t_min = NULL, t_max = NULL,
+  print.iter = FALSE, row_obj = NULL, seed = 1988, ...)
 }
 \arguments{
-\item{Y}{Input data.}
-
-\item{index}{Defaults to NULL. Indicates which column is the x-axis if Y input is a dataframe.}
-
-\item{id}{Defaults to NULL. Indicates which column gives the subject ids if Y input is a dataframe.}
+\item{Y}{Dataframe. Should have values id, value, index.}
 
 \item{npc}{Defaults to 1. Number of principal components to calculate.}
 

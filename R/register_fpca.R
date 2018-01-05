@@ -1,16 +1,17 @@
 #' Register curves from exponential family using constrained optimization and generalized FPCA
 #'
 #' Function combines constrained optimization and FPCA to estimate warping functions for 
-#' exponential family curves.
+#' exponential family curves. Requires input data \code{Y} to be a dataframe in long format with variables 
+#' \code{id}, \code{index}, and \code{value} to indicate subject IDs, times, and observations, 
+#' respectively.
 #'
-#' @param Y dataframe. Should have values id, value, index.
-#' @param Kt number of B-spline basis functions used to estimate mean functions. 
-#' Defaults to 10.
-#' @param Kh number of B-spline basis functions used to estimate warping functions \emph{h}. Defaults to 5.
+#' @param Y Dataframe. Should have values id, value, index.
+#' @param Kt Number of B-spline basis functions used to estimate mean functions. Defaults to 6.
+#' @param Kh Number of B-spline basis functions used to estimate warping functions \emph{h}. Defaults to 3.
 #' @param family \code{gaussian} or \code{binomial}.
-#' @param max_iterations number of iterations between fpca step and registration step.
-#' @param npc defaults to 1. Number of principal components to calculate.
-#' @param ... additional arguments passed to registr and fpca functions
+#' @param max_iterations Number of iterations for overall algorithm. Defaults to 10.
+#' @param npc Number of principal components to calculate. Defaults to 1. 
+#' @param ... Additional arguments passed to registr and fpca functions.
 #'
 #' @author Julia Wrobel \email{jw3134@@cumc.columbia.edu}
 #' Jeff Goldsmith \email{ajg2202@@cumc.columbia.edu}
@@ -34,19 +35,19 @@
 #'  registr_object = register_fpca(Y, family = "binomial", max_iterations = 25)
 #' }
 #'
-register_fpca <- function(Y, Kt = 10, Kh = 4, family = "binomial", max_iterations = 20, npc = 1, ...){
+register_fpca <- function(Y, Kt = 6, Kh = 3, family = "binomial", max_iterations = 10, npc = 1, ...){
 
   if( !(family %in% c("binomial", "gaussian")) ){
   	stop("Package currently handles only 'binomial' or 'gaussian' families.")
   }
-	
-  time_warps = list(NA, max_iterations + 2)
-  time_warps[[1]] = Y$index
-  loss = rep(NA, max_iterations + 1)
 
   data = data_clean(Y)
   Y = data$Y
   rows = data$Y_rows
+  
+  time_warps = list(NA, max_iterations + 2)
+  time_warps[[1]] = Y$index
+  loss = rep(NA, max_iterations + 1)
 
   # first register values to the overall mean
   registr_step = registr(Y = Y, Kt = Kt, Kh = Kh, family = family, row_obj = rows, ...)
