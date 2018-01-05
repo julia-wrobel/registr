@@ -1,24 +1,24 @@
 #' Binary functional principal components analysis
 #' 
 #' Function used in the FPCA step for registering binary functional data. 
-#' This method uses a variational EM algorithm to estimates scores and principal components for 
+#' This method uses a variational EM algorithm to estimate scores and principal components for 
 #' binary functional data. The returned values subject_coef are subject specific means.
 #'
-#' @param Y input data. Can be long format dataframe or wide format matrix. If you provide a matrix
-#' @param index defaults to NULL. Indicates which column is the x-axis if Y input is a dataframe.
-#' @param id defaults to NULL. Indicates which column gives the subject ids if Y input is a dataframe.
-#' @param npc defaults to 1. Number of principal components to calculate.
-#' @param Kt number of B-spline basis functions used to estimate mean functions. Defaults to 10.
-#' @param maxiter maximum number of iterations to perform.
-#' @param t_min minimum value to be evaluated on the time domain (useful if data are sparse and / or irregular). 
-#' if `NULL`, taken to be minimum observed value.
-#' @param t_max maximum value to be evaluated on the time domain (useful if data are sparse and / or irregular). 
+#' @param Y Input data. 
+#' @param index Defaults to NULL. Indicates which column is the x-axis if Y input is a dataframe.
+#' @param id Defaults to NULL. Indicates which column gives the subject ids if Y input is a dataframe.
+#' @param npc Defaults to 1. Number of principal components to calculate.
+#' @param Kt Number of B-spline basis functions used to estimate mean functions. Defaults to 6.
+#' @param maxiter Maximum number of iterations to perform for EM algorithm. Default is 20.
+#' @param t_min Minimum value to be evaluated on the time domain (useful if data are sparse and / or irregular). 
+#' if `NULL`, Taken to be minimum observed value.
+#' @param t_max Maximum value to be evaluated on the time domain (useful if data are sparse and / or irregular). 
 #' if `NULL`, taken to be maximum observed value.
-#' @param print.iter prints current error and iteration
-#' @param row_obj if NULL, the function cleans the data and calculates row indices. Keep this NULL if you are using 
+#' @param print.iter Prints current error and iteration
+#' @param row_obj If NULL, the function cleans the data and calculates row indices. Keep this NULL if you are using 
 #' standalone \code{register} function.
-#' @param seed set seed for reproducibility. Seed value defaults to 1988.
-#' @param ... additional arguments passed to or from other functions
+#' @param seed Set seed for reproducibility. Seed value defaults to 1988.
+#' @param ... Additional arguments passed to or from other functions
 #' 
 #' @author Julia Wrobel \email{jw3134@@cumc.columbia.edu}
 #' @importFrom splines bs
@@ -27,7 +27,7 @@
 #' @export
 #'
 
-bfpca <- function(Y,index = NULL, id = NULL, npc = 1, Kt = 10, maxiter = 50, t_min = NULL, t_max = NULL, 
+bfpca <- function(Y,index = NULL, id = NULL, npc = 1, Kt = 6, maxiter = 20, t_min = NULL, t_max = NULL, 
                   print.iter = FALSE, row_obj= NULL, seed = 1988, ...){
    
   curr_iter = 1

@@ -56,6 +56,8 @@ psi2_sim = function(grid){
 #' @importFrom boot inv.logit
 #' 
 #' @import dplyr
+#' 
+#' @return 
 #' @export
 #'
 simulate_functional_data = function(lambda1 = 2, lambda2 = 1, I = 50, D = 100, seed = 1988,
@@ -82,7 +84,7 @@ simulate_functional_data = function(lambda1 = 2, lambda2 = 1, I = 50, D = 100, s
 		mutate(index = rep(grid, I),
 					 latent_mean = value,
 					 value = rbinom(I*D, 1, inv.logit(latent_mean))) %>%
-		select(-key)
+		dplyr::select(-key)
 	
 	if(vary_D){
 		D_vec = D + as.integer(runif(I, -(D/10), D/10))
@@ -105,10 +107,17 @@ simulate_functional_data = function(lambda1 = 2, lambda2 = 1, I = 50, D = 100, s
 						 value = rbinom( sum(D_vec), 1, inv.logit(latent_mean)) ) 
 	}
 	
+	# orthogonalize PCs
+	psi_svd = svd(cbind( psi1_sim(grid),  psi2_sim(grid)))
+	efunctions = psi_svd$u
+	evalues = ( psi_svd$d ) ^ 2
+	
 	return(list(
 		Y = Y,
-		psi1 = psi1_sim(grid),
-		psi2 = psi2_sim(grid),
+		#psi1 = psi1_sim(grid),
+		#psi2 = psi2_sim(grid),
+		psi1 = efunctions[, 1],
+		psi2 = efunctions[, 2], 
 		alpha = mean_sim(grid)
 	))
 	###

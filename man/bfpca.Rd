@@ -4,41 +4,41 @@
 \alias{bfpca}
 \title{Binary functional principal components analysis}
 \usage{
-bfpca(Y, index = NULL, id = NULL, npc = 1, Kt = 10, maxiter = 50,
+bfpca(Y, index = NULL, id = NULL, npc = 1, Kt = 6, maxiter = 20,
   t_min = NULL, t_max = NULL, print.iter = FALSE, row_obj = NULL,
   seed = 1988, ...)
 }
 \arguments{
-\item{Y}{input data. Can be long format dataframe or wide format matrix. If you provide a matrix}
+\item{Y}{Input data.}
 
-\item{index}{defaults to NULL. Indicates which column is the x-axis if Y input is a dataframe.}
+\item{index}{Defaults to NULL. Indicates which column is the x-axis if Y input is a dataframe.}
 
-\item{id}{defaults to NULL. Indicates which column gives the subject ids if Y input is a dataframe.}
+\item{id}{Defaults to NULL. Indicates which column gives the subject ids if Y input is a dataframe.}
 
-\item{npc}{defaults to 1. Number of principal components to calculate.}
+\item{npc}{Defaults to 1. Number of principal components to calculate.}
 
-\item{Kt}{number of B-spline basis functions used to estimate mean functions. Defaults to 10.}
+\item{Kt}{Number of B-spline basis functions used to estimate mean functions. Defaults to 6.}
 
-\item{maxiter}{maximum number of iterations to perform.}
+\item{maxiter}{Maximum number of iterations to perform for EM algorithm. Default is 20.}
 
-\item{t_min}{minimum value to be evaluated on the time domain (useful if data are sparse and / or irregular). 
-if `NULL`, taken to be minimum observed value.}
+\item{t_min}{Minimum value to be evaluated on the time domain (useful if data are sparse and / or irregular). 
+if `NULL`, Taken to be minimum observed value.}
 
-\item{t_max}{maximum value to be evaluated on the time domain (useful if data are sparse and / or irregular). 
+\item{t_max}{Maximum value to be evaluated on the time domain (useful if data are sparse and / or irregular). 
 if `NULL`, taken to be maximum observed value.}
 
-\item{print.iter}{prints current error and iteration}
+\item{print.iter}{Prints current error and iteration}
 
-\item{row_obj}{if NULL, the function cleans the data and calculates row indices. Keep this NULL if you are using 
+\item{row_obj}{If NULL, the function cleans the data and calculates row indices. Keep this NULL if you are using 
 standalone \code{register} function.}
 
-\item{seed}{set seed for reproducibility. Seed value defaults to 1988.}
+\item{seed}{Set seed for reproducibility. Seed value defaults to 1988.}
 
-\item{...}{additional arguments passed to or from other functions}
+\item{...}{Additional arguments passed to or from other functions}
 }
 \description{
 Function used in the FPCA step for registering binary functional data. 
-This method uses a variational EM algorithm to estimates scores and principal components for 
+This method uses a variational EM algorithm to estimate scores and principal components for 
 binary functional data. The returned values subject_coef are subject specific means.
 }
 \author{
