@@ -1,6 +1,7 @@
 #' Register curves from exponential family using constrained optimization and generalized FPCA
 #'
-#' Function combines constrained optimization and FPCA to estimate warping functions for exponential family data.
+#' Function combines constrained optimization and FPCA to estimate warping functions for 
+#' exponential family curves.
 #'
 #' @param Y dataframe. Should have values id, value, index.
 #' @param Kt number of B-spline basis functions used to estimate mean functions. 
@@ -12,14 +13,18 @@
 #' @param ... additional arguments passed to registr and fpca functions
 #'
 #' @author Julia Wrobel \email{jw3134@@cumc.columbia.edu}
+#' Jeff Goldsmith \email{ajg2202@@cumc.columbia.edu}
 #' @export
 #' 
-#' @return fpca_obj list of items from FPCA step
-#' @return Y dataframe of data plus unregistered grid t_star and registered grid t_hat
-#' @return time_warps list of time values for each iteration of the algorithm. time_warps[1] returns original (observed) time 
-#' and time_warps[n] provides time values for the final iteration
-#' @return loss Loss for each iteration of the algorithm. Loss is calculated in the registration step using an 
-#' exponential family likelihood with natural parameter calculated in the FPCA step.
+#' @return An object of class \code{registration} containing:
+#' \item{fpca_obj}{List of items from FPCA step.}
+#' \item{Y}{The observed data plus variables \code{t_star} and \code{t_hat} which are the
+#' unregistered grid and registered grid, respectively.}
+#' \item{time_warps}{List of time values for each iteration of the algorithm. 
+#' \code{time_warps[1]} is the original (observed) time
+#' and \code{time_warps[n]} provides time values for the nth iteration.}
+#' \item{loss}{Loss for each iteration of the algorithm, calculated in the registration step using an 
+#' exponential family likelihood with natural parameter from the FPCA step.}
 #' @return family \code{gaussian} or \code{binomial}.
 #'  
 #' @examples
@@ -30,12 +35,11 @@
 #' }
 #'
 register_fpca <- function(Y, Kt = 10, Kh = 4, family = "binomial", max_iterations = 20, npc = 1, ...){
-  ## clean data
+
   if( !(family %in% c("binomial", "gaussian")) ){
   	stop("Package currently handles only 'binomial' or 'gaussian' families.")
   }
 	
-  # save original tstar values and all other t values calculated
   time_warps = list(NA, max_iterations + 2)
   time_warps[[1]] = Y$index
   loss = rep(NA, max_iterations + 1)
@@ -87,4 +91,4 @@ register_fpca <- function(Y, Kt = 10, Kh = 4, family = "binomial", max_iteration
 						 loss = loss[!is.na(loss)], family = family)
 	class(ret) <- "registration"
   return(ret)
-} # end function
+}

@@ -1,6 +1,7 @@
 #' Define constraints for optimization of warping functions
 #' 
-#' Constraints ensure monotonicty of spline coefficients for warping functions for use with \code{constrOptim()} function.  
+#' Constraints ensure monotonicity of spline coefficients for warping functions 
+#' for use with \code{constrOptim()} function.  
 #'
 #' @param Kh Number of B-spline basis functions used to estimate warping functions \emph{h}.
 #' @param t_min Minimum value to be evaluated on the time domain. 

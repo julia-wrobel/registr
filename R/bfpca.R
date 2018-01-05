@@ -31,11 +31,10 @@
 #' \item{evalues}{Estimated variance of the FPC scores.}
 #' \item{npc}{number of FPCs.}
 #' \item{scores}{\eqn{I\times npc} matrix of estimated FPC scores.}
-#' \item{Y}{Simulated dataframe with variables id, value, index, and latent_mean.}
 #' \item{alpha}{Estimated population-level mean.}
 #' \item{mu}{Estimated population-level mean. Same value as \code{alpha} but included for compatibility
 #' with \code{refund.shiny} package.}
-#' \item{subject_coefs}{B-spline basis coefficients used to build subject-specific means. 
+#' \item{subject_coefs}{B-spline basis coefficients used to construct subject-specific means. 
 #' For use in \code{registr()} function.}
 #' \item{Yhat}{FPC approximation of subject-specific means.}
 #' \item{Y}{The observed data.}
@@ -54,7 +53,6 @@
 ##' bfpca_object = bfpca(Y, npc = 2, print.iter = TRUE)
 ##' }
 #'
-
 bfpca <- function(Y,index = NULL, id = NULL, npc = 1, Kt = 6, maxiter = 50, t_min = NULL, t_max = NULL, 
                   print.iter = FALSE, row_obj= NULL, seed = 1988, ...){
    
@@ -84,14 +82,12 @@ bfpca <- function(Y,index = NULL, id = NULL, npc = 1, Kt = 6, maxiter = 50, t_mi
   	stop("'binomial' family requires data with binary values of 0 or 1")
   }
   
-  
   ## construct theta matrix
   if (is.null(t_min)) {t_min = min(time)}
   if (is.null(t_max)) {t_max = max(time)}
   
   knots = quantile(time, probs = seq(0, 1, length = Kt - 2))[-c(1, Kt - 2)]
   Theta_phi = bs(c(t_min, t_max, time), knots = knots, intercept = TRUE)[-(1:2),] 
-  
   
   ## initialize all your vectors
   set.seed(seed)
@@ -169,7 +165,6 @@ bfpca <- function(Y,index = NULL, id = NULL, npc = 1, Kt = 6, maxiter = 50, t_mi
   fits = rep(NA, dim(Y)[1])
   subject_coef = alpha_coefs + tcrossprod(psi_coefs, scores)
  
-  ## vectorize
    for(i in 1:I){
     subject_rows = rows$first_row[i]:rows$last_row[i]
    
@@ -178,7 +173,7 @@ bfpca <- function(Y,index = NULL, id = NULL, npc = 1, Kt = 6, maxiter = 50, t_mi
   
   fittedVals = data.frame(id = Y$id, index = Y$index, value = fits)
   
-  ## mean and eigenfuntions will have same number of grid points as last subject
+  ## mean and eigenfunctions will have same number of grid points as last subject
   Theta_phi_mean = bs(seq(t_min, t_max, length.out = Di), knots = knots, intercept = TRUE) 
   
   # orthogonalize eigenvectors and extract eigenvalues
@@ -189,7 +184,7 @@ bfpca <- function(Y,index = NULL, id = NULL, npc = 1, Kt = 6, maxiter = 50, t_mi
   
   ret = list(
     "knots" = knots, 
-    "alpha" = Theta_phi_mean %*% alpha_coefs,#
+    "alpha" = Theta_phi_mean %*% alpha_coefs,
     "mu" = Theta_phi_mean %*% alpha_coefs, # return this to be consistent with refund.shiny
     "efunctions" = efunctions, 
     "evalues" =  evalues,
@@ -197,7 +192,7 @@ bfpca <- function(Y,index = NULL, id = NULL, npc = 1, Kt = 6, maxiter = 50, t_mi
     "scores" = scores,
     "subject_coefs" = subject_coef,
     "Yhat" = fittedVals, 
-    "Y" = Y, #
+    "Y" = Y, 
     "family" = "binomial"
   )
 

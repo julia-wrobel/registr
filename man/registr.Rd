@@ -5,54 +5,64 @@
 \alias{registr}
 \alias{registr-package}
 \alias{registr}
-\title{registr- a package for exponential family registration that I am working on.}
+\title{registr: Register Exponential Family Functional Data}
 \usage{
 registr(obj = NULL, Y = NULL, Kt = 10, Kh = 5, family = "binomial",
   gradient = TRUE, beta = NULL, t_min = NULL, t_max = NULL,
   row_obj = NULL, ...)
 }
 \arguments{
-\item{obj}{current estimate of FPC objects (including spline coefs and scores). Can be NULL only if Y argument is selected.}
+\item{obj}{current estimate of FPC objects (including spline coefs and scores). 
+Can be NULL only if Y argument is selected.}
 
 \item{Y}{data matrix, each row is a subject.}
 
-\item{Kt}{number of B-spline basis functions used to estimate mean functions. Defaults to 10.}
+\item{Kt}{number of B-spline basis functions used to estimate mean functions. Defaults to 6.}
 
-\item{Kh}{number of B-spline basis functions used to estimate warping functions \emph{h}. Defaults to 5.}
+\item{Kh}{number of B-spline basis functions used to estimate warping functions \emph{h}. Defaults to 3.}
 
 \item{family}{\code{gaussian} or \code{binomial}.}
 
 \item{gradient}{if TRUE, uses analytic gradient to calculate derivative. 
 If FALSE, calculates gradient numerically.}
 
-\item{beta}{Initial values for beta for each subject. If NULL, these are chosen using seq().}
+\item{beta}{Initial values for beta for each subject.}
 
-\item{t_min}{minimum value to be evaluated on the time domain (useful if data are sparse and / or irregular). 
+\item{t_min}{minimum value to be evaluated on the time domain.
 if `NULL`, taken to be minimum observed value.}
 
-\item{t_max}{maximum value to be evaluated on the time domain (useful if data are sparse and / or irregular). 
+\item{t_max}{maximum value to be evaluated on the time domain. 
 if `NULL`, taken to be maximum observed value.}
 
-\item{row_obj}{if NULL, the function cleans the data and calculates row indices. Keep this NULL if you are using 
+\item{row_obj}{if NULL, the function cleans the data and calculates row indices. 
+Keep this NULL if you are using 
 standalone \code{registr} function.}
 
 \item{...}{additional arguments passed to or from other functions}
 }
+\value{
+An object of class \code{fpca} containing:
+\item{Y}{The observed data. The variable index is the new estimated time domain.}
+\item{loss}{Value of the loss function after registraton.}
+\item{beta}{Matrix of B-spline basis coefficients used to construct subject-specific warping functions.}
+}
 \description{
-It does registration stuff
+Software for registering functional data from the exponential family of distributions.
 
-Function used in the registration step of an FPCA-based approach for registering exponential-family functional data. 
-This method uses constrained optimization to estimate spline coefficients for warping functions,
-where the objective function for optimization comes from maximizing the EF likelihood 
-subject to monotonicity constraints on the warping functions. You have to either specify \code{obj}, which is a fpca 
-object from an earlier step, or \code{Y}, which can be a matrix in wide format or a dataframe in long format. If 
-\code{Y} is a dataframe, the subjects IDs, times, and observations should have column names id, index, and value, 
-respectively. If Y is input, then we automatically calculate a template using glm.
+Function used in the registration step of an FPCA-based approach for registering exponential-family 
+functional data. This method uses constrained optimization to estimate spline 
+coefficients for warping functions, where the objective function for optimization comes from 
+maximizing the EF likelihood subject to monotonicity constraints on the warping functions. 
+You have to either specify \code{obj}, which is a fpca 
+object from an earlier step, or \code{Y}, a dataframe in long format with variables 
+\code{id}, \code{index}, and \code{value} to indicate subject IDs, times, and observations, 
+respectively.
 }
 \examples{
 
 \dontrun{
-   register_step = registr(obj = NULL, Y = Y_sim, Kt = 10, Kh = 5, family = "binomial", 
+Y = simulate_unregistered_curves()
+register_step = registr(obj = NULL, Y = Y, Kt = 6, Kh = 3, family = "binomial", 
    gradient = TRUE)
 }
 

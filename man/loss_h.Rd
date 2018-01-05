@@ -19,9 +19,9 @@ loss_h(Y, Theta_h, mean_coefs, knots, beta.inner, family, t_min, t_max)
 
 \item{family}{\code{gaussian} or \code{binomial}.}
 
-\item{t_min}{minimum value to be evaluated on the time domain (useful if data are sparse and / or irregular).}
+\item{t_min}{minimum value to be evaluated on the time domain.}
 
-\item{t_max}{maximum value to be evaluated on the time domain (useful if data are sparse and / or irregular).}
+\item{t_max}{maximum value to be evaluated on the time domain.}
 }
 \description{
 Loss function for registration step optimization

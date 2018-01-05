@@ -14,5 +14,6 @@ constraints(Kh, t_min = 0, t_max = 1)
 \item{t_max}{Maximum value to be evaluated on the time domain.}
 }
 \description{
-Constraints ensure monotonicty of spline coefficients for warping functions for use with \code{constrOptim()} function.
+Constraints ensure monotonicity of spline coefficients for warping functions 
+for use with \code{constrOptim()} function.
 }

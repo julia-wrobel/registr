@@ -1,28 +1,36 @@
 #' Register curves from exponential family
 #' 
-#' Function used in the registration step of an FPCA-based approach for registering exponential-family functional data. 
-#' This method uses constrained optimization to estimate spline coefficients for warping functions,
-#' where the objective function for optimization comes from maximizing the EF likelihood 
-#' subject to monotonicity constraints on the warping functions. You have to either specify \code{obj}, which is a fpca 
-#' object from an earlier step, or \code{Y}, which can be a matrix in wide format or a dataframe in long format. If 
-#' \code{Y} is a dataframe, the subjects IDs, times, and observations should have column names id, index, and value, 
-#' respectively. If Y is input, then we automatically calculate a template using glm.
-#'
-#' @param obj current estimate of FPC objects (including spline coefs and scores). Can be NULL only if Y argument is selected.
+#' Function used in the registration step of an FPCA-based approach for registering exponential-family 
+#' functional data. This method uses constrained optimization to estimate spline 
+#' coefficients for warping functions, where the objective function for optimization comes from 
+#' maximizing the EF likelihood subject to monotonicity constraints on the warping functions. 
+#' You have to either specify \code{obj}, which is a fpca 
+#' object from an earlier step, or \code{Y}, a dataframe in long format with variables 
+#' \code{id}, \code{index}, and \code{value} to indicate subject IDs, times, and observations, 
+#' respectively.
+#' 
+#' @param obj current estimate of FPC objects (including spline coefs and scores). 
+#' Can be NULL only if Y argument is selected.
 #' @param Y data matrix, each row is a subject.
-#' @param Kt number of B-spline basis functions used to estimate mean functions. Defaults to 10.
-#' @param Kh number of B-spline basis functions used to estimate warping functions \emph{h}. Defaults to 5.
+#' @param Kt number of B-spline basis functions used to estimate mean functions. Defaults to 6.
+#' @param Kh number of B-spline basis functions used to estimate warping functions \emph{h}. Defaults to 3.
 #' @param family \code{gaussian} or \code{binomial}.
 #' @param gradient if TRUE, uses analytic gradient to calculate derivative. 
 #' If FALSE, calculates gradient numerically.
-#' @param beta Initial values for beta for each subject. If NULL, these are chosen using seq().
-#' @param t_min minimum value to be evaluated on the time domain (useful if data are sparse and / or irregular). 
+#' @param beta Initial values for beta for each subject. 
+#' @param t_min minimum value to be evaluated on the time domain.
 #' if `NULL`, taken to be minimum observed value.
-#' @param t_max maximum value to be evaluated on the time domain (useful if data are sparse and / or irregular). 
+#' @param t_max maximum value to be evaluated on the time domain. 
 #' if `NULL`, taken to be maximum observed value.
-#' @param row_obj if NULL, the function cleans the data and calculates row indices. Keep this NULL if you are using 
+#' @param row_obj if NULL, the function cleans the data and calculates row indices. 
+#' Keep this NULL if you are using 
 #' standalone \code{registr} function.
 #' @param ... additional arguments passed to or from other functions
+#' 
+#' @return An object of class \code{fpca} containing:
+#' \item{Y}{The observed data. The variable index is the new estimated time domain.}
+#' \item{loss}{Value of the loss function after registraton.}
+#' \item{beta}{Matrix of B-spline basis coefficients used to construct subject-specific warping functions.}
 #' 
 #' @author Julia Wrobel \email{jw3134@@cumc.columbia.edu}
 #' @export
@@ -32,7 +40,8 @@
 #' @examples
 #' 
 #' \dontrun{
-#'    register_step = registr(obj = NULL, Y = Y_sim, Kt = 10, Kh = 5, family = "binomial", 
+#' Y = simulate_unregistered_curves()
+#' register_step = registr(obj = NULL, Y = Y, Kt = 6, Kh = 3, family = "binomial", 
 #'    gradient = TRUE)
 #' }
 #'
@@ -110,4 +119,4 @@ registr = function(obj = NULL, Y = NULL, Kt = 10, Kh = 5, family = "binomial", g
   Y$index = t_hat
 
   return(list(Y = Y, loss = sum(loss_subjects), beta = beta_new)) 
-} # end registration function
+} 

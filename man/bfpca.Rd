@@ -43,11 +43,10 @@ An object of class \code{fpca} containing:
 \item{evalues}{Estimated variance of the FPC scores.}
 \item{npc}{number of FPCs.}
 \item{scores}{\eqn{I\times npc} matrix of estimated FPC scores.}
-\item{Y}{Simulated dataframe with variables id, value, index, and latent_mean.}
 \item{alpha}{Estimated population-level mean.}
 \item{mu}{Estimated population-level mean. Same value as \code{alpha} but included for compatibility
 with \code{refund.shiny} package.}
-\item{subject_coefs}{B-spline basis coefficients used to build subject-specific means. 
+\item{subject_coefs}{B-spline basis coefficients used to construct subject-specific means. 
 For use in \code{registr()} function.}
 \item{Yhat}{FPC approximation of subject-specific means.}
 \item{Y}{The observed data.}

@@ -6,8 +6,8 @@
 #' @param knots knot locations for B-spline basis used to estimate mean and FPC basis function.
 #' @param beta.inner spline coefficient vector to be estimated for warping function h.
 #' @param family \code{gaussian} or \code{binomial}.
-#' @param t_min minimum value to be evaluated on the time domain (useful if data are sparse and / or irregular). 
-#' @param t_max maximum value to be evaluated on the time domain (useful if data are sparse and / or irregular). 
+#' @param t_min minimum value to be evaluated on the time domain. 
+#' @param t_max maximum value to be evaluated on the time domain. 
 #' 
 #' @importFrom boot inv.logit
 #' @export

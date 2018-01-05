@@ -1,6 +1,7 @@
-#'registr- a package for exponential family registration that I am working on.
+#'registr: Register Exponential Family Functional Data
 #'
-#' It does registration stuff
+#' Software for registering functional data from the exponential family of distributions.
+#' 
 #' @name registr
 #' @author Julia Wrobel
 #' @docType package

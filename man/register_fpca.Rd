@@ -24,20 +24,21 @@ Defaults to 10.}
 \item{...}{additional arguments passed to registr and fpca functions}
 }
 \value{
-fpca_obj list of items from FPCA step
-
-Y dataframe of data plus unregistered grid t_star and registered grid t_hat
-
-time_warps list of time values for each iteration of the algorithm. time_warps[1] returns original (observed) time 
-and time_warps[n] provides time values for the final iteration
-
-loss Loss for each iteration of the algorithm. Loss is calculated in the registration step using an 
-exponential family likelihood with natural parameter calculated in the FPCA step.
+An object of class \code{registration} containing:
+\item{fpca_obj}{List of items from FPCA step.}
+\item{Y}{The observed data plus variables \code{t_star} and \code{t_hat} which are the
+unregistered grid and registered grid, respectively.}
+\item{time_warps}{List of time values for each iteration of the algorithm. 
+\code{time_warps[1]} is the original (observed) time
+and \code{time_warps[n]} provides time values for the nth iteration.}
+\item{loss}{Loss for each iteration of the algorithm, calculated in the registration step using an 
+exponential family likelihood with natural parameter from the FPCA step.}
 
 family \code{gaussian} or \code{binomial}.
 }
 \description{
-Function combines constrained optimization and FPCA to estimate warping functions for exponential family data.
+Function combines constrained optimization and FPCA to estimate warping functions for 
+exponential family curves.
 }
 \examples{
 
@@ -49,4 +50,5 @@ Function combines constrained optimization and FPCA to estimate warping function
 }
 \author{
 Julia Wrobel \email{jw3134@cumc.columbia.edu}
+Jeff Goldsmith \email{ajg2202@cumc.columbia.edu}
 }
