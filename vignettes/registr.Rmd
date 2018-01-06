@@ -3,10 +3,22 @@ title: "registr: a vignette"
 author: "Julia Wrobel"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
+references:
+- id: tipping1999
+  title: Probabilistic Visualisation of High-dimensional binary data
+  author:
+  - family: Tipping
+    given: M.E.
+  container-title: Advances in neural information processing systems
+  page: 592-598
+  type: article-journal
+  issued:
+    year: 1999
 vignette: >
   %\VignetteIndexEntry{registr: a vignette}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+  
 ---
 
 ```{r setup, include = FALSE}
@@ -42,6 +54,36 @@ The variable `id` should be a unique identifier in that each id identifies a sin
 ## Simulated data
 
 There are two functions for simulating data included in the package: `simulate_functional_data()` and `simulate_unregistered_curves()`. Both functions simulate functional data; the first is intended for testing the gfpca functions in our package and the second is for demonstrating our registration algorithm.
+
+### Simulate data for registration
+
+The second function for simulating data, `simulate_unregistered_curves()`, generates curves intended to mimic accelerometer data. Use it to test out the `registr()` and `register_fpca()` functions.
+
+Below I generate data using this function:
+
+```{r sim_data2}
+registration_data = simulate_unregistered_curves(I = 50, D = 200, seed = 2018)
+
+head(registration_data)
+
+```
+
+I simulated data with $I = 10$ subjects and $D = 200$ time points per subject. The resulting object,`registration_data`, is a data frame with variables `id`, `value`, `index`, `latent_mean`, and `t`. Variables `id`, `value`, and `latent_mean` are the same as those from the `fpca_object` data. The variables `index` and `t` are both time grids. Evaluated on the grid `index` the data is unregistered, and on the grid `t` the data is registered. Registered and unregistered curves are plotted below.
+
+```{r plot_sim2, echo = FALSE, fig.show='hold'}
+
+registration_data %>%
+	ggplot(aes(index, inv.logit(latent_mean), group = id)) + theme_bw() + 
+	geom_line(alpha = 0.25) + labs(y = "Pr(Y = 1)")
+
+registration_data %>%
+	ggplot(aes(t, inv.logit(latent_mean), group = id)) + theme_bw() + 
+	geom_line(alpha = 0.25) + labs(y = "Pr(Y = 1)")
+
+```
+
+Each curve has one main peak, but the location of that peak is shifted. When curves are registered the peaks are aligned.
+
 
 ### Simulate data for gfpca
 
@@ -86,37 +128,6 @@ Y %>%
 ```
 
 We can alter the score variance for the principal components using the arguments `lambda1` and `lambda2`. The default setting is for all subjects to have the same number of time points. However, by specifying `vary_D = TRUE`, we can generate data with uneven grid lengths for each subject.
-
-### Simulate data for registration
-
-The second function for simulating data, `simulate_unregistered_curves()`, generates curves intended to mimic accelerometer data. Use it to test out the `registr()` and `register_fpca()` functions.
-
-Below I generate data using this function:
-
-```{r sim_data2}
-registration_data = simulate_unregistered_curves(I = 50, D = 200, seed = 2018)
-
-head(registration_data)
-
-```
-
-I simulated data with $I = 10$ subjects and $D = 200$ time points per subject. The resulting object,`registration_data`, is a data frame with variables `id`, `value`, `index`, `latent_mean`, and `t`. Variables `id`, `value`, and `latent_mean` are the same as those from the `fpca_object` data. The variables `index` and `t` are both time grids. Evaluated on the grid `index` the data is unregistered, and on the grid `t` the data is registered. Registered and unregistered curves are plotted below.
-
-```{r plot_sim2, echo = FALSE, fig.show='hold'}
-
-registration_data %>%
-	ggplot(aes(index, inv.logit(latent_mean), group = id)) + theme_bw() + 
-	geom_line(alpha = 0.25) + labs(y = "Pr(Y = 1)")
-
-registration_data %>%
-	ggplot(aes(t, inv.logit(latent_mean), group = id)) + theme_bw() + 
-	geom_line(alpha = 0.25) + labs(y = "Pr(Y = 1)")
-
-```
-
-Each curve has one main peak, but the location of that peak is shifted. When curves are registered the peaks are aligned.
-
-
 
 ## Registration using `register_fpca()`
 
@@ -164,19 +175,71 @@ The true an estimated warping functions are plotted above.
 
 ### continuous data
 
-Need to clean up the code
+Not yet implemented- I have code from Jihui but need to clean it up.
 
 ## `bfpca()` function
 
-Last we plot the results of fpca before and after registration (below). Before registration there is more variance than after registration.
+The functional principal components analysis we implement for binary data (bfpca) is a novel variational EM algorithm derived from methods for binary probabilistic PCA [@tipping1999].
 
-Show example of running this code separately. Show subjects and their estimated curves. Show true and estimated means and fpcs.
+Our `bfpca()` functions works for data that is sparse and irregular (subjects do not have to be observed on the same grid and do not have to have the same number of grid points). The following code runs bfpca on  the `fpca_data` dataset.
+
+```{r bfpca}
+bfpca_object = bfpca(fpca_data$Y, npc = 2, Kt = 8, print.iter = TRUE)
+
+```
+
+Here we use the argument `print.iter = TRUE` to print the error after each iteration. Plotted below are the true and estimated population-level mean and FPCs:
+
+```{r plot_bfpca, echo = FALSE, fig.show='hold', fig.width=2}
+pc_df = pc_df %>%
+	mutate(psi1_est = bfpca_object$efunctions[,1],
+	psi2_est = bfpca_object$efunctions[,2],
+	alpha_est = bfpca_object$alpha)
+
+ggplot(pc_df, aes(index, pop_mean)) + theme_bw() + geom_line(color = "blue") +
+	geom_line(aes(y = alpha_est), linetype = 2, color = "red")
+
+ggplot(pc_df, aes(index, psi1)) + theme_bw() + geom_line(color = "blue") +
+	geom_line(aes(y = psi2_est), linetype = 2, color = "red")
+
+ggplot(pc_df, aes(index, psi2)) + theme_bw() + geom_line(color = "blue") +
+	geom_line(aes(y = psi1_est), linetype = 2, color = "red")
+
+```
+
+Our algorithm runs quickly and does a good job recovering the true FPCs. Note that while the truth and estimation are not perfectly aligned, this is to be expected - the data used to estimate these functions are binary observations that are generated for the truth with some variability, so results are not expected to perfectly align. One would expect results to get better with increasing number of time points per subject.
 
 ## `registr()` function
 
-This can work as a standalone function, though registration is intended to be performed using the `register_fpca()`  function.
+The registration step of `register_fpca()` calls the `registr` function. Though registration is intended to be performed through the `register_fpca()` function `registr()` can work as a standalone function. `registr()` uses constrained maximization of an exponential family likelihood function to estimate functions that align curves.
 
-Additional options for registration. Talk about gradient.
+The default option `gradient = TRUE` implements an analytic gradient for this optimization problem. Selecting `gradient = FALSE` implements a numeric gradient which is less computationally efficient. This is illustrated in the code below. 
 
-show speed with and without gradient on dataset with a lot of subjects.
+```{r registr_function}
+data_test_gradient = simulate_unregistered_curves(I = 400, D = 200)
 
+start_time = Sys.time()
+reg_analytic = registr(Y = data_test_gradient, family = "binomial", gradient = TRUE)
+end_time = Sys.time()
+
+analytic_gradient = as.numeric(round((end_time - start_time), 2))
+
+start_time = Sys.time()
+reg_numeric = registr(Y = data_test_gradient, family = "binomial", gradient = FALSE)
+end_time = Sys.time()
+
+numeric_gradient = as.numeric(round((end_time - start_time), 2))
+
+```
+
+On a dataset with 400 subjects and 200 time points per subject, the `registr()` function runs in `r analytic_gradient` seconds with an analytic gradient and `r numeric_gradient` seconds with a numeric gradient. Since the `register_fpca()` algorithm is iterative and calls the `registr()` function several times, using an analytic derivative drastically increases the computational efficiency, especially if number of subjects in the dataset is large.
+
+## Help files
+
+Documentation for individual functions gives more information on their arguments and return objects, and can be pulled up via the following:
+
+- `?registr`
+- `?bfpca`
+- `?register_fpca`
+
+## References

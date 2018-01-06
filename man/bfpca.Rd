@@ -14,7 +14,7 @@ bfpca(Y, npc = 1, Kt = 6, maxiter = 50, t_min = NULL, t_max = NULL,
 
 \item{Kt}{Number of B-spline basis functions used to estimate mean functions. Defaults to 6.}
 
-\item{maxiter}{Maximum number of iterations to perform for EM algorithm. Default is 20.}
+\item{maxiter}{Maximum number of iterations to perform for EM algorithm. Default is 50.}
 
 \item{t_min}{Minimum value to be evaluated on the time domain (useful if data are sparse and / or irregular). 
 if `NULL`, Taken to be minimum observed value.}
@@ -24,8 +24,8 @@ if `NULL`, taken to be maximum observed value.}
 
 \item{print.iter}{Prints current error and iteration}
 
-\item{row_obj}{If NULL, the function cleans the data and calculates row indices. Keep this NULL if you are using 
-standalone \code{register} function.}
+\item{row_obj}{If NULL, the function cleans the data and calculates row indices. 
+Keep this NULL if you are using standalone \code{register} function.}
 
 \item{seed}{Set seed for reproducibility. Seed value defaults to 1988.}
 
@@ -37,7 +37,7 @@ An object of class \code{fpca} containing:
 \item{efunctions}{\eqn{D \times npc} matrix of estimated FPC basis functions.}
 \item{evalues}{Estimated variance of the FPC scores.}
 \item{npc}{number of FPCs.}
-\item{scores}{\eqn{I\times npc} matrix of estimated FPC scores.}
+\item{scores}{\eqn{I \times npc} matrix of estimated FPC scores.}
 \item{alpha}{Estimated population-level mean.}
 \item{mu}{Estimated population-level mean. Same value as \code{alpha} but included for compatibility
 with \code{refund.shiny} package.}

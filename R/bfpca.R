@@ -7,14 +7,14 @@
 #' @param Y Dataframe. Should have values id, value, index. 
 #' @param npc Defaults to 1. Number of principal components to calculate.
 #' @param Kt Number of B-spline basis functions used to estimate mean functions. Defaults to 6.
-#' @param maxiter Maximum number of iterations to perform for EM algorithm. Default is 20.
+#' @param maxiter Maximum number of iterations to perform for EM algorithm. Default is 50.
 #' @param t_min Minimum value to be evaluated on the time domain (useful if data are sparse and / or irregular). 
 #' if `NULL`, Taken to be minimum observed value.
 #' @param t_max Maximum value to be evaluated on the time domain (useful if data are sparse and / or irregular). 
 #' if `NULL`, taken to be maximum observed value.
 #' @param print.iter Prints current error and iteration
-#' @param row_obj If NULL, the function cleans the data and calculates row indices. Keep this NULL if you are using 
-#' standalone \code{register} function.
+#' @param row_obj If NULL, the function cleans the data and calculates row indices. 
+#' Keep this NULL if you are using standalone \code{register} function.
 #' @param seed Set seed for reproducibility. Seed value defaults to 1988.
 #' @param ... Additional arguments passed to or from other functions
 #' 
@@ -28,7 +28,7 @@
 #' \item{efunctions}{\eqn{D \times npc} matrix of estimated FPC basis functions.}
 #' \item{evalues}{Estimated variance of the FPC scores.}
 #' \item{npc}{number of FPCs.}
-#' \item{scores}{\eqn{I\times npc} matrix of estimated FPC scores.}
+#' \item{scores}{\eqn{I \times npc} matrix of estimated FPC scores.}
 #' \item{alpha}{Estimated population-level mean.}
 #' \item{mu}{Estimated population-level mean. Same value as \code{alpha} but included for compatibility
 #' with \code{refund.shiny} package.}
