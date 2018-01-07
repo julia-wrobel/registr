@@ -21,7 +21,7 @@ knitr::opts_chunk$set(echo = FALSE,
 
 Registration for exponential family functional data. 
 
-* Authors: [Julia Wrobel](http://juliawrobel.com) and [Jeff Goldsmith]((http://jeffgoldsmith.com)
+* Authors: [Julia Wrobel](http://juliawrobel.com) and [Jeff Goldsmith](http://jeffgoldsmith.com)
 * License: [MIT](https://opensource.org/licenses/MIT). See the [LICENSE](LICENSE) file for details
 * Version: 0.1
 
