@@ -84,7 +84,6 @@ registration_data %>%
 
 Each curve has one main peak, but the location of that peak is shifted. When curves are registered the peaks are aligned.
 
-
 ### Simulate data for gfpca
 
 `simulate_functional_data()` simulates data with a population-level mean and two orthogonal principal components based on sine and cosine functions. Below I generate data using this function:
