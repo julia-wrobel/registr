@@ -215,7 +215,7 @@ The registration step of `register_fpca()` calls the `registr` function. Though 
 The default option `gradient = TRUE` implements an analytic gradient for this optimization problem. Selecting `gradient = FALSE` implements a numeric gradient which is less computationally efficient. This is illustrated in the code below. 
 
 ```{r registr_function}
-data_test_gradient = simulate_unregistered_curves(I = 400, D = 200)
+data_test_gradient = simulate_unregistered_curves(I = 50, D = 100)
 
 start_time = Sys.time()
 reg_analytic = registr(Y = data_test_gradient, family = "binomial", gradient = TRUE)
@@ -231,7 +231,7 @@ numeric_gradient = as.numeric(round((end_time - start_time), 2))
 
 ```
 
-On a dataset with 400 subjects and 200 time points per subject, the `registr()` function runs in `r analytic_gradient` seconds with an analytic gradient and `r numeric_gradient` seconds with a numeric gradient. Since the `register_fpca()` algorithm is iterative and calls the `registr()` function several times, using an analytic derivative drastically increases the computational efficiency, especially if number of subjects in the dataset is large.
+On a dataset with just 50 subjects and 100 time points per subject, the `registr()` function runs in `r analytic_gradient` seconds with an analytic gradient and `r numeric_gradient` seconds with a numeric gradient. Since the `register_fpca()` algorithm is iterative and calls the `registr()` function several times, using an analytic derivative drastically increases the computational efficiency, especially if number of subjects in the dataset is large.
 
 ## Help files
 
