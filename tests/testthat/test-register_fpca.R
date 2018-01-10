@@ -6,7 +6,7 @@ test_that("code only accepts supported family of distributions", {
 	Y = simulate_unregistered_curves()
 	registr_object = register_fpca(Y, family = "binomial", max_iterations = 3)
 	
-	#expect_error(register_fpca(Y, family = "gaussian", max_iterations = 3))
+	expect_error(register_fpca(Y, family = "gaussian", max_iterations = 3), NA)
 	expect_error(register_fpca(Y, family = "poisson"),
 							 "Package currently handles only 'binomial' or 'gaussian' families.")
 
@@ -17,17 +17,11 @@ test_that("code only accepts supported family of distributions", {
 test_that("registering binary and gaussian data throws no errors",{
 	Y = simulate_unregistered_curves(seed = 10001)
 	expect_error(register_fpca(Y, family = "binomial"), NA)
-	#expect_error(register_fpca(Y, family = "gaussian"), NA)
+	expect_error(register_fpca(Y, family = "gaussian"), NA)
 	
 	dat = Y$index
 	expect_error(register_fpca(dat, family = "binomial"), 
 							 "Input dataset must have variables 'id', 'index', and 'value'.")
-})
-
-test_that("registering binary and gaussian data throws no errors",{
-	Y = simulate_unregistered_curves(seed = 10001)
-	expect_error(register_fpca(Y, family = "binomial"), NA)
-	#expect_error(register_fpca(Y, family = "gaussian"), NA)
 })
 
 test_that("register_fpca output is a list with non-null items and class registration",{

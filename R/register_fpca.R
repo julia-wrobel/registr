@@ -6,8 +6,8 @@
 #' respectively.
 #'
 #' @param Y Dataframe. Should have values id, value, index.
-#' @param Kt Number of B-spline basis functions used to estimate mean functions. Defaults to 6.
-#' @param Kh Number of B-spline basis functions used to estimate warping functions \emph{h}. Defaults to 3.
+#' @param Kt Number of B-spline basis functions used to estimate mean functions. Defaults to 8.
+#' @param Kh Number of B-spline basis functions used to estimate warping functions \emph{h}. Defaults to 4.
 #' @param family \code{gaussian} or \code{binomial}.
 #' @param max_iterations Number of iterations for overall algorithm. Defaults to 10.
 #' @param npc Number of principal components to calculate. Defaults to 1. 
@@ -35,7 +35,7 @@
 #'  registr_object = register_fpca(Y, family = "binomial", max_iterations = 25)
 #' }
 #'
-register_fpca <- function(Y, Kt = 6, Kh = 3, family = "binomial", max_iterations = 10, npc = 1, ...){
+register_fpca <- function(Y, Kt = 8, Kh = 4, family = "binomial", max_iterations = 10, npc = 1, ...){
 
   if( !(family %in% c("binomial", "gaussian")) ){
   	stop("Package currently handles only 'binomial' or 'gaussian' families.")
@@ -63,7 +63,7 @@ register_fpca <- function(Y, Kt = 6, Kh = 3, family = "binomial", max_iterations
   	if(family == "binomial"){
   		fpca_step = bfpca(registr_step$Y, npc = npc, Kt = Kt, row_obj = rows, seed = 1988 + iter, ...)
   	}else if(family == "gaussian"){
-  		stop("'gaussian' family not yet implemented for fpca step")
+  		fpca_step = fpca_gauss(registr_step$Y, npc = npc, Kt = Kt, row_obj = rows, seed = 1988 + iter, ...)
   	}
   	
   	registr_step = registr(obj = fpca_step, Kt = Kt, Kh = Kh, family = family, 
@@ -82,7 +82,7 @@ register_fpca <- function(Y, Kt = 6, Kh = 3, family = "binomial", max_iterations
   if(family == "binomial"){
   	fpca_step = bfpca(registr_step$Y,npc = npc, Kt = Kt, row_obj = rows)
   }else if(family == "gaussian"){
-  	stop("'gaussian' family not yet implemented for fpca step")
+  	fpca_step = fpca_gauss(registr_step$Y,npc = npc, Kt = Kt, row_obj = rows)
   }
   
   Y$tstar = time_warps[[1]]

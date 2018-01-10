@@ -4,18 +4,16 @@
 #' This method uses a variational EM algorithm to estimate scores and principal components for 
 #' binary functional data.
 #'
-#' @param Y Dataframe. Should have values id, value, index. 
+#' @param Y Dataframe. Should have variables id, value, index. 
 #' @param npc Defaults to 1. Number of principal components to calculate.
-#' @param Kt Number of B-spline basis functions used to estimate mean functions. Defaults to 6.
+#' @param Kt Number of B-spline basis functions used to estimate mean functions. Default is 8.
 #' @param maxiter Maximum number of iterations to perform for EM algorithm. Default is 50.
-#' @param t_min Minimum value to be evaluated on the time domain (useful if data are sparse and / or irregular). 
-#' if `NULL`, Taken to be minimum observed value.
-#' @param t_max Maximum value to be evaluated on the time domain (useful if data are sparse and / or irregular). 
-#' if `NULL`, taken to be maximum observed value.
+#' @param t_min Minimum value to be evaluated on the time domain. 
+#' @param t_max Maximum value to be evaluated on the time domain.
 #' @param print.iter Prints current error and iteration
 #' @param row_obj If NULL, the function cleans the data and calculates row indices. 
 #' Keep this NULL if you are using standalone \code{register} function.
-#' @param seed Set seed for reproducibility. Seed value defaults to 1988.
+#' @param seed Set seed for reproducibility. Default is 1988.
 #' @param ... Additional arguments passed to or from other functions
 #' 
 #' @author Julia Wrobel \email{jw3134@@cumc.columbia.edu},
@@ -36,7 +34,7 @@
 #' For use in \code{registr()} function.}
 #' \item{Yhat}{FPC approximation of subject-specific means.}
 #' \item{Y}{The observed data.}
-#' \item{family}{\code{gaussian} or \code{binomial}, for compatibility with \code{refund.shiny} package.}
+#' \item{family}{\code{binomial}, for compatibility with \code{refund.shiny} package.}
 #' @export
 #' @references Jaakkola, T. S. and Jordan, M. I. (1997).
 ##' A variational approach to Bayesian logistic regression models and their extensions. 
@@ -51,7 +49,7 @@
 ##' bfpca_object = bfpca(Y, npc = 2, print.iter = TRUE)
 ##' }
 #'
-bfpca <- function(Y, npc = 1, Kt = 6, maxiter = 50, t_min = NULL, t_max = NULL, 
+bfpca <- function(Y, npc = 1, Kt = 8, maxiter = 50, t_min = NULL, t_max = NULL, 
                   print.iter = FALSE, row_obj= NULL, seed = 1988, ...){
    
   curr_iter = 1
