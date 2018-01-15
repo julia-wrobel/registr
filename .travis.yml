@@ -9,3 +9,8 @@ sudo: required
 os: osx
 osx_image: xcode8
 
+r_packages:
+  - covr
+
+after_success:
+  - Rscript -e 'covr::codecov()'
