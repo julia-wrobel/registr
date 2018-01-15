@@ -1,8 +1,7 @@
+// [[Rcpp::depends(RcppArmadillo)]]
 #include <RcppArmadillo.h>
 using namespace Rcpp;
-using namespace arma;
-using namespace std;
-// [[Rcpp::depends(RcppArmadillo)]]
+
 //' Calculate expected score and score variance for the current subject.
 //'
 //' Calculations derived using maximum likelihood estimation.
@@ -16,7 +15,7 @@ using namespace std;
 // [[Rcpp::export]]
 List expectedScores(arma::vec Y, arma::vec mu, arma::mat psi, arma::mat theta, arma::mat theta_quad){
   int npc = psi.n_cols;
-  arma::mat Ci_inner = eye(npc, npc) - 2 * trans(psi) * theta_quad * psi;
+  arma::mat Ci_inner = arma::eye(npc, npc) - 2 * trans(psi) * theta_quad * psi;
   arma::mat Ci = inv(Ci_inner);
   
   arma::mat mi_inner = trans(Y - 0.5) * theta * psi + 2 * trans(mu) * theta_quad * psi;

@@ -1,6 +1,6 @@
 Package: registr
 Title: Registering curves from exponential family functional data
-Version: 0.0.0.9000
+Version: 0.1
 Authors@R: c(
     person("Julia", "Wrobel", role = c("aut", "cre"), email = "jw3134@cumc.columbia.edu"),
     person("Jeff", "Goldsmith", role = "aut", email = "jeff.goldsmith@columbia.edu")
@@ -15,8 +15,7 @@ Imports:
     dplyr,
     gridExtra,
     boot,
-    Rcpp,
-    RcppArmadillo
+    Rcpp (>= 0.11.5)
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
@@ -25,4 +24,5 @@ LinkingTo: Rcpp, RcppArmadillo
 Suggests: testthat,
     knitr,
     rmarkdown
+SystemRequirements: GNU make
 VignetteBuilder: knitr

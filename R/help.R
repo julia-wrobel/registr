@@ -8,5 +8,4 @@
 #'
 #' @useDynLib registr
 #' @importFrom Rcpp evalCpp
-#' @import RcppArmadillo
 NULL

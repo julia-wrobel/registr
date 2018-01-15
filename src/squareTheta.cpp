@@ -1,7 +1,5 @@
 #include <RcppArmadillo.h>
 using namespace Rcpp;
-using namespace arma;
-using namespace std;
 // [[Rcpp::depends(RcppArmadillo)]]
 //' Apply lambda transformation of variational parameter.
 //'

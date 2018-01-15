@@ -1,54 +1,26 @@
-# .travis.yml using container-based infrastructure
+language: r
+r: devel
+sudo: true
+cache: packages
+dist: trusty
 
-# use c as catch-all language
-language: c
+warnings_are_errors: true
 
-# use containers
-sudo: false
+before_install:
+  - mkdir ~/.R && echo 'CXX11=g++ -std=c++11 -g -O2 -fPIC' > ~/.R/Makevars
 
-# only run for pushes to master branch
-branches:
-  only:
-   - master
-
-# install R: use r-packages-precise (https://cran.r-project.org/bin/linux/ubuntu/precise/) 
-# as source which is white listed (https://github.com/travis-ci/apt-source-whitelist/)
-addons:
-  apt:
-    sources:
-    - r-packages-precise
-    packages:
-    - r-base-dev	
-    - r-recommended
-    - pandoc
-
-# cache local R libraries directory:
-cache:
-  directories:
-    - ~/Rlib
-
-# install the package and dependencies:
-install:
-  - mkdir -p ~/Rlib
-  - echo 'R_LIBS=~/Rlib' > .Renviron
-  - echo 'options(repos = "http://cran.rstudio.com")' > .Rprofile
-  - echo '.travis.yml' > .Rbuildignore
-  - Rscript -e 'if(!"devtools" %in% rownames(installed.packages())) { install.packages("devtools", dependencies = TRUE) }'
-  - Rscript -e 'if(!"covr" %in% rownames(installed.packages())) { install.packages("covr", dependencies = TRUE) }'
-  - Rscript -e 'update.packages(ask = FALSE, instlib = "~/Rlib")'
-
-# Build and check package
 script:
-  - R CMD build . --no-build-vignettes --no-manual
-  - PKG_FILE_NAME=$(ls -1t *.tar.gz | head -n 1)
-  - R CMD check "${PKG_FILE_NAME}" --no-build-vignettes --no-manual --as-cran 
+  - R CMD build . ${R_BUILD_ARGS}
+  - R CMD check `ls -1t *.tar.gz | head -n 1` ${R_CHECK_ARGS}$
+
+
+env:
+   global:
+     - R_BUILD_ARGS="--no-build-vignettes --no-manual --compact-vignettes=gs+qpdf" 
+     - R_CHECK_ARGS="--no-build-vignettes --no-manual --as-cran"
+
 
 # report coverage rate to coveralls
 after_success:
   - Rscript -e 'covr::coveralls(exclusions = "src/RcppExports.cpp")'
 
-# send e-mails if stuff changes
-notifications:
-  email:
-    on_success: change
-    on_failure: change

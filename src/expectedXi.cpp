@@ -1,8 +1,7 @@
-#include <RcppArmadillo.h>
-using namespace Rcpp;
-using namespace arma;
-using namespace std;
 // [[Rcpp::depends(RcppArmadillo)]]
+#include <RcppArmadillo.h>
+#include <vector>
+using namespace Rcpp;
 //' Estimate variational parameter for the current subject.
 //'
 //' Function calculates value of variational parameter using maximum likelihood.
