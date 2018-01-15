@@ -7,7 +7,7 @@
 
 Registration for exponential family functional data.
 
--   Authors: [Julia Wrobel](http://juliawrobel.com) and [Jeff Goldsmith](http://jeffgoldsmith.com)
+-   Author: [Julia Wrobel](http://juliawrobel.com)
 -   License: [MIT](https://opensource.org/licenses/MIT). See the [LICENSE](LICENSE) file for details
 -   Version: 0.1
 
@@ -15,13 +15,13 @@ Registration for exponential family functional data.
 
 ------------------------------------------------------------------------
 
-Functional data analysis is a set of tools for understanding patterns and variability in data where the basic unit of observation is a curve measured over some domain such as time or space. For an example of functional data consider an accelerometer study where intensity of physical activity was measured at each minute over 24 hours for 50 subjects. The data will contain 50 curves, where each curve is the 24-hour activity profile for a particular subject.
+Functional data analysis is a set of tools for understanding patterns and variability in data where the basic unit of observation is a curve measured over some domain such as time or space. An example is an accelerometer study where intensity of physical activity was measured at each minute over 24 hours for 50 subjects. The data will contain 50 curves, where each curve is the 24-hour activity profile for a particular subject.
 
-Classic functional data analysis assumes that each curve is continuous or comes from a Gaussian distribution. However, applications with exponential family functional data- curves that arise from any exponential family distribution, and have a smooth latent mean- are increasingly common. For example, take the accelerometer data just mentioned, but assume researchers are interested in *sedentary behavior* instead of *activity intensity*. At each minute over 24 hours they collect a binary measurement that indicates whether a subject was active or inactive (sedentary). Now we have a *binary curve* for each subject- a trajectory where each time point can take on a value of 0 or 1. We assume the binary curve has a smooth latent mean, which in this case is interpreted as the probability of being active at each minute over 24 hours. This is a example of exponential family functional data.
+Classic functional data analysis assumes that each curve is continuous or comes from a Gaussian distribution. However, applications with exponential family functional data -- curves that arise from any exponential family distribution, and have a smooth latent mean -- are increasingly common. For example, take the accelerometer data just mentioned, but assume researchers are interested in *sedentary behavior* instead of *activity intensity*. At each minute over 24 hours they collect a binary measurement that indicates whether a subject was active or inactive (sedentary). Now we have a *binary curve* for each subject -- a trajectory where each time point can take on a value of 0 or 1. We assume the binary curve has a smooth latent mean, which in this case is interpreted as the probability of being active at each minute over 24 hours. This is a example of exponential family functional data.
 
-Often in a functional dataset curves have similar underlying patterns but the main features of each curve, such as minimum and maximum, have shifts such that the data appear misaligned. This misalignment can obscure patterns shared across curves and produce messy summary statistics. Registration methods reduce variability in functional data and clarify underlying patterns by alligning curves.
+Often in a functional dataset curves have similar underlying patterns but the main features of each curve, such as the minimum and maximum, have shifts such that the data appear misaligned. This misalignment can obscure patterns shared across curves and produce messy summary statistics. Registration methods reduce variability in functional data and clarify underlying patterns by alligning curves.
 
-This package implements a statistical method for registering exponential family functional data. The method is described in more detail [here](). We provide instructions for installing the software and using it to register simulated binary data below.
+This package implements statistical methods for registering exponential family functional data. The methods are described in more detail in our [paper](http://juliawrobel.com/Downloads/registration_ef.pdf). We provide instructions for installing the software and using it to register simulated binary data below.
 
 ### Installation
 
@@ -31,16 +31,23 @@ To install the latest version directly from Github, please use:
 
 ``` r
 install.packages("devtools")
+devtools::install_github("julia-wrobel/registr")
+```
+
+The `registr` package includes a vignette with more details on package use and functionality. To install the latest version and pull up the vignette please use:
+
+``` r
 devtools::install_github("julia-wrobel/registr", build_vignettes = TRUE)
+vignette(package = "registr")
 ```
 
 ### How to use it
 
 ------------------------------------------------------------------------
 
-This example highlights how to use the package for registering simulated binary data. More details on use of the package can be found in the package vignette.
+This example registers simulated binary data. More details on use of the package can be found in the vignette mentioned above.
 
-The code below uses a function from our package to simulate curves for 100 subjects with 200 timepoints each, observed over domain (0, 1). All curves have similar structure but the location of the peak is shifted. On the observed domain *t*<sup>\*</sup> the curves are unregistered (misaligned). On the domain *t* the curves are registered (aligned).
+The code below uses `registr::simulate_unregistered_curves()` to simulate curves for 100 subjects with 200 timepoints each, observed over domain (0, 1). All curves have similar structure but the location of the peak is shifted. On the observed domain *t*<sup>\*</sup> the curves are unregistered (misaligned). On the domain *t* the curves are registered (aligned).
 
 ``` r
 library(registr)
@@ -69,3 +76,9 @@ binary_registration = register_fpca(Y = registration_data, family = "binomial",
 The plot below shows unregistered, true registered, and estimated registered binary curves two subjects after fitting our method.
 
 <img src="README_files/figure-markdown_github-ascii_identifiers/plot_fit-1.png" style="display: block; margin: auto;" />
+
+### Contributions
+
+------------------------------------------------------------------------
+
+If you find small bugs, larger issues, or have suggestions, please file them using the [issue tracker](https://github.com/julia-wrobel/registr/issues) or email the maintainer at <jw3134@cumc.columbia.edu>. Contributions (via pull requests or otherwise) are welcome.

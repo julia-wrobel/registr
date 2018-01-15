@@ -25,11 +25,12 @@ vignette: >
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  message = FALSE
+  message = FALSE,
+  warning = FALSE
 )
 ```
 
-The `registr` package is for registering, or aligning, exponential family functional data. Right now it works for binary or continuous data.
+The `registr` package is for registering, or aligning, exponential family functional data. 
 
 ```{r load_libraries, echo = FALSE}
 library(registr)
@@ -39,11 +40,42 @@ library(dplyr)
 ```
 
 
-## 'registr package'
+## What is exponential family registration?
 
-The main function in the package is `register_fpca()`. It calls a registration function, `registr()`, performs curve alignment and an gfpca function which calculates a template to which curves are registered using generalized functional principal component analysis (gfpca). The function that calculates gfpca depends on the family. For `family = "binomial"` the `bfpca()` function performs this step and for `family = "gaussian"` the `fpca_gauss()` function performs this step. The `register_fpca()` function iterates between the alignment and template calculation steps until curves are registered. 
+Functional data analysis is a set of tools for understanding patterns and variability in data where the basic unit of observation is a curve measured over some domain such as time or space. An example is an accelerometer study where intensity of physical activity was measured at each minute over 24 hours for 50 subjects. The data will contain 50 curves, where each curve is the 24-hour activity profile for a particular subject.
 
-This vignette provides examples that highlight the functionality of the package. 	
+Classic functional data analysis assumes that each curve is continuous or comes from a Gaussian distribution. However, applications with exponential family functional data -- curves that arise from any exponential family distribution, and have a smooth latent mean -- are increasingly common. For example, take the accelerometer data just mentioned, but assume researchers are interested in *sedentary behavior* instead of *activity intensity*. At each minute over 24 hours they collect a binary measurement that indicates whether a subject was active or inactive (sedentary). Now we have a *binary curve* for each subject -- a trajectory where each time point can take on a value of 0 or 1. We assume the binary curve has a smooth latent mean, which in this case is interpreted as the probability of being active at each minute over 24 hours. This is a  example of exponential family functional data. 
+
+Often in a functional dataset curves have similar underlying patterns but the main features of each curve, such as the minimum and maximum, have shifts such that the data appear misaligned. This misalignment can obscure patterns shared across curves and produce messy summary statistics. Registration methods reduce variability in functional data and clarify underlying patterns by alligning curves.
+
+At the core of this registration method is generalized functional principal components analysis (GFPCA), a popular technique for extracting patterns shared across curves. 
+
+### The `registr` model and algorithm 
+
+The main model for exponential family registration is
+
+$$
+\begin{eqnarray*}
+E\left[Y_i\left(h_i^{-1}(t_i^*)\right) | c_i, h_i^{-1} \right] &=& \mu_i(t) \\
+g\left[\mu_i(t)\right]&=& \alpha(t) + \sum_{k = 1}^K c_{ik}\psi_k(t).
+\end{eqnarray*}
+$$
+For subject $i$, inverse warping functions $h_i^{-1}$ map unregistered time $t_i^*$ to registered time $t$ such that $h_i^{-1}(t_i^*) = t$. $Y_i\left(t_i^*\right)$ and $Y_i\left(h_i^{-1}(t_i^*)\right)$ are the unregistered and registered response curves, respectively. The subject-specific means $\mu_i(t)$ are related to the population-level mean $\alpha(t)$ and a linear combination of population-level basis functions $\psi(t)$ and subject-specific scores $c_i$ through a known link function $g$. 
+
+The `registr` algorithm is based on this model and iterates between the following steps:
+
+1. Estimate subject-specific means **$\mu_i(t)$** using GFPCA, conditional on current estimate of $h_i^{-1}(t_i^*)$.
+1. Estimate inverse warping functions **$h_i^{-1}(t_i^*)$**, conditional on current estimate of $\mu_i(t)$.
+
+
+
+
+The methods implemented in `registr` are described in more detail in this [paper](http://juliawrobel.com/Downloads/registration_ef.pdf).
+
+
+## The `registr` package
+
+The main function in the package is `register_fpca()`. It calls two sub-functions: a GFPCA function to implement **step 1** of the iterative algorithm, and `registr()`, a function to implement **step 2** of the algorithm. The function that calculates GFPCA depends on the family. For `family = "binomial"` the `bfpca()` function performs this step and for `family = "gaussian"` the `fpca_gauss()` function performs this step. The `register_fpca()` function iterates between the alignment and template calculation steps until curves are registered. 
 
 ### A note on data formatting
 
@@ -53,13 +85,11 @@ The variable `id` should be a unique identifier in that each id identifies a sin
 
 ## Simulated data
 
-There are two functions for simulating data included in the package: `simulate_functional_data()` and `simulate_unregistered_curves()`. Both functions simulate functional data; the first is intended for testing the gfpca functions in our package and the second is for demonstrating our registration algorithm.
+There are two functions for simulating data included in the package: `simulate_unregistered_curves()` and `simulate_functional_data()`. Both simulate functional data; the first is intended for demonstrating the registration algorithm and the second is for testing GFPCA sub-functions in the package.
 
 ### Simulate data for registration
 
-The second function for simulating data, `simulate_unregistered_curves()`, generates curves intended to mimic accelerometer data. Use it to test out the `registr()` and `register_fpca()` functions.
-
-Below I generate data using this function:
+`simulate_unregistered_curves()` generates curves with both unregistered and registered time grids.The code below generates data with $I = 10$ subjects and $D = 200$ using this function:
 
 ```{r sim_data2}
 registration_data = simulate_unregistered_curves(I = 50, D = 200, seed = 2018)
@@ -68,7 +98,9 @@ head(registration_data)
 
 ```
 
-I simulated data with $I = 10$ subjects and $D = 200$ time points per subject. The resulting object,`registration_data`, is a data frame with variables `id`, `value`, `index`, `latent_mean`, and `t`. Variables `id`, `value`, and `latent_mean` are the same as those from the `fpca_object` data. The variables `index` and `t` are both time grids. Evaluated on the grid `index` the data is unregistered, and on the grid `t` the data is registered. Registered and unregistered curves are plotted below.
+The resulting object,`registration_data`, is a data frame with variables `id`, `value`, `index`, `latent_mean`, and `t`, which is consistent with the format our `registr` software requires. `id` is the identifyier for a particular subject, the `value` variable contains binary observations, and `latent_mean` contains continuous observations used to generate the binary observations for the `value` variable. Note that when `family = "binomial"` we will use the binary `value` variable as the observations for each subject and when `family = "gaussian"` we use the `latent_mean` variable as the outcome.
+
+The variables `index` and `t` are both time grids. Evaluated on the grid `index` the data is unregistered, and on the grid `t` the data is registered. Registered and unregistered curves are plotted below.
 
 ```{r plot_sim2, echo = FALSE, fig.show='hold'}
 
@@ -84,9 +116,9 @@ registration_data %>%
 
 Each curve has one main peak, but the location of that peak is shifted. When curves are registered the peaks are aligned.
 
-### Simulate data for gfpca
+### Simulate data for GFPCA
 
-`simulate_functional_data()` simulates data with a population-level mean and two orthogonal principal components based on sine and cosine functions. Below I generate data using this function:
+`simulate_functional_data()` simulates data with a population-level mean and two orthogonal principal components based on sine and cosine functions. The code below generates data with $I = 100$ subjects and $D = 200$ time points per subject using this function:
 
 ```{r sim_data1}
 fpca_data = simulate_functional_data(I = 100, D = 200)
@@ -96,7 +128,7 @@ ls(fpca_data)
 head(fpca_data$Y)
 ```
 
-I simulated data with $I = 100$ subjects and $D = 200$ time points per subject. The resulting object,`fpca_data`, is a list that contains the true population-level mean (`alpha`) and principal components (`psi1` and `psi2`), and a dataframe (`Y`). The dataframe `Y` contains variables `id`, `value`, `index` and `latent_mean`, which is consistent with the format our `registr` software requires. `id` indicates data for a particular subject, `index` is the time grid for that subject, evaluated on $[0,1]$, the `value` variable contains binary observations, and `latent_mean` contains continuous observations used to generate the binary observations for the `value` variable. Note that when `family = "binomial"` we will use the binary `value` variable as the observations for each subject and when `family = "gaussian"` we use the `latent_mean` variable as the outcome. This data is plotted below.
+The resulting object,`fpca_data`, is a list that contains the true population-level mean (`alpha`) and principal components (`psi1` and `psi2`), and a dataframe (`Y`). The dataframe `Y` contains variables `id`, `value`, `index` and `latent_mean`. This data is plotted below.
 
 ```{r plot1_sim1, fig.show='hold', fig.width = 2, echo = FALSE}
 
@@ -130,7 +162,7 @@ We can alter the score variance for the principal components using the arguments
 
 ## Registration using `register_fpca()`
 
-`register_fpca()` is the main function for the `registr` package. The algorithm implemented by this function is described in our [paper](). Use the `family` argument to this function to specify what type of exponential family data you would like to align. Right now our package supports `family = "binomial"` for registering binary data and `family = "gaussian"` for registering continuous data.
+`register_fpca()` is the main function for the `registr` package. Use the `family` argument to this function to specify what type of exponential family data you would like to align. The package supports `family = "binomial"` for registering binary data and `family = "gaussian"` for registering continuous data.
 
 ### `register_fpca(family = "binomial")` for binary data
 
@@ -138,10 +170,10 @@ To register binary data use the following code:
 
 ```{r register_binary, message = FALSE}
 
-registr_bin = register_fpca(Y = registration_data, family = "binomial", Kt = 8, Kh = 3, npc  = 1)
+registr_bin = register_fpca(Y = registration_data, family = "binomial", Kt = 8, Kh = 3, npc = 1)
 ```
 
-The argument `Y` specificies the input dataset; here we use the simulated `registration_data`. `Kt` and `Kh` specify number of B-spline basis functions for the subject-specific means and warping functions, respectively, and `npc` indicates the number of functional principal components to use.
+The argument `Y` specificies the input dataset; this code uses the simulated `registration_data`. `Kt` and `Kh` specify number of B-spline basis functions for the subject-specific means and warping functions, respectively, and `npc` indicates the number of functional principal components to use.
 
 ```{r plot_reg_bin, echo = FALSE, fig.show='hold', fig.width=2}
 Y = registr_bin$Y
@@ -157,7 +189,7 @@ ggplot(Y, aes(t_hat, inv.logit(latent_mean), group = id)) + theme_bw() +
 
 ```
 
-Plotted above are results of registering the binary data.At left probabilities on unregistered domain $t^*$, center are probabilities on true registered domain $t$, and at right are probabilities on estimated registered domain $\hat{t}$. After registration the underlying probabilities are aligned- though it is important to note that we register based on the underlying binary observations, not the true probabilities.
+The results of registering the binary data are plotted above. At left probabilities on unregistered domain $t^*$, center are probabilities on true registered domain $t$, and at right are probabilities on estimated registered domain $\widehat{t}$. After registration the underlying probabilities are aligned -- though it is important to note that the algorithm registers based on the underlying binary observations, not the true probabilities.
 
 ```{r plot_reg_bin_warp, echo = FALSE, fig.show='hold'}
 
@@ -172,22 +204,43 @@ ggplot(Y, aes(tstar, t_hat, group = id)) + theme_bw() +
 
 The true an estimated warping functions are plotted above. 
 
-### continuous data
+### `register_fpca(family = "gaussian")` for continuous data
 
-Not yet implemented- I have code from Jihui but need to clean it up.
+To register continuous data use the following code:
+
+```{r register_gaussian, message = FALSE}
+Y$value = Y$latent_mean
+registr_gauss = register_fpca(Y = registration_data, family = "gaussian", Kt = 10)
+```
+
+The results of registering the continuous data are plotted below.
+
+```{r plot_reg_gauss, echo = FALSE, fig.show='hold', fig.width=2}
+Y = registr_gauss$Y
+
+ggplot(Y, aes(tstar, latent_mean, group = id)) + theme_bw() + 
+	geom_line(alpha = 0.25)
+
+ggplot(Y, aes(t, latent_mean, group = id)) + theme_bw() + 
+	geom_line(alpha = 0.25) 
+
+ggplot(Y, aes(t_hat, latent_mean, group = id)) + theme_bw() + 
+	geom_line(alpha = 0.25) 
+
+```
 
 ## `bfpca()` function
 
-The functional principal components analysis we implement for binary data (bfpca) is a novel variational EM algorithm derived from methods for binary probabilistic PCA [@tipping1999].
+The `registr` package includes a novel variational EM algorithm for binary functional principals component analysis (bfpca), derived from methods for binary probabilistic PCA [@tipping1999].
 
-Our `bfpca()` functions works for data that is sparse and irregular (subjects do not have to be observed on the same grid and do not have to have the same number of grid points). The following code runs bfpca on  the `fpca_data` dataset.
+This `bfpca()` function works for data that is sparse and irregular (subjects do not have to be observed on the same grid and do not have to have the same number of grid points), as well as dense, regularly observed data. The following code runs bfpca on the `fpca_data` dataset.
 
 ```{r bfpca}
 bfpca_object = bfpca(fpca_data$Y, npc = 2, Kt = 8, print.iter = TRUE)
 
 ```
 
-Here we use the argument `print.iter = TRUE` to print the error after each iteration. Plotted below are the true and estimated population-level mean and FPCs:
+The argument `print.iter = TRUE` prints the error after each iteration. The true and estimated population-level mean and FPCs are plotted below.
 
 ```{r plot_bfpca, echo = FALSE, fig.show='hold', fig.width=2}
 pc_df = pc_df %>%
@@ -206,7 +259,7 @@ ggplot(pc_df, aes(index, psi2)) + theme_bw() + geom_line(color = "blue") +
 
 ```
 
-Our algorithm runs quickly and does a good job recovering the true FPCs. Note that while the truth and estimation are not perfectly aligned, this is to be expected - the data used to estimate these functions are binary observations that are generated for the truth with some variability, so results are not expected to perfectly align. One would expect results to get better with increasing number of time points per subject.
+The algorithm runs quickly and does a good job recovering the true FPCs. Note that while the truth and estimation are not perfectly aligned, this is to be expected -- the data used to estimate these functions are binary observations that are generated for the truth with some variability, so results are not expected to perfectly align. One would expect results to get better with increasing number of time points per subject.
 
 ## `registr()` function
 
@@ -237,8 +290,8 @@ On a dataset with just 50 subjects and 100 time points per subject, the `registr
 
 Documentation for individual functions gives more information on their arguments and return objects, and can be pulled up via the following:
 
+- `?register_fpca`
 - `?registr`
 - `?bfpca`
-- `?register_fpca`
 
 ## References
