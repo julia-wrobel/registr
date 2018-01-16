@@ -1,26 +1,16 @@
+# R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
+
 language: r
-r: devel
-sudo: true
-cache: packages
+
+os: linux
 dist: trusty
+sudo: required
 
-warnings_are_errors: true
+os: osx
+osx_image: xcode8
 
-before_install:
-  - mkdir ~/.R && echo 'CXX11=g++ -std=c++11 -g -O2 -fPIC' > ~/.R/Makevars
+r_packages:
+  - covr
 
-script:
-  - R CMD build . ${R_BUILD_ARGS}
-  - R CMD check `ls -1t *.tar.gz | head -n 1` ${R_CHECK_ARGS}$
-
-
-env:
-   global:
-     - R_BUILD_ARGS="--no-build-vignettes --no-manual --compact-vignettes=gs+qpdf" 
-     - R_CHECK_ARGS="--no-build-vignettes --no-manual --as-cran"
-
-
-# report coverage rate to coveralls
 after_success:
-  - Rscript -e 'covr::coveralls(exclusions = "src/RcppExports.cpp")'
-
+  - Rscript -e 'covr::codecov()'
