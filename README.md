@@ -3,7 +3,7 @@
 `registr`
 =========
 
-[![](https://travis-ci.org/julia-wrobel/registr.svg?branch=master)](https://travis-ci.org/julia-wrobel/registr) [![codecov.io](https://codecov.io/gh/julia-wrobel/registr/coverage.svg?branch=master)](https://codecov.io/gh/julia-wrobel/registr/coverage.svg?branch=master)
+[![](https://travis-ci.org/julia-wrobel/registr.svg?branch=master)](https://travis-ci.org/julia-wrobel/registr)
 
 Registration for exponential family functional data.
 
