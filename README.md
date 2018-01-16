@@ -3,7 +3,7 @@
 `registr`
 =========
 
-[![](https://travis-ci.org/julia-wrobel/registr.svg?branch=master)](https://travis-ci.org/julia-wrobel/registr)
+[![](https://travis-ci.org/julia-wrobel/registr.svg?branch=master)](https://travis-ci.org/julia-wrobel/registr) [![codecov.io](https://codecov.io/gh/julia-wrobel/registr/coverage.svg?branch=master)](https://codecov.io/gh/julia-wrobel/registr/coverage.svg?branch=master)
 
 Registration for exponential family functional data.
 
@@ -21,7 +21,7 @@ Classic functional data analysis assumes that each curve is continuous or comes 
 
 Often in a functional dataset curves have similar underlying patterns but the main features of each curve, such as the minimum and maximum, have shifts such that the data appear misaligned. This misalignment can obscure patterns shared across curves and produce messy summary statistics. Registration methods reduce variability in functional data and clarify underlying patterns by alligning curves.
 
-This package implements statistical methods for registering exponential family functional data. The methods are described in more detail in our [paper](http://juliawrobel.com/Downloads/registration_ef.pdf). We provide instructions for installing the software and using it to register simulated binary data below.
+This package implements statistical methods for registering exponential family functional data. The methods are described in more detail in our [paper](http://juliawrobel.com/Downloads/registration_ef.pdf). Instructions for installing the software and using it to register simulated binary data are provided below.
 
 ### Installation
 
