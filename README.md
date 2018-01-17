@@ -3,7 +3,7 @@
 `registr`
 =========
 
-[![](https://travis-ci.org/julia-wrobel/registr.svg?branch=master)](https://travis-ci.org/julia-wrobel/registr) [![codecov.io](https://codecov.io/gh/julia-wrobel/registr/coverage.svg?branch=master)](https://codecov.io/gh/julia-wrobel/registr/coverage.svg?branch=master)
+[![](https://travis-ci.org/julia-wrobel/registr.svg?branch=master)](https://travis-ci.org/julia-wrobel/registr) [![codecov.io](https://codecov.io/gh/julia-wrobel/registr/coverage.svg?branch=master)](https://codecov.io/gh/julia-wrobel/registr/coverage.svg?branch=master) [![status](http://joss.theoj.org/papers/9c40c4f0ede1827cc5a9430c625d6494/status.svg)](http://joss.theoj.org/papers/9c40c4f0ede1827cc5a9430c625d6494)
 
 Registration for exponential family functional data.
 
