@@ -60,7 +60,7 @@ E\left[Y_i\left(h_i^{-1}(t_i^*)\right) | c_i, h_i^{-1} \right] &=& \mu_i(t) \\
 g\left[\mu_i(t)\right]&=& \alpha(t) + \sum_{k = 1}^K c_{ik}\psi_k(t).
 \end{eqnarray*}
 $$
-For subject $i$, inverse warping functions $h_i^{-1}$ map unregistered time $t_i^*$ to registered time $t$ such that $h_i^{-1}(t_i^*) = t$. $Y_i\left(t_i^*\right)$ and $Y_i\left(h_i^{-1}(t_i^*)\right)$ are the unregistered and registered response curves, respectively. The subject-specific means $\mu_i(t)$ are related to the population-level mean $\alpha(t)$ and a linear combination of population-level basis functions $\psi(t)$ and subject-specific scores $c_i$ through a known link function $g$. 
+For subject $i$, inverse warping function $h_i^{-1}$ maps unregistered time $t_i^*$ to registered time $t$ such that $h_i^{-1}(t_i^*) = t$. $Y_i\left(t_i^*\right)$ and $Y_i\left(h_i^{-1}(t_i^*)\right)$ are the unregistered and registered response curves, respectively. The subject-specific means $\mu_i(t)$ are related to the population-level mean $\alpha(t)$ and a linear combination of population-level basis functions $\psi(t)$ and subject-specific scores $c_i$ through a known link function $g$. 
 
 The `registr` algorithm is based on this model and iterates between the following steps:
 

@@ -16,17 +16,9 @@ bibliography: paper.bib
 
 # Summary
 
-- what is exponential family functional data
-- what is registration
-- what is a warping function
-- difference between t and t*
-- model
-- talk about model parameters
-- iterative algorithm to estimate parameters from model
-- given a dataset in format outlined in our vignette `register_fpca` will register exponential family functional data of a specified family. This function returns on object of class `registration`.
+Functional data analysis is a set of tools for understanding patterns and variability in data where the basic unit of observation is a curve measured over time, space, or another domain. Classic functional data analysis assumes that each curve is continuous or comes from a Gaussian distribution. However, applications with exponential family functional data -- curves that arise from any exponential family distribution, and have a smooth latent mean -- are increasingly common.  
 
-- implemented for speed and efficiency (Key pieces of the code are written in C++ using Rcpp and RcppArmadillo libraries, cite)
-- compatible with refund.shiny
+Often in a functional dataset curves have similar underlying patterns but the main features of each curve, such as the minimum and maximum, have shifts such that the data appear misaligned. This misalignment can obscure patterns shared across curves and produce messy summary statistics. Registration methods reduce variability in functional data and clarify underlying patterns by aligning curves. Our method estimates a map, called a **warping function**, which transforms the domain from so that curves are aligned. The model for registration can be written
 
 $$
 \begin{eqnarray*}
@@ -35,13 +27,12 @@ g\left[\mu_i(t)\right]&=& \alpha(t) + \sum_{k = 1}^K c_{ik}\psi_k(t).
 \end{eqnarray*}
 $$
 
-where $Y_i(t)$ is the functional response for subject $i$, the $X_{ik}(t)$ are functional predictors, the $\beta_k(t)$ are functional coefficients of interest, and the $\delta_i(t)$ are possibly correlated errors. This package implements two statistical methods (with and without variable selection) for estimating the parameters in the functional linear concurrent model; 
+For subject $i$, warping function $h_i^{-1}$ maps the domain on which curves are misaligned, $t_i^*$, to aligned domain $t$ such that $h_i^{-1}(t_i^*) = t$. Then $Y_i\left(t_i^*\right)$ and $Y_i\left(h_i^{-1}(t_i^*)\right)$ are the unregistered and registered functional response curves, respectively. The $\mu_i(t)$ are subject-specific means related to the population-level mean $\alpha(t)$ and a linear combination of population-level basis functions $\psi(t)$ and subject-specific scores $c_i$ through a known link function $g$. 
 
+The `registr` package estimates warping functions and other parameters in this model via a two-step iterative algorithm which is detailed in @wrobel2018. The main function is `register_fpca`, which registers functional data from a specified exponential family distribution. `register_fpca` reads in a long-format functional dataset and outputs an object of class `registration`.
 
+To enhance computational efficency, key algorithm components are implemented in C++ using the R libraries `Rcpp` and `RcppArmadillo` [@rcpp, @rcppArma]. Interactive visualizations are enabled with the `refund.shiny` package [@refund.shiny, @wrobel2016]. 
 
-these methods are described in detail [@wrobel2018].
-
-Given tidy datasets containing functional responses and predictors for all subjects, `vb_concurrent` and `vbvs_concurrent` fit the functional linear concurrent model using variational Bayes and variational Bayes with variable selection, respectively. These functions produce objects of class `flcm` and have the same structure. Coefficients and predictions can be extracted or computed from `flmc` objects using `coef` and `predict`. Interactive visualizations of `flmc` objects are supported through the `refund.shiny` package [@refund.shiny, @wrobel2016].
 
 
 # References
