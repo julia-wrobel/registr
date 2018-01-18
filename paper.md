@@ -1,18 +1,19 @@
 ---
 title: 'register: Registration for Exponential Family Functional Data'
-date: 2018-01-18
-tags:
- - R
- - Statistical analysis
- - Functional data
 authors:
- - name: Julia Wrobel
-   orcid: 000-0001-6783-1421
-   affiliation: 1
-affiliations:
- - name: Columbia University
-   index: 1
+- affiliation: 1
+  name: Julia Wrobel
+  orcid: 000-0001-6783-1421
+date: '2018-01-18'
+output: pdf_document
 bibliography: paper.bib
+tags:
+- R
+- Statistical analysis
+- Functional data
+affiliations:
+- index: 1
+  name: Columbia University
 ---
 
 # Summary
@@ -22,7 +23,7 @@ Functional data analysis is a set of tools for understanding patterns and variab
 Often in a functional dataset curves have similar underlying patterns but the main features of each curve, such as the minimum and maximum, have shifts such that the data appear misaligned. This misalignment can obscure patterns shared across curves and produce messy summary statistics. Registration methods reduce variability in functional data and clarify underlying patterns by aligning curves. Our method estimates a map, called a **warping function**, which transforms the domain from so that curves are aligned. The model for registration can be written
 
 $$
-E\left[Y_i\left(h_i^{-1}(t_i^*)\right) | c_i, h_i^{-1} \right] = \mu_i(t) \\
+E\left[Y_i\left(h_i^{-1}(t_i^*)\right) | c_i, h_i^{-1} \right] = \mu_i(t)
 $$
 
 $$
