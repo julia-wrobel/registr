@@ -1,16 +1,17 @@
 ---
-title: 'registr: Registration for Exponential Family Functional Data'
-date: "17 January 2018"
+title: 'register: Registration for Exponential Family Functional Data'
+date: 2018-01-18
 tags:
-- statistical analysis
-- R
+ - R
+ - Statistical analysis
+ - Functional data
 authors:
-- name: Julia Wrobel
-orcid: 000-0001-6783-1421
-affiliation: 1
+ - name: Julia Wrobel
+   orcid: 000-0001-6783-1421
+   affiliation: 1
 affiliations:
-name: Columbia University
-index: 1
+ - name: Columbia University
+   index: 1
 bibliography: paper.bib
 ---
 
