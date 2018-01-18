@@ -22,10 +22,11 @@ Functional data analysis is a set of tools for understanding patterns and variab
 Often in a functional dataset curves have similar underlying patterns but the main features of each curve, such as the minimum and maximum, have shifts such that the data appear misaligned. This misalignment can obscure patterns shared across curves and produce messy summary statistics. Registration methods reduce variability in functional data and clarify underlying patterns by aligning curves. Our method estimates a map, called a **warping function**, which transforms the domain from so that curves are aligned. The model for registration can be written
 
 $$
-\begin{eqnarray*}
-E\left[Y_i\left(h_i^{-1}(t_i^*)\right) | c_i, h_i^{-1} \right] &=& \mu_i(t) \\
-g\left[\mu_i(t)\right]&=& \alpha(t) + \sum_{k = 1}^K c_{ik}\psi_k(t).
-\end{eqnarray*}
+E\left[Y_i\left(h_i^{-1}(t_i^*)\right) | c_i, h_i^{-1} \right] = \mu_i(t) \\
+$$
+
+$$
+g\left[\mu_i(t)\right]= \alpha(t) + \sum_{k = 1}^K c_{ik}\psi_k(t).
 $$
 
 For subject $i$, warping function $h_i^{-1}$ maps the domain on which curves are misaligned, $t_i^*$, to aligned domain $t$ such that $h_i^{-1}(t_i^*) = t$. Then $Y_i\left(t_i^*\right)$ and $Y_i\left(h_i^{-1}(t_i^*)\right)$ are the unregistered and registered functional response curves, respectively. The $\mu_i(t)$ are subject-specific means related to the population-level mean $\alpha(t)$ and a linear combination of population-level basis functions $\psi(t)$ and subject-specific scores $c_i$ through a known link function $g$. 
