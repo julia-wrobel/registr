@@ -189,7 +189,7 @@ ggplot(Y, aes(t_hat, inv.logit(latent_mean), group = id)) + theme_bw() +
 
 ```
 
-The results of registering the binary data are plotted above. At left probabilities on unregistered domain $t^*$, center are probabilities on true registered domain $t$, and at right are probabilities on estimated registered domain $\widehat{t}$. After registration the underlying probabilities are aligned -- though it is important to note that the algorithm registers based on the underlying binary observations, not the true probabilities.
+ing the binary data are plotted above. At left probabilities on unregistered domain $t^*$, center are probabilities on true registered domain $t$, and at right are probabilities on estimated registered domain $\widehat{t}$. After registration the underlying probabilities are aligned -- though it is important to note that the algorithm registers based on the underlying binary observations, not the true probabilities.
 
 ```{r plot_reg_bin_warp, echo = FALSE, fig.show='hold'}
 
@@ -213,22 +213,6 @@ Y$value = Y$latent_mean
 registr_gauss = register_fpca(Y = registration_data, family = "gaussian", Kt = 10)
 ```
 
-The results of registering the continuous data are plotted below.
-
-```{r plot_reg_gauss, echo = FALSE, fig.show='hold', fig.width=2}
-Y = registr_gauss$Y
-
-ggplot(Y, aes(tstar, latent_mean, group = id)) + theme_bw() + 
-	geom_line(alpha = 0.25)
-
-ggplot(Y, aes(t, latent_mean, group = id)) + theme_bw() + 
-	geom_line(alpha = 0.25) 
-
-ggplot(Y, aes(t_hat, latent_mean, group = id)) + theme_bw() + 
-	geom_line(alpha = 0.25) 
-
-```
-
 ## `bfpca()` function
 
 The `registr` package includes a novel variational EM algorithm for binary functional principals component analysis (bfpca), derived from methods for binary probabilistic PCA [@tipping1999].
@@ -246,7 +230,7 @@ The argument `print.iter = TRUE` prints the error after each iteration. The true
 pc_df = pc_df %>%
 	mutate(psi1_est = bfpca_object$efunctions[,1],
 	psi2_est = bfpca_object$efunctions[,2],
-	alpha_est = bfpca_object$alpha)
+	alpha_est = bfpca_object$alpha %>% as.vector())
 
 ggplot(pc_df, aes(index, pop_mean)) + theme_bw() + geom_line(color = "blue") +
 	geom_line(aes(y = alpha_est), linetype = 2, color = "red")
