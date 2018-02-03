@@ -7,7 +7,7 @@
 \alias{registr}
 \title{registr: Register Exponential Family Functional Data}
 \usage{
-registr(obj = NULL, Y = NULL, Kt = 10, Kh = 5, family = "binomial",
+registr(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial",
   gradient = TRUE, beta = NULL, t_min = NULL, t_max = NULL,
   row_obj = NULL, ...)
 }
@@ -17,16 +17,16 @@ Can be NULL only if Y argument is selected.}
 
 \item{Y}{Dataframe. Should have values id, value, index.}
 
-\item{Kt}{Number of B-spline basis functions used to estimate mean functions. Defaults to 6.}
+\item{Kt}{Number of B-spline basis functions used to estimate mean functions. Default is 8.}
 
-\item{Kh}{Number of B-spline basis functions used to estimate warping functions \emph{h}. Defaults to 3.}
+\item{Kh}{Number of B-spline basis functions used to estimate warping functions \emph{h}. Default is 4.}
 
 \item{family}{\code{gaussian} or \code{binomial}.}
 
 \item{gradient}{if \code{TRUE}, uses analytic gradient to calculate derivative. 
 If \code{FALSE}, calculates gradient numerically.}
 
-\item{beta}{Current estimates for beta for each subject. Defaults to NULL.}
+\item{beta}{Current estimates for beta for each subject. Default is NULL.}
 
 \item{t_min}{Minimum value to be evaluated on the time domain.
 if `NULL`, taken to be minimum observed value.}

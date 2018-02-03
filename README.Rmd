@@ -125,7 +125,7 @@ binary_registration = register_fpca(Y = registration_data, family = "binomial",
 																Kt = 6, Kh = 3, npc  = 1)
 ```
 
-The plot below shows unregistered, true registered, and estimated registered binary curves two subjects after fitting our method.
+The plot below shows unregistered, true registered, and estimated registered binary curves for two subjects after fitting our method.
 
 ```{r plot_fit, fig.align='center', fig.height=3, fig.width=9}
 sub_data = binary_registration$Y %>% filter(id %in% IDs)

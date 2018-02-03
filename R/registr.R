@@ -12,12 +12,12 @@
 #' @param obj Current estimate of FPC object. 
 #' Can be NULL only if Y argument is selected.
 #' @param Y Dataframe. Should have values id, value, index.
-#' @param Kt Number of B-spline basis functions used to estimate mean functions. Defaults to 6.
-#' @param Kh Number of B-spline basis functions used to estimate warping functions \emph{h}. Defaults to 3.
+#' @param Kt Number of B-spline basis functions used to estimate mean functions. Default is 8.
+#' @param Kh Number of B-spline basis functions used to estimate warping functions \emph{h}. Default is 4.
 #' @param family \code{gaussian} or \code{binomial}.
 #' @param gradient if \code{TRUE}, uses analytic gradient to calculate derivative. 
 #' If \code{FALSE}, calculates gradient numerically.
-#' @param beta Current estimates for beta for each subject. Defaults to NULL. 
+#' @param beta Current estimates for beta for each subject. Default is NULL. 
 #' @param t_min Minimum value to be evaluated on the time domain.
 #' if `NULL`, taken to be minimum observed value.
 #' @param t_max Maximum value to be evaluated on the time domain. 
@@ -44,7 +44,7 @@
 #'    gradient = TRUE)
 #' }
 #'
-registr = function(obj = NULL, Y = NULL, Kt = 10, Kh = 5, family = "binomial", gradient = TRUE,
+registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gradient = TRUE,
 									 beta = NULL, t_min = NULL, t_max = NULL, row_obj = NULL, ...){
   
   if(is.null(Y)) { Y = obj$Y}

@@ -10,7 +10,7 @@ bfpca(Y, npc = 1, Kt = 8, maxiter = 50, t_min = NULL, t_max = NULL,
 \arguments{
 \item{Y}{Dataframe. Should have variables id, value, index.}
 
-\item{npc}{Defaults to 1. Number of principal components to calculate.}
+\item{npc}{Default is 1. Number of principal components to calculate.}
 
 \item{Kt}{Number of B-spline basis functions used to estimate mean functions. Default is 8.}
 
