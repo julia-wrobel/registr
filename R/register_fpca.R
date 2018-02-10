@@ -1,9 +1,14 @@
 #' Register curves from exponential family using constrained optimization and generalized FPCA
 #'
 #' Function combines constrained optimization and FPCA to estimate warping functions for 
-#' exponential family curves. Requires input data \code{Y} to be a dataframe in long format with variables 
+#' exponential family curves. The FPCA step is performed through the function 
+#' \code{\link{bfpca}} if \code{family = "binomial"} or the function 
+#' \code{\link{fpca_gauss}} if \code{family = "gaussian"}. Warping functions are calculated 
+#' by the function \code{\link{registr}}.
+#' 
+#' Requires input data \code{Y} to be a dataframe in long format with variables 
 #' \code{id}, \code{index}, and \code{value} to indicate subject IDs, times, and observations, 
-#' respectively.
+#' respectively. The code calls two 
 #'
 #' @param Y Dataframe. Should have values id, value, index.
 #' @param Kt Number of B-spline basis functions used to estimate mean functions. Defaults to 8.

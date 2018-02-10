@@ -1,7 +1,8 @@
 #' Register curves from exponential family
 #' 
-#' Function used in the registration step of an FPCA-based approach for registering exponential-family 
-#' functional data. This method uses constrained optimization to estimate spline 
+#' Function used in the registration step of an FPCA-based approach for 
+#' registering exponential-family functional data, called by \code{\link{register_fpca}}. 
+#' This method uses constrained optimization to estimate spline 
 #' coefficients for warping functions, where the objective function for optimization comes from 
 #' maximizing the EF likelihood subject to monotonicity constraints on the warping functions. 
 #' You have to either specify \code{obj}, which is a fpca 

@@ -1,6 +1,7 @@
 #' Binary functional principal components analysis
 #' 
-#' Function used in the FPCA step for registering binary functional data. 
+#' Function used in the FPCA step for registering binary functional data,
+#' called by \code{\link{register_fpca}} when \code{family = "binomial"}. 
 #' This method uses a variational EM algorithm to estimate scores and principal components for 
 #' binary functional data.
 #'
@@ -38,7 +39,8 @@
 #' @export
 #' @references Jaakkola, T. S. and Jordan, M. I. (1997).
 ##' A variational approach to Bayesian logistic regression models and their extensions. 
-##' \emph{A variational approach to Bayesian logistic regression models and their extensions.}.
+##' \emph{Proceedings of the Sixth International Workshop on Artificial Intelligence 
+##' and Statistics}.
 #' 
 #' Tipping, M. E. (1999). Probabilistic Visualisation of High-dimensional binary data.
 #' \emph{Advances in neural information processing systems}, 592--598.

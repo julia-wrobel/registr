@@ -1,8 +1,9 @@
-#' Functional principal components analysis via variational bayes
+#' Functional principal components analysis via variational EM
 #' 
-#' Function used in the FPCA step for registering functional data when \code{family = "gaussian"}. 
-#' This method uses mean field variational inference to estimate scores and principal components for 
-#' continuous functional data.
+#' Function used in the FPCA step for registering functional data,
+#' called by \code{\link{register_fpca}} when \code{family = "gaussian"}. 
+#' Parameters estimated based on probabilistic PCA framework orginally 
+#' introduced by Tipping and Bishop in 1999.
 #'
 #' @param Y Dataframe. Should have variables id, value, index. 
 #' @param npc Defaults to 1. Number of principal components to calculate.
@@ -37,12 +38,8 @@
 #' \item{family}{\code{gaussian}, for compatibility with \code{refund.shiny} package.}
 #' \item{sigma2}{Estimated error variance}
 #' @export
-#' @references Jaakkola, T. S. and Jordan, M. I. (1997).
-#' A variational approach to Bayesian logistic regression models and their extensions. 
-#' \emph{A variational approach to Bayesian logistic regression models and their extensions.}.
-#' 
-#' Tipping, M. E. (1999). Probabilistic Visualisation of High-dimensional binary data.
-#' \emph{Advances in neural information processing systems}, 592--598.
+#' @references Tipping, M. E. and Bishop, C (1999). Probabilistic Principal Component Analysis.
+#' \emph{Journal of the Royal Statistical Society Series B,}, 592--598.
 #'
 #'
 fpca_gauss <- function(Y, npc = 1, Kt = 8, maxiter = 20, t_min = NULL, t_max = NULL, 
