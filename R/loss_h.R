@@ -9,7 +9,7 @@
 #' @param t_min minimum value to be evaluated on the time domain. 
 #' @param t_max maximum value to be evaluated on the time domain. 
 #' 
-#' @importFrom boot inv.logit
+#' @importFrom stats plogis
 #' @export
 #'
 
@@ -24,7 +24,7 @@ loss_h = function(Y, Theta_h, mean_coefs, knots, beta.inner, family, t_min, t_ma
   if (family == "gaussian") {
     return(sum((Y - g_mu_t) ^ 2))
   } else if (family == "binomial") {
-    pi_h = inv.logit(g_mu_t)
+    pi_h = plogis(g_mu_t)
     return(-1 * sum(Y * log(pi_h) + (1 - Y) * log(1 - pi_h) ))
   }
 }

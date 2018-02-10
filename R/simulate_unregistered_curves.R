@@ -42,8 +42,7 @@ grid_subj_create = function(coefs, D) {
 #' @author Julia Wrobel \email{jw3134@@cumc.columbia.edu},
 #' Jeff Goldsmith \email{ajg2202@@cumc.columbia.edu}
 #' @importFrom magrittr %>%
-#' @importFrom stats rbinom runif
-#' @importFrom boot inv.logit
+#' @importFrom stats rbinom runif plogis
 #' 
 #' @return A simulated dataframe with variables id, value, index, latent_mean, and t. Index is the domain
 #' on which curves are unregistered and t is the domain on which curves are registered.
@@ -67,7 +66,7 @@ simulate_unregistered_curves = function(I = 50, D = 100, lambda = 15, seed = 198
 	for (i in 1:I) {
 		t_subj[i,] =  grid_subj_create(runif(3, 0, 1), D = D) %>% as.vector
 		Yi_latent[i,] = mean_curve(grid = t_subj[i,]) + c_true[i] * amp_curve(grid = t_subj[i,])
-		pi_true[i,] = inv.logit(Yi_latent[i,])
+		pi_true[i,] = plogis(Yi_latent[i,])
 		Yi_regis.true[i,] = mean_curve(grid = grid) + c_true[i] * amp_curve(grid = grid)
 		for (j in 1:D) {
 			Yi_obs[i,j] = rbinom(1, 1, pi_true[i,j])

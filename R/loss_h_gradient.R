@@ -9,8 +9,10 @@
 #' @param t_min minimum value to be evaluated on the time domain. 
 #' @param t_max maximum value to be evaluated on the time domain. 
 #' 
-#' @importFrom boot inv.logit
 #' @author Julia Wrobel \email{jw3134@@cumc.columbia.edu}
+#' 
+#' @importFrom stats plogis
+#' 
 #' @export
 #'
 loss_h_gradient = function(Y, Theta_h, mean_coefs, knots, beta.inner, family = "gaussian",
@@ -30,7 +32,7 @@ loss_h_gradient = function(Y, Theta_h, mean_coefs, knots, beta.inner, family = "
   
   if(family == "binomial"){
   	varphi = 1
-  	b_g_deriv = inv.logit(Theta_phi %*% mean_coefs)
+  	b_g_deriv = plogis(Theta_phi %*% mean_coefs)
   }else if (family == "gaussian"){
   	varphi = 1
   	b_g_deriv = Theta_phi %*% mean_coefs

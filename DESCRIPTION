@@ -14,7 +14,6 @@ Imports:
     magrittr,	
     dplyr,
     gridExtra,
-    boot,
     Rcpp (>= 0.11.5)
 License: MIT + file LICENSE
 Encoding: UTF-8

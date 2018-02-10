@@ -52,8 +52,7 @@ psi2_sim = function(grid){
 #' @author Julia Wrobel \email{jw3134@@cumc.columbia.edu}
 #' @importFrom magrittr %>%
 #' @importFrom tidyr gather
-#' @importFrom stats rnorm rbinom runif
-#' @importFrom boot inv.logit
+#' @importFrom stats rnorm rbinom runif plogis
 #' 
 #' @import dplyr
 #' 
@@ -87,7 +86,7 @@ simulate_functional_data = function(lambda1 = 2, lambda2 = 1, I = 50, D = 100, s
 		arrange(id) %>%
 		mutate(index = rep(grid, I),
 					 latent_mean = value,
-					 value = rbinom(I*D, 1, inv.logit(latent_mean))) %>%
+					 value = rbinom(I*D, 1, plogis(latent_mean))) %>%
 		dplyr::select(-key)
 	
 	if(vary_D){
@@ -108,7 +107,7 @@ simulate_functional_data = function(lambda1 = 2, lambda2 = 1, I = 50, D = 100, s
 		
 		Y = Y %>% 
 			mutate(latent_mean = value,
-						 value = rbinom( sum(D_vec), 1, inv.logit(latent_mean)) ) 
+						 value = rbinom( sum(D_vec), 1, plogis(latent_mean)) ) 
 	}
 	
 	# orthogonalize PCs

@@ -6,11 +6,11 @@
 #' respectively.
 #'
 #' @param Y Dataframe. Should have values id, value, index.
-#' @param Kt Number of B-spline basis functions used to estimate mean functions. Default is 8.
-#' @param Kh Number of B-spline basis functions used to estimate warping functions \emph{h}. Default is 4.
+#' @param Kt Number of B-spline basis functions used to estimate mean functions. Defaults to 8.
+#' @param Kh Number of B-spline basis functions used to estimate warping functions \emph{h}. Defaults to 4.
 #' @param family \code{gaussian} or \code{binomial}.
-#' @param max_iterations Number of iterations for overall algorithm. Default is 10.
-#' @param npc Number of principal components to calculate. Default is 1. 
+#' @param max_iterations Number of iterations for overall algorithm. Defaults to 10.
+#' @param npc Number of principal components to calculate. Defaults to 1. 
 #' @param ... Additional arguments passed to registr and fpca functions.
 #'
 #' @author Julia Wrobel \email{jw3134@@cumc.columbia.edu}

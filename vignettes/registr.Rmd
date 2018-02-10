@@ -34,7 +34,6 @@ The `registr` package is for registering, or aligning, exponential family functi
 
 ```{r load_libraries, echo = FALSE}
 library(registr)
-library(boot)
 library(ggplot2)
 library(dplyr)
 ```
@@ -105,11 +104,11 @@ The variables `index` and `t` are both time grids. Evaluated on the grid `index`
 ```{r plot_sim2, echo = FALSE, fig.show='hold'}
 
 registration_data %>%
-	ggplot(aes(index, inv.logit(latent_mean), group = id)) + theme_bw() + 
+	ggplot(aes(index, plogis(latent_mean), group = id)) + theme_bw() + 
 	geom_line(alpha = 0.25) + labs(y = "Pr(Y = 1)")
 
 registration_data %>%
-	ggplot(aes(t, inv.logit(latent_mean), group = id)) + theme_bw() + 
+	ggplot(aes(t, plogis(latent_mean), group = id)) + theme_bw() + 
 	geom_line(alpha = 0.25) + labs(y = "Pr(Y = 1)")
 
 ```
@@ -153,7 +152,7 @@ The left panel of the figure above shows the latent means for each subject, alon
 Y %>%
 	filter(id == 7) %>%
 	ggplot(aes(index, value)) + theme_bw() +
-	geom_point(alpha = 0.75, size = 0.25) + geom_line(aes(y = inv.logit(latent_mean))) +
+	geom_point(alpha = 0.75, size = 0.25) + geom_line(aes(y = plogis(latent_mean))) +
 	labs(y = "Pr(Y = 1)")
 
 ```
@@ -178,13 +177,13 @@ The argument `Y` specificies the input dataset; this code uses the simulated `re
 ```{r plot_reg_bin, echo = FALSE, fig.show='hold', fig.width=2}
 Y = registr_bin$Y
 
-ggplot(Y, aes(tstar, inv.logit(latent_mean), group = id)) + theme_bw() + 
+ggplot(Y, aes(tstar, plogis(latent_mean), group = id)) + theme_bw() + 
 	geom_line(alpha = 0.25) + labs(y = "Pr(Y = 1)")
 
-ggplot(Y, aes(t, inv.logit(latent_mean), group = id)) + theme_bw() + 
+ggplot(Y, aes(t, plogis(latent_mean), group = id)) + theme_bw() + 
 	geom_line(alpha = 0.25) + labs(y = "Pr(Y = 1)")
 
-ggplot(Y, aes(t_hat, inv.logit(latent_mean), group = id)) + theme_bw() + 
+ggplot(Y, aes(t_hat, plogis(latent_mean), group = id)) + theme_bw() + 
 	geom_line(alpha = 0.25) + labs(y = "Pr(Y = 1)")
 
 ```

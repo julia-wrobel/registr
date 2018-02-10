@@ -10,15 +10,15 @@ register_fpca(Y, Kt = 8, Kh = 4, family = "binomial",
 \arguments{
 \item{Y}{Dataframe. Should have values id, value, index.}
 
-\item{Kt}{Number of B-spline basis functions used to estimate mean functions. Default is 8.}
+\item{Kt}{Number of B-spline basis functions used to estimate mean functions. Defaults to 8.}
 
-\item{Kh}{Number of B-spline basis functions used to estimate warping functions \emph{h}. Default is 4.}
+\item{Kh}{Number of B-spline basis functions used to estimate warping functions \emph{h}. Defaults to 4.}
 
 \item{family}{\code{gaussian} or \code{binomial}.}
 
-\item{max_iterations}{Number of iterations for overall algorithm. Default is 10.}
+\item{max_iterations}{Number of iterations for overall algorithm. Defaults to 10.}
 
-\item{npc}{Number of principal components to calculate. Default is 1.}
+\item{npc}{Number of principal components to calculate. Defaults to 1.}
 
 \item{...}{Additional arguments passed to registr and fpca functions.}
 }
