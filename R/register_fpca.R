@@ -38,6 +38,10 @@
 #' \dontrun{
 #'  Y = simulate_unregistered_curves(I = 50, D = 200)
 #'  registr_object = register_fpca(Y, family = "binomial", max_iterations = 5)
+#'  
+#'  # example using accelerometer data from nhanes 2003-2004 study
+#'  data(nhanes)
+#'  register_nhanes = register_fpca(nhanes, npc = 2, family = "binomial", max_iterations = 5)
 #' }
 #'
 register_fpca <- function(Y, Kt = 8, Kh = 4, family = "binomial", max_iterations = 10, npc = 1, ...){
