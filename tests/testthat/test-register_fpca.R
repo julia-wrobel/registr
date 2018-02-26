@@ -34,7 +34,7 @@ test_that("register_fpca output is a list with non-null items and class registra
 	expect_false(any(is.na(registr_object$Y$t_hat)))
 	
 	# throws error in code:
-	# Y = simulate_unregistered_curves(seed = 101)
+	# Y = simulate_unregistered_curves(seed = 10001)
 	# registr_object = register_fpca(Y, family = "binomial", max_iterations = 25)
 	
 	
