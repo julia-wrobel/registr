@@ -9,7 +9,7 @@
 \usage{
 registr(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial",
   gradient = TRUE, beta = NULL, t_min = NULL, t_max = NULL,
-  row_obj = NULL, ...)
+  row_obj = NULL, parametric_warps = FALSE, ...)
 }
 \arguments{
 \item{obj}{Current estimate of FPC object. 
@@ -36,6 +36,10 @@ if `NULL`, taken to be maximum observed value.}
 
 \item{row_obj}{If NULL, the function cleans the data and calculates row indices. 
 Keep this NULL if you are using standalone \code{registr} function.}
+
+\item{parametric_warps}{If FALSE (default), inverse warping functions are 
+estimated nonparametrically. If 'beta_cdf', they are assumed to have the form of a 
+Beta(a,b) CDF. If 'piecewise' they follow a piecewise parameterized function.}
 
 \item{...}{additional arguments passed to or from other functions}
 }

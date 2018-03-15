@@ -4,7 +4,7 @@
 \alias{constraints}
 \title{Define constraints for optimization of warping functions}
 \usage{
-constraints(Kh, t_min = 0, t_max = 1)
+constraints(Kh, t_min = 0, t_max = 1, parametric_warps = FALSE)
 }
 \arguments{
 \item{Kh}{Number of B-spline basis functions used to estimate warping functions \emph{h}.}
@@ -12,6 +12,10 @@ constraints(Kh, t_min = 0, t_max = 1)
 \item{t_min}{Minimum value to be evaluated on the time domain.}
 
 \item{t_max}{Maximum value to be evaluated on the time domain.}
+
+\item{parametric_warps}{If FALSE (default), inverse warping functions are 
+estimated nonparametrically. If 'beta_cdf', they are assumed to have the form of a 
+Beta(a,b) CDF. If 'piecewise' they follow a piecewise parameterized function.}
 }
 \description{
 Constraints ensure monotonicity of spline coefficients for warping functions 

@@ -88,8 +88,11 @@ register_fpca <- function(Y, Kt = 8, Kh = 4, family = "binomial", max_iterations
   Y$tstar = time_warps[[1]]
   Y$t_hat = registr_step$Y$index
   
+  beta = as.data.frame(t(registr_step$beta))
+  beta$id = unique(Y$id)
+  
 	ret = list(fpca_obj = fpca_step, Y = Y, time_warps = time_warps[!is.na(time_warps)],
-						 loss = loss[!is.na(loss)], family = family)
+						 loss = loss[!is.na(loss)], family = family, beta = beta)
 	class(ret) <- "registration"
   return(ret)
 }
