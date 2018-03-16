@@ -44,7 +44,8 @@
 #'  register_nhanes = register_fpca(nhanes, npc = 2, family = "binomial", max_iterations = 5)
 #' }
 #'
-register_fpca <- function(Y, Kt = 8, Kh = 4, family = "binomial", max_iterations = 10, npc = 1, ...){
+register_fpca <- function(Y, Kt = 8, Kh = 4, family = "binomial", max_iterations = 10, 
+													npc = 1, ...){
 
   if( !(family %in% c("binomial", "gaussian")) ){
   	stop("Package currently handles only 'binomial' or 'gaussian' families.")
