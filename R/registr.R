@@ -25,6 +25,9 @@
 #' if `NULL`, taken to be maximum observed value.
 #' @param row_obj If NULL, the function cleans the data and calculates row indices. 
 #' Keep this NULL if you are using standalone \code{registr} function.
+#' @param parametric_warps If FALSE (default), inverse warping functions are 
+#' estimated nonparametrically. If 'beta_cdf', they are assumed to have the form of a 
+#' Beta(a,b) CDF. If 'piecewise' they follow a piecewise parameterized function.
 #' @param ... additional arguments passed to or from other functions
 #' 
 #' @return An object of class \code{fpca} containing:
@@ -35,7 +38,7 @@
 #' @author Julia Wrobel \email{jw3134@@cumc.columbia.edu}
 #' @export
 #' 
-#' @importFrom stats glm coef constrOptim quantile
+#' @importFrom stats glm coef constrOptim quantile optim pbeta
 #' 
 #' @examples
 #' 
@@ -46,7 +49,8 @@
 #' }
 #'
 registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gradient = TRUE,
-									 beta = NULL, t_min = NULL, t_max = NULL, row_obj = NULL, ...){
+									 beta = NULL, t_min = NULL, t_max = NULL, row_obj = NULL,
+									 parametric_warps = FALSE, ...){
   
   if(is.null(Y)) { Y = obj$Y}
   
@@ -83,15 +87,26 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
   }
 
   #### Define optimization constraints
-  constrs = constraints(Kh, t_min, t_max)
+  constrs = constraints(Kh, t_min, t_max, parametric_warps = parametric_warps)
   ui = constrs$ui
   ci = constrs$ci
 
   ### Calculate warping functions  
   t_hat = rep(NA, dim(Y)[1])
   loss_subjects = rep(NA, I)
+  
   beta_new = matrix(NA, Kh - 1, I)
-	beta_0 = seq(t_min, t_max, length.out = Kh + 1)[-c(1, Kh + 1)]
+  beta_0 = seq(t_min, t_max, length.out = Kh + 1)[-c(1, Kh + 1)]
+  if(!(parametric_warps == FALSE) ){
+  	beta_new = matrix(NA, 2, I)
+  	rownames(beta_new) = c("a", "b")
+  	beta_0 = c(1, 1)
+  	if(parametric_warps == "piecewise"){
+  		beta_0 = c(.1, 0.5)
+  		rownames(beta_new) = c("beta", "midpoint_percentile")
+  	}
+  }
+	
   for (i in 1:I) {
     
     subject_rows = rows$first_row[i]:rows$last_row[i]
@@ -99,22 +114,60 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
     Yi = Y$value[subject_rows]
     Di = length(Yi)
     
-    tstar_i = tstar[subject_rows]
     Theta_h_i = Theta_h[subject_rows ,]
     
     if (is.null(beta)) {beta_i = beta_0} else {beta_i = beta[, i]}
     if (is.null(obj)) {mean_coefs_i = mean_coefs} else {mean_coefs_i = mean_coefs[, i]}
     if (gradient) {gradf = loss_h_gradient} else {gradf = NULL}
     
-    beta_new[,i] = constrOptim(beta_i, loss_h, grad = gradf, ui = ui, ci = ci, Y = Yi, 
-                              Theta_h = Theta_h_i, mean_coefs = mean_coefs_i, knots = global_knots,
-                              family = family, t_min = t_min, t_max = t_max)$par
+    if(parametric_warps == "beta_cdf"){
+    	beta_optim = optim(beta_i, loss_h, Y = Yi, Theta_h = Theta_h_i,
+    														 mean_coefs = mean_coefs_i,knots = global_knots,
+    														 family = family, t_min = t_min, t_max = t_max,
+    														 parametric_warps = parametric_warps, lower = 0.001, 
+    										 upper = 5,
+    										 method = "L-BFGS-B")
+    	
+    	beta_new[,i] = beta_optim$par
+    	t_hat[subject_rows] = pbeta(seq(t_min, t_max, length.out = Di), 
+    															beta_new[1, i], beta_new[2, i])
     
-    beta_full_i = c(t_min, beta_new[,i], t_max)
+    }else if(parametric_warps == "piecewise"){
+    	## these are not ideal endpoints.
+    	beta_optim = constrOptim(beta_i, loss_h, grad = gradf, ui = ui, ci = ci, Y = Yi, 
+    													 Theta_h = Theta_h_i, mean_coefs = mean_coefs_i, 
+    													 knots = global_knots,
+    													 parametric_warps = parametric_warps, 
+    													 family = family, t_min = t_min, t_max = t_max)
+    	
+    	# beta_optim = optim(beta_i, loss_h, Y = Yi, Theta_h = Theta_h_i,
+    	# 									 mean_coefs = mean_coefs_i,knots = global_knots,
+    	# 									 family = family, t_min = t_min, t_max = t_max,
+    	# 									 parametric_warps = parametric_warps, 
+    	# 									 lower = c(0.01, 0.11), 
+    	# 									 upper = c(10, 0.99),
+    	# 									 method = "L-BFGS-B")
+    	
+    	beta_new[,i] = beta_optim$par
+    	t_hat[subject_rows] = piecewise_parametric_hinv(seq(0, t_max, length.out = Di),
+    																									beta_new[1, i], beta_new[2, i])
+    	
+    }else{
+    	beta_optim = constrOptim(beta_i, loss_h, grad = gradf, ui = ui, ci = ci, 
+    													 Y = Yi, 
+    													 Theta_h = Theta_h_i, mean_coefs = mean_coefs_i, 
+    													 knots = global_knots,
+    													 family = family, t_min = t_min, t_max = t_max)
+    	
+    	
+    	beta_new[,i] = beta_optim$par
+    	
+    	beta_full_i = c(t_min, 	beta_new[,i], t_max)
+    	t_hat[subject_rows] = cbind(1, Theta_h_i) %*% beta_full_i
+    }
     
-    t_hat[subject_rows] = cbind(1, Theta_h_i) %*% beta_full_i
-    loss_subjects[i] = loss_h(Yi, Theta_h_i, mean_coefs_i, global_knots, beta_new[,i], family = family, 
-                              t_min = t_min, t_max = t_max)
+    
+    loss_subjects[i] = beta_optim$value
   }
   Y$index = t_hat
 

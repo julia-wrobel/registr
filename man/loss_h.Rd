@@ -4,7 +4,8 @@
 \alias{loss_h}
 \title{Loss function for registration step optimization}
 \usage{
-loss_h(Y, Theta_h, mean_coefs, knots, beta.inner, family, t_min, t_max)
+loss_h(Y, Theta_h, mean_coefs, knots, beta.inner, family, t_min, t_max,
+  parametric_warps = FALSE)
 }
 \arguments{
 \item{Y}{vector of observed points.}
@@ -22,6 +23,10 @@ loss_h(Y, Theta_h, mean_coefs, knots, beta.inner, family, t_min, t_max)
 \item{t_min}{minimum value to be evaluated on the time domain.}
 
 \item{t_max}{maximum value to be evaluated on the time domain.}
+
+\item{parametric_warps}{If FALSE (default), inverse warping functions are 
+estimated nonparametrically. If 'beta_cdf', they are assumed to have the form of a 
+Beta(a,b) CDF. If 'piecewise' they follow a piecewise parameterized function.}
 }
 \description{
 Loss function for registration step optimization
