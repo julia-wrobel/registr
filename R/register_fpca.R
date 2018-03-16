@@ -69,11 +69,13 @@ register_fpca <- function(Y, Kt = 8, Kh = 4, family = "binomial", max_iterations
   error[iter] = 100
   while( iter < max_iterations && error[iter] > 0.01 ){
   	message("current iteration: ", iter)
- 
+  	
   	if(family == "binomial"){
-  		fpca_step = bfpca(registr_step$Y, npc = npc, Kt = Kt, row_obj = rows, seed = 1988 + iter, ...)
+  		fpca_step = bfpca(registr_step$Y, npc = npc, Kt = Kt, row_obj = rows, 
+  											phi_coefs = NULL, seed = 1988 + iter, ...)
   	}else if(family == "gaussian"){
-  		fpca_step = fpca_gauss(registr_step$Y, npc = npc, Kt = Kt, row_obj = rows, seed = 1988 + iter, ...)
+  		fpca_step = fpca_gauss(registr_step$Y, npc = npc, Kt = Kt, row_obj = rows, 
+  													 phi_coefs = NULL, seed = 1988 + iter, ...)
   	}
   	
   	registr_step = registr(obj = fpca_step, Kt = Kt, Kh = Kh, family = family, 
@@ -85,14 +87,15 @@ register_fpca <- function(Y, Kt = 8, Kh = 4, family = "binomial", max_iterations
   	## calculate error
   	error[iter + 1] = sum((time_warps[[iter + 2]]-time_warps[[iter + 1]])^2) 
   	iter = iter + 1
-  	
   }
 
   # final fpca step
   if(family == "binomial"){
-  	fpca_step = bfpca(registr_step$Y,npc = npc, Kt = Kt, row_obj = rows)
+  	fpca_step = bfpca(registr_step$Y,npc = npc, Kt = Kt, row_obj = rows,
+  										phi_coefs = NULL)
   }else if(family == "gaussian"){
-  	fpca_step = fpca_gauss(registr_step$Y,npc = npc, Kt = Kt, row_obj = rows)
+  	fpca_step = fpca_gauss(registr_step$Y,npc = npc, Kt = Kt, row_obj = rows,
+  												 phi_coefs = NULL)
   }
   
   Y$tstar = time_warps[[1]]
