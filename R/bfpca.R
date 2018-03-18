@@ -14,8 +14,6 @@
 #' @param print.iter Prints current error and iteration
 #' @param row_obj If NULL, the function cleans the data and calculates row indices. 
 #' Keep this NULL if you are using standalone \code{register} function.
-#' @param phi_coefs B-spline basis coefficients for alpha and psi 
-#' from previous iteraction of \code{registration_fpca()}, used for initializing parameters.
 #' @param seed Set seed for reproducibility. Default is 1988.
 #' @param ... Additional arguments passed to or from other functions
 #' 
@@ -35,7 +33,6 @@
 #' with \code{refund.shiny} package.}
 #' \item{subject_coefs}{B-spline basis coefficients used to construct subject-specific means. 
 #' For use in \code{registr()} function.}
-#' \item{phi_coefs}{B-spline basis coefficients for alpha and psi.}
 #' \item{Yhat}{FPC approximation of subject-specific means.}
 #' \item{Y}{The observed data.}
 #' \item{family}{\code{binomial}, for compatibility with \code{refund.shiny} package.}
@@ -56,7 +53,7 @@
 ##' }
 #'
 bfpca <- function(Y, npc = 1, Kt = 8, maxiter = 50, t_min = NULL, t_max = NULL, 
-                  print.iter = FALSE, row_obj= NULL, phi_coefs = NULL,
+                  print.iter = FALSE, row_obj= NULL,
 									seed = 1988, ...){
    
   curr_iter = 1
@@ -95,14 +92,8 @@ bfpca <- function(Y, npc = 1, Kt = 8, maxiter = 50, t_min = NULL, t_max = NULL,
   ## initialize all your vectors
   set.seed(seed)
   xi = matrix(rnorm(dim(Y)[1]), ncol = 1) * 0.5
-  
-  if(is.null(phi_coefs)){
-  	alpha_coefs = matrix(coef(glm(Y$value ~ 0 + Theta_phi, family = "binomial")), Kt, 1)
-  	psi_coefs = matrix(rnorm(Kt * npc), Kt, npc) * 0.5
-  }else{
-  	alpha_coefs = phi_coefs[, npc+1]
-  	psi_coefs = phi_coefs[, 1:npc]
-  }
+  alpha_coefs = matrix(coef(glm(Y$value ~ 0 + Theta_phi, family = "binomial")), Kt, 1)
+  psi_coefs = matrix(rnorm(Kt * npc), Kt, npc) * 0.5
   
   temp_alpha_coefs = alpha_coefs
   temp_psi_coefs = psi_coefs
@@ -199,7 +190,6 @@ bfpca <- function(Y, npc = 1, Kt = 8, maxiter = 50, t_min = NULL, t_max = NULL,
     "npc" = npc,
     "scores" = scores,
     "subject_coefs" = subject_coef,
-   	"phi_coefs" = phi_mat,
     "Yhat" = fittedVals, 
     "Y" = Y, 
     "family" = "binomial",

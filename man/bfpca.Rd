@@ -5,8 +5,7 @@
 \title{Binary functional principal components analysis}
 \usage{
 bfpca(Y, npc = 1, Kt = 8, maxiter = 50, t_min = NULL, t_max = NULL,
-  print.iter = FALSE, row_obj = NULL, phi_coefs = NULL, seed = 1988,
-  ...)
+  print.iter = FALSE, row_obj = NULL, seed = 1988, ...)
 }
 \arguments{
 \item{Y}{Dataframe. Should have variables id, value, index.}
@@ -26,9 +25,6 @@ bfpca(Y, npc = 1, Kt = 8, maxiter = 50, t_min = NULL, t_max = NULL,
 \item{row_obj}{If NULL, the function cleans the data and calculates row indices. 
 Keep this NULL if you are using standalone \code{register} function.}
 
-\item{phi_coefs}{B-spline basis coefficients for alpha and psi 
-from previous iteraction of \code{registration_fpca()}, used for initializing parameters.}
-
 \item{seed}{Set seed for reproducibility. Default is 1988.}
 
 \item{...}{Additional arguments passed to or from other functions}
@@ -45,7 +41,6 @@ An object of class \code{fpca} containing:
 with \code{refund.shiny} package.}
 \item{subject_coefs}{B-spline basis coefficients used to construct subject-specific means. 
 For use in \code{registr()} function.}
-\item{phi_coefs}{B-spline basis coefficients for alpha and psi.}
 \item{Yhat}{FPC approximation of subject-specific means.}
 \item{Y}{The observed data.}
 \item{family}{\code{binomial}, for compatibility with \code{refund.shiny} package.}

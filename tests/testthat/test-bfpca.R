@@ -72,8 +72,6 @@ test_that("bfpca works for different start seeds",{
 test_that("bfpca iterations are strictly decreasing",{
 	Y = simulate_functional_data()$Y
 	bfpca_object = bfpca(Y, npc = 2, print.iter = TRUE)
-	bfpca_object = bfpca(Y, npc = 2, print.iter = TRUE,
-											 phi_coefs = bfpca_object$phi_coefs)
 	
-	#expect_true(all(diff(bfpca_object$error) < 0))
+	expect_true(all(diff(bfpca_object$error) < 0))
 })
