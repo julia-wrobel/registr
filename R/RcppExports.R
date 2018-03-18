@@ -25,8 +25,8 @@ expectedScores <- function(Y, mu, psi, theta, theta_quad) {
 #' @param psi matrix of spline coefficients for the principal component basis functions.
 #' @param Ci expected covariance matrix of scores for the current subject.
 #' @return A vector of variational parameters for the current subject.
-expectedXi <- function(theta, mu, mi, psi, Ci) {
-    .Call('_registr_expectedXi', PACKAGE = 'registr', theta, mu, mi, psi, Ci)
+expectedXi <- function(mu, mi, psi, Ci) {
+    .Call('_registr_expectedXi', PACKAGE = 'registr', mu, mi, psi, Ci)
 }
 
 #' Apply lambda transformation of variational parameter.

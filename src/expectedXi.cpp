@@ -13,20 +13,28 @@ using namespace Rcpp;
 //' @param Ci expected covariance matrix of scores for the current subject.
 //' @return A vector of variational parameters for the current subject.
 // [[Rcpp::export]]
-std::vector<double> expectedXi(arma::mat theta, arma::vec mu, arma::vec mi, arma::mat psi, arma::mat Ci){
-  int Di = theta.n_rows;
+std::vector<double> expectedXi(arma::vec mu, arma::vec mi, arma::mat psi, arma::mat Ci){
+	int Kt = psi.n_rows;
   std::vector<double> xi;
-  arma::mat theta_sq, theta_sq_psi;
+  arma::mat psi_sq;
   double xi_sq;
   
-  for(int t = 0; t < Di; t++){
-    theta_sq = trans(theta.row(t)) * theta.row(t);
-    theta_sq_psi = trans(psi) * theta_sq * psi;
-    xi_sq = as_scalar(trans(mu) * theta_sq * mu) + 
-      2.0 * as_scalar(trans(mu) * theta_sq * psi * mi) +
-      trace(theta_sq_psi * Ci) + as_scalar(trans(mi) * theta_sq_psi * mi );
-    
-    xi.push_back(sqrt(xi_sq));
+  // psi_sq = trans(psi) * psi;
+  // xi_sq = as_scalar(trans(mu) * mu) + 
+  // 	2.0 * as_scalar(trans(mu) * psi * mi) +
+  // 	trace(psi_sq * Ci) + as_scalar(trans(mi) * psi_sq * mi );
+  // 
+  // xi.push_back(sqrt(xi_sq));
+  
+  
+  for(int k = 0; k < Kt; k++){
+  	psi_sq = trans(psi.row(k)) * psi.row(k);
+  	//mu_k = as_scalar(mu[k]);
+  	xi_sq = mu[k] * mu[k] + 
+  		2.0 * as_scalar(mu[k] * psi.row(k) * mi) +
+  		trace(psi_sq * Ci) + as_scalar(trans(mi) * psi_sq * mi );
+  	
+  	xi.push_back(sqrt(xi_sq));
   } // end for loop
   
   return(xi);

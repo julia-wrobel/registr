@@ -89,10 +89,11 @@ bfpca <- function(Y, npc = 1, Kt = 8, maxiter = 50, t_min = NULL, t_max = NULL,
   set.seed(seed)
   psi_coefs = matrix(rnorm(Kt * npc), Kt, npc) * 0.5
   alpha_coefs = matrix(coef(glm(Y$value ~ 0 + Theta_phi, family = "binomial")), Kt, 1)
-  xi = matrix(rnorm(dim(Y)[1]), ncol = 1) * 0.5
+  xi_coefs = matrix(rep(alpha_coefs, I), I, Kt, byrow = TRUE)
   
   temp_alpha_coefs = alpha_coefs
   temp_psi_coefs = psi_coefs
+  temp_xi_coefs = xi_coefs
   
   phi_a = list(NA, I)
   phi_b = matrix(0, nrow = Kt * (npc+1), ncol = I)
@@ -112,7 +113,7 @@ bfpca <- function(Y, npc = 1, Kt = 8, maxiter = 50, t_min = NULL, t_max = NULL,
       Yi = Y$value[subject_rows]
       Di = length(Yi)
       Theta_i = Theta_phi[subject_rows, ] 
-      xi_i = xi[subject_rows,]
+      xi_i = Theta_i %*% temp_xi_coefs[i,] 
       Theta_i_quad = squareTheta(xi_i, Theta_i)
        
       ##### posterior scores
@@ -123,8 +124,9 @@ bfpca <- function(Y, npc = 1, Kt = 8, maxiter = 50, t_min = NULL, t_max = NULL,
       mm = Ci + tcrossprod(mi)
       
       ##### variational parameter xi
-      xi[ subject_rows, 1] = expectedXi(Theta_i, temp_alpha_coefs, mi, temp_psi_coefs, Ci)
-      xi_i = xi[subject_rows, ]
+      xi_coefs[i,] = expectedXi(temp_alpha_coefs, mi, temp_psi_coefs, Ci)
+      xi_i =  Theta_i %*% xi_coefs[i,] 
+      
       
       Theta_i_quad = squareTheta(xi_i, Theta_i)
       
@@ -155,6 +157,7 @@ bfpca <- function(Y, npc = 1, Kt = 8, maxiter = 50, t_min = NULL, t_max = NULL,
 
     temp_psi_coefs = psi_coefs
     temp_alpha_coefs = alpha_coefs
+    temp_xi_coefs = xi_coefs
     
   } ## end while loop
 

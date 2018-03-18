@@ -4,11 +4,9 @@
 \alias{expectedXi}
 \title{Estimate variational parameter for the current subject.}
 \usage{
-expectedXi(theta, mu, mi, psi, Ci)
+expectedXi(mu, mi, psi, Ci)
 }
 \arguments{
-\item{theta}{spline basis functions for the current subject.}
-
 \item{mu}{vector of spline coefficients for the population mean.}
 
 \item{mi}{vector of expected mean scores for the current subject.}
@@ -16,6 +14,8 @@ expectedXi(theta, mu, mi, psi, Ci)
 \item{psi}{matrix of spline coefficients for the principal component basis functions.}
 
 \item{Ci}{expected covariance matrix of scores for the current subject.}
+
+\item{theta}{spline basis functions for the current subject.}
 }
 \value{
 A vector of variational parameters for the current subject.

@@ -22,17 +22,16 @@ BEGIN_RCPP
 END_RCPP
 }
 // expectedXi
-std::vector<double> expectedXi(arma::mat theta, arma::vec mu, arma::vec mi, arma::mat psi, arma::mat Ci);
-RcppExport SEXP _registr_expectedXi(SEXP thetaSEXP, SEXP muSEXP, SEXP miSEXP, SEXP psiSEXP, SEXP CiSEXP) {
+std::vector<double> expectedXi(arma::vec mu, arma::vec mi, arma::mat psi, arma::mat Ci);
+RcppExport SEXP _registr_expectedXi(SEXP muSEXP, SEXP miSEXP, SEXP psiSEXP, SEXP CiSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::mat >::type theta(thetaSEXP);
     Rcpp::traits::input_parameter< arma::vec >::type mu(muSEXP);
     Rcpp::traits::input_parameter< arma::vec >::type mi(miSEXP);
     Rcpp::traits::input_parameter< arma::mat >::type psi(psiSEXP);
     Rcpp::traits::input_parameter< arma::mat >::type Ci(CiSEXP);
-    rcpp_result_gen = Rcpp::wrap(expectedXi(theta, mu, mi, psi, Ci));
+    rcpp_result_gen = Rcpp::wrap(expectedXi(mu, mi, psi, Ci));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -62,7 +61,7 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_registr_expectedScores", (DL_FUNC) &_registr_expectedScores, 5},
-    {"_registr_expectedXi", (DL_FUNC) &_registr_expectedXi, 5},
+    {"_registr_expectedXi", (DL_FUNC) &_registr_expectedXi, 4},
     {"_registr_lambdaF", (DL_FUNC) &_registr_lambdaF, 1},
     {"_registr_squareTheta", (DL_FUNC) &_registr_squareTheta, 2},
     {NULL, NULL, 0}
