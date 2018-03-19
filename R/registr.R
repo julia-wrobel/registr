@@ -53,6 +53,7 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
 									 parametric_warps = FALSE, ...){
   
   if(is.null(Y)) { Y = obj$Y}
+	if(is.null(obj)) { Y$tstar = Y$index}
   
   if(is.null(row_obj)){
     data = data_clean(Y)
@@ -71,10 +72,10 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
 		stop("Kt must be greater than or equal to 3.")
 	}
   
-  tstar = Y$index
+	tstar = Y$tstar
   if (is.null(t_min)) {t_min = min(tstar)}
   if (is.null(t_max)) {t_max = max(tstar)}
-  Theta_h = bs(tstar, df = Kh, intercept = FALSE)
+  Theta_h = bs(tstar, df = Kh, intercept = FALSE) ## fix??
   
   if(is.null(obj)){
     # define population mean
@@ -170,6 +171,6 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
     loss_subjects[i] = beta_optim$value
   }
   Y$index = t_hat
-
+	Y$tstar = tstar
   return(list(Y = Y, loss = sum(loss_subjects), beta = beta_new)) 
 } 
