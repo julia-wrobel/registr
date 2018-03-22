@@ -4,10 +4,15 @@
 \alias{amp_curve}
 \title{Simulate amplitude variance}
 \usage{
-amp_curve(grid)
+amp_curve(grid, period = 2 * pi, spline_based = FALSE)
 }
 \arguments{
 \item{grid}{Grid of x values over which to evaluate the function.}
+
+\item{period}{Controls the period of the mean curve}
+
+\item{spline_based}{If FALSE curve is constructed using sine and cosine functions,
+if TRUE, curve is constructed using B-spline basis.}
 }
 \description{
 This function generates amplitudes for simulated accelerometer data.

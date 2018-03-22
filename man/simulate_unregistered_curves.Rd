@@ -4,7 +4,8 @@
 \alias{simulate_unregistered_curves}
 \title{Simulate unregistered curves}
 \usage{
-simulate_unregistered_curves(I = 50, D = 100, lambda = 15, seed = 1988)
+simulate_unregistered_curves(I = 50, D = 100, lambda = 15, seed = 1988,
+  period = 2 * pi, spline_based = FALSE)
 }
 \arguments{
 \item{I}{Number of subjects. Defaults is 50.}
@@ -14,6 +15,11 @@ simulate_unregistered_curves(I = 50, D = 100, lambda = 15, seed = 1988)
 \item{lambda}{Standard deviation for subject-specific amplitudes.}
 
 \item{seed}{Seed for reprodicibility. Default is 1988.}
+
+\item{period}{Controls the period of the mean curve}
+
+\item{spline_based}{If FALSE curve is constructed using sine and cosine functions,
+if TRUE, curve is constructed using B-spline basis.}
 }
 \value{
 A simulated dataframe with variables id, value, index, latent_mean, and t. Index is the domain
