@@ -71,11 +71,24 @@ binary_registration = register_fpca(Y = registration_data, family = "binomial",
 ## current iteration: 1
 ## current iteration: 2
 ## current iteration: 3
+## current iteration: 4
 ```
 
 The plot below shows unregistered, true registered, and estimated registered binary curves for two subjects after fitting our method.
 
 <img src="README_files/figure-markdown_github/plot_fit-1.png" style="display: block; margin: auto;" />
+
+### Citation
+
+To cite this package with `BibTeX`, use
+
+    @article{wrobel2018regis,
+      title={registr: Registration for Exponential Family Functional Data},
+      author={Wrobel, Julia},
+      journal={The Journal of Open Source Software},
+      volume={3},
+      year={2018}
+    }
 
 ### Contributions
 

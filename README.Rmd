@@ -153,6 +153,21 @@ grid.arrange(unreg, reg, reg_hat, ncol = 3)
 
 ```
 
+### Citation
+
+To cite this package with `BibTeX`, use
+
+```{}
+@article{wrobel2018regis,
+  title={registr: Registration for Exponential Family Functional Data},
+  author={Wrobel, Julia},
+  journal={The Journal of Open Source Software},
+  volume={3},
+  year={2018}
+}
+
+```
+
 
 ### Contributions
 
