@@ -5,7 +5,7 @@
 \title{Simulate unregistered curves}
 \usage{
 simulate_unregistered_curves(I = 50, D = 100, lambda = 15, seed = 1988,
-  period = 2 * pi, spline_based = FALSE)
+  period = 2 * pi, spline_based = FALSE, phase_variation = TRUE)
 }
 \arguments{
 \item{I}{Number of subjects. Defaults is 50.}
@@ -20,6 +20,9 @@ simulate_unregistered_curves(I = 50, D = 100, lambda = 15, seed = 1988,
 
 \item{spline_based}{If FALSE curve is constructed using sine and cosine functions,
 if TRUE, curve is constructed using B-spline basis.}
+
+\item{phase_variation}{If TRUE, creates phase variation 
+(registered curves are observed on uneven grid). If FALSE, no phase variation.}
 }
 \value{
 A simulated dataframe with variables id, value, index, latent_mean, and t. Index is the domain

@@ -32,6 +32,7 @@ mean_curve = function(grid, period = 2*pi, spline_based = FALSE) {
 #' @param period Controls the period of the mean curve
 #' @param spline_based If FALSE curve is constructed using sine and cosine functions,
 #' if TRUE, curve is constructed using B-spline basis.
+#' 
 amp_curve = function(grid, period = 2*pi, spline_based = FALSE) {
 	if(spline_based) {
 
@@ -74,6 +75,8 @@ grid_subj_create = function(coefs, D) {
 #' @param period Controls the period of the mean curve
 #' @param spline_based If FALSE curve is constructed using sine and cosine functions,
 #' if TRUE, curve is constructed using B-spline basis.
+#' @param phase_variation If TRUE, creates phase variation 
+#' (registered curves are observed on uneven grid). If FALSE, no phase variation.
 #' 
 #' @author Julia Wrobel \email{jw3134@@cumc.columbia.edu},
 #' Jeff Goldsmith \email{ajg2202@@cumc.columbia.edu}
@@ -85,7 +88,8 @@ grid_subj_create = function(coefs, D) {
 #' @export
 #'
 simulate_unregistered_curves = function(I = 50, D = 100, lambda = 15, seed = 1988,
-																				period = 2 * pi, spline_based = FALSE) {
+																				period = 2 * pi, spline_based = FALSE, 
+																				phase_variation = TRUE) {
 	
 	## NULLify global values called by tidyverse functions
 	value = index = NULL
@@ -101,7 +105,11 @@ simulate_unregistered_curves = function(I = 50, D = 100, lambda = 15, seed = 198
 	Yi_obs = Yi_latent = pi_true = t_subj = matrix(NA, I, D)
 	Yi_regis.true = matrix(NA, I, D)
 	for (i in 1:I) {
-		t_subj[i,] =  grid_subj_create(runif(3, 0, 1), D = D) %>% as.vector
+		if(phase_variation){
+			t_subj[i,] =  grid_subj_create(runif(3, 0, 1), D = D) %>% as.vector
+		}else{
+			t_subj[i,] =  grid
+		}
 		Yi_latent[i,] = mean_curve(grid = t_subj[i,], 
 															 period = period, spline_based = spline_based) + 
 			c_true[i] * amp_curve(grid = t_subj[i,], 

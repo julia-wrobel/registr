@@ -1,5 +1,5 @@
 ---
-title: 'register: Registration for Exponential Family Functional Data'
+title: 'registr: Registration for Exponential Family Functional Data'
 authors:
 - affiliation: 1
   name: Julia Wrobel
