@@ -4,8 +4,8 @@
 \alias{bs_deriv}
 \title{Nth derivative of spline basis}
 \usage{
-bs_deriv(x, knots, degree = 3L, Boundary.knots = range(x), derivative = 1,
-  intercept = TRUE)
+bs_deriv(x, knots, degree = 3L, Boundary.knots = range(x),
+  derivative = 1, intercept = TRUE)
 }
 \arguments{
 \item{x}{a numeric vector of values at which to evaluate the B-spline functions or derivatives.}
