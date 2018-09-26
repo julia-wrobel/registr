@@ -5,7 +5,7 @@ Authors@R: c(
     person("Julia", "Wrobel", role = c("aut", "cre"), email = "jw3134@cumc.columbia.edu"),
     person("Jeff", "Goldsmith", role = "aut", email = "jeff.goldsmith@columbia.edu")
     )
-Description: Registering curves from exponential family functional data.
+Description: Registering curves from exponential family functional data
 Depends:
     R (>= 3.2)
 Imports:
