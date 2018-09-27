@@ -20,8 +20,9 @@ loss_h = function(Y, Theta_h, mean_coefs, knots, beta.inner, family, t_min, t_ma
 									parametric_warps = FALSE){
   
   if(parametric_warps == "beta_cdf"){
-  	tstar = seq(t_min, t_max, length.out = length(Y))
+  	tstar = seq(0, 1, length.out = length(Y))
   	hinv_tstar = pbeta(tstar, beta.inner[1], beta.inner[2])
+  	
   	
   }else if(parametric_warps == "piecewise"){
   	# does not currently allow minimum values different from zero

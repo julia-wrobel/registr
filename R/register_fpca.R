@@ -50,7 +50,7 @@ register_fpca <- function(Y, Kt = 8, Kh = 4, family = "binomial", max_iterations
   if( !(family %in% c("binomial", "gaussian")) ){
   	stop("Package currently handles only 'binomial' or 'gaussian' families.")
   }
-
+		
   data = data_clean(Y)
   Y = data$Y
   rows = data$Y_rows

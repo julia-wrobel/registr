@@ -53,7 +53,12 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
 									 parametric_warps = FALSE, ...){
   
   if(is.null(Y)) { Y = obj$Y}
-	if(is.null(obj)) { Y$tstar = Y$index}
+	if(is.null(obj)) { Y$tstar = Y$index
+		# scale time to 0, 1 for parametric warping
+		if(!(parametric_warps == FALSE) ){
+			Y$tstar = Y$index_scaled
+		}
+	}
   
   if(is.null(row_obj)){
     data = data_clean(Y)

@@ -39,6 +39,11 @@ data_clean <- function(data, family = "binomial"){
   	ungroup() %>% 
   	mutate(subject = row_number())
   
+  data = data %>%
+  	group_by(id) %>%
+  	mutate(index_scaled = (index - min(index))/max(index) ) %>%
+  	ungroup()
+  
   colnames(data_rows) <- c("id", "first_row", "last_row", "subject")
   I = dim(data_rows)[1]
   
