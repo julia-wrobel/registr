@@ -27,7 +27,8 @@
 #' Keep this NULL if you are using standalone \code{registr} function.
 #' @param parametric_warps If FALSE (default), inverse warping functions are 
 #' estimated nonparametrically. If 'beta_cdf', they are assumed to have the form of a 
-#' Beta(a,b) CDF. If 'piecewise' they follow a piecewise parameterized function.
+#' Beta(a,b) CDF. If 'piecewise' they follow a piecewise parameterized function. 
+#' If 'piecewise_linear' they follow a piecewise linear function with 1 knot
 #' @param ... additional arguments passed to or from other functions
 #' 
 #' @return An object of class \code{fpca} containing:
@@ -111,6 +112,10 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
   		beta_0 = c(.1, 0.5)
   		rownames(beta_new) = c("beta", "midpoint_percentile")
   	}
+  	if(parametric_warps == "piecewise_linear"){
+  		beta_0 = c(0.5, 0.5)
+  		rownames(beta_new) = c("beta1", "knot")
+  	}
   }
 	
   for (i in 1:I) {
@@ -156,6 +161,17 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
     	
     	beta_new[,i] = beta_optim$par
     	t_hat[subject_rows] = piecewise_parametric_hinv(seq(0, t_max, length.out = Di),
+    																									beta_new[1, i], beta_new[2, i])
+    	
+    }else if(parametric_warps == "piecewise_linear"){
+    	beta_optim = constrOptim(beta_i, loss_h, grad = gradf, ui = ui, ci = ci, Y = Yi, 
+    													 Theta_h = Theta_h_i, mean_coefs = mean_coefs_i, 
+    													 knots = global_knots,
+    													 parametric_warps = parametric_warps, 
+    													 family = family, t_min = t_min, t_max = t_max)
+    	
+    	beta_new[,i] = beta_optim$par
+    	t_hat[subject_rows] = piecewise_linear_hinv(seq(0, t_max, length.out = Di),
     																									beta_new[1, i], beta_new[2, i])
     	
     }else{
