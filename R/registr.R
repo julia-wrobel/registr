@@ -114,7 +114,7 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
   	}
   	if(parametric_warps == "piecewise_linear"){
   		beta_0 = c(0.5, 0.5)
-  		rownames(beta_new) = c("beta1", "knot")
+  		rownames(beta_new) = c("knot_x", "knot_y")
   	}
   }
 	

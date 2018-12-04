@@ -8,7 +8,8 @@
 #' @param t_max Maximum value to be evaluated on the time domain. 
 #' @param parametric_warps If FALSE (default), inverse warping functions are 
 #' estimated nonparametrically. If 'beta_cdf', they are assumed to have the form of a 
-#' Beta(a,b) CDF. If 'piecewise' they follow a piecewise parameterized function.
+#' Beta(a,b) CDF. If 'piecewise' they follow a piecewise parameterized function. If
+#' 'piecewise_linear', they follow a piecewise linear function.
 
 #' @export
 constraints = function(Kh, t_min = 0, t_max = 1, parametric_warps = FALSE){

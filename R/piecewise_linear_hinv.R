@@ -1,11 +1,11 @@
 #' Create two-parameter piecewise linear (inverse) warping functions
 #'
-#' This function uses a parametric model to calculate inverse warping functions for 
-#' registration. The parameter \code{beta1} controls the slope from time 0 to some knot,
-#' and the parameter \code{knot} controls where the knot takes place.
-#' The designation (inverse) is intended to communicate that these functions take 
-#' data from the unregistered space to the registered space, consistent with 
-#' functional data literature on registration.
+#' This function uses a piecewise linear model to calculate inverse warping 
+#' functions for #' registration. The parameter \code{knot_x} controls the 
+#' x-location of the knot, #' and the parameter \code{knot_y} the y-location 
+#' of the knot. The designation (inverse) is intended to communicate that these 
+#' functions take data from the unregistered space to the registered space, 
+#' consistent with #' functional data literature on registration.
 #' 
 #' @param grid grid of values over which to evaluate the function.
 #' @param beta1 parameter that controls the slope from time 0 to the knot. 
@@ -17,16 +17,13 @@
 #' @importFrom stats quantile
 #' @export
 
-piecewise_linear_hinv = function(grid, beta1 = 0.5, knot = 0.5){
+piecewise_linear_hinv = function(grid, knot_x = 0.5, knot_y = 0.5){
 	
-	# knot*beta1 + (1 - knot)*beta2 = 1
-	# (1 - knot)*beta2 = 1 - knot*beta1
-	beta2 = (1 - knot*beta1) / (1 - knot)
+	beta1 = knot_y / knot_x
+	beta2 = (1 - knot_y) / (1 - knot_x)
 	
-	h_inv1 = grid[grid <  knot]*beta1
-	h_inv2 = knot*beta1 + (grid[grid >= knot] - knot)*beta2
-	
-	print(c(h_inv1, h_inv2))
+	h_inv1 = grid[grid <  knot_x]*beta1
+	h_inv2 = knot_x*beta1 + (grid[grid >= knot_x] - knot_x)*beta2
 
 	return(c(h_inv1, h_inv2))
 }
