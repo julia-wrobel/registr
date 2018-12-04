@@ -38,7 +38,8 @@ Keep this NULL if you are using standalone \code{registr} function.}
 
 \item{parametric_warps}{If FALSE (default), inverse warping functions are 
 estimated nonparametrically. If 'beta_cdf', they are assumed to have the form of a 
-Beta(a,b) CDF. If 'piecewise' they follow a piecewise parameterized function.}
+Beta(a,b) CDF. If 'piecewise' they follow a piecewise parameterized function. 
+If 'piecewise_linear' they follow a piecewise linear function with 1 knot}
 
 \item{...}{additional arguments passed to or from other functions}
 }

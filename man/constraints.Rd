@@ -15,7 +15,8 @@ constraints(Kh, t_min = 0, t_max = 1, parametric_warps = FALSE)
 
 \item{parametric_warps}{If FALSE (default), inverse warping functions are 
 estimated nonparametrically. If 'beta_cdf', they are assumed to have the form of a 
-Beta(a,b) CDF. If 'piecewise' they follow a piecewise parameterized function.}
+Beta(a,b) CDF. If 'piecewise' they follow a piecewise parameterized function. If
+'piecewise_linear', they follow a piecewise linear function.}
 }
 \description{
 Constraints ensure monotonicity of spline coefficients for warping functions 
