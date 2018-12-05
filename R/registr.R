@@ -28,7 +28,8 @@
 #' @param parametric_warps If FALSE (default), inverse warping functions are 
 #' estimated nonparametrically. If 'beta_cdf', they are assumed to have the form of a 
 #' Beta(a,b) CDF. If 'piecewise' they follow a piecewise parameterized function. 
-#' If 'piecewise_linear' they follow a piecewise linear function with 1 knot
+#' If 'piecewise_linear1' they follow a piecewise linear function with 1 knot.
+#' If 'piecewise_linear2' they follow a piecewise linear function with 2 knots.
 #' @param ... additional arguments passed to or from other functions
 #' 
 #' @return An object of class \code{fpca} containing:
@@ -111,10 +112,13 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
   	if(parametric_warps == "piecewise"){
   		beta_0 = c(.1, 0.5)
   		rownames(beta_new) = c("beta", "midpoint_percentile")
-  	}
-  	if(parametric_warps == "piecewise_linear"){
+  	}else if(parametric_warps == "piecewise_linear1"){
   		beta_0 = c(0.5, 0.5)
   		rownames(beta_new) = c("knot_x", "knot_y")
+  	}else if(parametric_warps == "piecewise_linear2"){
+  		beta_new = matrix(NA, 4, I)
+  		beta_0 = c(0.25, 0.25,  0.75, 0.75)
+  		rownames(beta_new) = c("knot1_x", "knot1_y", "knot2_x", "knot2_y")
   	}
   }
 	
@@ -163,7 +167,7 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
     	t_hat[subject_rows] = piecewise_parametric_hinv(seq(0, t_max, length.out = Di),
     																									beta_new[1, i], beta_new[2, i])
     	
-    }else if(parametric_warps == "piecewise_linear"){
+    }else if(parametric_warps == "piecewise_linear1"){
     	beta_optim = constrOptim(beta_i, loss_h, grad = gradf, ui = ui, ci = ci, Y = Yi, 
     													 Theta_h = Theta_h_i, mean_coefs = mean_coefs_i, 
     													 knots = global_knots,
@@ -171,8 +175,20 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
     													 family = family, t_min = t_min, t_max = t_max)
     	
     	beta_new[,i] = beta_optim$par
-    	t_hat[subject_rows] = piecewise_linear_hinv(seq(0, t_max, length.out = Di),
-    																									beta_new[1, i], beta_new[2, i])
+    	t_hat[subject_rows] = piecewise_linear1_hinv(seq(0, t_max, length.out = Di),
+    																							 beta_new[1, i], beta_new[2, i])
+    	
+    }else if(parametric_warps == "piecewise_linear2"){
+    	beta_optim = constrOptim(beta_i, loss_h, grad = gradf, ui = ui, ci = ci, Y = Yi, 
+    													 Theta_h = Theta_h_i, mean_coefs = mean_coefs_i, 
+    													 knots = global_knots,
+    													 parametric_warps = parametric_warps, 
+    													 family = family, t_min = t_min, t_max = t_max)
+    	
+    	beta_new[,i] = beta_optim$par
+    	t_hat[subject_rows] = piecewise_linear2_hinv(seq(0, t_max, length.out = Di),
+    																							 beta_new[1, i], beta_new[2, i]
+    																							 beta_new[3, i], beta_new[4, i])
     	
     }else{
     	beta_optim = constrOptim(beta_i, loss_h, grad = gradf, ui = ui, ci = ci, 

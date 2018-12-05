@@ -17,13 +17,15 @@
 #' @importFrom stats quantile
 #' @export
 
-piecewise_linear_hinv = function(grid, knot_x = 0.5, knot_y = 0.5){
+piecewise_linear2_hinv = function(grid, knot_x = 0.5, knot_y = 0.5){
 	
-	beta1 = knot_y / knot_x
-	beta2 = (1 - knot_y) / (1 - knot_x)
+	beta1 = knot1_y / knot1_x
+	beta2 = (knot2_y - knot1_y) / (knot2_x - knot1_x)
+	beta3 = (1 - knot2_y) / (1 - knot2_x)
 	
-	h_inv1 = grid[grid <  knot_x]*beta1
-	h_inv2 = knot_x*beta1 + (grid[grid >= knot_x] - knot_x)*beta2
-
+	h_inv1 = grid[grid <  knot1_x]*beta1
+	h_inv2 = knot1_x*beta1 + (grid[grid >= knot1_x & grid < knot2_x] - knot1_x)*beta2
+	h_inv3 = knot1_x*beta1 + knot2_x*beta2 + (grid[grid >= knot2_x] - knot2_x)*beta3
+	
 	return(c(h_inv1, h_inv2))
 }

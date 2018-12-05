@@ -23,7 +23,6 @@ loss_h = function(Y, Theta_h, mean_coefs, knots, beta.inner, family, t_min, t_ma
   	tstar = seq(0, 1, length.out = length(Y))
   	hinv_tstar = pbeta(tstar, beta.inner[1], beta.inner[2])
   	
-  	
   }else if(parametric_warps == "piecewise"){
   	# does not currently allow minimum values different from zero
   	tstar = seq(0, t_max, length.out = length(Y))
@@ -31,12 +30,16 @@ loss_h = function(Y, Theta_h, mean_coefs, knots, beta.inner, family, t_min, t_ma
   	
   	hinv_tstar = piecewise_parametric_hinv(tstar, beta.inner[1], beta.inner[2])
   	
-  }
-	else if(parametric_warps == "piecewise_linear"){
-		# does not currently allow minimum values different from zero
-		tstar = seq(0, t_max, length.out = length(Y))
-		hinv_tstar = piecewise_linear_hinv(tstar, beta.inner[1], beta.inner[2])
-		
+  }else if(parametric_warps == "piecewise_linear1"){
+  	# does not currently allow minimum values different from zero
+  	tstar = seq(0, t_max, length.out = length(Y))
+  	hinv_tstar = piecewise_linear1_hinv(tstar, beta.inner[1], beta.inner[2])
+  	
+  }else if(parametric_warps == "piecewise_linear2"){
+  	# does not currently allow minimum values different from zero
+  	tstar = seq(0, t_max, length.out = length(Y))
+  	hinv_tstar = piecewise_linear2_hinv(tstar, beta.inner[1], beta.inner[2], beta.inner[3], beta.inner[4])
+  	
 	}else{
   	beta = c(t_min, beta.inner, t_max)
   	hinv_tstar = cbind(1, Theta_h) %*% beta
