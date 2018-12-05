@@ -82,7 +82,7 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
 	tstar = Y$tstar
   if (is.null(t_min)) {t_min = min(tstar)}
   if (is.null(t_max)) {t_max = max(tstar)}
-  Theta_h = bs(tstar, df = Kh, intercept = FALSE) ## fix??
+  Theta_h = bs(tstar, df = Kh, intercept = FALSE)
   
   if(is.null(obj)){
     # define population mean
@@ -117,7 +117,7 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
   		rownames(beta_new) = c("knot_x", "knot_y")
   	}else if(parametric_warps == "piecewise_linear2"){
   		beta_new = matrix(NA, 4, I)
-  		beta_0 = c(0.25, 0.25,  0.75, 0.75)
+  		beta_0 = c(0.25, 0.3,  0.75, 0.9)
   		rownames(beta_new) = c("knot1_x", "knot1_y", "knot2_x", "knot2_y")
   	}
   }
@@ -187,7 +187,7 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
     	
     	beta_new[,i] = beta_optim$par
     	t_hat[subject_rows] = piecewise_linear2_hinv(seq(0, t_max, length.out = Di),
-    																							 beta_new[1, i], beta_new[2, i]
+    																							 beta_new[1, i], beta_new[2, i],
     																							 beta_new[3, i], beta_new[4, i])
     	
     }else{
