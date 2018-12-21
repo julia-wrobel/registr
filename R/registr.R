@@ -52,7 +52,12 @@
 #'
 registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gradient = TRUE,
 									 beta = NULL, t_min = NULL, t_max = NULL, row_obj = NULL,
-									 parametric_warps = FALSE, ...){
+									 parametric_warps = FALSE,
+									 prior_1_x = FALSE, prior_1_x_mean = 0.5, prior_1_x_sd = 1,
+									 prior_1_y = FALSE, prior_1_y_mean = 0.5, prior_1_y_sd = 1,
+									 prior_2_x = FALSE, prior_2_x_mean = 0.5, prior_2_x_sd = 1,
+									 prior_2_y = FALSE, prior_2_y_mean = 0.5, prior_2_y_sd = 1,
+									 ...){
   
   if(is.null(Y)) { Y = obj$Y}
 	if(is.null(obj)) { Y$tstar = Y$index
@@ -172,7 +177,9 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
     													 Theta_h = Theta_h_i, mean_coefs = mean_coefs_i, 
     													 knots = global_knots,
     													 parametric_warps = parametric_warps, 
-    													 family = family, t_min = t_min, t_max = t_max)
+    													 family = family, t_min = t_min, t_max = t_max,
+    													 prior_1_x = prior_1_x, prior_1_x_mean = prior_1_x_mean, prior_1_x_sd = prior_1_x_sd,
+    													 prior_1_y = prior_1_y, prior_1_y_mean = prior_1_y_mean, prior_1_y_sd = prior_1_y_sd)
     	
     	beta_new[,i] = beta_optim$par
     	t_hat[subject_rows] = piecewise_linear1_hinv(seq(0, t_max, length.out = Di),
@@ -183,7 +190,11 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
     													 Theta_h = Theta_h_i, mean_coefs = mean_coefs_i, 
     													 knots = global_knots,
     													 parametric_warps = parametric_warps, 
-    													 family = family, t_min = t_min, t_max = t_max)
+    													 family = family, t_min = t_min, t_max = t_max,
+    													 prior_1_x = prior_1_x, prior_1_x_mean = prior_1_x_mean, prior_1_x_sd = prior_1_x_sd,
+    													 prior_1_y = prior_1_y, prior_1_y_mean = prior_1_y_mean, prior_1_y_sd = prior_1_y_sd,
+    													 prior_2_x = prior_2_x, prior_2_x_mean = prior_2_x_mean, prior_2_x_sd = prior_2_x_sd,
+    													 prior_2_y = prior_2_y, prior_2_y_mean = prior_2_y_mean, prior_2_y_sd = prior_2_y_sd)
     	
     	beta_new[,i] = beta_optim$par
     	t_hat[subject_rows] = piecewise_linear2_hinv(seq(0, t_max, length.out = Di),
