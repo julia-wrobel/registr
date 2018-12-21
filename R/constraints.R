@@ -18,13 +18,13 @@ constraints = function(Kh, t_min = 0, t_max = 1, parametric_warps = FALSE){
 		ci = c(-25, -25, 0, -0.99)
 	}else if(parametric_warps == "piecewise_linear1"){
 		ui = matrix(c(1,-1,0,0,0,0,1,-1), 4, 2)
-		ci = c(0, -1, 0, -1)
+		ci = c(0.1, -0.9, 0.1, -0.9)
 	}else if(parametric_warps == "piecewise_linear2"){
 		ui = matrix(c(1, -1,  0,  0,  0,  0,
 									0,  0,  0,  1, -1,  0,
 									0,  1, -1,  0,  0,  0,
 									0,  0,  0,  0,  1, -1), 6, 4) 
-		ci = c(0, 0, -1, 0, 0, -1)
+		ci = c(0.1, 0.1, -0.9, 0.1, 0.1, -0.9)
 	}else{
 		ui = matrix(0, nrow = Kh , ncol = Kh - 1) 
 		ui[1,1] = 1; ui[Kh, Kh - 1] = -1
