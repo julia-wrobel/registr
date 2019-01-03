@@ -59,16 +59,16 @@ loss_h = function(Y, Theta_h, mean_coefs, knots, beta.inner, family, t_min, t_ma
     # Allows for a prior distribution on the knot locations
     loss = -1 * sum(Y * log(pi_h) + (1 - Y) * log(1 - pi_h))
   	if((parametric_warps == "piecewise_linear1" | parametric_warps == "piecewise_linear2") & prior_1_x == TRUE){
-  		loss = loss + dnorm(x = beta.inner[1], mean = prior_1_x_mean, sd = prior_1_x_sd)
+  		loss = loss + (1 - dnorm(x = beta.inner[1], mean = prior_1_x_mean, sd = prior_1_x_sd))
   	}
     if((parametric_warps == "piecewise_linear1" | parametric_warps == "piecewise_linear2") & prior_1_y == TRUE){
-    	loss = loss + dnorm(x = beta.inner[2], mean = prior_1_y_mean, sd = prior_1_y_sd)
+    	loss = loss + (1 - dnorm(x = beta.inner[2], mean = prior_1_y_mean, sd = prior_1_y_sd))
     }
     if(parametric_warps == "piecewise_linear2" & prior_2_x == TRUE){
-    	loss = loss + dnorm(x = beta.inner[1], mean = prior_2_x_mean, sd = prior_2_x_sd)
+    	loss = loss + (1 - dnorm(x = beta.inner[3], mean = prior_2_x_mean, sd = prior_2_x_sd))
     }
     if(parametric_warps == "piecewise_linear2" & prior_2_y == TRUE){
-    	loss = loss + dnorm(x = beta.inner[2], mean = prior_2_y_mean, sd = prior_2_y_sd)
+    	loss = loss + (1 - dnorm(x = beta.inner[4], mean = prior_2_y_mean, sd = prior_2_y_sd))
     }
 	  return(loss)
   }
