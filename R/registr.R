@@ -122,7 +122,7 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
   		rownames(beta_new) = c("knot_x", "knot_y")
   	}else if(parametric_warps == "piecewise_linear2"){
   		beta_new = matrix(NA, 4, I)
-  		beta_0 = c(0.25, 0.3,  0.75, 0.9)
+  		beta_0 = c(0.25, 0.3,  0.75, 0.8)
   		rownames(beta_new) = c("knot1_x", "knot1_y", "knot2_x", "knot2_y")
   	}
   }
