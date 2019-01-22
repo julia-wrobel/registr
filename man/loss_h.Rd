@@ -5,7 +5,11 @@
 \title{Loss function for registration step optimization}
 \usage{
 loss_h(Y, Theta_h, mean_coefs, knots, beta.inner, family, t_min, t_max,
-  parametric_warps = FALSE)
+  parametric_warps = FALSE, prior_1_x = FALSE, prior_1_x_mean = 0.5,
+  prior_1_x_sd = 1, prior_1_y = FALSE, prior_1_y_mean = 0.5,
+  prior_1_y_sd = 1, prior_2_x = FALSE, prior_2_x_mean = 0.5,
+  prior_2_x_sd = 1, prior_2_y = FALSE, prior_2_y_mean = 0.5,
+  prior_2_y_sd = 1)
 }
 \arguments{
 \item{Y}{vector of observed points.}

@@ -8,7 +8,11 @@
 \usage{
 registr(obj = NULL, Y = NULL, Kt = 8, Kh = 4,
   family = "binomial", gradient = TRUE, beta = NULL, t_min = NULL,
-  t_max = NULL, row_obj = NULL, parametric_warps = FALSE, ...)
+  t_max = NULL, row_obj = NULL, parametric_warps = FALSE,
+  prior_1_x = FALSE, prior_1_x_mean = 0.5, prior_1_x_sd = 1,
+  prior_1_y = FALSE, prior_1_y_mean = 0.5, prior_1_y_sd = 1,
+  prior_2_x = FALSE, prior_2_x_mean = 0.5, prior_2_x_sd = 1,
+  prior_2_y = FALSE, prior_2_y_mean = 0.5, prior_2_y_sd = 1, ...)
 }
 \arguments{
 \item{obj}{Current estimate of FPC object. 
