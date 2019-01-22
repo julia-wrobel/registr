@@ -11,6 +11,23 @@
 #' @param parametric_warps If FALSE (default), inverse warping functions are 
 #' estimated nonparametrically. If 'beta_cdf', they are assumed to have the form of a 
 #' Beta(a,b) CDF. If 'piecewise' they follow a piecewise parameterized function.
+#' @param prior_1_x For parametric_warps = "piecewise_linear1" or "piecewise_linear2" only. 
+#' If TRUE, will incorporate a prior Normal distribution for the first knot's x location into the loss function.
+#' @param prior_1_x_mean Mean of the Normal distribution prior for the first knot's x location. 
+#' @param prior_1_x_sd Standard deviation of the Normal distribution prior for the first knot's x location. 
+#' @param prior_1_y For parametric_warps = "piecewise_linear1" or "piecewise_linear2" only. 
+#' If TRUE, will incorporate a prior Normal distribution for the first knot's y location into the loss function.
+#' @param prior_1_y_mean Mean of the Normal distribution prior for the first knot's y location. 
+#' @param prior_1_y_sd Standard deviation of the Normal distribution prior for the first knot's y location. 
+#' @param prior_2_x For parametric_warps = "piecewise_linear2" only. 
+#' If TRUE, will incorporate a prior Normal distribution for the second knot's x location into the loss function.
+#' @param prior_2_x_mean Mean of the Normal distribution prior for the second knot's x location. 
+#' @param prior_2_x_sd Standard deviation of the Normal distribution prior for the second knot's x location. 
+#' @param prior_2_y For parametric_warps = "piecewise_linear2" only. 
+#' If TRUE, will incorporate a prior Normal distribution for the second knot's y location into the loss function.
+#' @param prior_2_y_mean Mean of the Normal distribution prior for the second knot's y location. 
+#' @param prior_2_y_sd Standard deviation of the Normal distribution prior for the second knot's y location. 
+#'  
 #' 
 #' @importFrom stats plogis
 #' @export
@@ -60,16 +77,16 @@ loss_h = function(Y, Theta_h, mean_coefs, knots, beta.inner, family, t_min, t_ma
     loss = -1 * sum(Y * log(pi_h) + (1 - Y) * log(1 - pi_h))
 
   	if((parametric_warps == "piecewise_linear1" | parametric_warps == "piecewise_linear2") & prior_1_x == TRUE){
-  		loss = loss - (length(Y) * dnorm(x = beta.inner[1], mean = prior_1_x_mean, sd = prior_1_x_sd))
+  		loss = loss + log(dnorm(x = beta.inner[1], mean = prior_1_x_mean, sd = prior_1_x_sd))
   	}
     if((parametric_warps == "piecewise_linear1" | parametric_warps == "piecewise_linear2") & prior_1_y == TRUE){
-    	loss = loss - (length(Y) * dnorm(x = beta.inner[2], mean = prior_1_y_mean, sd = prior_1_y_sd))
+    	loss = loss + log(dnorm(x = beta.inner[2], mean = prior_1_y_mean, sd = prior_1_y_sd))
     }
     if(parametric_warps == "piecewise_linear2" & prior_2_x == TRUE){
-    	loss = loss - (length(Y) * dnorm(x = beta.inner[3], mean = prior_2_x_mean, sd = prior_2_x_sd))
+    	loss = loss + log(dnorm(x = beta.inner[3], mean = prior_2_x_mean, sd = prior_2_x_sd))
     }
     if(parametric_warps == "piecewise_linear2" & prior_2_y == TRUE){
-    	loss = loss - (length(Y) * dnorm(x = beta.inner[4], mean = prior_2_y_mean, sd = prior_2_y_sd))
+    	loss = loss + log(dnorm(x = beta.inner[4], mean = prior_2_y_mean, sd = prior_2_y_sd))
     }
 	  return(loss)
   }
