@@ -31,6 +31,34 @@ loss_h(Y, Theta_h, mean_coefs, knots, beta.inner, family, t_min, t_max,
 \item{parametric_warps}{If FALSE (default), inverse warping functions are 
 estimated nonparametrically. If 'beta_cdf', they are assumed to have the form of a 
 Beta(a,b) CDF. If 'piecewise' they follow a piecewise parameterized function.}
+
+\item{prior_1_x}{For parametric_warps = "piecewise_linear1" or "piecewise_linear2" only. 
+If TRUE, will incorporate a prior Normal distribution for the first knot's x location into the loss function.}
+
+\item{prior_1_x_mean}{Mean of the Normal distribution prior for the first knot's x location.}
+
+\item{prior_1_x_sd}{Standard deviation of the Normal distribution prior for the first knot's x location.}
+
+\item{prior_1_y}{For parametric_warps = "piecewise_linear1" or "piecewise_linear2" only. 
+If TRUE, will incorporate a prior Normal distribution for the first knot's y location into the loss function.}
+
+\item{prior_1_y_mean}{Mean of the Normal distribution prior for the first knot's y location.}
+
+\item{prior_1_y_sd}{Standard deviation of the Normal distribution prior for the first knot's y location.}
+
+\item{prior_2_x}{For parametric_warps = "piecewise_linear2" only. 
+If TRUE, will incorporate a prior Normal distribution for the second knot's x location into the loss function.}
+
+\item{prior_2_x_mean}{Mean of the Normal distribution prior for the second knot's x location.}
+
+\item{prior_2_x_sd}{Standard deviation of the Normal distribution prior for the second knot's x location.}
+
+\item{prior_2_y}{For parametric_warps = "piecewise_linear2" only. 
+If TRUE, will incorporate a prior Normal distribution for the second knot's y location into the loss function.}
+
+\item{prior_2_y_mean}{Mean of the Normal distribution prior for the second knot's y location.}
+
+\item{prior_2_y_sd}{Standard deviation of the Normal distribution prior for the second knot's y location.}
 }
 \description{
 Loss function for registration step optimization
