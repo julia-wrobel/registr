@@ -8,6 +8,8 @@
 #' @param family \code{gaussian} or \code{binomial}.
 #' @param t_min minimum value to be evaluated on the time domain. 
 #' @param t_max maximum value to be evaluated on the time domain. 
+#' @param periodic If TRUE, uses periodic b-spline basis functions. Default is FALSE.
+#' @param Kt Number of B-spline basis functions used to estimate mean functions. Default is 8.
 #' 
 #' @author Julia Wrobel \email{jw3134@@cumc.columbia.edu}
 #' 
@@ -16,7 +18,7 @@
 #' @export
 #'
 loss_h_gradient = function(Y, Theta_h, mean_coefs, knots, beta.inner, family = "gaussian",
-                           t_min, t_max){
+                           t_min, t_max, periodic = FALSE, Kt = 8){
   
 	Di = length(Y)
 	Kh = dim(Theta_h)[2]
