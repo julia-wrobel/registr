@@ -9,10 +9,11 @@
 registr(obj = NULL, Y = NULL, Kt = 8, Kh = 4,
   family = "binomial", gradient = TRUE, beta = NULL, t_min = NULL,
   t_max = NULL, row_obj = NULL, parametric_warps = FALSE,
-  prior_1_x = FALSE, prior_1_x_mean = 0.5, prior_1_x_sd = 1,
-  prior_1_y = FALSE, prior_1_y_mean = 0.5, prior_1_y_sd = 1,
-  prior_2_x = FALSE, prior_2_x_mean = 0.5, prior_2_x_sd = 1,
-  prior_2_y = FALSE, prior_2_y_mean = 0.5, prior_2_y_sd = 1, ...)
+  periodic = FALSE, prior_1_x = FALSE, prior_1_x_mean = 0.5,
+  prior_1_x_sd = 1, prior_1_y = FALSE, prior_1_y_mean = 0.5,
+  prior_1_y_sd = 1, prior_2_x = FALSE, prior_2_x_mean = 0.5,
+  prior_2_x_sd = 1, prior_2_y = FALSE, prior_2_y_mean = 0.5,
+  prior_2_y_sd = 1, ...)
 }
 \arguments{
 \item{obj}{Current estimate of FPC object. 
@@ -45,6 +46,36 @@ estimated nonparametrically. If 'beta_cdf', they are assumed to have the form of
 Beta(a,b) CDF. If 'piecewise' they follow a piecewise parameterized function. 
 If 'piecewise_linear1' they follow a piecewise linear function with 1 knot.
 If 'piecewise_linear2' they follow a piecewise linear function with 2 knots.}
+
+\item{periodic}{If TRUE, uses periodic b-spline basis functions. Default is FALSE.}
+
+\item{prior_1_x}{For parametric_warps = "piecewise_linear1" or "piecewise_linear2" only. 
+If TRUE, will incorporate a prior Normal distribution for the first knot's x location into the loss function.}
+
+\item{prior_1_x_mean}{Mean of the Normal distribution prior for the first knot's x location.}
+
+\item{prior_1_x_sd}{Standard deviation of the Normal distribution prior for the first knot's x location.}
+
+\item{prior_1_y}{For parametric_warps = "piecewise_linear1" or "piecewise_linear2" only. 
+If TRUE, will incorporate a prior Normal distribution for the first knot's y location into the loss function.}
+
+\item{prior_1_y_mean}{Mean of the Normal distribution prior for the first knot's y location.}
+
+\item{prior_1_y_sd}{Standard deviation of the Normal distribution prior for the first knot's y location.}
+
+\item{prior_2_x}{For parametric_warps = "piecewise_linear2" only. 
+If TRUE, will incorporate a prior Normal distribution for the second knot's x location into the loss function.}
+
+\item{prior_2_x_mean}{Mean of the Normal distribution prior for the second knot's x location.}
+
+\item{prior_2_x_sd}{Standard deviation of the Normal distribution prior for the second knot's x location.}
+
+\item{prior_2_y}{For parametric_warps = "piecewise_linear2" only. 
+If TRUE, will incorporate a prior Normal distribution for the second knot's y location into the loss function.}
+
+\item{prior_2_y_mean}{Mean of the Normal distribution prior for the second knot's y location.}
+
+\item{prior_2_y_sd}{Standard deviation of the Normal distribution prior for the second knot's y location.}
 
 \item{...}{additional arguments passed to or from other functions}
 }

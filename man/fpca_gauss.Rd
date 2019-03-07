@@ -6,7 +6,7 @@
 \usage{
 fpca_gauss(Y, npc = 1, Kt = 8, maxiter = 20, t_min = NULL,
   t_max = NULL, print.iter = FALSE, row_obj = NULL, seed = 1988,
-  ...)
+  periodic = FALSE, ...)
 }
 \arguments{
 \item{Y}{Dataframe. Should have variables id, value, index.}
@@ -27,6 +27,8 @@ fpca_gauss(Y, npc = 1, Kt = 8, maxiter = 20, t_min = NULL,
 Keep this NULL if you are using standalone \code{register} function.}
 
 \item{seed}{Set seed for reproducibility. Default is 1991.}
+
+\item{periodic}{If TRUE, uses periodic b-spline basis functions. Default is FALSE.}
 
 \item{...}{Additional arguments passed to or from other functions}
 }

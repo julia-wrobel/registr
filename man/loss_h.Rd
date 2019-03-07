@@ -5,11 +5,11 @@
 \title{Loss function for registration step optimization}
 \usage{
 loss_h(Y, Theta_h, mean_coefs, knots, beta.inner, family, t_min, t_max,
-  parametric_warps = FALSE, prior_1_x = FALSE, prior_1_x_mean = 0.5,
-  prior_1_x_sd = 1, prior_1_y = FALSE, prior_1_y_mean = 0.5,
-  prior_1_y_sd = 1, prior_2_x = FALSE, prior_2_x_mean = 0.5,
-  prior_2_x_sd = 1, prior_2_y = FALSE, prior_2_y_mean = 0.5,
-  prior_2_y_sd = 1)
+  parametric_warps = FALSE, periodic = FALSE, Kt = 8,
+  prior_1_x = FALSE, prior_1_x_mean = 0.5, prior_1_x_sd = 1,
+  prior_1_y = FALSE, prior_1_y_mean = 0.5, prior_1_y_sd = 1,
+  prior_2_x = FALSE, prior_2_x_mean = 0.5, prior_2_x_sd = 1,
+  prior_2_y = FALSE, prior_2_y_mean = 0.5, prior_2_y_sd = 1)
 }
 \arguments{
 \item{Y}{vector of observed points.}
@@ -31,6 +31,10 @@ loss_h(Y, Theta_h, mean_coefs, knots, beta.inner, family, t_min, t_max,
 \item{parametric_warps}{If FALSE (default), inverse warping functions are 
 estimated nonparametrically. If 'beta_cdf', they are assumed to have the form of a 
 Beta(a,b) CDF. If 'piecewise' they follow a piecewise parameterized function.}
+
+\item{periodic}{If TRUE, uses periodic b-spline basis functions. Default is FALSE.}
+
+\item{Kt}{Number of B-spline basis functions used to estimate mean functions. Default is 8.}
 
 \item{prior_1_x}{For parametric_warps = "piecewise_linear1" or "piecewise_linear2" only. 
 If TRUE, will incorporate a prior Normal distribution for the first knot's x location into the loss function.}
