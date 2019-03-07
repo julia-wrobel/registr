@@ -11,6 +11,7 @@
 #' @param parametric_warps If FALSE (default), inverse warping functions are 
 #' estimated nonparametrically. If 'beta_cdf', they are assumed to have the form of a 
 #' Beta(a,b) CDF. If 'piecewise' they follow a piecewise parameterized function.
+#' @param periodic If TRUE, uses periodic b-spline basis functions. Default is FALSE.
 #' @param prior_1_x For parametric_warps = "piecewise_linear1" or "piecewise_linear2" only. 
 #' If TRUE, will incorporate a prior Normal distribution for the first knot's x location into the loss function.
 #' @param prior_1_x_mean Mean of the Normal distribution prior for the first knot's x location. 
@@ -30,15 +31,19 @@
 #'  
 #' 
 #' @importFrom stats plogis
+#' @importFrom splines bs
+#' @importFrom pbs pbs
 #' @export
 #'
 
 loss_h = function(Y, Theta_h, mean_coefs, knots, beta.inner, family, t_min, t_max, 
-									parametric_warps = FALSE, 
+									parametric_warps = FALSE, periodic = FALSE, Kt = 8,
 									prior_1_x = FALSE, prior_1_x_mean = 0.5, prior_1_x_sd = 1,
 									prior_1_y = FALSE, prior_1_y_mean = 0.5, prior_1_y_sd = 1,
 									prior_2_x = FALSE, prior_2_x_mean = 0.5, prior_2_x_sd = 1,
 									prior_2_y = FALSE, prior_2_y_mean = 0.5, prior_2_y_sd = 1){
+	
+	print(paste("loss_h() Periodic = ", periodic))
   
   if(parametric_warps == "beta_cdf"){
   	tstar = seq(0, 1, length.out = length(Y))
@@ -66,7 +71,8 @@ loss_h = function(Y, Theta_h, mean_coefs, knots, beta.inner, family, t_min, t_ma
   	hinv_tstar = cbind(1, Theta_h) %*% beta
   }
   
-  Theta_phi = bs(hinv_tstar, knots = knots, intercept = TRUE)
+  if(periodic) {Theta_phi = pbs(hinv_tstar, df = Kt, intercept = TRUE)}
+  else         {Theta_phi =  bs(hinv_tstar, knots = knots, intercept = TRUE)}
   g_mu_t = Theta_phi %*% mean_coefs
   
   if (family == "gaussian") {
