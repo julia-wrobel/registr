@@ -15,11 +15,13 @@
 #' @param row_obj If NULL, the function cleans the data and calculates row indices. 
 #' Keep this NULL if you are using standalone \code{register} function.
 #' @param seed Set seed for reproducibility. Default is 1991.
+#' @param periodic If TRUE, uses periodic b-spline basis functions. Default is FALSE.
 #' @param ... Additional arguments passed to or from other functions
 #' 
 #' @author Julia Wrobel \email{jw3134@@cumc.columbia.edu},
 #' Jihui Lee \email{ajg2202@@cumc.columbia.edu}
 #' @importFrom splines bs
+#' @importFrom pbs pbs
 #' @importFrom stats rnorm quantile
 #' 
 #' @return An object of class \code{fpca} containing:
@@ -43,7 +45,7 @@
 #'
 #'
 fpca_gauss <- function(Y, npc = 1, Kt = 8, maxiter = 20, t_min = NULL, t_max = NULL, 
-									print.iter = FALSE, row_obj= NULL, seed = 1988, ...){
+									print.iter = FALSE, row_obj= NULL, seed = 1988, periodic = FALSE, ...){
 	
 	curr_iter = 1
 	error = rep(NA, maxiter)
@@ -71,7 +73,8 @@ fpca_gauss <- function(Y, npc = 1, Kt = 8, maxiter = 20, t_min = NULL, t_max = N
 	if (is.null(t_max)) {t_max = max(time)}
 	
 	knots = quantile(time, probs = seq(0, 1, length = Kt - 2))[-c(1, Kt - 2)]
-	Theta_phi = bs(c(t_min, t_max, time), knots = knots, intercept = TRUE)[-(1:2),] 
+	if(periodic) {Theta_phi = pbs(c(t_min, t_max, time), df = Kt, intercept = TRUE)[-(1:2),]}
+	else         {Theta_phi =  bs(c(t_min, t_max, time), knots = knots, intercept = TRUE)[-(1:2),]}
 	
 	## initialize all parameters
 	set.seed(seed)
@@ -161,7 +164,9 @@ fpca_gauss <- function(Y, npc = 1, Kt = 8, maxiter = 20, t_min = NULL, t_max = N
   fittedVals = data.frame(id = Y$id, index = Y$index, value = fits)
   
   ## mean and eigenfunctions will have same number of grid points as last subject
-  Theta_phi_mean = bs(seq(t_min, t_max, length.out = Di), knots = knots, intercept = TRUE) 
+  if(periodic) {Theta_phi_mean = pbs(seq(t_min, t_max, length.out = Di), df = Kt, intercept = TRUE)}
+  else         {Theta_phi_mean =  bs(seq(t_min, t_max, length.out = Di), knots = knots, intercept = TRUE)}
+  
   
   # orthogonalize eigenvectors and extract eigenvalues
   psi_svd = svd(Theta_phi_mean %*% psi_coefs)
