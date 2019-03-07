@@ -12,6 +12,7 @@
 #' estimated nonparametrically. If 'beta_cdf', they are assumed to have the form of a 
 #' Beta(a,b) CDF. If 'piecewise' they follow a piecewise parameterized function.
 #' @param periodic If TRUE, uses periodic b-spline basis functions. Default is FALSE.
+#' @param Kt Number of B-spline basis functions used to estimate mean functions. Default is 8.
 #' @param prior_1_x For parametric_warps = "piecewise_linear1" or "piecewise_linear2" only. 
 #' If TRUE, will incorporate a prior Normal distribution for the first knot's x location into the loss function.
 #' @param prior_1_x_mean Mean of the Normal distribution prior for the first knot's x location. 
