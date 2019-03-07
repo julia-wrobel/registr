@@ -30,6 +30,23 @@
 #' Beta(a,b) CDF. If 'piecewise' they follow a piecewise parameterized function. 
 #' If 'piecewise_linear1' they follow a piecewise linear function with 1 knot.
 #' If 'piecewise_linear2' they follow a piecewise linear function with 2 knots.
+#' @param periodic If TRUE, uses periodic b-spline basis functions. Default is FALSE.
+#' @param prior_1_x For parametric_warps = "piecewise_linear1" or "piecewise_linear2" only. 
+#' If TRUE, will incorporate a prior Normal distribution for the first knot's x location into the loss function.
+#' @param prior_1_x_mean Mean of the Normal distribution prior for the first knot's x location. 
+#' @param prior_1_x_sd Standard deviation of the Normal distribution prior for the first knot's x location. 
+#' @param prior_1_y For parametric_warps = "piecewise_linear1" or "piecewise_linear2" only. 
+#' If TRUE, will incorporate a prior Normal distribution for the first knot's y location into the loss function.
+#' @param prior_1_y_mean Mean of the Normal distribution prior for the first knot's y location. 
+#' @param prior_1_y_sd Standard deviation of the Normal distribution prior for the first knot's y location. 
+#' @param prior_2_x For parametric_warps = "piecewise_linear2" only. 
+#' If TRUE, will incorporate a prior Normal distribution for the second knot's x location into the loss function.
+#' @param prior_2_x_mean Mean of the Normal distribution prior for the second knot's x location. 
+#' @param prior_2_x_sd Standard deviation of the Normal distribution prior for the second knot's x location. 
+#' @param prior_2_y For parametric_warps = "piecewise_linear2" only. 
+#' If TRUE, will incorporate a prior Normal distribution for the second knot's y location into the loss function.
+#' @param prior_2_y_mean Mean of the Normal distribution prior for the second knot's y location. 
+#' @param prior_2_y_sd Standard deviation of the Normal distribution prior for the second knot's y location. 
 #' @param ... additional arguments passed to or from other functions
 #' 
 #' @return An object of class \code{fpca} containing:
@@ -41,6 +58,8 @@
 #' @export
 #' 
 #' @importFrom stats glm coef constrOptim quantile optim pbeta
+#' @importFrom splines bs
+#' @importFrom pbs pbs
 #' 
 #' @examples
 #' 
@@ -52,12 +71,13 @@
 #'
 registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gradient = TRUE,
 									 beta = NULL, t_min = NULL, t_max = NULL, row_obj = NULL,
-									 parametric_warps = FALSE,
+									 parametric_warps = FALSE, periodic = FALSE,
 									 prior_1_x = FALSE, prior_1_x_mean = 0.5, prior_1_x_sd = 1,
 									 prior_1_y = FALSE, prior_1_y_mean = 0.5, prior_1_y_sd = 1,
 									 prior_2_x = FALSE, prior_2_x_mean = 0.5, prior_2_x_sd = 1,
-									 prior_2_y = FALSE, prior_2_y_mean = 0.5, prior_2_y_sd = 1,
-									 ...){
+									 prior_2_y = FALSE, prior_2_y_mean = 0.5, prior_2_y_sd = 1, ...){
+	
+	print(paste("registr() Periodic = ", periodic))
   
   if(is.null(Y)) { Y = obj$Y}
 	if(is.null(obj)) { Y$tstar = Y$index
@@ -92,7 +112,8 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
   if(is.null(obj)){
     # define population mean
     global_knots = quantile(tstar, probs = seq(0, 1, length = Kt - 2))[-c(1, Kt - 2)]
-    basis = bs(c(t_min, t_max, tstar), knots = global_knots, intercept = TRUE)[-(1:2),] 
+    if(periodic) {basis = pbs(c(t_min, t_max, tstar), df = Kt, intercept = TRUE)[-(1:2),]} 
+    else         {basis =  bs(c(t_min, t_max, tstar), knots = global_knots, intercept = TRUE)[-(1:2),]} 
     mean_coefs = coef(glm(Y$value ~ 0 + basis, family = family))
   }else{
     global_knots = obj$knots
@@ -138,13 +159,16 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
     
     if (is.null(beta)) {beta_i = beta_0} else {beta_i = beta[, i]}
     if (is.null(obj)) {mean_coefs_i = mean_coefs} else {mean_coefs_i = mean_coefs[, i]}
-    if (gradient) {gradf = loss_h_gradient} else {gradf = NULL}
+    if (gradient & !periodic) {gradf = loss_h_gradient} else {gradf = NULL}
+    print(paste("gradf = ", gradf))
     
     if(parametric_warps == "beta_cdf"){
     	beta_optim = optim(beta_i, loss_h, Y = Yi, Theta_h = Theta_h_i,
-    														 mean_coefs = mean_coefs_i,knots = global_knots,
-    														 family = family, t_min = t_min, t_max = t_max,
-    														 parametric_warps = parametric_warps, lower = 0.001, 
+    										 mean_coefs = mean_coefs_i,knots = global_knots,
+    										 family = family, t_min = t_min, t_max = t_max,
+    										 parametric_warps = parametric_warps, periodic = periodic, 
+    										 Kt = Kt,
+    										 lower = 0.001, 
     										 upper = 5,
     										 method = "L-BFGS-B")
     	
@@ -158,12 +182,14 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
     													 Theta_h = Theta_h_i, mean_coefs = mean_coefs_i, 
     													 knots = global_knots,
     													 parametric_warps = parametric_warps, 
+    													 periodic = periodic, Kt = Kt,
     													 family = family, t_min = t_min, t_max = t_max)
     	
     	# beta_optim = optim(beta_i, loss_h, Y = Yi, Theta_h = Theta_h_i,
     	# 									 mean_coefs = mean_coefs_i,knots = global_knots,
     	# 									 family = family, t_min = t_min, t_max = t_max,
     	# 									 parametric_warps = parametric_warps, 
+    	#										 periodic = periodic, Kt = Kt,
     	# 									 lower = c(0.01, 0.11), 
     	# 									 upper = c(10, 0.99),
     	# 									 method = "L-BFGS-B")
@@ -177,6 +203,7 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
     													 Theta_h = Theta_h_i, mean_coefs = mean_coefs_i, 
     													 knots = global_knots,
     													 parametric_warps = parametric_warps, 
+    													 periodic = periodic, Kt = Kt,
     													 family = family, t_min = t_min, t_max = t_max,
     													 prior_1_x = prior_1_x, prior_1_x_mean = prior_1_x_mean, prior_1_x_sd = prior_1_x_sd,
     													 prior_1_y = prior_1_y, prior_1_y_mean = prior_1_y_mean, prior_1_y_sd = prior_1_y_sd)
@@ -190,6 +217,7 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
     													 Theta_h = Theta_h_i, mean_coefs = mean_coefs_i, 
     													 knots = global_knots,
     													 parametric_warps = parametric_warps, 
+    													 periodic = periodic, Kt = Kt,
     													 family = family, t_min = t_min, t_max = t_max,
     													 prior_1_x = prior_1_x, prior_1_x_mean = prior_1_x_mean, prior_1_x_sd = prior_1_x_sd,
     													 prior_1_y = prior_1_y, prior_1_y_mean = prior_1_y_mean, prior_1_y_sd = prior_1_y_sd,
@@ -205,7 +233,8 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
     	beta_optim = constrOptim(beta_i, loss_h, grad = gradf, ui = ui, ci = ci, 
     													 Y = Yi, 
     													 Theta_h = Theta_h_i, mean_coefs = mean_coefs_i, 
-    													 knots = global_knots,
+    													 knots = global_knots, 
+    													 periodic = periodic, Kt = Kt,
     													 family = family, t_min = t_min, t_max = t_max)
     	
     	
