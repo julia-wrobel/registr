@@ -160,8 +160,7 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
     if (is.null(beta)) {beta_i = beta_0} else {beta_i = beta[, i]}
     if (is.null(obj)) {mean_coefs_i = mean_coefs} else {mean_coefs_i = mean_coefs[, i]}
     if (gradient & !periodic) {gradf = loss_h_gradient} else {gradf = NULL}
-    print(paste("gradf = ", gradf))
-    
+
     if(parametric_warps == "beta_cdf"){
     	beta_optim = optim(beta_i, loss_h, Y = Yi, Theta_h = Theta_h_i,
     										 mean_coefs = mean_coefs_i,knots = global_knots,
