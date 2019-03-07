@@ -16,6 +16,7 @@
 #' @param family \code{gaussian} or \code{binomial}.
 #' @param max_iterations Number of iterations for overall algorithm. Defaults to 10.
 #' @param npc Number of principal components to calculate. Defaults to 1. 
+#' @param periodic If TRUE, uses periodic b-spline basis functions. Default is FALSE.
 #' @param ... Additional arguments passed to registr and fpca functions.
 #'
 #' @author Julia Wrobel \email{jw3134@@cumc.columbia.edu}
@@ -45,7 +46,7 @@
 #' }
 #'
 register_fpca <- function(Y, Kt = 8, Kh = 4, family = "binomial", max_iterations = 10, 
-													npc = 1, ...){
+													npc = 1, periodic = FALSE, ...){
 
   if( !(family %in% c("binomial", "gaussian")) ){
   	stop("Package currently handles only 'binomial' or 'gaussian' families.")
@@ -60,7 +61,7 @@ register_fpca <- function(Y, Kt = 8, Kh = 4, family = "binomial", max_iterations
   loss = rep(NA, max_iterations + 1)
 
   # first register values to the overall mean
-  registr_step = registr(Y = Y, Kt = Kt, Kh = Kh, family = family, row_obj = rows, ...)
+  registr_step = registr(Y = Y, Kt = Kt, Kh = Kh, family = family, row_obj = rows, periodic = periodic, ...)
   time_warps[[2]] = registr_step$Y$index
   loss[1] = registr_step$loss
   
@@ -71,13 +72,13 @@ register_fpca <- function(Y, Kt = 8, Kh = 4, family = "binomial", max_iterations
   	message("current iteration: ", iter)
   	
   	if(family == "binomial"){
-  		fpca_step = bfpca(registr_step$Y, npc = npc, Kt = Kt, row_obj = rows, seed = 1988 + iter, ...)
+  		fpca_step = bfpca(registr_step$Y, npc = npc, Kt = Kt, row_obj = rows, seed = 1988 + iter, periodic = periodic, ...)
   	}else if(family == "gaussian"){
-  		fpca_step = fpca_gauss(registr_step$Y, npc = npc, Kt = Kt, row_obj = rows, seed = 1988 + iter, ...)
+  		fpca_step = fpca_gauss(registr_step$Y, npc = npc, Kt = Kt, row_obj = rows, seed = 1988 + iter, periodic = periodic, ...)
   	}
   	
   	registr_step = registr(obj = fpca_step, Kt = Kt, Kh = Kh, family = family, 
-  												 row_obj = rows, beta = registr_step$beta, ...)
+  												 row_obj = rows, beta = registr_step$beta, periodic = periodic, ...)
   	
   	time_warps[[iter + 2]] = registr_step$Y$index
   	loss[iter + 1] = registr_step$loss
@@ -89,9 +90,9 @@ register_fpca <- function(Y, Kt = 8, Kh = 4, family = "binomial", max_iterations
 
   # final fpca step
   if(family == "binomial"){
-  	fpca_step = bfpca(registr_step$Y,npc = npc, Kt = Kt, row_obj = rows)
+  	fpca_step = bfpca(registr_step$Y,npc = npc, Kt = Kt, row_obj = rows, periodic = periodic, ...)
   }else if(family == "gaussian"){
-  	fpca_step = fpca_gauss(registr_step$Y,npc = npc, Kt = Kt, row_obj = rows)
+  	fpca_step = fpca_gauss(registr_step$Y,npc = npc, Kt = Kt, row_obj = rows, periodic = periodic, ...)
   }
   
   Y$tstar = time_warps[[1]]
