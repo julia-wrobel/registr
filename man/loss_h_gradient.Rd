@@ -5,7 +5,7 @@
 \title{Gradient of loss function for registration step}
 \usage{
 loss_h_gradient(Y, Theta_h, mean_coefs, knots, beta.inner,
-  family = "gaussian", t_min, t_max)
+  family = "gaussian", t_min, t_max, periodic = FALSE, Kt = 8)
 }
 \arguments{
 \item{Y}{vector of observed points.}
@@ -23,6 +23,10 @@ loss_h_gradient(Y, Theta_h, mean_coefs, knots, beta.inner,
 \item{t_min}{minimum value to be evaluated on the time domain.}
 
 \item{t_max}{maximum value to be evaluated on the time domain.}
+
+\item{periodic}{If TRUE, uses periodic b-spline basis functions. Default is FALSE.}
+
+\item{Kt}{Number of B-spline basis functions used to estimate mean functions. Default is 8.}
 }
 \description{
 Gradient of loss function for registration step
