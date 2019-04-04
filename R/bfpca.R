@@ -91,9 +91,12 @@ bfpca <- function(Y, npc = 1, Kt = 8, maxiter = 50, t_min = NULL, t_max = NULL,
   if (is.null(t_max)) {t_max = max(time)}
   
   knots = quantile(time, probs = seq(0, 1, length = Kt - 2))[-c(1, Kt - 2)]
-  if(periodic) {Theta_phi = pbs(c(t_min, t_max, time), df = Kt, intercept = TRUE)[-(1:2),]}
-  else         {Theta_phi =  bs(c(t_min, t_max, time), knots = knots, intercept = TRUE)[-(1:2),]}
-
+  if(periodic){
+  	Theta_phi = pbs(c(t_min, t_max, time), df = Kt, intercept = TRUE)[-(1:2),]
+  }else{
+  	Theta_phi =  bs(c(t_min, t_max, time), knots = knots, intercept = TRUE)[-(1:2),]
+  }
+  
   ## initialize all your vectors
   set.seed(seed)
   xi = matrix(rnorm(dim(Y)[1]), ncol = 1) * 0.5
@@ -178,8 +181,11 @@ bfpca <- function(Y, npc = 1, Kt = 8, maxiter = 50, t_min = NULL, t_max = NULL,
   fittedVals = data.frame(id = Y$id, index = Y$index, value = fits)
   
   ## mean and eigenfunctions will have same number of grid points as last subject
-  if(periodic) {Theta_phi_mean = pbs(seq(t_min, t_max, length.out = Di), df = Kt, intercept = TRUE)}
-  else         {Theta_phi_mean =  bs(seq(t_min, t_max, length.out = Di), knots = knots, intercept = TRUE)}
+  if(periodic){
+  	Theta_phi_mean = pbs(seq(t_min, t_max, length.out = Di), df = Kt, intercept = TRUE)
+  }else{
+  	Theta_phi_mean =  bs(seq(t_min, t_max, length.out = Di), knots = knots, intercept = TRUE)
+  }
   
   # orthogonalize eigenvectors and extract eigenvalues
   psi_svd = svd(Theta_phi_mean %*% psi_coefs)

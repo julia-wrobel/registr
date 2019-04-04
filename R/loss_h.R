@@ -72,8 +72,12 @@ loss_h = function(Y, Theta_h, mean_coefs, knots, beta.inner, family, t_min, t_ma
   	hinv_tstar = cbind(1, Theta_h) %*% beta
   }
   
-  if(periodic) {Theta_phi = pbs(hinv_tstar, df = Kt, intercept = TRUE)}
-  else         {Theta_phi =  bs(hinv_tstar, knots = knots, intercept = TRUE)}
+  if(periodic){
+  	Theta_phi = pbs(hinv_tstar, df = Kt, intercept = TRUE)
+  }else{
+  	Theta_phi =  bs(hinv_tstar, knots = knots, intercept = TRUE)
+  }
+	
   g_mu_t = Theta_phi %*% mean_coefs
   
   if (family == "gaussian") {
