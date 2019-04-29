@@ -77,8 +77,6 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
 									 prior_2_x = FALSE, prior_2_x_mean = 0.5, prior_2_x_sd = 1,
 									 prior_2_y = FALSE, prior_2_y_mean = 0.5, prior_2_y_sd = 1, ...){
 	
-	print(paste("registr() Periodic = ", periodic))
-  
   if(is.null(Y)) { Y = obj$Y}
 	if(is.null(obj)) { Y$tstar = Y$index
 		# scale time to 0, 1 for parametric warping

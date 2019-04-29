@@ -58,8 +58,6 @@ bfpca <- function(Y, npc = 1, Kt = 8, maxiter = 50, t_min = NULL, t_max = NULL,
                   print.iter = FALSE, row_obj= NULL,
 									seed = 1988, periodic = FALSE, ...){
 	
-	print(paste("bfpca() Periodic = ", periodic))
-	
   curr_iter = 1
   error = rep(NA, maxiter)
   error[1] = 100.0

@@ -44,8 +44,6 @@ loss_h = function(Y, Theta_h, mean_coefs, knots, beta.inner, family, t_min, t_ma
 									prior_2_x = FALSE, prior_2_x_mean = 0.5, prior_2_x_sd = 1,
 									prior_2_y = FALSE, prior_2_y_mean = 0.5, prior_2_y_sd = 1){
 	
-	print(paste("loss_h() Periodic = ", periodic))
-  
   if(parametric_warps == "beta_cdf"){
   	tstar = seq(0, 1, length.out = length(Y))
   	hinv_tstar = pbeta(tstar, beta.inner[1], beta.inner[2])
