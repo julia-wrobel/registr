@@ -73,7 +73,7 @@ loss_h = function(Y, Theta_h, mean_coefs, knots, beta.inner, family, t_min, t_ma
   }
   
   if(periodic){
-  	Theta_phi = pbs(hinv_tstar, df = Kt, intercept = TRUE)
+  	Theta_phi = pbs(hinv_tstar, knots = knots, intercept = TRUE)
   }else{
   	Theta_phi =  bs(hinv_tstar, knots = knots, intercept = TRUE)
   }

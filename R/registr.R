@@ -111,14 +111,18 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
   
   if(is.null(obj)){
     # define population mean
-    global_knots = quantile(tstar, probs = seq(0, 1, length = Kt - 2))[-c(1, Kt - 2)]
-    
-    if(periodic){
-    	basis = pbs(c(t_min, t_max, tstar), df = Kt, intercept = TRUE)[-(1:2),]
-    }else{
-    	basis =  bs(c(t_min, t_max, tstar), knots = global_knots, intercept = TRUE)[-(1:2),]
-    } 
-    
+  	if(periodic){
+  		# if periodic, then we want more global knots, because the resulting object from pbs 
+  		# only has (knots+intercept) columns.
+  		global_knots = quantile(tstar, probs = seq(0, 1, length = Kt+1))[-c(1, Kt+1)]
+  		basis = pbs(c(t_min, t_max, tstar), knots = global_knots, intercept = TRUE)[-(1:2),]
+  	}else{
+  		# if not periodic, then we want fewer global knots, because the resulting object from bs
+  		# has (knots+degree+intercept) columns, and degree is set to 3 by default.
+  		global_knots = quantile(tstar, probs = seq(0, 1, length = Kt - 2))[-c(1, Kt - 2)]
+  		basis =  bs(c(t_min, t_max, tstar), knots = global_knots, intercept = TRUE)[-(1:2),]
+  	} 
+
     mean_coefs = coef(glm(Y$value ~ 0 + basis, family = family))
   }else{
     global_knots = obj$knots

@@ -74,10 +74,15 @@ fpca_gauss <- function(Y, npc = 1, Kt = 8, maxiter = 20, t_min = NULL, t_max = N
 	if (is.null(t_min)) {t_min = min(time)}
 	if (is.null(t_max)) {t_max = max(time)}
 	
-	knots = quantile(time, probs = seq(0, 1, length = Kt - 2))[-c(1, Kt - 2)]
 	if(periodic){
-		Theta_phi = pbs(c(t_min, t_max, time), df = Kt, intercept = TRUE)[-(1:2),]
+		# if periodic, then we want more global knots, because the resulting object from pbs 
+		# only has (knots+intercept) columns.
+		knots = quantile(time, probs = seq(0, 1, length = Kt + 1))[-c(1, Kt + 1)]
+		Theta_phi = pbs(c(t_min, t_max, time), knots = knots, intercept = TRUE)[-(1:2),]
 	}else{
+		# if not periodic, then we want fewer global knots, because the resulting object from bs
+		# has (knots+degree+intercept) columns, and degree is set to 3 by default.
+		knots = quantile(time, probs = seq(0, 1, length = Kt - 2))[-c(1, Kt - 2)]
 		Theta_phi =  bs(c(t_min, t_max, time), knots = knots, intercept = TRUE)[-(1:2),]
 	}
 	
@@ -170,7 +175,7 @@ fpca_gauss <- function(Y, npc = 1, Kt = 8, maxiter = 20, t_min = NULL, t_max = N
   
   ## mean and eigenfunctions will have same number of grid points as last subject
   if(periodic){
-  	Theta_phi_mean = pbs(seq(t_min, t_max, length.out = Di), df = Kt, intercept = TRUE)
+  	Theta_phi_mean = pbs(seq(t_min, t_max, length.out = Di), knots = knots, intercept = TRUE)
   }else{
   		Theta_phi_mean =  bs(seq(t_min, t_max, length.out = Di), knots = knots, intercept = TRUE)
   }
