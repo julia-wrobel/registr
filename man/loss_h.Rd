@@ -4,8 +4,17 @@
 \alias{loss_h}
 \title{Loss function for registration step optimization}
 \usage{
-loss_h(Y, Theta_h, mean_coefs, knots, beta.inner, family, t_min, t_max,
-  parametric_warps = FALSE)
+loss_h(
+  Y,
+  Theta_h,
+  mean_coefs,
+  knots,
+  beta.inner,
+  family,
+  t_min,
+  t_max,
+  parametric_warps = FALSE
+)
 }
 \arguments{
 \item{Y}{vector of observed points.}

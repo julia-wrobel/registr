@@ -4,9 +4,18 @@
 \alias{fpca_gauss}
 \title{Functional principal components analysis via variational EM}
 \usage{
-fpca_gauss(Y, npc = 1, Kt = 8, maxiter = 20, t_min = NULL,
-  t_max = NULL, print.iter = FALSE, row_obj = NULL, seed = 1988,
-  ...)
+fpca_gauss(
+  Y,
+  npc = 1,
+  Kt = 8,
+  maxiter = 20,
+  t_min = NULL,
+  t_max = NULL,
+  print.iter = FALSE,
+  row_obj = NULL,
+  seed = 1988,
+  ...
+)
 }
 \arguments{
 \item{Y}{Dataframe. Should have variables id, value, index.}

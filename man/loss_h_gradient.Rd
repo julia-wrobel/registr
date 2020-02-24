@@ -4,8 +4,16 @@
 \alias{loss_h_gradient}
 \title{Gradient of loss function for registration step}
 \usage{
-loss_h_gradient(Y, Theta_h, mean_coefs, knots, beta.inner,
-  family = "gaussian", t_min, t_max)
+loss_h_gradient(
+  Y,
+  Theta_h,
+  mean_coefs,
+  knots,
+  beta.inner,
+  family = "gaussian",
+  t_min,
+  t_max
+)
 }
 \arguments{
 \item{Y}{vector of observed points.}

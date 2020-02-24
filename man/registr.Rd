@@ -3,12 +3,22 @@
 \docType{package}
 \name{registr}
 \alias{registr}
-\alias{registr-package}
 \title{registr: Register Exponential Family Functional Data}
 \usage{
-registr(obj = NULL, Y = NULL, Kt = 8, Kh = 4,
-  family = "binomial", gradient = TRUE, beta = NULL, t_min = NULL,
-  t_max = NULL, row_obj = NULL, parametric_warps = FALSE, ...)
+registr(
+  obj = NULL,
+  Y = NULL,
+  Kt = 8,
+  Kh = 4,
+  family = "binomial",
+  gradient = TRUE,
+  beta = NULL,
+  t_min = NULL,
+  t_max = NULL,
+  row_obj = NULL,
+  parametric_warps = FALSE,
+  ...
+)
 }
 \arguments{
 \item{obj}{Current estimate of FPC object. 

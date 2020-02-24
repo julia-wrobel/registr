@@ -4,8 +4,14 @@
 \alias{simulate_functional_data}
 \title{Simulate functional data}
 \usage{
-simulate_functional_data(lambda1 = 2, lambda2 = 1, I = 50, D = 100,
-  seed = 1988, vary_D = FALSE)
+simulate_functional_data(
+  lambda1 = 2,
+  lambda2 = 1,
+  I = 50,
+  D = 100,
+  seed = 1988,
+  vary_D = FALSE
+)
 }
 \arguments{
 \item{lambda1}{Standard deviation for PC1 scores.}

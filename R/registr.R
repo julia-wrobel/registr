@@ -42,7 +42,7 @@
 #' 
 #' @examples
 #' 
-#' \dontrun{
+#' \donttest{
 #' Y = simulate_unregistered_curves()
 #' register_step = registr(obj = NULL, Y = Y, Kt = 6, Kh = 3, family = "binomial", 
 #'    gradient = TRUE)

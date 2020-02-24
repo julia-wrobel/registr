@@ -260,6 +260,12 @@ end_time = Sys.time()
 analytic_gradient = as.numeric(round((end_time - start_time), 2))
 
 start_time = Sys.time()
+reg_analytic = registr(Y = data_test_gradient, family = "binomial", gradient = TRUE)
+end_time = Sys.time()
+
+analytic_gradient = as.numeric(round((end_time - start_time), 2))
+
+start_time = Sys.time()
 reg_numeric = registr(Y = data_test_gradient, family = "binomial", gradient = FALSE)
 end_time = Sys.time()
 
