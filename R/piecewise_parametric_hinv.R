@@ -4,7 +4,10 @@
 #' @param t_max maximum value to be evaluated on the time domain. 
 #' @param beta parameter that controls shape of warping. Result 
 #' approaches identity warp as beta approaches zero.
-#'
+#' @examples 
+#' x = runif(100)
+#' plot(x, type = 'l')
+#' lines(registr:::h_inv_parametric(grid = x, beta = 0.5), col = "red")
 # reference the Marron paper
 h_inv_parametric = function(grid, t_max = 1, beta = 0.01){
 	1/beta * log( (grid * (exp(beta * t_max)-1) + t_max)/t_max  )
@@ -29,7 +32,10 @@ h_inv_parametric = function(grid, t_max = 1, beta = 0.01){
 #' @author Julia Wrobel \email{jw3134@@cumc.columbia.edu}
 #' @importFrom stats quantile
 #' @export
-
+#' @examples 
+#' x = runif(100)
+#' plot(x, type = 'l')
+#' lines(piecewise_parametric_hinv(grid = x, beta = 0.5), col = "red")
 piecewise_parametric_hinv = function(grid, beta = 0.01, midpoint_percentile = 0.5){
 	
 	midpoint = quantile(grid, midpoint_percentile, type = 1)[[1]] 

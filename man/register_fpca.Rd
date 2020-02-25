@@ -4,8 +4,15 @@
 \alias{register_fpca}
 \title{Register curves from exponential family using constrained optimization and generalized FPCA}
 \usage{
-register_fpca(Y, Kt = 8, Kh = 4, family = "binomial",
-  max_iterations = 10, npc = 1, ...)
+register_fpca(
+  Y,
+  Kt = 8,
+  Kh = 4,
+  family = "binomial",
+  max_iterations = 10,
+  npc = 1,
+  ...
+)
 }
 \arguments{
 \item{Y}{Dataframe. Should have values id, value, index.}

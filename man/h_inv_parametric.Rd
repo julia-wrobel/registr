@@ -17,3 +17,8 @@ approaches identity warp as beta approaches zero.}
 \description{
 One parameter parametric warping on (0, T)
 }
+\examples{
+x = runif(100)
+plot(x, type = 'l')
+lines(registr:::h_inv_parametric(grid = x, beta = 0.5), col = "red")
+}

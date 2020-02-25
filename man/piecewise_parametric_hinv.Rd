@@ -23,6 +23,11 @@ crosses the identity line. The designation (inverse) is intended to
 communicate that these functions take data from the unregistered space to the 
 registered space, consistent with functional data literature on registration.
 }
+\examples{
+x = runif(100)
+plot(x, type = 'l')
+lines(piecewise_parametric_hinv(grid = x, beta = 0.5), col = "red")
+}
 \author{
 Julia Wrobel \email{jw3134@cumc.columbia.edu}
 }
