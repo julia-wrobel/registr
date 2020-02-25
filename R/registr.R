@@ -100,10 +100,11 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
   if (is.null(obj)) {
     # define population mean
     global_knots = quantile(tstar, probs = seq(0, 1, length = Kt - 2))[-c(1, Kt - 2)]
-    # basis = bs(c(t_min, t_max, tstar), knots = global_knots, intercept = TRUE)[-(1:2),] 
+    basis = bs(c(t_min, t_max, tstar), knots = global_knots, intercept = TRUE)[-(1:2),]
     mean_coefs = coef(glm(Y$value ~ 0 + basis, family = family))
+    rm(basis)
   } else {
-  	stopifnot(!all(c("knots", "subject_coefs") %in% names(obj)))
+  	# stopifnot(!all(c("knots", "subject_coefs") %in% names(obj)))
     global_knots = obj$knots
     mean_coefs = obj$subject_coefs
   }
