@@ -5,3 +5,4 @@
 ^paper$
 ^README\.Rmd$
 ^README_files$
+^\.DS_Store
