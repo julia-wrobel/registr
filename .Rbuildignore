@@ -6,3 +6,4 @@
 ^README\.Rmd$
 ^README_files$
 ^\.DS_Store
+^cran-comments\.md$
