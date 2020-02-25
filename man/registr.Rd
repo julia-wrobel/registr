@@ -72,8 +72,20 @@ object from an earlier step, or \code{Y}, a dataframe in long format with variab
 respectively.
 }
 \examples{
-
-\dontrun{
+Y = simulate_unregistered_curves()
+register_step = registr(obj = NULL, Y = Y, Kt = 6, Kh = 3, family = "binomial", 
+   gradient = TRUE)
+testthat::expect_error({
+registr(obj = list(Y = Y), Kt = 6, Kh = 3, family = "binomial", 
+   gradient = TRUE)
+})
+testthat::expect_error({
+registr(obj = NULL, Y = Y, Kt = 2, Kh = 3)
+})
+testthat::expect_error({
+registr(obj = NULL, Y = Y, Kt = 6, Kh = 2)
+})
+\donttest{
 Y = simulate_unregistered_curves()
 register_step = registr(obj = NULL, Y = Y, Kt = 6, Kh = 3, family = "binomial", 
    gradient = TRUE)

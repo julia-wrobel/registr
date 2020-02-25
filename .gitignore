@@ -6,3 +6,4 @@ src/*.gcda
 src/*.gcno
 src/*.so
 src/*.o
+src/*.o.tmp

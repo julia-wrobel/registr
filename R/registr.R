@@ -41,7 +41,19 @@
 #' @importFrom stats glm coef constrOptim quantile optim pbeta
 #' 
 #' @examples
-#' 
+#' Y = simulate_unregistered_curves()
+#' register_step = registr(obj = NULL, Y = Y, Kt = 6, Kh = 3, family = "binomial", 
+#'    gradient = TRUE)
+#' testthat::expect_error({
+#' registr(obj = list(Y = Y), Kt = 6, Kh = 3, family = "binomial", 
+#'    gradient = TRUE)
+#' })
+#' testthat::expect_error({
+#' registr(obj = NULL, Y = Y, Kt = 2, Kh = 3)
+#' })
+#' testthat::expect_error({
+#' registr(obj = NULL, Y = Y, Kt = 6, Kh = 2)
+#' })
 #' \donttest{
 #' Y = simulate_unregistered_curves()
 #' register_step = registr(obj = NULL, Y = Y, Kt = 6, Kh = 3, family = "binomial", 
@@ -52,28 +64,31 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
 									 beta = NULL, t_min = NULL, t_max = NULL, row_obj = NULL,
 									 parametric_warps = FALSE, ...){
   
-  if(is.null(Y)) { Y = obj$Y}
-	if(is.null(obj)) { Y$tstar = Y$index
+	if (is.null(Y)) {
+		Y = obj$Y
+	}
+	if (is.null(obj)) {
+		Y$tstar = Y$index
 		# scale time to 0, 1 for parametric warping
-		if(!(parametric_warps == FALSE) ){
+		if (!(parametric_warps == FALSE)) {
 			Y$tstar = Y$index_scaled
 		}
 	}
   
-  if(is.null(row_obj)){
-    data = data_clean(Y)
-    Y = data$Y
-    rows = data$Y_rows
-    I = data$I
-  }else{
-    rows = row_obj
-    I = dim(rows)[1]
-  }
+	if (is.null(row_obj)) {
+		data = data_clean(Y)
+		Y = data$Y
+		rows = data$Y_rows
+		I = data$I
+	} else{
+		rows = row_obj
+		I = nrow(rows)
+	}
 	
-	if(Kh < 3){
+	if (Kh < 3) {
 		stop("Kh must be greater than or equal to 3.")
 	}
-	if(Kt < 3){
+	if (Kt < 3) {
 		stop("Kt must be greater than or equal to 3.")
 	}
   
@@ -82,12 +97,13 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
   if (is.null(t_max)) {t_max = max(tstar)}
   Theta_h = bs(tstar, df = Kh, intercept = FALSE) ## fix??
   
-  if(is.null(obj)){
+  if (is.null(obj)) {
     # define population mean
     global_knots = quantile(tstar, probs = seq(0, 1, length = Kt - 2))[-c(1, Kt - 2)]
-    basis = bs(c(t_min, t_max, tstar), knots = global_knots, intercept = TRUE)[-(1:2),] 
+    # basis = bs(c(t_min, t_max, tstar), knots = global_knots, intercept = TRUE)[-(1:2),] 
     mean_coefs = coef(glm(Y$value ~ 0 + basis, family = family))
-  }else{
+  } else {
+  	stopifnot(!all(c("knots", "subject_coefs") %in% names(obj)))
     global_knots = obj$knots
     mean_coefs = obj$subject_coefs
   }
@@ -103,11 +119,11 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
   
   beta_new = matrix(NA, Kh - 1, I)
   beta_0 = seq(t_min, t_max, length.out = Kh + 1)[-c(1, Kh + 1)]
-  if(!(parametric_warps == FALSE) ){
+  if (!(parametric_warps == FALSE)) {
   	beta_new = matrix(NA, 2, I)
   	rownames(beta_new) = c("a", "b")
   	beta_0 = c(1, 1)
-  	if(parametric_warps == "piecewise"){
+  	if (parametric_warps == "piecewise") {
   		beta_0 = c(.1, 0.5)
   		rownames(beta_new) = c("beta", "midpoint_percentile")
   	}
@@ -126,7 +142,7 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
     if (is.null(obj)) {mean_coefs_i = mean_coefs} else {mean_coefs_i = mean_coefs[, i]}
     if (gradient) {gradf = loss_h_gradient} else {gradf = NULL}
     
-    if(parametric_warps == "beta_cdf"){
+    if (parametric_warps == "beta_cdf") {
     	beta_optim = optim(beta_i, loss_h, Y = Yi, Theta_h = Theta_h_i,
     														 mean_coefs = mean_coefs_i,knots = global_knots,
     														 family = family, t_min = t_min, t_max = t_max,
@@ -138,7 +154,7 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
     	t_hat[subject_rows] = pbeta(seq(t_min, t_max, length.out = Di), 
     															beta_new[1, i], beta_new[2, i])
     
-    }else if(parametric_warps == "piecewise"){
+    } else if (parametric_warps == "piecewise") {
     	## these are not ideal endpoints.
     	beta_optim = constrOptim(beta_i, loss_h, grad = gradf, ui = ui, ci = ci, Y = Yi, 
     													 Theta_h = Theta_h_i, mean_coefs = mean_coefs_i, 
@@ -158,7 +174,7 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
     	t_hat[subject_rows] = piecewise_parametric_hinv(seq(0, t_max, length.out = Di),
     																									beta_new[1, i], beta_new[2, i])
     	
-    }else{
+    } else {
     	beta_optim = constrOptim(beta_i, loss_h, grad = gradf, ui = ui, ci = ci, 
     													 Y = Yi, 
     													 Theta_h = Theta_h_i, mean_coefs = mean_coefs_i, 
