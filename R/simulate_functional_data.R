@@ -46,7 +46,7 @@ psi2_sim = function(grid){
 #' @param lambda2 Standard deviation for PC2 scores.
 #' @param I Number of subjects. Defaults is 50.
 #' @param D Number of grid points per subject. Default is 100.
-#' @param seed Seed for reprodicibility. Default is 1988.
+#' @param seed Seed for reproducibility. Default is 1988.
 #' @param vary_D Indicates if grid length vary by subject. If FALSE all subjects have grid length D.
 #' 
 #' @author Julia Wrobel \email{jw3134@@cumc.columbia.edu}

@@ -21,7 +21,7 @@ simulate_unregistered_curves(
 
 \item{lambda}{Standard deviation for subject-specific amplitudes.}
 
-\item{seed}{Seed for reprodicibility. Default is 1988.}
+\item{seed}{Seed for reproducibility. Default is 1988.}
 
 \item{period}{Controls the period of the mean curve}
 
