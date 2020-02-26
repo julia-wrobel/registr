@@ -71,7 +71,7 @@ grid_subj_create = function(coefs, D) {
 #' @param I Number of subjects. Defaults is 50.
 #' @param D Number of grid points per subject. Default is 100.
 #' @param lambda Standard deviation for subject-specific amplitudes.
-#' @param seed Seed for reprodicibility. Default is 1988.
+#' @param seed Seed for reproducibility. Default is 1988.
 #' @param period Controls the period of the mean curve
 #' @param spline_based If FALSE curve is constructed using sine and cosine functions,
 #' if TRUE, curve is constructed using B-spline basis.

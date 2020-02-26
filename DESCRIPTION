@@ -1,11 +1,16 @@
 Package: registr
-Title: Registering curves from exponential family functional data
-Version: 0.1
+Title: Registering Curves from Exponential Family Functional Data
+Version: 0.1.0
 Authors@R: c(
-    person("Julia", "Wrobel", role = c("aut", "cre"), email = "jw3134@cumc.columbia.edu"),
+    person("Julia", "Wrobel", role = c("aut", "cre"), 
+    email = "jw3134@cumc.columbia.edu",
+    comment = c(ORCID = "0000-0001-6783-1421")),
     person("Jeff", "Goldsmith", role = "aut", email = "jeff.goldsmith@columbia.edu")
     )
-Description: Registering curves from exponential family functional data.
+Description: Registering curves from exponential family functional data.  This 
+    implements the functions of 'Wrobel et al.' <doi:10.1111/biom.12963> for
+    registration of curves, especially applicable in accelerometry and wearable
+    technology.
 Depends:
     R (>= 3.2)
 Imports:

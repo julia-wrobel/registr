@@ -22,7 +22,7 @@ simulate_functional_data(
 
 \item{D}{Number of grid points per subject. Default is 100.}
 
-\item{seed}{Seed for reprodicibility. Default is 1988.}
+\item{seed}{Seed for reproducibility. Default is 1988.}
 
 \item{vary_D}{Indicates if grid length vary by subject. If FALSE all subjects have grid length D.}
 }
