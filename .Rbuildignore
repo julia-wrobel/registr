@@ -1,4 +1,4 @@
-^.*\.Rproj$
+s^.*\.Rproj$
 ^\.Rproj\.user$
 ^\.travis\.yml$
 ^appveyor\.yml$
@@ -6,3 +6,4 @@
 ^README\.Rmd$
 ^\.DS_Store
 ^cran-comments\.md$
+^README_files\*

@@ -9,7 +9,7 @@ output: github_document
  <!-- badges: start -->
 [![](https://travis-ci.org/julia-wrobel/registr.svg?branch=master)](https://travis-ci.org/julia-wrobel/registr)
 [![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/muschellij2/registr?branch=master&svg=true)](https://ci.appveyor.com/project/muschellij2/registr)
-[![codecov.io](https://codecov.io/gh/julia-wrobel/registr/coverage.svg?branch=master)](https://codecov.io/gh/julia-wrobel/registr/coverage.svg?branch=master)
+[![Codecov test coverage](https://codecov.io/gh/julia-wrobel/registr/branch/master/graph/badge.svg)](https://codecov.io/gh/julia-wrobel/registr/coverage.svg?branch=master)
 [![status](http://joss.theoj.org/papers/9c40c4f0ede1827cc5a9430c625d6494/status.svg)](http://joss.theoj.org/papers/9c40c4f0ede1827cc5a9430c625d6494)
  <!-- badges: end -->
 
@@ -25,7 +25,7 @@ Registration for exponential family functional data.
 
 * Author: [Julia Wrobel](http://juliawrobel.com)
 * License: [MIT](https://opensource.org/licenses/MIT). See the [LICENSE](LICENSE) file for details
-* Version: 0.1
+* Version: 1.0
 
 ### What it does
 
