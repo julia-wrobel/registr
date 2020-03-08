@@ -2,7 +2,7 @@
 % Please edit documentation in R/register_fpca.R
 \name{register_fpca}
 \alias{register_fpca}
-\title{Register curves from exponential family using constrained optimization and generalized FPCA}
+\title{Register curves using constrained optimization and GFPCA}
 \usage{
 register_fpca(
   Y,
@@ -56,10 +56,11 @@ respectively. The code calls two
 }
 \examples{
 
-\dontrun{
- Y = simulate_unregistered_curves(I = 50, D = 200)
+
+ Y = simulate_unregistered_curves(I = 20, D = 200)
  registr_object = register_fpca(Y, family = "binomial", max_iterations = 5)
- 
+
+\donttest{ 
  # example using accelerometer data from nhanes 2003-2004 study
  data(nhanes)
  register_nhanes = register_fpca(nhanes, npc = 2, family = "binomial", max_iterations = 5)

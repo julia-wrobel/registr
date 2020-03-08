@@ -11,6 +11,9 @@ grid_subj_create(coefs, D)
 
 \item{D}{Number of grid points per subject.}
 }
+\value{
+A numeric vector.
+}
 \description{
 This function creates subject-specific time grid
 }

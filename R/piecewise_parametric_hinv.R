@@ -4,6 +4,9 @@
 #' @param t_max maximum value to be evaluated on the time domain. 
 #' @param beta parameter that controls shape of warping. Result 
 #' approaches identity warp as beta approaches zero.
+#' 
+#' @return A numeric vector containing values for a single warping function. 
+#' 
 #' @examples 
 #' x = runif(100)
 #' plot(x, type = 'l')
@@ -31,6 +34,9 @@ h_inv_parametric = function(grid, t_max = 1, beta = 0.01){
 #'  
 #' @author Julia Wrobel \email{jw3134@@cumc.columbia.edu}
 #' @importFrom stats quantile
+#' 
+#' @return A numeric vector containing values for a single warping function. 
+#' 
 #' @export
 #' @examples 
 #' x = runif(100)

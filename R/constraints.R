@@ -9,7 +9,11 @@
 #' @param parametric_warps If FALSE (default), inverse warping functions are 
 #' estimated nonparametrically. If 'beta_cdf', they are assumed to have the form of a 
 #' Beta(a,b) CDF. If 'piecewise' they follow a piecewise parameterized function.
-
+#' 
+#' @return An list containing:
+#' \item{ui}{A constraint matrix.}
+#' \item{ci}{A constraint vector.}
+#' 
 #' @export
 constraints = function(Kh, t_min = 0, t_max = 1, parametric_warps = FALSE){
 	if(parametric_warps == "piecewise"){

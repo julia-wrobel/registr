@@ -32,6 +32,12 @@ A list containing:
 \item{psi1}{True values for first principal component.}
 \item{psi2}{True values for second principal component.}
 \item{alpha}{True values for population-level mean.}
+
+A list containing:
+\item{Y}{A dataframe of simulated data.}
+\item{psi1}{The first simulated eigenfunction.}
+\item{psi2}{The second simulated eigenfunction.}
+\item{alpha}{The population mean.}
 }
 \description{
 This function simulates functional data. The data it outputs is generated from a mean function

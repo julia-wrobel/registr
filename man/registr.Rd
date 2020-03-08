@@ -3,7 +3,7 @@
 \docType{package}
 \name{registr}
 \alias{registr}
-\title{registr: Register Exponential Family Functional Data}
+\title{Register Exponential Family Functional Data}
 \usage{
 registr(
   obj = NULL,

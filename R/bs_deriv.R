@@ -13,6 +13,10 @@
 #' 
 #' @author Julia Wrobel \email{jw3134@@cumc.columbia.edu}
 #' @importFrom splines splineDesign
+#' 
+#' @return A matrix containing:
+#' \item{basis}{A B-spline basis that can be used to approximate the derivative of a function.}
+#' 
 #' @export
 #'
 

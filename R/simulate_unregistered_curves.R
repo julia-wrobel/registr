@@ -6,6 +6,9 @@
 #' @param period Controls the period of the mean curve
 #' @param spline_based If FALSE curve is constructed using sine and cosine functions,
 #' if TRUE, curve is constructed using B-spline basis.
+#' 
+#' @return A numeric vector.
+#' 
 mean_curve = function(grid, period = 2*pi, spline_based = FALSE) {
 	if(spline_based){
 		
@@ -33,6 +36,7 @@ mean_curve = function(grid, period = 2*pi, spline_based = FALSE) {
 #' @param spline_based If FALSE curve is constructed using sine and cosine functions,
 #' if TRUE, curve is constructed using B-spline basis.
 #' 
+#' @return A numeric vector.
 amp_curve = function(grid, period = 2*pi, spline_based = FALSE) {
 	if(spline_based) {
 
@@ -56,6 +60,7 @@ amp_curve = function(grid, period = 2*pi, spline_based = FALSE) {
 #' 
 #' @param coefs Spline basis coefficients for reconstructing the subject-specific grid. 
 #' @param D Number of grid points per subject.
+#' @return A numeric vector.
 grid_subj_create = function(coefs, D) {
 	BS = splines::bs(1:D, df = 3, intercept = FALSE, degree = 3)
 	coefs = cumsum(coefs) / sum(coefs) 

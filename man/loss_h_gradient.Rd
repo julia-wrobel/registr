@@ -32,6 +32,9 @@ loss_h_gradient(
 
 \item{t_max}{maximum value to be evaluated on the time domain.}
 }
+\value{
+A numeric vector of spline coefficients for the gradient of the loss function.
+}
 \description{
 Gradient of loss function for registration step
 }

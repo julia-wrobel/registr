@@ -2,7 +2,7 @@
 % Please edit documentation in R/data_clean.R
 \name{data_clean}
 \alias{data_clean}
-\title{Convert data to a \code{refund} object.}
+\title{Convert data to a \code{refund} object}
 \usage{
 data_clean(data, family = "binomial")
 }
@@ -10,6 +10,11 @@ data_clean(data, family = "binomial")
 \item{data}{Dataframe. Should have values id, value, index.}
 
 \item{family}{\code{gaussian} or \code{binomial}.}
+}
+\value{
+An list containing:
+\item{Y}{The original data sorted by id and index.}
+\item{Y_rows}{A dataframe containing the first and last row for each subject.}
 }
 \description{
 Function used for data cleaning.

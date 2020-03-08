@@ -15,6 +15,9 @@ approaches identity warp as beta approaches zero.}
 \item{midpoint_percentile}{controls where the result crosses the identity warp. 
 Default is 0.5, which forces result to cross identity line at median of grid.}
 }
+\value{
+A numeric vector containing values for a single warping function.
+}
 \description{
 This function uses a parametric model to calculate inverse warping functions for 
 registration. The parameter \code{beta} controls the shape of warping,

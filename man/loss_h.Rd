@@ -37,6 +37,9 @@ loss_h(
 estimated nonparametrically. If 'beta_cdf', they are assumed to have the form of a 
 Beta(a,b) CDF. If 'piecewise' they follow a piecewise parameterized function.}
 }
+\value{
+The scalar value taken by the loss function.
+}
 \description{
 Loss function for registration step optimization
 }

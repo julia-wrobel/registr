@@ -28,6 +28,10 @@ Value of 0 returns the original set of b-spline basis functions.}
 
 \item{intercept}{if TRUE, an intercept is included in the basis; default is TRUE}
 }
+\value{
+A matrix containing:
+\item{basis}{A B-spline basis that can be used to approximate the derivative of a function.}
+}
 \description{
 This function gets derivative of a spline basis. Adapted from \code{bs()} function in \code{splines} package.
 }

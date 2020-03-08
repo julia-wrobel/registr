@@ -13,6 +13,8 @@
 #' 
 #' @importFrom stats plogis
 #' 
+#' @return A numeric vector of spline coefficients for the gradient of the loss function.
+#' 
 #' @export
 #'
 loss_h_gradient = function(Y, Theta_h, mean_coefs, knots, beta.inner, family = "gaussian",

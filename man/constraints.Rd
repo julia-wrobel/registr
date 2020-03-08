@@ -17,6 +17,11 @@ constraints(Kh, t_min = 0, t_max = 1, parametric_warps = FALSE)
 estimated nonparametrically. If 'beta_cdf', they are assumed to have the form of a 
 Beta(a,b) CDF. If 'piecewise' they follow a piecewise parameterized function.}
 }
+\value{
+An list containing:
+\item{ui}{A constraint matrix.}
+\item{ci}{A constraint vector.}
+}
 \description{
 Constraints ensure monotonicity of spline coefficients for warping functions 
 for use with \code{constrOptim()} function.

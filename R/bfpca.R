@@ -47,10 +47,8 @@
 #' \emph{Advances in neural information processing systems}, 592--598.
 #' 
 #' @examples
-##' \dontrun{
 ##' Y = simulate_functional_data()$Y
 ##' bfpca_object = bfpca(Y, npc = 2, print.iter = TRUE)
-##' }
 #'
 bfpca <- function(Y, npc = 1, Kt = 8, maxiter = 50, t_min = NULL, t_max = NULL, 
                   print.iter = FALSE, row_obj= NULL,

@@ -14,6 +14,9 @@ h_inv_parametric(grid, t_max = 1, beta = 0.01)
 \item{beta}{parameter that controls shape of warping. Result 
 approaches identity warp as beta approaches zero.}
 }
+\value{
+A numeric vector containing values for a single warping function.
+}
 \description{
 One parameter parametric warping on (0, T)
 }

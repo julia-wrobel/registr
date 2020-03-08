@@ -14,6 +14,9 @@ mean_curve(grid, period = 2 * pi, spline_based = FALSE)
 \item{spline_based}{If FALSE curve is constructed using sine and cosine functions,
 if TRUE, curve is constructed using B-spline basis.}
 }
+\value{
+A numeric vector.
+}
 \description{
 This function generates mean for simulated accelerometer data.
 }

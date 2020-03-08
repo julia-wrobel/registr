@@ -18,7 +18,7 @@
 #' @param ... Additional arguments passed to or from other functions
 #' 
 #' @author Julia Wrobel \email{jw3134@@cumc.columbia.edu},
-#' Jihui Lee \email{ajg2202@@cumc.columbia.edu}
+#' Jeff Goldsmith \email{ajg2202@@cumc.columbia.edu}
 #' @importFrom splines bs
 #' @importFrom stats rnorm quantile
 #' 
