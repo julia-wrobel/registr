@@ -12,23 +12,14 @@
 #' If \code{piecewise_linear2} they follow a piecewise linear function with 2 knots.
 #' @param periodic If \code{TRUE} uses periodic b-spline basis functions. Default is \code{FALSE}.
 #' @param Kt Number of B-spline basis functions used to estimate mean functions. Default is 8.
-#' @param prior_1_x For \code{warping = "piecewise_linear2"} only. If \code{TRUE}, 
-#' will incorporate a prior Normal distribution for the first knot's x location into the loss function.
-#' @param prior_1_x_mean Mean of the Normal distribution prior for the first knot's x location. 
-#' @param prior_1_x_sd Standard deviation of the Normal distribution prior for the first knot's x location. 
-#' @param prior_1_y For \codePwarping = "piecewise_linear2"} only. If \code{TRUE}, 
-#' will incorporate a prior Normal distribution for the first knot's y location into the loss function.
-#' @param prior_1_y_mean Mean of the Normal distribution prior for the first knot's y location. 
-#' @param prior_1_y_sd Standard deviation of the Normal distribution prior for the first knot's y location. 
-#' @param prior_2_x For \code{warping = "piecewise_linear2"} only. If \code{TRUE}, 
-#' will incorporate a prior Normal distribution for the second knot's x location into the loss function.
-#' @param prior_2_x_mean Mean of the Normal distribution prior for the second knot's x location. 
-#' @param prior_2_x_sd Standard deviation of the Normal distribution prior for the second knot's x location. 
-#' @param prior_2_y For \code{warping = "piecewise_linear2"} only. If TRUE, 
-#' will incorporate a prior Normal distribution for the second knot's y location into the loss function.
-#' @param prior_2_y_mean Mean of the Normal distribution prior for the second knot's y location. 
-#' @param prior_2_y_sd Standard deviation of the Normal distribution prior for the second knot's y location. 
-#'  
+#' @param prior_1_x_mean_sd For \code{warping = "piecewise_linear2"} only. Optional vector of length 2 to 
+#' specify a prior mean and sd, respectively, for a Normal distribution prior on the first knot's x location.
+#' @param prior_1_y_mean_sd For \code{warping = "piecewise_linear2"} only. Optional vector of length 2 to 
+#' specify a prior mean and sd, respectively, for a Normal distribution prior on the first knot's y location.
+#' @param prior_2_x_mean_sd For \code{warping = "piecewise_linear2"} only. Optional vector of length 2 to 
+#' specify a prior mean and sd, respectively, for a Normal distribution prior on the second knot's x location.
+#' @param prior_2_y_mean_sd For \code{warping = "piecewise_linear2"} only. Optional vector of length 2 to 
+#' specify a prior mean and sd, respectively, for a Normal distribution prior on the second knot's y location.
 #' 
 #' @importFrom stats plogis
 #' @importFrom splines bs
@@ -37,11 +28,26 @@
 #'
 
 loss_h = function(Y, Theta_h, mean_coefs, knots, beta.inner, family, t_min, t_max, 
-									warping = "nonparametric", periodic = FALSE, Kt = 8,
-									prior_1_x = FALSE, prior_1_x_mean = 0.5, prior_1_x_sd = 1,
-									prior_1_y = FALSE, prior_1_y_mean = 0.5, prior_1_y_sd = 1,
-									prior_2_x = FALSE, prior_2_x_mean = 0.5, prior_2_x_sd = 1,
-									prior_2_y = FALSE, prior_2_y_mean = 0.5, prior_2_y_sd = 1){
+									periodic = FALSE, Kt = 8, warping = "nonparametric", 
+									prior_1_x_mean_sd = NULL, prior_1_y_mean_sd = NULL,
+									prior_2_x_mean_sd = NULL, prior_2_y_mean_sd = NULL){
+	
+	if(warping != "piecewise_linear2" & !is.null(c(prior_1_x_mean_sd, prior_1_y_mean_sd, 
+																								 prior_2_x_mean_sd, prior_2_y_mean_sd))){
+		stop("'prior' arguments are only available for warping = piecewise_linear2")
+	}
+	if(!(is.null(prior_1_x_mean_sd) | length(prior_1_x_mean_sd) == 2)){
+		stop("'prior_1_x_mean_sd' must be NULL or a vector of length 2 (mean, sd)")
+	}
+	if(!(is.null(prior_1_y_mean_sd) | length(prior_1_y_mean_sd) == 2)){
+		stop("'prior_1_y_mean_sd' must be NULL or a vector of length 2 (mean, sd)")
+	}
+	if(!(is.null(prior_2_x_mean_sd) | length(prior_2_x_mean_sd) == 2)){
+		stop("'prior_2_x_mean_sd' must be NULL or a vector of length 2 (mean, sd)")
+	}
+	if(!(is.null(prior_2_y_mean_sd) | length(prior_2_y_mean_sd) == 2)){
+		stop("'prior_2_y_mean_sd' must be NULL or a vector of length 2 (mean, sd)")
+	}
 	
 	if(warping == "nonparametric"){
   	beta = c(t_min, beta.inner, t_max)
@@ -68,17 +74,17 @@ loss_h = function(Y, Theta_h, mean_coefs, knots, beta.inner, family, t_min, t_ma
     loss = -1 * sum(Y * log(pi_h) + (1 - Y) * log(1 - pi_h))
 
   	if(warping == "piecewise_linear2"){
-  		if(prior_1_x == TRUE){
-  			loss = loss - log(dnorm(x = beta.inner[1], mean = prior_1_x_mean, sd = prior_1_x_sd))
+  		if(!is.null(prior_1_x_mean_sd)){
+  			loss = loss - log(dnorm(x = beta.inner[1], mean = prior_1_x_mean_sd[1], sd = prior_1_x_mean_sd[2]))
   		}
-    	if(prior_1_y == TRUE){
-    		loss = loss - log(dnorm(x = beta.inner[2], mean = prior_1_y_mean, sd = prior_1_y_sd))
+    	if(!is.null(prior_1_y_mean_sd)){
+    		loss = loss - log(dnorm(x = beta.inner[2], mean = prior_1_y_mean_sd[1], sd = prior_1_y_mean_sd[2]))
     	}
-    	if(prior_2_x == TRUE){
-    		loss = loss - log(dnorm(x = beta.inner[3], mean = prior_2_x_mean, sd = prior_2_x_sd))
+    	if(!is.null(prior_2_x_mean_sd)){
+    		loss = loss - log(dnorm(x = beta.inner[3], mean = prior_2_x_mean_sd[1], sd = prior_2_x_mean_sd[2]))
     	}
-    	if(prior_2_y == TRUE){
-    		loss = loss - log(dnorm(x = beta.inner[4], mean = prior_2_y_mean, sd = prior_2_y_sd))
+    	if(!is.null(prior_2_y_mean_sd)){
+    		loss = loss - log(dnorm(x = beta.inner[4], mean = prior_2_y_mean_sd[1], sd = prior_2_y_mean_sd[1]))
     	}
   	}
 	  return(loss)

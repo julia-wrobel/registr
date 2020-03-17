@@ -25,25 +25,9 @@
 #' if `NULL`, taken to be maximum observed value.
 #' @param row_obj If NULL, the function cleans the data and calculates row 
 #' indices. Keep this NULL if you are using standalone \code{registr} function.
+#' @param periodic If \code{TRUE}, uses periodic b-spline basis functions. Default is \code{FALSE}.
 #' @param warping If \code{nonparametric} (default), inverse warping functions are estimated nonparametrically. 
 #' If \code{piecewise_linear2} they follow a piecewise linear function with 2 knots.
-#' @param periodic If \code{TRUE}, uses periodic b-spline basis functions. Default is \code{FALSE}.
-#' @param prior_1_x For \code{warping = "piecewise_linear2"} only. If \code{TRUE}, 
-#' will incorporate a prior Normal distribution for the first knot's x location into the loss function.
-#' @param prior_1_x_mean Mean of the Normal distribution prior for the first knot's x location. 
-#' @param prior_1_x_sd Standard deviation of the Normal distribution prior for the first knot's x location. 
-#' @param prior_1_y For \codePwarping = "piecewise_linear2"} only. If \code{TRUE}, 
-#' will incorporate a prior Normal distribution for the first knot's y location into the loss function.
-#' @param prior_1_y_mean Mean of the Normal distribution prior for the first knot's y location. 
-#' @param prior_1_y_sd Standard deviation of the Normal distribution prior for the first knot's y location. 
-#' @param prior_2_x For \code{warping = "piecewise_linear2"} only. If \code{TRUE}, 
-#' will incorporate a prior Normal distribution for the second knot's x location into the loss function.
-#' @param prior_2_x_mean Mean of the Normal distribution prior for the second knot's x location. 
-#' @param prior_2_x_sd Standard deviation of the Normal distribution prior for the second knot's x location. 
-#' @param prior_2_y For \code{warping = "piecewise_linear2"} only. If TRUE, 
-#' will incorporate a prior Normal distribution for the second knot's y location into the loss function.
-#' @param prior_2_y_mean Mean of the Normal distribution prior for the second knot's y location. 
-#' @param prior_2_y_sd Standard deviation of the Normal distribution prior for the second knot's y location. 
 #' @param ... additional arguments passed to or from other functions
 #' 
 #' @return An object of class \code{fpca} containing:
@@ -68,11 +52,7 @@
 #'
 registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gradient = TRUE,
 									 beta = NULL, t_min = NULL, t_max = NULL, row_obj = NULL,
-									 warping = "nonparametric", periodic = FALSE,
-									 prior_1_x = FALSE, prior_1_x_mean = 0.5, prior_1_x_sd = 1,
-									 prior_1_y = FALSE, prior_1_y_mean = 0.5, prior_1_y_sd = 1,
-									 prior_2_x = FALSE, prior_2_x_mean = 0.5, prior_2_x_sd = 1,
-									 prior_2_y = FALSE, prior_2_y_mean = 0.5, prior_2_y_sd = 1, ...){
+									 periodic = FALSE, warping = "nonparametric", ...){
 	
   if(is.null(Y)) { Y = obj$Y}
 	if(is.null(obj)) { Y$tstar = Y$index
@@ -98,7 +78,12 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
 	if(Kt < 3){
 		stop("Kt must be greater than or equal to 3.")
 	}
-  
+	
+	if (gradient & periodic){
+		warning("gradient = TRUE is only available for periodic = FALSE. Setting gradient = FALSE.")
+		gradient = FALSE
+	}
+	
 	tstar = Y$tstar
   if (is.null(t_min)) {t_min = min(tstar)}
   if (is.null(t_max)) {t_max = max(tstar)}
@@ -153,38 +138,23 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
     
     if (is.null(beta)) {beta_i = beta_0} else {beta_i = beta[, i]}
     if (is.null(obj)) {mean_coefs_i = mean_coefs} else {mean_coefs_i = mean_coefs[, i]}
-    if (gradient & !periodic) {gradf = loss_h_gradient} else {gradf = NULL}
+    if (gradient) {gradf = loss_h_gradient} else {gradf = NULL}
 
+  	beta_optim = constrOptim(beta_i, loss_h, grad = gradf, ui = ui, ci = ci, Y = Yi, 
+  													 Theta_h = Theta_h_i, mean_coefs = mean_coefs_i, 
+  													 knots = global_knots, 
+  													 family = family, t_min = t_min, t_max = t_max, 
+  													 periodic = periodic, Kt = Kt, warping = warping, ...)
+  	
+  	beta_new[,i] = beta_optim$par
+    	
     if(warping == "nonparametric"){
-    	beta_optim = constrOptim(beta_i, loss_h, grad = gradf, ui = ui, ci = ci, Y = Yi, 
-    													 Theta_h = Theta_h_i, mean_coefs = mean_coefs_i, 
-    													 knots = global_knots, 
-    													 warping = warping,
-    													 periodic = periodic, Kt = Kt,
-    													 family = family, t_min = t_min, t_max = t_max)
-    	
-    	
-    	beta_new[,i] = beta_optim$par
-    	
     	beta_full_i = c(t_min, 	beta_new[,i], t_max)
     	t_hat[subject_rows] = cbind(1, Theta_h_i) %*% beta_full_i
     } else if(warping == "piecewise_linear2"){
-    	beta_optim = constrOptim(beta_i, loss_h, grad = gradf, ui = ui, ci = ci, Y = Yi, 
-    													 Theta_h = Theta_h_i, mean_coefs = mean_coefs_i, 
-    													 knots = global_knots,
-    													 warping = warping, 
-    													 periodic = periodic, Kt = Kt,
-    													 family = family, t_min = t_min, t_max = t_max,
-    													 prior_1_x = prior_1_x, prior_1_x_mean = prior_1_x_mean, prior_1_x_sd = prior_1_x_sd,
-    													 prior_1_y = prior_1_y, prior_1_y_mean = prior_1_y_mean, prior_1_y_sd = prior_1_y_sd,
-    													 prior_2_x = prior_2_x, prior_2_x_mean = prior_2_x_mean, prior_2_x_sd = prior_2_x_sd,
-    													 prior_2_y = prior_2_y, prior_2_y_mean = prior_2_y_mean, prior_2_y_sd = prior_2_y_sd)
-    	
-    	beta_new[,i] = beta_optim$par
     	t_hat[subject_rows] = piecewise_linear2_hinv(seq(0, t_max, length.out = Di),
     																							 beta_new[1, i], beta_new[2, i],
     																							 beta_new[3, i], beta_new[4, i])
-    	
     }
     
     loss_subjects[i] = beta_optim$value
