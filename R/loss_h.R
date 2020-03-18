@@ -24,6 +24,7 @@
 #' @importFrom stats plogis
 #' @importFrom splines bs
 #' @importFrom pbs pbs
+#' @importFrom stats dnorm
 #' @export
 #'
 
