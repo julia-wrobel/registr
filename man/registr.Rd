@@ -3,17 +3,23 @@
 \docType{package}
 \name{registr}
 \alias{registr}
-\alias{registr-package}
 \title{registr: Register Exponential Family Functional Data}
 \usage{
-registr(obj = NULL, Y = NULL, Kt = 8, Kh = 4,
-  family = "binomial", gradient = TRUE, beta = NULL, t_min = NULL,
-  t_max = NULL, row_obj = NULL, parametric_warps = FALSE,
-  periodic = FALSE, prior_1_x = FALSE, prior_1_x_mean = 0.5,
-  prior_1_x_sd = 1, prior_1_y = FALSE, prior_1_y_mean = 0.5,
-  prior_1_y_sd = 1, prior_2_x = FALSE, prior_2_x_mean = 0.5,
-  prior_2_x_sd = 1, prior_2_y = FALSE, prior_2_y_mean = 0.5,
-  prior_2_y_sd = 1, ...)
+registr(
+  obj = NULL,
+  Y = NULL,
+  Kt = 8,
+  Kh = 4,
+  family = "binomial",
+  gradient = TRUE,
+  beta = NULL,
+  t_min = NULL,
+  t_max = NULL,
+  row_obj = NULL,
+  periodic = FALSE,
+  warping = "nonparametric",
+  ...
+)
 }
 \arguments{
 \item{obj}{Current estimate of FPC object. 
@@ -38,44 +44,13 @@ if `NULL`, taken to be minimum observed value.}
 \item{t_max}{Maximum value to be evaluated on the time domain. 
 if `NULL`, taken to be maximum observed value.}
 
-\item{row_obj}{If NULL, the function cleans the data and calculates row indices. 
-Keep this NULL if you are using standalone \code{registr} function.}
+\item{row_obj}{If NULL, the function cleans the data and calculates row 
+indices. Keep this NULL if you are using standalone \code{registr} function.}
 
-\item{parametric_warps}{If FALSE (default), inverse warping functions are 
-estimated nonparametrically. If 'beta_cdf', they are assumed to have the form of a 
-Beta(a,b) CDF. If 'piecewise' they follow a piecewise parameterized function. 
-If 'piecewise_linear1' they follow a piecewise linear function with 1 knot.
-If 'piecewise_linear2' they follow a piecewise linear function with 2 knots.}
+\item{periodic}{If \code{TRUE}, uses periodic b-spline basis functions. Default is \code{FALSE}.}
 
-\item{periodic}{If TRUE, uses periodic b-spline basis functions. Default is FALSE.}
-
-\item{prior_1_x}{For parametric_warps = "piecewise_linear1" or "piecewise_linear2" only. 
-If TRUE, will incorporate a prior Normal distribution for the first knot's x location into the loss function.}
-
-\item{prior_1_x_mean}{Mean of the Normal distribution prior for the first knot's x location.}
-
-\item{prior_1_x_sd}{Standard deviation of the Normal distribution prior for the first knot's x location.}
-
-\item{prior_1_y}{For parametric_warps = "piecewise_linear1" or "piecewise_linear2" only. 
-If TRUE, will incorporate a prior Normal distribution for the first knot's y location into the loss function.}
-
-\item{prior_1_y_mean}{Mean of the Normal distribution prior for the first knot's y location.}
-
-\item{prior_1_y_sd}{Standard deviation of the Normal distribution prior for the first knot's y location.}
-
-\item{prior_2_x}{For parametric_warps = "piecewise_linear2" only. 
-If TRUE, will incorporate a prior Normal distribution for the second knot's x location into the loss function.}
-
-\item{prior_2_x_mean}{Mean of the Normal distribution prior for the second knot's x location.}
-
-\item{prior_2_x_sd}{Standard deviation of the Normal distribution prior for the second knot's x location.}
-
-\item{prior_2_y}{For parametric_warps = "piecewise_linear2" only. 
-If TRUE, will incorporate a prior Normal distribution for the second knot's y location into the loss function.}
-
-\item{prior_2_y_mean}{Mean of the Normal distribution prior for the second knot's y location.}
-
-\item{prior_2_y_sd}{Standard deviation of the Normal distribution prior for the second knot's y location.}
+\item{warping}{If \code{nonparametric} (default), inverse warping functions are estimated nonparametrically. 
+If \code{piecewise_linear2} they follow a piecewise linear function with 2 knots.}
 
 \item{...}{additional arguments passed to or from other functions}
 }

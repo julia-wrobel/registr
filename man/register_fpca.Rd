@@ -4,8 +4,15 @@
 \alias{register_fpca}
 \title{Register curves from exponential family using constrained optimization and generalized FPCA}
 \usage{
-register_fpca(Y, Kt = 8, Kh = 4, family = "binomial",
-  max_iterations = 10, npc = 1, periodic = FALSE, ...)
+register_fpca(
+  Y,
+  Kt = 8,
+  Kh = 4,
+  family = "binomial",
+  max_iterations = 10,
+  npc = 1,
+  ...
+)
 }
 \arguments{
 \item{Y}{Dataframe. Should have values id, value, index.}
@@ -19,8 +26,6 @@ register_fpca(Y, Kt = 8, Kh = 4, family = "binomial",
 \item{max_iterations}{Number of iterations for overall algorithm. Defaults to 10.}
 
 \item{npc}{Number of principal components to calculate. Defaults to 1.}
-
-\item{periodic}{If TRUE, uses periodic b-spline basis functions. Default is FALSE.}
 
 \item{...}{Additional arguments passed to registr and fpca functions.}
 }

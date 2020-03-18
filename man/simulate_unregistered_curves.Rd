@@ -4,9 +4,15 @@
 \alias{simulate_unregistered_curves}
 \title{Simulate unregistered curves}
 \usage{
-simulate_unregistered_curves(I = 50, D = 100, lambda = 15,
-  seed = 1988, period = 2 * pi, spline_based = FALSE,
-  phase_variation = TRUE)
+simulate_unregistered_curves(
+  I = 50,
+  D = 100,
+  lambda = 15,
+  seed = 1988,
+  period = 2 * pi,
+  spline_based = FALSE,
+  phase_variation = TRUE
+)
 }
 \arguments{
 \item{I}{Number of subjects. Defaults is 50.}

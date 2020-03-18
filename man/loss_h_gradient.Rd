@@ -4,8 +4,19 @@
 \alias{loss_h_gradient}
 \title{Gradient of loss function for registration step}
 \usage{
-loss_h_gradient(Y, Theta_h, mean_coefs, knots, beta.inner,
-  family = "gaussian", t_min, t_max, periodic = FALSE, Kt = 8)
+loss_h_gradient(
+  Y,
+  Theta_h,
+  mean_coefs,
+  knots,
+  beta.inner,
+  family = "gaussian",
+  t_min,
+  t_max,
+  Kt = 8,
+  periodic = FALSE,
+  warping = "nonparametric"
+)
 }
 \arguments{
 \item{Y}{vector of observed points.}
@@ -24,9 +35,14 @@ loss_h_gradient(Y, Theta_h, mean_coefs, knots, beta.inner,
 
 \item{t_max}{maximum value to be evaluated on the time domain.}
 
-\item{periodic}{If TRUE, uses periodic b-spline basis functions. Default is FALSE.}
-
 \item{Kt}{Number of B-spline basis functions used to estimate mean functions. Default is 8.}
+
+\item{periodic}{If \code{TRUE}, uses periodic b-spline basis functions. Default is \code{FALSE}. 
+\code{loss_h_gradient()} is currently only available for \code{periodic = FALSE}.}
+
+\item{warping}{If \code{nonparametric} (default), inverse warping functions are estimated nonparametrically. 
+If \code{piecewise_linear2} they follow a piecewise linear function with 2 knots.
+\code{loss_h_gradient()} is currently only available for \code{warping = "nonparametric"}.}
 }
 \description{
 Gradient of loss function for registration step

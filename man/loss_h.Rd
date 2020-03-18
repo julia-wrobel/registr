@@ -4,12 +4,23 @@
 \alias{loss_h}
 \title{Loss function for registration step optimization}
 \usage{
-loss_h(Y, Theta_h, mean_coefs, knots, beta.inner, family, t_min, t_max,
-  parametric_warps = FALSE, periodic = FALSE, Kt = 8,
-  prior_1_x = FALSE, prior_1_x_mean = 0.5, prior_1_x_sd = 1,
-  prior_1_y = FALSE, prior_1_y_mean = 0.5, prior_1_y_sd = 1,
-  prior_2_x = FALSE, prior_2_x_mean = 0.5, prior_2_x_sd = 1,
-  prior_2_y = FALSE, prior_2_y_mean = 0.5, prior_2_y_sd = 1)
+loss_h(
+  Y,
+  Theta_h,
+  mean_coefs,
+  knots,
+  beta.inner,
+  family,
+  t_min,
+  t_max,
+  periodic = FALSE,
+  Kt = 8,
+  warping = "nonparametric",
+  prior_1_x_mean_sd = NULL,
+  prior_1_y_mean_sd = NULL,
+  prior_2_x_mean_sd = NULL,
+  prior_2_y_mean_sd = NULL
+)
 }
 \arguments{
 \item{Y}{vector of observed points.}
@@ -28,41 +39,24 @@ loss_h(Y, Theta_h, mean_coefs, knots, beta.inner, family, t_min, t_max,
 
 \item{t_max}{maximum value to be evaluated on the time domain.}
 
-\item{parametric_warps}{If FALSE (default), inverse warping functions are 
-estimated nonparametrically. If 'beta_cdf', they are assumed to have the form of a 
-Beta(a,b) CDF. If 'piecewise' they follow a piecewise parameterized function.}
-
-\item{periodic}{If TRUE, uses periodic b-spline basis functions. Default is FALSE.}
+\item{periodic}{If \code{TRUE} uses periodic b-spline basis functions. Default is \code{FALSE}.}
 
 \item{Kt}{Number of B-spline basis functions used to estimate mean functions. Default is 8.}
 
-\item{prior_1_x}{For parametric_warps = "piecewise_linear1" or "piecewise_linear2" only. 
-If TRUE, will incorporate a prior Normal distribution for the first knot's x location into the loss function.}
+\item{warping}{If \code{nonparametric} (default), inverse warping functions are estimated nonparametrically. 
+If \code{piecewise_linear2} they follow a piecewise linear function with 2 knots.}
 
-\item{prior_1_x_mean}{Mean of the Normal distribution prior for the first knot's x location.}
+\item{prior_1_x_mean_sd}{For \code{warping = "piecewise_linear2"} only. Optional vector of length 2 to 
+specify a prior mean and sd, respectively, for a Normal distribution prior on the first knot's x location.}
 
-\item{prior_1_x_sd}{Standard deviation of the Normal distribution prior for the first knot's x location.}
+\item{prior_1_y_mean_sd}{For \code{warping = "piecewise_linear2"} only. Optional vector of length 2 to 
+specify a prior mean and sd, respectively, for a Normal distribution prior on the first knot's y location.}
 
-\item{prior_1_y}{For parametric_warps = "piecewise_linear1" or "piecewise_linear2" only. 
-If TRUE, will incorporate a prior Normal distribution for the first knot's y location into the loss function.}
+\item{prior_2_x_mean_sd}{For \code{warping = "piecewise_linear2"} only. Optional vector of length 2 to 
+specify a prior mean and sd, respectively, for a Normal distribution prior on the second knot's x location.}
 
-\item{prior_1_y_mean}{Mean of the Normal distribution prior for the first knot's y location.}
-
-\item{prior_1_y_sd}{Standard deviation of the Normal distribution prior for the first knot's y location.}
-
-\item{prior_2_x}{For parametric_warps = "piecewise_linear2" only. 
-If TRUE, will incorporate a prior Normal distribution for the second knot's x location into the loss function.}
-
-\item{prior_2_x_mean}{Mean of the Normal distribution prior for the second knot's x location.}
-
-\item{prior_2_x_sd}{Standard deviation of the Normal distribution prior for the second knot's x location.}
-
-\item{prior_2_y}{For parametric_warps = "piecewise_linear2" only. 
-If TRUE, will incorporate a prior Normal distribution for the second knot's y location into the loss function.}
-
-\item{prior_2_y_mean}{Mean of the Normal distribution prior for the second knot's y location.}
-
-\item{prior_2_y_sd}{Standard deviation of the Normal distribution prior for the second knot's y location.}
+\item{prior_2_y_mean_sd}{For \code{warping = "piecewise_linear2"} only. Optional vector of length 2 to 
+specify a prior mean and sd, respectively, for a Normal distribution prior on the second knot's y location.}
 }
 \description{
 Loss function for registration step optimization
