@@ -9,6 +9,11 @@
 #' @param t_min minimum value to be evaluated on the time domain. 
 #' @param t_max maximum value to be evaluated on the time domain. 
 #' @param Kt Number of B-spline basis functions used to estimate mean functions. Default is 8.
+#' @param periodic If \code{TRUE}, uses periodic b-spline basis functions. Default is \code{FALSE}. 
+#' \code{loss_h_gradient()} is currently only available for \code{periodic = FALSE}.
+#' @param warping If \code{nonparametric} (default), inverse warping functions are estimated nonparametrically. 
+#' If \code{piecewise_linear2} they follow a piecewise linear function with 2 knots.
+#' \code{loss_h_gradient()} is currently only available for \code{warping = "nonparametric"}.
 #' 
 #' @author Julia Wrobel \email{jw3134@@cumc.columbia.edu}
 #' 
@@ -17,7 +22,14 @@
 #' @export
 #'
 loss_h_gradient = function(Y, Theta_h, mean_coefs, knots, beta.inner, family = "gaussian",
-                           t_min, t_max, Kt = 8){
+                           t_min, t_max, Kt = 8, periodic = FALSE, warping = "nonparametric"){
+  
+  if(periodic){
+    stop("loss_h_gradient() only available for periodic = FALSE")
+  }
+  if(warping != "nonparametric"){
+    stop("loss_h_gradient() only available for warping = nonparametric")
+  }
   
 	Di = length(Y)
 	Kh = dim(Theta_h)[2]

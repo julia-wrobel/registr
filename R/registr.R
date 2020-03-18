@@ -84,6 +84,11 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
 		gradient = FALSE
 	}
 	
+	if (gradient & warping != "nonparametric"){
+		warning("gradient = TRUE is only available for warping = nonparametric. Setting gradient = FALSE.")
+		gradient = FALSE
+	}
+	
 	tstar = Y$tstar
   if (is.null(t_min)) {t_min = min(tstar)}
   if (is.null(t_max)) {t_max = max(tstar)}
