@@ -3,9 +3,9 @@
 
 # registr <img src="README_files/figures/registr.png" align="right" height = "150" />
 
-<!-- badges: start --> [![CRAN
-status](https://www.r-pkg.org/badges/version/registr)](https://cran.r-project.org/package=registr)
-<https://cranlogs.r-pkg.org/badges/grand-total/registr>
+<!-- badges: start -->
+[![](https://www.r-pkg.org/badges/version/registr)](https://cran.r-project.org/package=registr)
+[![](http://cranlogs.r-pkg.org/badges/grand-total/registr?color=green)](https://cran.r-project.org/package=registr)
 [![](https://travis-ci.org/julia-wrobel/registr.svg?branch=master)](https://travis-ci.org/julia-wrobel/registr)
 [![AppVeyor build
 status](https://ci.appveyor.com/api/projects/status/github/muschellij2/registr?branch=master&svg=true)](https://ci.appveyor.com/project/muschellij2/registr)
