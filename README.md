@@ -3,7 +3,9 @@
 
 # registr <img src="README_files/figures/registr.png" align="right" height = "150" />
 
-<!-- badges: start -->
+<!-- badges: start --> [![CRAN
+status](https://www.r-pkg.org/badges/version/registr)](https://cran.r-project.org/package=registr)
+<https://cranlogs.r-pkg.org/badges/grand-total/registr>
 [![](https://travis-ci.org/julia-wrobel/registr.svg?branch=master)](https://travis-ci.org/julia-wrobel/registr)
 [![AppVeyor build
 status](https://ci.appveyor.com/api/projects/status/github/muschellij2/registr?branch=master&svg=true)](https://ci.appveyor.com/project/muschellij2/registr)
@@ -61,6 +63,12 @@ simulated binary data are provided below.
 ### Installation
 
 -----
+
+To install from `CRAN`, please use:
+
+``` r
+install.packages("registr")
+```
 
 To install the latest version directly from Github, please use:
 
@@ -133,7 +141,18 @@ method.
 
 ### Citation
 
-To cite this package with `BibTeX`, use
+If you like our software, please cite it in your work\! To cite the
+latest `CRAN` version of the package with `BibTeX`, use
+
+    @Manual{,
+        title = {registr: Registration for Exponential Family Functional Data},
+        author = {Julia Wrobel and Erin McDonnell and Jeff Goldsmith},
+        year = {2020},
+        note = {R package version 1.0.0},
+        url = {https://CRAN.R-project.org/package=registr},
+      }
+
+To site the Journal of Open Source Software paper, usue
 
     @article{wrobel2018regis,
       title={registr: Registration for Exponential Family Functional Data},
