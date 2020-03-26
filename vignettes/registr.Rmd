@@ -201,20 +201,20 @@ ggplot(Y, aes(tstar, t_hat, group = id)) + theme_bw() +
 
 ```
 
-The true an estimated warping functions are plotted above. 
+The true and estimated warping functions are plotted above. 
 
 ### `register_fpca(family = "gaussian")` for continuous data
 
 To register continuous data use the following code:
 
 ```{r register_gaussian, message = FALSE}
-Y$value = Y$latent_mean
+registration_data$value = registration_data$latent_mean
 registr_gauss = register_fpca(Y = registration_data, family = "gaussian", Kt = 10)
 ```
 
 ## `bfpca()` function
 
-The `registr` package includes a novel variational EM algorithm for binary functional principals component analysis (bfpca), derived from methods for binary probabilistic PCA [@tipping1999].
+The `registr` package includes a novel variational EM algorithm for binary functional principal component analysis (bfpca), derived from methods for binary probabilistic PCA [@tipping1999].
 
 This `bfpca()` function works for data that is sparse and irregular (subjects do not have to be observed on the same grid and do not have to have the same number of grid points), as well as dense, regularly observed data. The following code runs bfpca on the `fpca_data` dataset.
 
@@ -268,6 +268,119 @@ numeric_gradient = as.numeric(round((end_time - start_time), 2))
 ```
 
 On a dataset with just 50 subjects and 100 time points per subject, the `registr()` function runs in `r analytic_gradient` seconds with an analytic gradient and `r numeric_gradient` seconds with a numeric gradient. Since the `register_fpca()` algorithm is iterative and calls the `registr()` function several times, using an analytic derivative drastically increases the computational efficiency, especially if number of subjects in the dataset is large.
+
+## Additional features
+
+### Parametric inverse warping functions: `warping = "piecewise_linear2"`
+
+The `registr` package currently supports two models of inverse warping functions: nonparmetric B-spline basis functions (default), or parametric 2-knot piecewise linear functions. With `warping = "piecewise_linear2"`, the registration step estimates the $x$ ($t_i^*$) and $y$ ($t$) coordinates of each of the two knots (4 parameters total) to construct an inverse warping function that consists of 3 line segments.
+
+To register data with parametric inverse warping functions, using the following code:
+
+```{r register_parametric}
+registr_parametric = register_fpca(Y = registration_data, family = "gaussian", Kt = 10, 
+                                   warping = "piecewise_linear2", gradient = FALSE)
+```
+
+This argument works for both `binomial` and `gaussian` families. Note that the `gradient` option is currently unavailable for parametric inverse warping functions. Below are the resulting inverse warping functions from both the `nonparametric` (left) and `piecewise_linear2` (right) specifications. The slopes of the 3 line segments that make up one's parametric function can provide some interpretation about how that particular subject's data was warped to align with the population mean.
+
+```{r register_parametric_plots, echo = FALSE, fig.show='hold'}
+ggplot(registr_gauss$Y, aes(x = tstar, y = t_hat, group = id)) +
+	geom_line() + 
+	labs(title = "warping = nonparametric")
+
+ggplot(registr_parametric$Y, aes(x = tstar, y = t_hat, group = id)) +
+	geom_line() + 
+	labs(title = "warping = piecewise_linear2")
+```
+
+Beyond interpretability, another advantage of parametric inverse warping functions is the ability to specify prior information about how they should look. The `register_fpca()` function can include normally-distributed priors on any combination of the four knot coordinates. To do this, use the following code:
+
+```{r register_par_priors}
+registr_par_priors = register_fpca(Y = registration_data, family = "gaussian", Kt = 10, 
+                                   warping = "piecewise_linear2", gradient = FALSE,
+                                   prior_1_x_mean_sd = c(0.2, 1), 
+                                   prior_1_y_mean_sd = NULL,
+                                   prior_2_x_mean_sd = c(0.8, 1), 
+                                   prior_2_y_mean_sd = c(0.6, 1))
+```
+
+Each `prior` argument takes a vector of length 2, which includes the mean and standard deviation for the given knot coordinate's normally-distributed prior. As expected, smaller variances lead to stronger tendency toward the prior means, as demonstrated in the warping function plots below.
+
+```{r, register_par_priors_plots, echo = FALSE, fig.show='hold'}
+registr_par_priors2 = register_fpca(Y = registration_data, family = "gaussian", Kt = 10, 
+																		warping = "piecewise_linear2", gradient = FALSE,
+																		prior_1_x_mean_sd = c(0.2, 0.1), 
+																		prior_1_y_mean_sd = NULL,
+																		prior_2_x_mean_sd = c(0.8, 0.1), 
+																		prior_2_y_mean_sd = c(0.6, 0.1))
+
+ggplot(registr_par_priors$Y, aes(x = tstar, y = t_hat, group = id)) +
+	geom_line() + 
+	labs(title = "sd for all priors = 1")
+
+ggplot(registr_par_priors2$Y, aes(x = tstar, y = t_hat, group = id)) +
+	geom_line() + 
+	labs(title = "sd for all priors = 0.1")
+```
+
+### Periodic B-spline basis functions for GFPCA: `periodic = TRUE`
+
+In some cases it may be of interest to place periodic boundary conditions on the B-spline basis function for the population-level and subject-specific mean templates. The periodic conditions ensure that the resulting function starts and ends with the same value. This may be useful when modeling cyclic data, such as daily physical activity patterns. To use periodic B-spline basis functions during registration, use the following code:
+
+```{r fpca_periodic}
+registr_gauss_periodic = register_fpca(Y = registration_data, family = "gaussian", Kt = 10, 
+                                       periodic = TRUE)
+```
+
+The resulting population means of registering the continuous data using `periodic = FALSE` (default) and `periodic = TRUE` are plotted below, with a dotted line to demonstrate the unification of the start and end of the periodic function.
+
+```{r plot_fpca_periodic, echo = FALSE, fig.show='hold'}
+
+tibble(mu = registr_gauss$fpca_obj$mu) %>%
+	mutate(time = row_number()) %>%
+	ggplot(aes(x = time, y = mu)) + 
+	theme_bw() + 
+	geom_line() + 
+	labs(title = "periodic = FALSE")
+	
+tibble(mu = registr_gauss_periodic$fpca_obj$mu) %>%
+	mutate(time = row_number()) %>%
+	ggplot(aes(x = time, y = mu)) + 
+	theme_bw() + 
+	geom_line() + 
+	labs(title = "periodic = TRUE")
+
+example_id = registr_gauss$fpca_obj$Yhat %>%
+	group_by(id) %>%
+	filter(index == 0 | index == 1) %>%
+	mutate(diff = max(value) - min(value)) %>%
+	ungroup() %>%
+	filter(index == 0 & abs(diff) == max(abs(diff))) %>%
+	pull(id)
+
+example_y_intercept = registr_gauss$fpca_obj$Yhat %>%
+	filter(id == example_id & index == 0) %>%
+	pull(value)
+
+registr_gauss$fpca_obj$Yhat %>%
+	filter(id == example_id) %>%
+	ggplot(aes(x = index, y = value)) + 
+	theme_bw() + 
+	geom_line() + 
+	geom_hline(yintercept = example_y_intercept, lty = "dotted") +
+	labs(title = "periodic = TRUE")
+
+registr_gauss_periodic$fpca_obj$Yhat %>%
+	filter(id == example_id) %>%
+	ggplot(aes(x = index, y = value)) + 
+	theme_bw() + 
+	geom_line() + 
+	geom_hline(yintercept = example_y_intercept, lty = "dotted") +
+	labs(title = "periodic = TRUE")
+
+print(registr::loss_h)
+```
 
 ## Help files
 
