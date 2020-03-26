@@ -38,16 +38,16 @@ loss_h = function(Y, Theta_h, mean_coefs, knots, beta.inner, family, t_min, t_ma
 		stop("'prior' arguments are only available for warping = piecewise_linear2")
 	}
 	if(!(is.null(prior_1_x_mean_sd) | length(prior_1_x_mean_sd) == 2)){
-		stop("'prior_1_x_mean_sd' must be NULL or a vector of length 2 (mean, sd)")
+		stop("'prior_1_x_mean_sd' must be NULL or a vector of length 2")
 	}
 	if(!(is.null(prior_1_y_mean_sd) | length(prior_1_y_mean_sd) == 2)){
-		stop("'prior_1_y_mean_sd' must be NULL or a vector of length 2 (mean, sd)")
+		stop("'prior_1_y_mean_sd' must be NULL or a vector of length 2")
 	}
 	if(!(is.null(prior_2_x_mean_sd) | length(prior_2_x_mean_sd) == 2)){
-		stop("'prior_2_x_mean_sd' must be NULL or a vector of length 2 (mean, sd)")
+		stop("'prior_2_x_mean_sd' must be NULL or a vector of length 2")
 	}
 	if(!(is.null(prior_2_y_mean_sd) | length(prior_2_y_mean_sd) == 2)){
-		stop("'prior_2_y_mean_sd' must be NULL or a vector of length 2 (mean, sd)")
+		stop("'prior_2_y_mean_sd' must be NULL or a vector of length 2")
 	}
 	
 	if(warping == "nonparametric"){
@@ -67,28 +67,31 @@ loss_h = function(Y, Theta_h, mean_coefs, knots, beta.inner, family, t_min, t_ma
 	
   g_mu_t = Theta_phi %*% mean_coefs
   
+  # Calculate the negative log likelihood
+  # For gaussian, drop unnecessary constant terms and assume variance = 1
   if (family == "gaussian") {
-    return(sum((Y - g_mu_t) ^ 2))
+  	sigma2_hat = var(g_mu_t)
+  	loss = 1/(2*sigma2_hat) * sum((Y - g_mu_t) ^ 2)
   } else if (family == "binomial") {
     pi_h = plogis(g_mu_t)
-    # Allows for a prior distribution on the knot locations
     loss = -1 * sum(Y * log(pi_h) + (1 - Y) * log(1 - pi_h))
-
-  	if(warping == "piecewise_linear2"){
-  		if(!is.null(prior_1_x_mean_sd)){
-  			loss = loss - log(dnorm(x = beta.inner[1], mean = prior_1_x_mean_sd[1], sd = prior_1_x_mean_sd[2]))
-  		}
-    	if(!is.null(prior_1_y_mean_sd)){
-    		loss = loss - log(dnorm(x = beta.inner[2], mean = prior_1_y_mean_sd[1], sd = prior_1_y_mean_sd[2]))
-    	}
-    	if(!is.null(prior_2_x_mean_sd)){
-    		loss = loss - log(dnorm(x = beta.inner[3], mean = prior_2_x_mean_sd[1], sd = prior_2_x_mean_sd[2]))
-    	}
-    	if(!is.null(prior_2_y_mean_sd)){
-    		loss = loss - log(dnorm(x = beta.inner[4], mean = prior_2_y_mean_sd[1], sd = prior_2_y_mean_sd[1]))
-    	}
-  	}
-	  return(loss)
   }
+
+  # Add prior distributions on the knot locations as needed
+	if(warping == "piecewise_linear2"){
+		if(!is.null(prior_1_x_mean_sd)){
+			loss = loss - log(dnorm(x = beta.inner[1], mean = prior_1_x_mean_sd[1], sd = prior_1_x_mean_sd[2]))
+		}
+  	if(!is.null(prior_1_y_mean_sd)){
+  		loss = loss - log(dnorm(x = beta.inner[2], mean = prior_1_y_mean_sd[1], sd = prior_1_y_mean_sd[2]))
+  	}
+  	if(!is.null(prior_2_x_mean_sd)){
+  		loss = loss - log(dnorm(x = beta.inner[3], mean = prior_2_x_mean_sd[1], sd = prior_2_x_mean_sd[2]))
+  	}
+  	if(!is.null(prior_2_y_mean_sd)){
+  		loss = loss - log(dnorm(x = beta.inner[4], mean = prior_2_y_mean_sd[1], sd = prior_2_y_mean_sd[1]))
+  	}
+	}
+  return(loss)
 }
 

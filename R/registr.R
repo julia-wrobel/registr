@@ -35,7 +35,8 @@
 #' \item{loss}{Value of the loss function after registraton.}
 #' \item{beta}{Matrix of B-spline basis coefficients used to construct subject-specific warping functions.}
 #' 
-#' @author Julia Wrobel \email{jw3134@@cumc.columbia.edu}
+#' @author Julia Wrobel \email{jw3134@@cumc.columbia.edu},
+#' Erin McDonnell \email{eim2117@@cumc.columbia.edu}
 #' @export
 #' 
 #' @importFrom stats glm coef constrOptim quantile optim pbeta
@@ -55,9 +56,14 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
 									 periodic = FALSE, warping = "nonparametric", ...){
 	
   if(is.null(Y)) { Y = obj$Y}
-	if(is.null(obj)) { Y$tstar = Y$index
-		# scale time to 0, 1 for parametric warping
-		if(warping == "piecewise_linear2"){
+	if(is.null(obj)) { 
+		if(warping == "nonparametric"){
+			Y$tstar = Y$index
+		} else if(warping == "piecewise_linear2"){
+			# scale time to 0, 1 for parametric warping
+			if(is.null(Y$index_scaled)){
+				stop("For warping = piecewise_linear2, need an index_scaled variable that ranges from 0 to 1.")
+			}
 			Y$tstar = Y$index_scaled
 		}
 	}
@@ -79,6 +85,10 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
 		stop("Kt must be greater than or equal to 3.")
 	}
 	
+	if(!(warping %in% c("nonparametric", "piecewise_linear2"))){
+		stop("warping argument can only take values of nonparametric or piecewise_linear2")
+	}
+
 	if (gradient & periodic){
 		warning("gradient = TRUE is only available for periodic = FALSE. Setting gradient = FALSE.")
 		gradient = FALSE

@@ -14,8 +14,8 @@
 #' @param knot2_x controls the x-location of the second knot. Defaults is \code{0.75}. 
 #' @param knot2_y controls the y-location of the second knot. Defaults is \code{0.9}. 
 #'  
-#' @author Erin McDonnell \email{eim2117@@cumc.columbia.edu}
-#' @author Julia Wrobel \email{jw3134@@cumc.columbia.edu}
+#' @author Erin McDonnell \email{eim2117@@cumc.columbia.edu},
+#' Julia Wrobel \email{jw3134@@cumc.columbia.edu}
 #' @importFrom stats quantile
 #' @export
 
