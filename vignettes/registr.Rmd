@@ -378,8 +378,6 @@ registr_gauss_periodic$fpca_obj$Yhat %>%
 	geom_line() + 
 	geom_hline(yintercept = example_y_intercept, lty = "dotted") +
 	labs(title = "periodic = TRUE")
-
-print(registr::loss_h)
 ```
 
 ## Help files
