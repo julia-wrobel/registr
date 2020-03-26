@@ -28,14 +28,16 @@ test_that("bfpca output is a list with non-null items and class fpca",{
 
 test_that("bfpca output has correct number of dimensions",{
 	Y = simulate_functional_data(I = 100, D = 200)$Y
-	bfpca_object = bfpca(Y, npc = 4, print.iter = TRUE)
+	Kt = 8
+	bfpca_object = bfpca(Y, npc = 4, Kt = Kt, print.iter = TRUE)
 	
 	expect_equal(dim(bfpca_object$alpha), c(200, 1))
 	expect_equal(dim(bfpca_object$efunctions), c(200, 4))
 	expect_equal(length(bfpca_object$evalues), 4)
 	expect_equal(dim(bfpca_object$scores), c(100, 4))
+	expect_equal(length(bfpca_object$knots), Kt - 4)
 	
-	bfpca_object = bfpca(Y, npc = 1, print.iter = TRUE)
+	bfpca_object = bfpca(Y, npc = 1, Kt = Kt, print.iter = TRUE)
 	expect_equal(dim(bfpca_object$efunctions), c(200, 1))
 })
 
@@ -74,4 +76,19 @@ test_that("bfpca iterations are strictly decreasing",{
 	bfpca_object = bfpca(Y, npc = 2, print.iter = TRUE)
 	
 	expect_true(all(diff(bfpca_object$error) < 0))
+})
+
+test_that("bfpca output has correct number of dimensions when periodic = TRUE ",{
+	Y = simulate_functional_data(I = 100, D = 200)$Y
+	Kt = 8
+	bfpca_object = bfpca(Y, npc = 4, periodic = TRUE, Kt = Kt, print.iter = TRUE)
+	
+	expect_equal(dim(bfpca_object$alpha), c(200, 1))
+	expect_equal(dim(bfpca_object$efunctions), c(200, 4))
+	expect_equal(length(bfpca_object$evalues), 4)
+	expect_equal(dim(bfpca_object$scores), c(100, 4))
+	expect_equal(length(bfpca_object$knots), Kt - 1)
+	
+	bfpca_object = bfpca(Y, npc = 1, periodic = TRUE, print.iter = TRUE)
+	expect_equal(dim(bfpca_object$efunctions), c(200, 1))
 })

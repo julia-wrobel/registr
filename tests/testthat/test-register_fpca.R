@@ -39,3 +39,51 @@ test_that("register_fpca output is a list with non-null items and class registra
 	
 	
 })
+
+test_that("register_fpca function priors must be vectors of length 2 and
+					specified only when warping = piecewise_linear2",{
+	Y = simulate_unregistered_curves()
+	data = data_clean(Y)
+	Y = data$Y
+	
+	expect_error(register_fpca(Y = Y, family = "binomial", warping = "piecewise_linear2",
+												     prior_1_x_mean_sd = c(0.5, 1), prior_1_y_mean_sd = c(0.5, 1),
+												     prior_2_x_mean_sd = 1, prior_2_y_mean_sd = c(0.5, 1)),
+							 "'prior_2_x_mean_sd' must be NULL or a vector of length 2")
+	
+	expect_error(register_fpca(Y = Y, family = "binomial", warping = "nonparametric",
+														 prior_1_x_mean_sd = c(0.5, 1), prior_1_y_mean_sd = c(0.5, 1),
+														 prior_2_x_mean_sd = 1, prior_2_y_mean_sd = c(0.5, 1)),
+							 "'prior' arguments are only available for warping = piecewise_linear2")
+})
+
+test_that("register_fpca function with priors on the piecewise_linear2 warping functions works as expected",{
+	Y = simulate_unregistered_curves()
+	data = data_clean(Y)
+	Y = data$Y
+	
+	prior_mean = 0.5
+	
+	test1 = register_fpca(Y = Y, family = "binomial", warping = "piecewise_linear2",
+												prior_1_x_mean_sd = c(prior_mean, 1), prior_1_y_mean_sd = c(prior_mean, 1),
+												prior_2_x_mean_sd = c(prior_mean, 1), prior_2_y_mean_sd = c(prior_mean, 1))
+	
+	test2 = register_fpca(Y = Y, family = "binomial", warping = "piecewise_linear2",
+												prior_1_x_mean_sd = c(prior_mean, 0.1), prior_1_y_mean_sd = c(prior_mean, 0.1),
+												prior_2_x_mean_sd = c(prior_mean, 0.1), prior_2_y_mean_sd = c(prior_mean, 0.1))
+	
+	expect_true(all(colMeans(abs(test2$beta[,c(1:4)] - prior_mean)) < colMeans(abs(test1$beta[,c(1:4)] - prior_mean))))
+})
+
+test_that("register_fpca with parametric warping functions and/or periodic basis functions throws no errors",{
+	Y = simulate_unregistered_curves()
+	data = data_clean(Y)
+	Y = data$Y
+	
+	expect_error(register_fpca(Y, family = "gaussian", periodic = TRUE,  warping = "nonparametric"),     NA)
+	expect_error(register_fpca(Y, family = "gaussian", periodic = FALSE, warping = "piecewise_linear2"), NA)
+	expect_error(register_fpca(Y, family = "gaussian", periodic = TRUE,  warping = "piecewise_linear2"), NA)
+	expect_error(register_fpca(Y, family = "binomial", periodic = TRUE,  warping = "nonparametric"),     NA)
+	expect_error(register_fpca(Y, family = "binomial", periodic = FALSE, warping = "piecewise_linear2"), NA)
+	expect_error(register_fpca(Y, family = "binomial", periodic = TRUE,  warping = "piecewise_linear2"), NA)
+})
