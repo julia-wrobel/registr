@@ -70,8 +70,7 @@ loss_h = function(Y, Theta_h, mean_coefs, knots, beta.inner, family, t_min, t_ma
   # Calculate the negative log likelihood
   # For gaussian, drop unnecessary constant terms and assume variance = 1
   if (family == "gaussian") {
-  	sigma2_hat = var(g_mu_t)
-  	loss = 1/(2*sigma2_hat) * sum((Y - g_mu_t) ^ 2)
+  	loss = 1/2 * sum((Y - g_mu_t) ^ 2)
   } else if (family == "binomial") {
     pi_h = plogis(g_mu_t)
     loss = -1 * sum(Y * log(pi_h) + (1 - Y) * log(1 - pi_h))
