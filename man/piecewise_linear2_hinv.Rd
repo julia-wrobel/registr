@@ -33,7 +33,6 @@ functions take data from the unregistered space to the registered space,
 consistent with #' functional data literature on registration.
 }
 \author{
-Erin McDonnell \email{eim2117@cumc.columbia.edu}
-
+Erin McDonnell \email{eim2117@cumc.columbia.edu},
 Julia Wrobel \email{jw3134@cumc.columbia.edu}
 }

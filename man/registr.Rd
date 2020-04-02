@@ -85,5 +85,6 @@ register_step = registr(obj = NULL, Y = Y, Kt = 6, Kh = 3, family = "binomial",
 \author{
 Julia Wrobel
 
-Julia Wrobel \email{jw3134@cumc.columbia.edu}
+Julia Wrobel \email{jw3134@cumc.columbia.edu},
+Erin McDonnell \email{eim2117@cumc.columbia.edu}
 }
