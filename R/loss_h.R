@@ -37,6 +37,10 @@ loss_h = function(Y, Theta_h, mean_coefs, knots, beta.inner, family, t_min, t_ma
 																								 prior_2_x_mean_sd, prior_2_y_mean_sd))){
 		stop("'prior' arguments are only available for warping = piecewise_linear2")
 	}
+	if(family != "binomial" & !is.null(c(prior_1_x_mean_sd, prior_1_y_mean_sd, 
+																			 prior_2_x_mean_sd, prior_2_y_mean_sd))){
+		stop("'prior' arguments are only available for family = binomial")
+	}
 	if(!(is.null(prior_1_x_mean_sd) | length(prior_1_x_mean_sd) == 2)){
 		stop("'prior_1_x_mean_sd' must be NULL or a vector of length 2")
 	}

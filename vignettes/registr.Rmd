@@ -278,7 +278,9 @@ The `registr` package currently supports two models of inverse warping functions
 To register data with parametric inverse warping functions, using the following code:
 
 ```{r register_parametric}
-registr_parametric = register_fpca(Y = registration_data, family = "gaussian", Kt = 10, 
+registration_data = simulate_unregistered_curves(I = 50, D = 200, seed = 2018)
+
+registr_parametric = register_fpca(Y = registration_data, family = "binomial", Kt = 10, 
                                    warping = "piecewise_linear2", gradient = FALSE)
 ```
 
@@ -297,10 +299,10 @@ ggplot(registr_parametric$Y, aes(x = tstar, y = t_hat, group = id)) +
 Beyond interpretability, another advantage of parametric inverse warping functions is the ability to specify prior information about how they should look. The `register_fpca()` function can include normally-distributed priors on any combination of the four knot coordinates. To do this, use the following code:
 
 ```{r register_par_priors}
-registr_par_priors = register_fpca(Y = registration_data, family = "gaussian", Kt = 10, 
+registr_par_priors = register_fpca(Y = registration_data, family = "binomial", Kt = 10, 
                                    warping = "piecewise_linear2", gradient = FALSE,
                                    prior_1_x_mean_sd = c(0.2, 1), 
-                                   prior_1_y_mean_sd = NULL,
+                                   prior_1_y_mean_sd = c(0.3, 1),
                                    prior_2_x_mean_sd = c(0.8, 1), 
                                    prior_2_y_mean_sd = c(0.6, 1))
 ```
@@ -308,12 +310,12 @@ registr_par_priors = register_fpca(Y = registration_data, family = "gaussian", K
 Each `prior` argument takes a vector of length 2, which includes the mean and standard deviation for the given knot coordinate's normally-distributed prior. As expected, smaller variances lead to stronger tendency toward the prior means, as demonstrated in the warping function plots below.
 
 ```{r, register_par_priors_plots, echo = FALSE, fig.show='hold'}
-registr_par_priors2 = register_fpca(Y = registration_data, family = "gaussian", Kt = 10, 
+registr_par_priors2 = register_fpca(Y = registration_data, family = "binomial", Kt = 10, 
 																		warping = "piecewise_linear2", gradient = FALSE,
-																		prior_1_x_mean_sd = c(0.2, 0.1), 
-																		prior_1_y_mean_sd = NULL,
-																		prior_2_x_mean_sd = c(0.8, 0.1), 
-																		prior_2_y_mean_sd = c(0.6, 0.1))
+																		prior_1_x_mean_sd = c(0.2, 0.01), 
+																		prior_1_y_mean_sd = c(0.3, 0.01),
+																		prior_2_x_mean_sd = c(0.8, 0.01), 
+																		prior_2_y_mean_sd = c(0.6, 0.01))
 
 ggplot(registr_par_priors$Y, aes(x = tstar, y = t_hat, group = id)) +
 	geom_line() + 
@@ -321,8 +323,10 @@ ggplot(registr_par_priors$Y, aes(x = tstar, y = t_hat, group = id)) +
 
 ggplot(registr_par_priors2$Y, aes(x = tstar, y = t_hat, group = id)) +
 	geom_line() + 
-	labs(title = "sd for all priors = 0.1")
+	labs(title = "sd for all priors = 0.01")
 ```
+
+Currently the ability to specify priors is only available for binary curve registration, but parametric warping functions are available for both binary and gaussian curve registration. 
 
 ### Periodic B-spline basis functions for GFPCA: `periodic = TRUE`
 
