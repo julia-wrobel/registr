@@ -9,6 +9,9 @@
 #' @param warping If \code{nonparametric} (default), inverse warping functions are estimated nonparametrically. 
 #' If \code{piecewise_linear2} they follow a piecewise linear function with 2 knots.
 #' 
+#' @author Julia Wrobel \email{jw3134@@cumc.columbia.edu},
+#' Erin McDonnell \email{eim2117@@cumc.columbia.edu}
+#' 
 #' @return An list containing:
 #' \item{ui}{A constraint matrix.}
 #' \item{ci}{A constraint vector.}

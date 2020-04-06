@@ -21,6 +21,9 @@
 #' @param prior_2_y_mean_sd For \code{warping = "piecewise_linear2"} only. Optional vector of length 2 to 
 #' specify a prior mean and sd, respectively, for a Normal distribution prior on the second knot's y location.
 #' 
+#' @author Julia Wrobel \email{jw3134@@cumc.columbia.edu},
+#' Erin McDonnell \email{eim2117@@cumc.columbia.edu}
+#' 
 #' @return The scalar value taken by the loss function.
 #' 
 #' @importFrom stats plogis
