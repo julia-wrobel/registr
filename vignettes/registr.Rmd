@@ -45,7 +45,7 @@ Functional data analysis is a set of tools for understanding patterns and variab
 
 Classic functional data analysis assumes that each curve is continuous or comes from a Gaussian distribution. However, applications with exponential family functional data -- curves that arise from any exponential family distribution, and have a smooth latent mean -- are increasingly common. For example, take the accelerometer data just mentioned, but assume researchers are interested in *sedentary behavior* instead of *activity intensity*. At each minute over 24 hours they collect a binary measurement that indicates whether a subject was active or inactive (sedentary). Now we have a *binary curve* for each subject -- a trajectory where each time point can take on a value of 0 or 1. We assume the binary curve has a smooth latent mean, which in this case is interpreted as the probability of being active at each minute over 24 hours. This is a  example of exponential family functional data. 
 
-Often in a functional dataset curves have similar underlying patterns but the main features of each curve, such as the minimum and maximum, have shifts such that the data appear misaligned. This misalignment can obscure patterns shared across curves and produce messy summary statistics. Registration methods reduce variability in functional data and clarify underlying patterns by alligning curves.
+Often in a functional dataset curves have similar underlying patterns but the main features of each curve, such as the minimum and maximum, have shifts such that the data appear misaligned. This misalignment can obscure patterns shared across curves and produce messy summary statistics. Registration methods reduce variability in functional data and clarify underlying patterns by aligning curves.
 
 At the core of this registration method is generalized functional principal components analysis (GFPCA), a popular technique for extracting patterns shared across curves. 
 
@@ -97,7 +97,7 @@ head(registration_data)
 
 ```
 
-The resulting object,`registration_data`, is a data frame with variables `id`, `value`, `index`, `latent_mean`, and `t`, which is consistent with the format our `registr` software requires. `id` is the identifyier for a particular subject, the `value` variable contains binary observations, and `latent_mean` contains continuous observations used to generate the binary observations for the `value` variable. Note that when `family = "binomial"` we will use the binary `value` variable as the observations for each subject and when `family = "gaussian"` we use the `latent_mean` variable as the outcome.
+The resulting object,`registration_data`, is a data frame with variables `id`, `value`, `index`, `latent_mean`, and `t`, which is consistent with the format our `registr` software requires. `id` is the identifier for a particular subject, the `value` variable contains binary observations, and `latent_mean` contains continuous observations used to generate the binary observations for the `value` variable. Note that when `family = "binomial"` we will use the binary `value` variable as the observations for each subject and when `family = "gaussian"` we use the `latent_mean` variable as the outcome.
 
 The variables `index` and `t` are both time grids. Evaluated on the grid `index` the data is unregistered, and on the grid `t` the data is registered. Registered and unregistered curves are plotted below.
 
@@ -172,7 +172,7 @@ To register binary data use the following code:
 registr_bin = register_fpca(Y = registration_data, family = "binomial", Kt = 8, Kh = 3, npc = 1)
 ```
 
-The argument `Y` specificies the input dataset; this code uses the simulated `registration_data`. `Kt` and `Kh` specify number of B-spline basis functions for the subject-specific means and warping functions, respectively, and `npc` indicates the number of functional principal components to use.
+The argument `Y` specificities the input dataset; this code uses the simulated `registration_data`. `Kt` and `Kh` specify number of B-spline basis functions for the subject-specific means and warping functions, respectively, and `npc` indicates the number of functional principal components to use.
 
 ```{r plot_reg_bin, echo = FALSE, fig.show='hold', fig.width=2}
 Y = registr_bin$Y

@@ -1,11 +1,18 @@
 Package: registr
-Title: Registering curves from exponential family functional data
-Version: 0.1
+Title: Curve Registration for Exponential Family Functional Data
+Version: 1.0.0
 Authors@R: c(
-    person("Julia", "Wrobel", role = c("aut", "cre"), email = "jw3134@cumc.columbia.edu"),
-    person("Jeff", "Goldsmith", role = "aut", email = "jeff.goldsmith@columbia.edu")
+    person("Julia", "Wrobel", role = c("aut", "cre"), 
+    email = "julia.wrobel@cuanschutz.edu",
+    comment = c(ORCID = "0000-0001-6783-1421")),
+    person("Jeff", "Goldsmith", role = "aut", email = "jeff.goldsmith@columbia.edu"),
+    person("Erin", "McDonnell", role = "aut", email = "eim2117@cumc.columbia.edu")
     )
-Description: Registering curves from exponential family functional data.
+Description: A method for registering curves (functional data) that are generated from exponential family distributions.  This 
+    implements the algorithms described in 'Wrobel et al. (2019)' <doi:10.1111/biom.12963>. Curve registration is an active area of 
+    research in functional data analysis, and can be used to better understand patterns in functional data by separating curves 
+    into phase and amplitude variability. This software handles both binary and continuous functional data, and is
+    especially applicable in accelerometry and wearable technology.
 Depends:
     R (>= 3.2)
 Imports:

@@ -62,7 +62,7 @@ For use in \code{registr()} function.}
 \description{
 Function used in the FPCA step for registering functional data,
 called by \code{\link{register_fpca}} when \code{family = "gaussian"}. 
-Parameters estimated based on probabilistic PCA framework orginally 
+Parameters estimated based on probabilistic PCA framework originally 
 introduced by Tipping and Bishop in 1999.
 }
 \references{

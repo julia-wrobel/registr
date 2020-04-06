@@ -1,4 +1,4 @@
-#'registr: Register Exponential Family Functional Data
+#'Register Exponential Family Functional Data
 #'
 #' Software for registering functional data from the exponential family of distributions.
 #' 

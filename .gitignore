@@ -2,3 +2,9 @@
 .Rhistory
 .RData
 inst/doc
+src/*.gcda
+src/*.gcno
+src/*.so
+src/*.o
+src/*.o.tmp
+.DS_Store

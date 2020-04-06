@@ -58,6 +58,9 @@ specify a prior mean and sd, respectively, for a Normal distribution prior on th
 \item{prior_2_y_mean_sd}{For \code{warping = "piecewise_linear2"} only. Optional vector of length 2 to 
 specify a prior mean and sd, respectively, for a Normal distribution prior on the second knot's y location.}
 }
+\value{
+The scalar value taken by the loss function.
+}
 \description{
 Loss function for registration step optimization
 }

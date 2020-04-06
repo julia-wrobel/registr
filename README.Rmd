@@ -1,17 +1,19 @@
 ---
-output:
-  github_document
+output: github_document
 ---
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
 # registr <img src="README_files/figures/registr.png" align="right" height = "150" />
 
-
+ <!-- badges: start -->
+[![](https://www.r-pkg.org/badges/version/registr)](https://cran.r-project.org/package=registr)
+[![](http://cranlogs.r-pkg.org/badges/grand-total/registr?color=green)](https://cran.r-project.org/package=registr)
 [![](https://travis-ci.org/julia-wrobel/registr.svg?branch=master)](https://travis-ci.org/julia-wrobel/registr)
-[![codecov.io](https://codecov.io/gh/julia-wrobel/registr/coverage.svg?branch=master)](https://codecov.io/gh/julia-wrobel/registr/coverage.svg?branch=master)
+[![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/muschellij2/registr?branch=master&svg=true)](https://ci.appveyor.com/project/muschellij2/registr)
+[![Codecov test coverage](https://codecov.io/gh/julia-wrobel/registr/branch/master/graph/badge.svg)](https://codecov.io/gh/julia-wrobel/registr/coverage.svg?branch=master)
 [![status](http://joss.theoj.org/papers/9c40c4f0ede1827cc5a9430c625d6494/status.svg)](http://joss.theoj.org/papers/9c40c4f0ede1827cc5a9430c625d6494)
-
+ <!-- badges: end -->
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE,
@@ -25,7 +27,7 @@ Registration for exponential family functional data.
 
 * Author: [Julia Wrobel](http://juliawrobel.com)
 * License: [MIT](https://opensource.org/licenses/MIT). See the [LICENSE](LICENSE) file for details
-* Version: 0.1
+* Version: 1.0
 
 ### What it does
 
@@ -43,6 +45,13 @@ This package implements statistical methods for registering exponential family f
 
 ---------------
 
+To install from `CRAN`, please use:
+
+```{r, eval = FALSE, echo = TRUE}
+install.packages("registr")
+```
+
+
 To install the latest version directly from Github, please use:
 
 ```{r, eval = FALSE, echo = TRUE}
@@ -56,7 +65,6 @@ The `registr` package includes a vignette with more details on package use and f
 ```{r, eval = FALSE, echo = TRUE}
 devtools::install_github("julia-wrobel/registr", build_vignettes = TRUE)
 vignette(package = "registr")
-
 ```
 
 
@@ -156,7 +164,22 @@ grid.arrange(unreg, reg, reg_hat, ncol = 3)
 
 ### Citation
 
-To cite this package with `BibTeX`, use
+If you like our software, please cite it in your work! To cite the latest `CRAN` version of the package with `BibTeX`, use
+
+
+```{}
+@Manual{,
+    title = {registr: Registration for Exponential Family Functional Data},
+    author = {Julia Wrobel and Erin McDonnell and Jeff Goldsmith},
+    year = {2020},
+    note = {R package version 1.0.0},
+    url = {https://CRAN.R-project.org/package=registr},
+  }
+```
+
+
+
+To site the Journal of Open Source Software paper, usue
 
 ```{}
 @article{wrobel2018regis,
@@ -166,7 +189,6 @@ To cite this package with `BibTeX`, use
   volume={3},
   year={2018}
 }
-
 ```
 
 

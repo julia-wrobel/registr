@@ -44,6 +44,9 @@ loss_h_gradient(
 If \code{piecewise_linear2} they follow a piecewise linear function with 2 knots.
 \code{loss_h_gradient()} is currently only available for \code{warping = "nonparametric"}.}
 }
+\value{
+A numeric vector of spline coefficients for the gradient of the loss function.
+}
 \description{
 Gradient of loss function for registration step
 }

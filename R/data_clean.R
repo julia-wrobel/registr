@@ -1,4 +1,4 @@
-#' Convert data to a \code{refund} object.
+#' Convert data to a \code{refund} object
 #' 
 #' Function used for data cleaning.
 #'
@@ -8,6 +8,10 @@
 #' @importFrom dplyr mutate group_by filter select ungroup arrange
 #' @importFrom tidyr spread
 #' @importFrom magrittr %>%
+#' 
+#' @return An list containing:
+#' \item{Y}{The original data sorted by id and index.}
+#' \item{Y_rows}{A dataframe containing the first and last row for each subject.}
 #' 
 #' @export
 

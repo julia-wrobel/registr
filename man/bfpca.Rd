@@ -66,10 +66,8 @@ This method uses a variational EM algorithm to estimate scores and principal com
 binary functional data.
 }
 \examples{
-\dontrun{
 Y = simulate_functional_data()$Y
 bfpca_object = bfpca(Y, npc = 2, print.iter = TRUE)
-}
 
 }
 \references{

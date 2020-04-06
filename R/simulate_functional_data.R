@@ -1,4 +1,3 @@
-#' 
 #' Simulate mean
 #' 
 #' This function generates mean for simulated functional data.
@@ -10,7 +9,6 @@ mean_sim = function(grid){
 }
 
 
-#' 
 #' Simulate PC1
 #' 
 #' This function generates the first principal component for simulated functional data.
@@ -22,7 +20,6 @@ psi1_sim = function(grid){
 }
 
 
-#' 
 #' Simulate PC2
 #' 
 #' This function generates the second principal component for simulated functional data.
@@ -34,7 +31,6 @@ psi2_sim = function(grid){
 }
 
 
-#' 
 #' Simulate functional data
 #' 
 #' This function simulates functional data. The data it outputs is generated from a mean function
@@ -46,7 +42,7 @@ psi2_sim = function(grid){
 #' @param lambda2 Standard deviation for PC2 scores.
 #' @param I Number of subjects. Defaults is 50.
 #' @param D Number of grid points per subject. Default is 100.
-#' @param seed Seed for reprodicibility. Default is 1988.
+#' @param seed Seed for reproducibility. Default is 1988.
 #' @param vary_D Indicates if grid length vary by subject. If FALSE all subjects have grid length D.
 #' 
 #' @author Julia Wrobel \email{jw3134@@cumc.columbia.edu}
@@ -62,6 +58,12 @@ psi2_sim = function(grid){
 #' \item{psi2}{True values for second principal component.}
 #' \item{alpha}{True values for population-level mean.}
 #' @export
+#'
+#' @return A list containing:
+#' \item{Y}{A dataframe of simulated data.}
+#' \item{psi1}{The first simulated eigenfunction.}
+#' \item{psi2}{The second simulated eigenfunction.}
+#' \item{alpha}{The population mean.}
 #'
 simulate_functional_data = function(lambda1 = 2, lambda2 = 1, I = 50, D = 100, seed = 1988,
 																		vary_D = FALSE){

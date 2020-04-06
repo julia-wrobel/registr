@@ -8,7 +8,11 @@
 #' @param t_max Maximum value to be evaluated on the time domain. 
 #' @param warping If \code{nonparametric} (default), inverse warping functions are estimated nonparametrically. 
 #' If \code{piecewise_linear2} they follow a piecewise linear function with 2 knots.
-
+#' 
+#' @return An list containing:
+#' \item{ui}{A constraint matrix.}
+#' \item{ci}{A constraint vector.}
+#' 
 #' @export
 constraints = function(Kh, t_min = 0, t_max = 1, warping = "nonparametric"){
 	if(warping == "nonparametric"){

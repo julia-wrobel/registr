@@ -44,8 +44,20 @@
 #' @importFrom pbs pbs
 #' 
 #' @examples
-#' 
-#' \dontrun{
+#' Y = simulate_unregistered_curves()
+#' register_step = registr(obj = NULL, Y = Y, Kt = 6, Kh = 3, family = "binomial", 
+#'    gradient = TRUE)
+#' testthat::expect_error({
+#' registr(obj = list(Y = Y), Kt = 6, Kh = 3, family = "binomial", 
+#'    gradient = TRUE)
+#' })
+#' testthat::expect_error({
+#' registr(obj = NULL, Y = Y, Kt = 2, Kh = 3)
+#' })
+#' testthat::expect_error({
+#' registr(obj = NULL, Y = Y, Kt = 6, Kh = 2)
+#' })
+#' \donttest{
 #' Y = simulate_unregistered_curves()
 #' register_step = registr(obj = NULL, Y = Y, Kt = 6, Kh = 3, family = "binomial", 
 #'    gradient = TRUE)
@@ -55,7 +67,10 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
 									 beta = NULL, t_min = NULL, t_max = NULL, row_obj = NULL,
 									 periodic = FALSE, warping = "nonparametric", ...){
 	
-  if(is.null(Y)) { Y = obj$Y}
+  if(is.null(Y)) { 
+  	Y = obj$Y
+  }
+	
 	if(is.null(obj)) { 
 		if(warping == "nonparametric"){
 			Y$tstar = Y$index
@@ -68,20 +83,20 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
 		}
 	}
   
-  if(is.null(row_obj)){
-    data = data_clean(Y)
-    Y = data$Y
-    rows = data$Y_rows
-    I = data$I
-  }else{
-    rows = row_obj
-    I = dim(rows)[1]
-  }
+	if (is.null(row_obj)) {
+		data = data_clean(Y)
+		Y = data$Y
+		rows = data$Y_rows
+		I = data$I
+	} else{
+		rows = row_obj
+		I = nrow(rows)
+	}
 	
-	if(Kh < 3){
+	if (Kh < 3) {
 		stop("Kh must be greater than or equal to 3.")
 	}
-	if(Kt < 3){
+	if (Kt < 3) {
 		stop("Kt must be greater than or equal to 3.")
 	}
 	
@@ -104,7 +119,7 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
   if (is.null(t_max)) {t_max = max(tstar)}
   Theta_h = bs(tstar, df = Kh, intercept = FALSE)
   
-  if(is.null(obj)){
+  if (is.null(obj)) {
     # define population mean
   	if(periodic){
   		# if periodic, then we want more global knots, because the resulting object from pbs 
@@ -119,7 +134,9 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
   	} 
 
     mean_coefs = coef(glm(Y$value ~ 0 + basis, family = family))
-  }else{
+    rm(basis)
+  } else {
+  	# stopifnot(!all(c("knots", "subject_coefs") %in% names(obj)))
     global_knots = obj$knots
     mean_coefs = obj$subject_coefs
   }
@@ -162,7 +179,7 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
   													 periodic = periodic, Kt = Kt, warping = warping, ...)
   	
   	beta_new[,i] = beta_optim$par
-    	
+
     if(warping == "nonparametric"){
     	beta_full_i = c(t_min, 	beta_new[,i], t_max)
     	t_hat[subject_rows] = cbind(1, Theta_h_i) %*% beta_full_i

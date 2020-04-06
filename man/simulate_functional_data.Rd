@@ -22,7 +22,7 @@ simulate_functional_data(
 
 \item{D}{Number of grid points per subject. Default is 100.}
 
-\item{seed}{Seed for reprodicibility. Default is 1988.}
+\item{seed}{Seed for reproducibility. Default is 1988.}
 
 \item{vary_D}{Indicates if grid length vary by subject. If FALSE all subjects have grid length D.}
 }
@@ -32,6 +32,12 @@ A list containing:
 \item{psi1}{True values for first principal component.}
 \item{psi2}{True values for second principal component.}
 \item{alpha}{True values for population-level mean.}
+
+A list containing:
+\item{Y}{A dataframe of simulated data.}
+\item{psi1}{The first simulated eigenfunction.}
+\item{psi2}{The second simulated eigenfunction.}
+\item{alpha}{The population mean.}
 }
 \description{
 This function simulates functional data. The data it outputs is generated from a mean function

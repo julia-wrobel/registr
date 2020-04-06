@@ -16,6 +16,11 @@ constraints(Kh, t_min = 0, t_max = 1, warping = "nonparametric")
 \item{warping}{If \code{nonparametric} (default), inverse warping functions are estimated nonparametrically. 
 If \code{piecewise_linear2} they follow a piecewise linear function with 2 knots.}
 }
+\value{
+An list containing:
+\item{ui}{A constraint matrix.}
+\item{ci}{A constraint vector.}
+}
 \description{
 Constraints ensure monotonicity of spline coefficients for warping functions 
 for use with \code{constrOptim()} function.
