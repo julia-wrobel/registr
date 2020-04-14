@@ -3,26 +3,17 @@
 #' This function generates mean for simulated accelerometer data.
 #' 
 #' @param grid Grid of x values over which to evaluate the function.
-#' @param period Controls the period of the mean curve
-#' @param spline_based If FALSE curve is constructed using sine and cosine functions,
-#' if TRUE, curve is constructed using B-spline basis.
 #' 
 #' @return A numeric vector.
 #' 
-mean_curve = function(grid, period = 2*pi, spline_based = FALSE) {
-	if(spline_based){
-		
-		# define mean on evenly spaced grid and return interpolation for subject grid
-		tstar = seq(0, 1, length.out = length(grid))
-		BS = splines::bs(tstar, df = 9, intercept = TRUE, degree = 3)
-		coefs = c(-2, -2, -1, 3, 1, -3, 2, 2 , -2)
-		mean = (BS %*% coefs)
-		
-		approx(tstar, mean, xout = grid)$y
-		
-	}else{
-		-1.5 * (sin(period*grid) + cos(2*pi*grid) )  
-	}
+mean_curve = function(grid) {
+	# define mean on evenly spaced grid and return interpolation for subject grid
+	tstar = seq(0, 1, length.out = length(grid))
+	BS = splines::bs(tstar, df = 9, intercept = TRUE, degree = 3)
+	coefs = c(-2, -2, -1, 3, 1, -3, 2, 2 , -2)
+	mean = (BS %*% coefs)
+	
+	approx(tstar, mean, xout = grid)$y
 }
 
 #' Simulate amplitude variance
@@ -32,24 +23,15 @@ mean_curve = function(grid, period = 2*pi, spline_based = FALSE) {
 #' @importFrom stats approx
 #' 
 #' @param grid Grid of x values over which to evaluate the function.
-#' @param period Controls the period of the mean curve
-#' @param spline_based If FALSE curve is constructed using sine and cosine functions,
-#' if TRUE, curve is constructed using B-spline basis.
 #' 
 #' @return A numeric vector.
-amp_curve = function(grid, period = 2*pi, spline_based = FALSE) {
-	if(spline_based) {
-
-		tstar = seq(0, 1, length.out = length(grid))		
-		BS = splines::bs(tstar, df = 9, intercept = TRUE, degree = 3)
-		amp_coefs = c(0, 0, 0, 0.5, 0.5, 0, -0.5, -0.5, 0)
-		amp = (BS %*% amp_coefs)
-		
-		approx(tstar, amp, xout = grid)$y
-		
-	}else{
-		-(sin(2*pi*grid) + cos(period*grid) )  / sqrt(322)
-	}
+amp_curve = function(grid) {
+	tstar = seq(0, 1, length.out = length(grid))		
+	BS = splines::bs(tstar, df = 9, intercept = TRUE, degree = 3)
+	amp_coefs = c(.1, .1, .1, 0.5, 0.5, 0, -0.5, -0.5, .05)
+	amp = (BS %*% amp_coefs)
+	
+	approx(tstar, amp, xout = grid)$y
 }
 
 #' Generate subject-specific grid (t_star)
@@ -77,9 +59,6 @@ grid_subj_create = function(coefs, D) {
 #' @param D Number of grid points per subject. Default is 100.
 #' @param lambda Standard deviation for subject-specific amplitudes.
 #' @param seed Seed for reproducibility. Default is 1988.
-#' @param period Controls the period of the mean curve
-#' @param spline_based If FALSE curve is constructed using sine and cosine functions,
-#' if TRUE, curve is constructed using B-spline basis.
 #' @param phase_variation If TRUE, creates phase variation 
 #' (registered curves are observed on uneven grid). If FALSE, no phase variation.
 #' 
@@ -92,8 +71,7 @@ grid_subj_create = function(coefs, D) {
 #' on which curves are unregistered and t is the domain on which curves are registered.
 #' @export
 #'
-simulate_unregistered_curves = function(I = 50, D = 100, lambda = 15, seed = 1988,
-																				period = 2 * pi, spline_based = FALSE, 
+simulate_unregistered_curves = function(I = 50, D = 100, lambda = 1, seed = 1988,
 																				phase_variation = TRUE) {
 	
 	## NULLify global values called by tidyverse functions
@@ -115,14 +93,11 @@ simulate_unregistered_curves = function(I = 50, D = 100, lambda = 15, seed = 198
 		}else{
 			t_subj[i,] =  grid
 		}
-		Yi_latent[i,] = mean_curve(grid = t_subj[i,], 
-															 period = period, spline_based = spline_based) + 
-			c_true[i] * amp_curve(grid = t_subj[i,], 
-														period = period, spline_based = spline_based)
+		Yi_latent[i,] = mean_curve(grid = t_subj[i,]) + 
+			c_true[i] * amp_curve(grid = t_subj[i,])
 		pi_true[i,] = plogis(Yi_latent[i,])
-		Yi_regis.true[i,] = mean_curve(grid = grid, 
-																	 period = period, spline_based = spline_based) + 
-			c_true[i] * amp_curve(grid = grid, period = period, spline_based = spline_based)
+		Yi_regis.true[i,] = mean_curve(grid = grid) + 
+			c_true[i] * amp_curve(grid = grid)
 		for (j in 1:D) {
 			Yi_obs[i,j] = rbinom(1, 1, pi_true[i,j])
 		}
@@ -130,6 +105,8 @@ simulate_unregistered_curves = function(I = 50, D = 100, lambda = 15, seed = 198
 	
 	t_vec = as.vector(t(t_subj))
 	tstar_vec = rep(grid, I)
+	#subject = rep(1:I, each = D * 4)
+	#visit = rep(rep(1:4, each = D), I)
 	subject = rep(1:I, each = D)
 	
 	simulated_data = data.frame(
@@ -139,6 +116,8 @@ simulate_unregistered_curves = function(I = 50, D = 100, lambda = 15, seed = 198
 		latent_mean = as.vector(t(Yi_latent)),
 		t = t_vec
 	)
+	
+
 	
 	simulated_data
 }

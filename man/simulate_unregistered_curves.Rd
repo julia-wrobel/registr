@@ -7,10 +7,8 @@
 simulate_unregistered_curves(
   I = 50,
   D = 100,
-  lambda = 15,
+  lambda = 1,
   seed = 1988,
-  period = 2 * pi,
-  spline_based = FALSE,
   phase_variation = TRUE
 )
 }
@@ -22,11 +20,6 @@ simulate_unregistered_curves(
 \item{lambda}{Standard deviation for subject-specific amplitudes.}
 
 \item{seed}{Seed for reproducibility. Default is 1988.}
-
-\item{period}{Controls the period of the mean curve}
-
-\item{spline_based}{If FALSE curve is constructed using sine and cosine functions,
-if TRUE, curve is constructed using B-spline basis.}
 
 \item{phase_variation}{If TRUE, creates phase variation 
 (registered curves are observed on uneven grid). If FALSE, no phase variation.}

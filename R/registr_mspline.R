@@ -60,9 +60,9 @@
 #'    gradient = TRUE)
 #' }
 #'
-registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gradient = TRUE,
+registr_mspline = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gradient = TRUE,
 									 beta = NULL, t_min = NULL, t_max = NULL, row_obj = NULL,
-									 parametric_warps = FALSE, ...){
+									 parametric_warps = FALSE, mono = FALSE, ...){
   
 	if (is.null(Y)) {
 		Y = obj$Y
@@ -92,14 +92,19 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
 		stop("Kt must be greater than or equal to 3.")
 	}
   
-	#tstar = Y$tstar
-  #if (is.null(t_min)) {t_min = min(tstar)}
-  #if (is.null(t_max)) {t_max = max(tstar)}
-	 tstar = Y %>% group_by(id) %>%
-	 	mutate(tstar = tstar/max(tstar)) %>% pull(tstar)
-	t_min = 0
-	t_max  = 1
-  Theta_h = bs(tstar, df = Kh, intercept = FALSE) ## fix??
+	tstar = Y$tstar
+  if (is.null(t_min)) {t_min = min(tstar)}
+  if (is.null(t_max)) {t_max = max(tstar)}
+  
+	if(mono){
+		Theta_h = splines2::iSpline(tstar, df = Kh, intercept = FALSE)
+		lower_beta = 0
+		upper_beta = Inf
+  }else{
+  	Theta_h = bs(tstar, df = Kh, intercept = FALSE)
+  	lower_beta = 0
+  	upper_beta = 1
+  }
   
   if (is.null(obj)) {
     # define population mean
@@ -147,56 +152,33 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
     if (is.null(obj)) {mean_coefs_i = mean_coefs} else {mean_coefs_i = mean_coefs[, i]}
     if (gradient) {gradf = loss_h_gradient} else {gradf = NULL}
     
-    if (parametric_warps == "beta_cdf") {
-    	beta_optim = optim(beta_i, loss_h, Y = Yi, Theta_h = Theta_h_i,
-    														 mean_coefs = mean_coefs_i,knots = global_knots,
-    														 family = family, t_min = t_min, t_max = t_max,
-    														 parametric_warps = parametric_warps, lower = 0.001, 
-    										 upper = 5,
-    										 method = "L-BFGS-B")
-    	
-    	beta_new[,i] = beta_optim$par
-    	t_hat[subject_rows] = pbeta(seq(t_min, t_max, length.out = Di), 
-    															beta_new[1, i], beta_new[2, i])
     
-    } else if (parametric_warps == "piecewise") {
-    	## these are not ideal endpoints.
-    	beta_optim = constrOptim(beta_i, loss_h, grad = gradf, ui = ui, ci = ci, Y = Yi, 
-    													 Theta_h = Theta_h_i, mean_coefs = mean_coefs_i, 
-    													 knots = global_knots,
-    													 parametric_warps = parametric_warps, 
-    													 family = family, t_min = t_min, t_max = t_max)
-    	
-    	# beta_optim = optim(beta_i, loss_h, Y = Yi, Theta_h = Theta_h_i,
-    	# 									 mean_coefs = mean_coefs_i,knots = global_knots,
-    	# 									 family = family, t_min = t_min, t_max = t_max,
-    	# 									 parametric_warps = parametric_warps, 
-    	# 									 lower = c(0.01, 0.11), 
-    	# 									 upper = c(10, 0.99),
-    	# 									 method = "L-BFGS-B")
-    	
-    	beta_new[,i] = beta_optim$par
-    	t_hat[subject_rows] = piecewise_parametric_hinv(seq(0, t_max, length.out = Di),
-    																									beta_new[1, i], beta_new[2, i])
-    	
-    } else {
-    	beta_optim = constrOptim(beta_i, loss_h, grad = gradf, ui = ui, ci = ci, 
-    													 Y = Yi, 
-    													 Theta_h = Theta_h_i, mean_coefs = mean_coefs_i, 
-    													 knots = global_knots,
-    													 family = family, t_min = t_min, t_max = t_max)
-    	
-    	
-    	beta_new[,i] = beta_optim$par
-    	
+    beta_optim = optim(beta_i, loss_h_mspline, 
+    												 Y = Yi, 
+    									 method = "L-BFGS-B",
+    												 Theta_h = Theta_h_i, mean_coefs = mean_coefs_i, 
+    												 knots = global_knots, 
+    												 family = family, t_min = t_min, t_max = t_max,
+    									 lower = lower_beta,
+    									 upper = upper_beta) # need nonnegative coefs for isplines
+    
+    beta_new[,i] = beta_optim$par	
+    
+    
+    if(mono){
+    	beta_full_i = c(t_min, 	beta_new[,i], t_max)/sum(c(t_min, 	beta_new[,i], t_max))
+    }else{
     	beta_full_i = c(t_min, 	beta_new[,i], t_max)
-    	t_hat[subject_rows] = cbind(1, Theta_h_i) %*% beta_full_i
     }
+    
+    
+    
+    t_hat[subject_rows] = cbind(1, Theta_h_i) %*% beta_full_i
     
     
     loss_subjects[i] = beta_optim$value
   }
   Y$index = t_hat
 	Y$tstar = tstar
-  return(list(Y = Y, loss = sum(loss_subjects), beta = beta_new, t_max = t_max)) 
+  return(list(Y = Y, loss = sum(loss_subjects), beta = beta_new)) 
 } 

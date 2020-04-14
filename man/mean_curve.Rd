@@ -4,15 +4,10 @@
 \alias{mean_curve}
 \title{Simulate mean curve}
 \usage{
-mean_curve(grid, period = 2 * pi, spline_based = FALSE)
+mean_curve(grid)
 }
 \arguments{
 \item{grid}{Grid of x values over which to evaluate the function.}
-
-\item{period}{Controls the period of the mean curve}
-
-\item{spline_based}{If FALSE curve is constructed using sine and cosine functions,
-if TRUE, curve is constructed using B-spline basis.}
 }
 \value{
 A numeric vector.
