@@ -71,6 +71,5 @@ Tipping, M. E. and Bishop, C (1999). Probabilistic Principal Component Analysis.
 }
 \author{
 Julia Wrobel \email{jw3134@cumc.columbia.edu},
-Jeff Goldsmith \email{ajg2202@cumc.columbia.edu},
-Erin McDonnell \email{eim2117@cumc.columbia.edu}
+Jeff Goldsmith \email{ajg2202@cumc.columbia.edu}
 }
