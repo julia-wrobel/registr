@@ -40,20 +40,6 @@ test_that("register_fpca output is a list with non-null items and class registra
 	
 })
 
-test_that("register_fpca function priors must be specified only when warping = piecewise_linear2 and family = binomial",{
-	Y = simulate_unregistered_curves()
-	data = data_clean(Y)
-	Y = data$Y
-	
-	expect_error(register_fpca(Y = Y, family = "binomial", warping = "nonparametric",
-														 prior_sd = 1),
-							 "'prior' arguments are only available for warping = piecewise_linear2")
-	
-	expect_error(register_fpca(Y = Y, family = "gaussian", warping = "piecewise_linear2",
-														 gradient = FALSE, prior_sd = 1),
-							 "'prior' arguments are only available for family = binomial")
-})
-
 test_that("register_fpca function forces gradient = FALSE when using warping = piecewise_linear2 or periodic = TRUE",{
 	Y = simulate_unregistered_curves()
 	data = data_clean(Y)
@@ -63,6 +49,20 @@ test_that("register_fpca function forces gradient = FALSE when using warping = p
 								 "gradient = TRUE is only available for warping = nonparametric. Setting gradient = FALSE.")
 	expect_warning(register_fpca(Y, family = "binomial",  periodic = TRUE, gradient = TRUE), 
 								 "gradient = TRUE is only available for periodic = FALSE. Setting gradient = FALSE.")
+})
+
+test_that("register_fpca function priors must be specified only when warping = piecewise_linear2 and family = binomial",{
+	Y = simulate_unregistered_curves()
+	data = data_clean(Y)
+	Y = data$Y
+	
+	expect_error(register_fpca(Y = Y, family = "binomial", warping = "nonparametric",
+														 prior_sd = 1),
+							 "priors are only available for warping = piecewise_linear2")
+	
+	expect_error(register_fpca(Y = Y, family = "gaussian", warping = "piecewise_linear2",
+														 gradient = FALSE, prior_sd = 1),
+							 "priors are only available for family = binomial")
 })
 
 test_that("register_fpca function with priors on the piecewise_linear2 warping functions works as expected",{

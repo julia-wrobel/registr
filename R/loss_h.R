@@ -37,17 +37,14 @@
 loss_h = function(Y, Theta_h, mean_coefs, knots, beta.inner, family, t_min, t_max, 
 									periodic = FALSE, Kt = 8, warping = "nonparametric", 
 									prior_1_x = 0.25, prior_1_y = 0.25, prior_2_x = 0.75, prior_2_y = 0.75,
-									prior_sd = Inf){
+									prior_sd = NULL){
 	
-	if(warping != "piecewise_linear2" & prior_sd != Inf){
+	if(warping != "piecewise_linear2" & !is.null(prior_sd)){
 		stop("priors are only available for warping = piecewise_linear2")
 	}
-	if(family != "binomial" & prior_sd != Inf){
+	if(family != "binomial" & !is.null(prior_sd)){
 		stop("priors are only available for family = binomial")
 	}
-	if(warping == "piecewise_linear2" & family == "binomial" & prior_sd == Inf){
-		message("Note: Priors will not be included for the piecewise linear warping function knots (prior_sd = Inf).")
-	}	
 
 	if(warping == "nonparametric"){
   	beta = c(t_min, beta.inner, t_max)
@@ -76,12 +73,11 @@ loss_h = function(Y, Theta_h, mean_coefs, knots, beta.inner, family, t_min, t_ma
   }
 
   # Add prior distributions on the knot locations as needed
-	if(warping == "piecewise_linear2"){
-		loss = loss - 
-			log(dnorm(x = beta.inner[1], mean = prior_1_x, sd = prior_sd)) - 
-			log(dnorm(x = beta.inner[2], mean = prior_1_y, sd = prior_sd)) - 
-			log(dnorm(x = beta.inner[3], mean = prior_2_x, sd = prior_sd)) - 
-			log(dnorm(x = beta.inner[4], mean = prior_2_y, sd = prior_sd))
+	if(warping == "piecewise_linear2" & !is.null(prior_sd)){
+		if(!is.null(prior_1_x)){ loss = loss - log(dnorm(x = beta.inner[1], mean = prior_1_x, sd = prior_sd)) }
+		if(!is.null(prior_1_y)){ loss = loss - log(dnorm(x = beta.inner[2], mean = prior_1_y, sd = prior_sd)) }
+		if(!is.null(prior_2_x)){ loss = loss - log(dnorm(x = beta.inner[3], mean = prior_2_x, sd = prior_sd)) }
+		if(!is.null(prior_2_y)){ loss = loss - log(dnorm(x = beta.inner[4], mean = prior_2_y, sd = prior_sd)) }
 	}
   return(loss)
 }

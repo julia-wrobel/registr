@@ -20,7 +20,7 @@ loss_h(
   prior_1_y = 0.25,
   prior_2_x = 0.75,
   prior_2_y = 0.75,
-  prior_sd = Inf
+  prior_sd = NULL
 )
 }
 \arguments{
