@@ -16,10 +16,11 @@ loss_h(
   periodic = FALSE,
   Kt = 8,
   warping = "nonparametric",
-  prior_1_x_mean_sd = NULL,
-  prior_1_y_mean_sd = NULL,
-  prior_2_x_mean_sd = NULL,
-  prior_2_y_mean_sd = NULL
+  prior_1_x = 0.25,
+  prior_1_y = 0.25,
+  prior_2_x = 0.75,
+  prior_2_y = 0.75,
+  prior_sd = Inf
 )
 }
 \arguments{
@@ -46,17 +47,19 @@ loss_h(
 \item{warping}{If \code{nonparametric} (default), inverse warping functions are estimated nonparametrically. 
 If \code{piecewise_linear2} they follow a piecewise linear function with 2 knots.}
 
-\item{prior_1_x_mean_sd}{For \code{warping = "piecewise_linear2"} only. Optional vector of length 2 to 
-specify a prior mean and sd, respectively, for a Normal distribution prior on the first knot's x location.}
+\item{prior_1_x}{For \code{warping = "piecewise_linear2"} only. Optional mean for a Normal distribution prior on the first knot's x location. 
+Default prior means are on the identity line. To use these priors, users must specify a value for `prior_sd`.}
 
-\item{prior_1_y_mean_sd}{For \code{warping = "piecewise_linear2"} only. Optional vector of length 2 to 
-specify a prior mean and sd, respectively, for a Normal distribution prior on the first knot's y location.}
+\item{prior_1_y}{For \code{warping = "piecewise_linear2"} only. Optional mean for a Normal distribution prior on the first knot's y location. 
+Default prior means are on the identity line. To use these priors, users must specify a value for `prior_sd`.}
 
-\item{prior_2_x_mean_sd}{For \code{warping = "piecewise_linear2"} only. Optional vector of length 2 to 
-specify a prior mean and sd, respectively, for a Normal distribution prior on the second knot's x location.}
+\item{prior_2_x}{For \code{warping = "piecewise_linear2"} only. Optional mean for a Normal distribution prior on the second knot's x location. 
+Default prior means are on the identity line. To use these priors, users must specify a value for `prior_sd`.}
 
-\item{prior_2_y_mean_sd}{For \code{warping = "piecewise_linear2"} only. Optional vector of length 2 to 
-specify a prior mean and sd, respectively, for a Normal distribution prior on the second knot's y location.}
+\item{prior_2_y}{For \code{warping = "piecewise_linear2"} only. Optional mean for a Normal distribution prior on the second knot's y location. 
+Default prior means are on the identity line. To use these priors, users must specify a value for `prior_sd`.}
+
+\item{prior_sd}{For \code{warping = "piecewise_linear2"} only. Optional sd to apply to all 4 Normal priors. Default is `prior_sd = Inf` (no priors).}
 }
 \value{
 The scalar value taken by the loss function.
