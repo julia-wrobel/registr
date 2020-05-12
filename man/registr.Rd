@@ -73,21 +73,15 @@ respectively.
 }
 \examples{
 Y = simulate_unregistered_curves()
-register_step = registr(obj = NULL, Y = Y, Kt = 6, Kh = 3, family = "binomial", 
+register_step = registr(obj = NULL, Y = Y, Kt = 6, Kh = 4, family = "binomial", 
    gradient = TRUE)
 testthat::expect_error({
-registr(obj = list(Y = Y), Kt = 6, Kh = 3, family = "binomial", 
+registr(obj = list(Y = Y), Kt = 6, Kh = 4, family = "binomial", 
    gradient = TRUE)
-})
-testthat::expect_error({
-registr(obj = NULL, Y = Y, Kt = 2, Kh = 3)
-})
-testthat::expect_error({
-registr(obj = NULL, Y = Y, Kt = 6, Kh = 2)
 })
 \donttest{
 Y = simulate_unregistered_curves()
-register_step = registr(obj = NULL, Y = Y, Kt = 6, Kh = 3, family = "binomial", 
+register_step = registr(obj = NULL, Y = Y, Kt = 6, Kh = 4, family = "binomial", 
    gradient = TRUE)
 }
 

@@ -20,14 +20,18 @@ constraints = function(Kh, t_min = 0, t_max = 1, parametric_warps = FALSE){
 		ui = matrix(c(1,-1,0,0,0,0,1,-1), 4, 2)
 		ci = c(-25, -25, 0, -0.99)
 	}else{
-		ui = matrix(0, nrow = Kh , ncol = Kh - 1) 
-		ui[1,1] = 1; ui[Kh, Kh - 1] = -1
-		for(i in 2:(Kh-1)){ ui[i, (i-1):i] = c(-1,1)  }
-		
-		ci = rep(0, Kh)
+		ui = matrix(0, nrow = Kh -1 , ncol = Kh - 2) 
+		ui[1,1] = 1; 
+		ui[Kh-1, Kh - 2] = -1
+		if(Kh > 3){
+			for(i in 2:(Kh-2)){ 
+				ui[i, (i-1):i] = c(-1,1)  
+			}
+		}
+		ci = rep(0, Kh-1)
 		
 		ci[1] = t_min  
-		ci[Kh] = -t_max 
+		ci[Kh-1] = -t_max 
 	}
   return(list(ui = ui, ci = ci))
 }

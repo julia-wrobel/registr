@@ -35,7 +35,8 @@ loss_h = function(Y, Theta_h, mean_coefs, knots, beta.inner, family, t_min, t_ma
   	
   }else{
   	beta = c(t_min, beta.inner, t_max)
-  	hinv_tstar = cbind(1, Theta_h) %*% beta
+  	#hinv_tstar = cbind(1, Theta_h) %*% beta
+  	hinv_tstar = Theta_h %*% beta ## changed
   }
   
   Theta_phi = bs(hinv_tstar, knots = knots, intercept = TRUE)

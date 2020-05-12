@@ -4,7 +4,8 @@
 \name{nhanes}
 \alias{nhanes}
 \title{NHANES activity data}
-\format{A dataframe made up of \describe{
+\format{
+A dataframe made up of \describe{
  \item{id}{A unique subject identifier;}
  \item{age}{Age of survey participant;}
  \item{gender}{Gender of survey participant;}
@@ -12,7 +13,8 @@
  from midnight to midnight;}
  \item{value}{Binary value of zero or one indicating inactivity or activity;}
  \item{raw_activity}{Raw activity count.}
-}}
+}
+}
 \usage{
 data(nhanes)
 }
