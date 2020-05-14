@@ -63,10 +63,6 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
 	}
 	if (is.null(obj)) {
 		Y$tstar = Y$index
-		# scale time to 0, 1 for parametric warping
-		if (!(parametric_warps == FALSE)) {
-			Y$tstar = Y$index_scaled
-		}
 	}
   
 	if (is.null(row_obj)) {
@@ -95,7 +91,7 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
     # define population mean
     global_knots = quantile(tstar, probs = seq(0, 1, length = Kt - 2))[-c(1, Kt - 2)]
     basis = bs(c(t_min, t_max, tstar), knots = global_knots, intercept = TRUE)[-(1:2),]
-    mean_coefs = coef(glm(Y$value ~ 0 + basis, family = family))
+    mean_coefs = coef(glm(Y$value ~ 0 + basis, family = family))                      
     rm(basis)
   } else {
   	# stopifnot(!all(c("knots", "subject_coefs") %in% names(obj)))
@@ -114,15 +110,6 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
   
   beta_new = matrix(NA, Kh - 2, I) 
   beta_0 = seq(t_min, t_max, length.out = Kh)[-c(1, Kh)] 
-  if (!(parametric_warps == FALSE)) {
-  	beta_new = matrix(NA, 2, I)
-  	rownames(beta_new) = c("a", "b")
-  	beta_0 = c(1, 1)
-  	if (parametric_warps == "piecewise") {
-  		beta_0 = c(.1, 0.5)
-  		rownames(beta_new) = c("beta", "midpoint_percentile")
-  	}
-  }
 	
   for (i in 1:I) {
     
@@ -137,52 +124,24 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
     if (is.null(obj)) {mean_coefs_i = mean_coefs} else {mean_coefs_i = mean_coefs[, i]}
     if (gradient) {gradf = loss_h_gradient} else {gradf = NULL}
     
-    if (parametric_warps == "beta_cdf") {
-    	beta_optim = optim(beta_i, loss_h, Y = Yi, Theta_h = Theta_h_i,
-    														 mean_coefs = mean_coefs_i,knots = global_knots,
-    														 family = family, t_min = t_min, t_max = t_max,
-    														 parametric_warps = parametric_warps, lower = 0.001, 
-    										 upper = 5,
-    										 method = "L-BFGS-B")
-    	
-    	beta_new[,i] = beta_optim$par
-    	t_hat[subject_rows] = pbeta(seq(t_min, t_max, length.out = Di), 
-    															beta_new[1, i], beta_new[2, i])
-    
-    } else if (parametric_warps == "piecewise") {
-    	## these are not ideal endpoints.
-    	beta_optim = constrOptim(beta_i, loss_h, grad = gradf, ui = ui, ci = ci, Y = Yi, 
+    if(parametric_warps == "monotone_prior"){
+    	beta_optim = optim(beta_i, loss_h, gr = gradf, Y = Yi, 
     													 Theta_h = Theta_h_i, mean_coefs = mean_coefs_i, 
     													 knots = global_knots,
-    													 parametric_warps = parametric_warps, 
-    													 family = family, t_min = t_min, t_max = t_max)
-    	
-    	# beta_optim = optim(beta_i, loss_h, Y = Yi, Theta_h = Theta_h_i,
-    	# 									 mean_coefs = mean_coefs_i,knots = global_knots,
-    	# 									 family = family, t_min = t_min, t_max = t_max,
-    	# 									 parametric_warps = parametric_warps, 
-    	# 									 lower = c(0.01, 0.11), 
-    	# 									 upper = c(10, 0.99),
-    	# 									 method = "L-BFGS-B")
-    	
-    	beta_new[,i] = beta_optim$par
-    	t_hat[subject_rows] = piecewise_parametric_hinv(seq(0, t_max, length.out = Di),
-    																									beta_new[1, i], beta_new[2, i])
-    	
-    } else {
+    													 family = family, t_min = t_min, t_max = t_max, ...)
+    }else{
     	beta_optim = constrOptim(beta_i, loss_h, grad = gradf, ui = ui, ci = ci, 
     													 Y = Yi, 
     													 Theta_h = Theta_h_i, mean_coefs = mean_coefs_i, 
     													 knots = global_knots,
-    													 family = family, t_min = t_min, t_max = t_max)
-    	
-    	
-    	beta_new[,i] = beta_optim$par
-    	
-    	beta_full_i = c(t_min, 	beta_new[,i], t_max)
-    	#t_hat[subject_rows] = cbind(1, Theta_h_i) %*% beta_full_i
-    	t_hat[subject_rows] = Theta_h_i %*% beta_full_i
+    													 family = family, t_min = t_min, t_max = t_max, ...)
     }
+    
+    
+    
+    beta_new[,i] = beta_optim$par
+    beta_full_i = c(t_min, 	beta_new[,i], t_max)
+    t_hat[subject_rows] = Theta_h_i %*% beta_full_i
     
     
     loss_subjects[i] = beta_optim$value

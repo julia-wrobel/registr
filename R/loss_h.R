@@ -19,33 +19,48 @@
 #'
 
 loss_h = function(Y, Theta_h, mean_coefs, knots, beta.inner, family, t_min, t_max, 
-									parametric_warps = FALSE){
+									parametric_warps = FALSE, prior_sd = NULL){
   
-  if(parametric_warps == "beta_cdf"){
-  	tstar = seq(0, 1, length.out = length(Y))
-  	hinv_tstar = pbeta(tstar, beta.inner[1], beta.inner[2])
-  	
-  	
-  }else if(parametric_warps == "piecewise"){
-  	# does not currently allow minimum values different from zero
-  	tstar = seq(0, t_max, length.out = length(Y))
-  	if(abs(beta.inner[1]) < 0.0001){beta.inner[1] = sign(beta.inner[1])*0.0001}
-  	
-  	hinv_tstar = piecewise_parametric_hinv(tstar, beta.inner[1], beta.inner[2])
-  	
-  }else{
-  	beta = c(t_min, beta.inner, t_max)
-  	#hinv_tstar = cbind(1, Theta_h) %*% beta
-  	hinv_tstar = Theta_h %*% beta ## changed
-  }
+  beta = c(t_min, beta.inner, t_max)
+  hinv_tstar = Theta_h %*% beta 
   
   Theta_phi = bs(hinv_tstar, knots = knots, intercept = TRUE)
   g_mu_t = Theta_phi %*% mean_coefs
   
+  
   if (family == "gaussian") {
-    return(sum((Y - g_mu_t) ^ 2))
+    
+    loss = sum((Y - g_mu_t) ^ 2)
+    #return(sum((Y - g_mu_t) ^ 2))
+    
   } else if (family == "binomial") {
     pi_h = plogis(g_mu_t)
-    return(-1 * sum(Y * log(pi_h) + (1 - Y) * log(1 - pi_h) ))
+    loss = -1 * sum(Y * log(pi_h) + (1 - Y) * log(1 - pi_h) )
+    #return(-1 * sum(Y * log(pi_h) + (1 - Y) * log(1 - pi_h) ))
   }
+  
+  if(parametric_warps == "monotone_prior"){
+    print("hi julia")
+    #loss = loss - (1- all(beta == cummax(beta))) * 100 # enforces monotonicity of spline coefficients
+  
+    Kh = length(beta)
+    #beta_prior = coef(lm(seq(t_min, t_max, length.out = length(Y)) ~ 0 + Theta_h))[-c(1, Kh)]
+    
+    for(k in 2:(Kh-1)){
+      is_mono = (beta[k-1] < beta[k] & beta[k] < beta[k + 1])
+      loss = loss - log(is_mono) # should be -Inf if out of bounds..
+    }
+    
+    #loss = loss - sum(dnorm(x = beta.inner, mean = beta_prior, sd = prior_sd, log = TRUE))  
+  }
+
+  if(!is.null(prior_sd)){
+    Kh = length(beta)
+    #beta_prior = seq(t_min, t_max, length.out = Kh)[-c(1, Kh)]
+    
+    beta_prior = coef(lm(seq(t_min, t_max, length.out = length(Y)) ~ 0 + Theta_h))[-c(1, Kh)]
+    loss = loss - sum(dnorm(x = beta.inner, mean = beta_prior, sd = prior_sd, log = TRUE))  
+  }
+
+  return(loss)
 }
