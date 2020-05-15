@@ -13,6 +13,7 @@ loss_h_gradient(
   family = "gaussian",
   t_min,
   t_max,
+  Kt = 8,
   periodic = FALSE,
   warping = "nonparametric"
 )
@@ -33,6 +34,8 @@ loss_h_gradient(
 \item{t_min}{minimum value to be evaluated on the time domain.}
 
 \item{t_max}{maximum value to be evaluated on the time domain.}
+
+\item{Kt}{Number of B-spline basis functions used to estimate mean functions. Default is 8.}
 
 \item{periodic}{If \code{TRUE}, uses periodic b-spline basis functions. Default is \code{FALSE}. 
 \code{loss_h_gradient()} is currently only available for \code{periodic = FALSE}.}
