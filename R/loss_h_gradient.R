@@ -36,8 +36,6 @@ loss_h_gradient = function(Y, Theta_h, mean_coefs, knots, beta.inner, family = "
 	Di = length(Y)
 	Kh = dim(Theta_h)[2]
   beta = c(t_min, beta.inner, t_max)
-
-  Theta_h = cbind(1, Theta_h)
   
   hinv_tstar = Theta_h %*% beta
   mean_coefs = matrix(mean_coefs, ncol = 1)
@@ -55,7 +53,7 @@ loss_h_gradient = function(Y, Theta_h, mean_coefs, knots, beta.inner, family = "
   	stop("Package currently handles only 'binomial' or 'gaussian' families.")
   }
   
-  gradient_mat = matrix(NA, Kh + 1, Di)
+  gradient_mat = matrix(NA, Kh, Di)
   for(j in 1:Di){
   	gradient_mat[, j] = (Y - b_g_deriv)[j] * (Theta_phi_deriv %*% mean_coefs)[j] * Theta_h[j,]
   }

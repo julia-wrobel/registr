@@ -45,21 +45,15 @@
 #' 
 #' @examples
 #' Y = simulate_unregistered_curves()
-#' register_step = registr(obj = NULL, Y = Y, Kt = 6, Kh = 3, family = "binomial", 
+#' register_step = registr(obj = NULL, Y = Y, Kt = 6, Kh = 4, family = "binomial", 
 #'    gradient = TRUE)
 #' testthat::expect_error({
-#' registr(obj = list(Y = Y), Kt = 6, Kh = 3, family = "binomial", 
+#' registr(obj = list(Y = Y), Kt = 6, Kh = 4, family = "binomial", 
 #'    gradient = TRUE)
-#' })
-#' testthat::expect_error({
-#' registr(obj = NULL, Y = Y, Kt = 2, Kh = 3)
-#' })
-#' testthat::expect_error({
-#' registr(obj = NULL, Y = Y, Kt = 6, Kh = 2)
 #' })
 #' \donttest{
 #' Y = simulate_unregistered_curves()
-#' register_step = registr(obj = NULL, Y = Y, Kt = 6, Kh = 3, family = "binomial", 
+#' register_step = registr(obj = NULL, Y = Y, Kt = 6, Kh = 4, family = "binomial", 
 #'    gradient = TRUE)
 #' }
 #'
@@ -93,11 +87,11 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
 		I = nrow(rows)
 	}
 	
-	if (Kh < 3) {
-		stop("Kh must be greater than or equal to 3.")
+	if (Kh < 4) {
+		stop("Kh must be greater than or equal to 4.")
 	}
-	if (Kt < 3) {
-		stop("Kt must be greater than or equal to 3.")
+	if (Kt < 4) {
+		stop("Kt must be greater than or equal to 4.")
 	}
 	
 	if(!(warping %in% c("nonparametric", "piecewise_linear2"))){
@@ -117,8 +111,8 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
 	tstar = Y$tstar
   if (is.null(t_min)) {t_min = min(tstar)}
   if (is.null(t_max)) {t_max = max(tstar)}
-  Theta_h = bs(tstar, df = Kh, intercept = FALSE)
-  
+  Theta_h = bs(tstar, df = Kh, intercept = TRUE) 
+
   if (is.null(obj)) {
     # define population mean
   	if(periodic){
@@ -151,8 +145,8 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
   loss_subjects = rep(NA, I)
   
   if(warping == "nonparametric"){
-	  beta_new = matrix(NA, Kh - 1, I)
-	  beta_0 = seq(t_min, t_max, length.out = Kh + 1)[-c(1, Kh + 1)]
+	  beta_new = matrix(NA, Kh - 2, I) 
+	  beta_0 = seq(t_min, t_max, length.out = Kh)[-c(1, Kh)] 
   } else if(warping == "piecewise_linear2"){
   	beta_new = matrix(NA, 4, I)
   	beta_0 = c(0.25, 0.3,  0.75, 0.8)
@@ -182,7 +176,8 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
 
     if(warping == "nonparametric"){
     	beta_full_i = c(t_min, 	beta_new[,i], t_max)
-    	t_hat[subject_rows] = cbind(1, Theta_h_i) %*% beta_full_i
+    	#t_hat[subject_rows] = cbind(1, Theta_h_i) %*% beta_full_i
+    	t_hat[subject_rows] = Theta_h_i %*% beta_full_i
     } else if(warping == "piecewise_linear2"){
     	t_hat[subject_rows] = piecewise_linear2_hinv(seq(0, t_max, length.out = Di),
     																							 beta_new[1, i], beta_new[2, i],

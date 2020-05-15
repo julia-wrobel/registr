@@ -48,7 +48,8 @@ loss_h = function(Y, Theta_h, mean_coefs, knots, beta.inner, family, t_min, t_ma
 
 	if(warping == "nonparametric"){
   	beta = c(t_min, beta.inner, t_max)
-  	hinv_tstar = cbind(1, Theta_h) %*% beta
+  	#hinv_tstar = cbind(1, Theta_h) %*% beta
+  	hinv_tstar = Theta_h %*% beta ## changed
 	} else if(warping == "piecewise_linear2"){
   	# does not currently allow minimum values different from zero
   	tstar = seq(0, t_max, length.out = length(Y))

@@ -126,7 +126,7 @@ function
 
 ``` r
 binary_registration = register_fpca(Y = registration_data, family = "binomial", 
-                                                                Kt = 6, Kh = 3, npc  = 1)
+                                                                Kt = 6, Kh = 4, npc  = 1)
 ## current iteration: 1
 ## current iteration: 2
 ## current iteration: 3
