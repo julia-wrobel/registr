@@ -44,8 +44,8 @@ if `NULL`, taken to be minimum observed value.}
 \item{t_max}{Maximum value to be evaluated on the time domain. 
 if `NULL`, taken to be maximum observed value.}
 
-\item{row_obj}{If NULL, the function cleans the data and calculates row 
-indices. Keep this NULL if you are using standalone \code{registr} function.}
+\item{row_obj}{If NULL, the function cleans the data and calculates row indices. 
+Keep this NULL if you are using standalone \code{registr} function.}
 
 \item{periodic}{If \code{TRUE}, uses periodic b-spline basis functions. Default is \code{FALSE}.}
 
