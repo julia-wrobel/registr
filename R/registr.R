@@ -23,8 +23,8 @@
 #' if `NULL`, taken to be minimum observed value.
 #' @param t_max Maximum value to be evaluated on the time domain. 
 #' if `NULL`, taken to be maximum observed value.
-#' @param row_obj If NULL, the function cleans the data and calculates row 
-#' indices. Keep this NULL if you are using standalone \code{registr} function.
+#' @param row_obj If NULL, the function cleans the data and calculates row indices. 
+#' Keep this NULL if you are using standalone \code{registr} function.
 #' @param periodic If \code{TRUE}, uses periodic b-spline basis functions. Default is \code{FALSE}.
 #' @param warping If \code{nonparametric} (default), inverse warping functions are estimated nonparametrically. 
 #' If \code{piecewise_linear2} they follow a piecewise linear function with 2 knots.
