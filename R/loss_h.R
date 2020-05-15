@@ -11,7 +11,6 @@
 #' @param warping If \code{nonparametric} (default), inverse warping functions are estimated nonparametrically. 
 #' If \code{piecewise_linear2} they follow a piecewise linear function with 2 knots.
 #' @param periodic If \code{TRUE} uses periodic b-spline basis functions. Default is \code{FALSE}.
-#' @param Kt Number of B-spline basis functions used to estimate mean functions. Default is 8.
 #' @param prior_1_x For \code{warping = "piecewise_linear2"} only. Optional mean for a Normal distribution prior on the first knot's x location. 
 #' Default prior means are on the identity line. To use these priors, users must specify a value for `prior_sd`. 
 #' @param prior_1_y For \code{warping = "piecewise_linear2"} only. Optional mean for a Normal distribution prior on the first knot's y location. 
@@ -35,7 +34,7 @@
 #'
 
 loss_h = function(Y, Theta_h, mean_coefs, knots, beta.inner, family, t_min, t_max, 
-									periodic = FALSE, Kt = 8, warping = "nonparametric", 
+									periodic = FALSE, warping = "nonparametric", 
 									prior_1_x = 0.25, prior_1_y = 0.25, prior_2_x = 0.75, prior_2_y = 0.75,
 									prior_sd = NULL){
 	
