@@ -1,4 +1,4 @@
-.DS_Store
+
 .Rproj.user
 .Rhistory
 .RData
@@ -8,4 +8,4 @@ src/*.gcno
 src/*.so
 src/*.o
 src/*.o.tmp
-.DS_Store
+*.DS_Store
