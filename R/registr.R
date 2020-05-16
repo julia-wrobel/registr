@@ -125,10 +125,15 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
     if (gradient) {gradf = loss_h_gradient} else {gradf = NULL}
     
     if(parametric_warps == "monotone_prior"){
-    	beta_optim = optim(beta_i, loss_h, gr = gradf, Y = Yi, 
-    													 Theta_h = Theta_h_i, mean_coefs = mean_coefs_i, 
-    													 knots = global_knots,
-    													 family = family, t_min = t_min, t_max = t_max, ...)
+    	beta_optim = optim(beta_i, loss_h, method = "BFGS",
+    										 gr = NULL, Y = Yi,
+    										 Theta_h = Theta_h_i, mean_coefs = mean_coefs_i,
+    										 knots = global_knots, family = family,
+    										 t_min = t_min, t_max = t_max,
+    										 parametric_warps = parametric_warps, ...)
+    	
+    	
+    	
     }else{
     	beta_optim = constrOptim(beta_i, loss_h, grad = gradf, ui = ui, ci = ci, 
     													 Y = Yi, 

@@ -19,7 +19,7 @@
 #'
 
 loss_h = function(Y, Theta_h, mean_coefs, knots, beta.inner, family, t_min, t_max, 
-									parametric_warps = FALSE, prior_sd = NULL){
+									parametric_warps = FALSE, has_beta_prior = FALSE, prior_sd = 1){
   
   beta = c(t_min, beta.inner, t_max)
   hinv_tstar = Theta_h %*% beta 
@@ -27,40 +27,30 @@ loss_h = function(Y, Theta_h, mean_coefs, knots, beta.inner, family, t_min, t_ma
   Theta_phi = bs(hinv_tstar, knots = knots, intercept = TRUE)
   g_mu_t = Theta_phi %*% mean_coefs
   
-  
   if (family == "gaussian") {
     
-    loss = sum((Y - g_mu_t) ^ 2)
+    loss = -1 * sum((Y - g_mu_t) ^ 2)
     #return(sum((Y - g_mu_t) ^ 2))
     
   } else if (family == "binomial") {
     pi_h = plogis(g_mu_t)
-    loss = -1 * sum(Y * log(pi_h) + (1 - Y) * log(1 - pi_h) )
+    loss =  sum(Y * log(pi_h) + (1 - Y) * log(1 - pi_h) )
     #return(-1 * sum(Y * log(pi_h) + (1 - Y) * log(1 - pi_h) ))
   }
   
   if(parametric_warps == "monotone_prior"){
-    print("hi julia")
-    #loss = loss - (1- all(beta == cummax(beta))) * 100 # enforces monotonicity of spline coefficients
-  
-    Kh = length(beta)
-    #beta_prior = coef(lm(seq(t_min, t_max, length.out = length(Y)) ~ 0 + Theta_h))[-c(1, Kh)]
+    is_monotonic = all(beta == cummax(beta))
+    loss = loss + log(is_monotonic) #+ priorlik 
     
-    for(k in 2:(Kh-1)){
-      is_mono = (beta[k-1] < beta[k] & beta[k] < beta[k + 1])
-      loss = loss - log(is_mono) # should be -Inf if out of bounds..
+    if(has_beta_prior){
+      Kh = length(beta)
+      beta_prior = coef(lm(seq(t_min, t_max, length.out = length(Y)) ~ 0 + Theta_h))[-c(1, Kh)]
+      priorlik = sum(dnorm(x = beta.inner, mean = beta_prior, sd = prior_sd, log = TRUE))  
+      loss = loss + priorlik
     }
-    
-    #loss = loss - sum(dnorm(x = beta.inner, mean = beta_prior, sd = prior_sd, log = TRUE))  
   }
 
-  if(!is.null(prior_sd)){
-    Kh = length(beta)
-    #beta_prior = seq(t_min, t_max, length.out = Kh)[-c(1, Kh)]
-    
-    beta_prior = coef(lm(seq(t_min, t_max, length.out = length(Y)) ~ 0 + Theta_h))[-c(1, Kh)]
-    loss = loss - sum(dnorm(x = beta.inner, mean = beta_prior, sd = prior_sd, log = TRUE))  
-  }
 
-  return(loss)
+
+  return(-1 * loss)
 }
