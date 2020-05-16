@@ -53,7 +53,8 @@ loss_h = function(Y, Theta_h, mean_coefs, knots, beta.inner, family, t_min, t_ma
 	} else if(warping == "piecewise_linear2"){
   	# does not currently allow minimum values different from zero
   	tstar = seq(0, t_max, length.out = length(Y))
-  	hinv_tstar = piecewise_linear2_hinv(tstar, beta.inner[1], beta.inner[2], beta.inner[3], beta.inner[4])
+  	#hinv_tstar = piecewise_linear2_hinv(tstar, beta.inner[1], beta.inner[2], beta.inner[3], beta.inner[4])
+  	hinv_tstar = piecewise_linear2_hinv(tstar, beta.inner)
 	}
 
   if(periodic){

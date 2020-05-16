@@ -144,14 +144,8 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
   t_hat = rep(NA, dim(Y)[1])
   loss_subjects = rep(NA, I)
   
-  if(warping == "nonparametric"){
-	  beta_new = matrix(NA, Kh - 2, I) 
-	  beta_0 = seq(t_min, t_max, length.out = Kh)[-c(1, Kh)] 
-  } else if(warping == "piecewise_linear2"){
-  	beta_new = matrix(NA, 4, I)
-  	beta_0 = c(0.25, 0.3,  0.75, 0.8)
-  	rownames(beta_new) = c("knot1_x", "knot1_y", "knot2_x", "knot2_y")
-  }
+  # initialize beta and create an empty matrix to store new values
+  initial_beta = initial_params(warping = warping, Kh, t_min, t_max, I)
 	
   for (i in 1:I) {
 
@@ -162,7 +156,7 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
     
     Theta_h_i = Theta_h[subject_rows ,]
     
-    if (is.null(beta)) {beta_i = beta_0} else {beta_i = beta[, i]}
+    if (is.null(beta)) {beta_i = initial_beta$beta_0} else {beta_i = beta[, i]}
     if (is.null(obj)) {mean_coefs_i = mean_coefs} else {mean_coefs_i = mean_coefs[, i]}
     if (gradient) {gradf = loss_h_gradient} else {gradf = NULL}
 
@@ -172,21 +166,20 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
   													 family = family, t_min = t_min, t_max = t_max, 
   													 periodic = periodic, Kt = Kt, warping = warping, ...)
   	
-  	beta_new[,i] = beta_optim$par
+  	initial_beta$beta_new[,i] = beta_optim$par
 
     if(warping == "nonparametric"){
-    	beta_full_i = c(t_min, 	beta_new[,i], t_max)
+    	beta_full_i = c(t_min, 	initial_beta$beta_new[,i], t_max)
     	#t_hat[subject_rows] = cbind(1, Theta_h_i) %*% beta_full_i
     	t_hat[subject_rows] = Theta_h_i %*% beta_full_i
     } else if(warping == "piecewise_linear2"){
     	t_hat[subject_rows] = piecewise_linear2_hinv(seq(0, t_max, length.out = Di),
-    																							 beta_new[1, i], beta_new[2, i],
-    																							 beta_new[3, i], beta_new[4, i])
+    																							 initial_beta$beta_new[,i])
     }
     
     loss_subjects[i] = beta_optim$value
   }
   Y$index = t_hat
 	Y$tstar = tstar
-  return(list(Y = Y, loss = sum(loss_subjects), beta = beta_new)) 
+  return(list(Y = Y, loss = sum(loss_subjects), beta = initial_beta$beta_new)) 
 } 
