@@ -88,6 +88,12 @@ register_fpca <- function(Y, Kt = 8, Kh = 4, family = "binomial", max_iterations
   	error[iter + 1] = sum((time_warps[[iter + 2]]-time_warps[[iter + 1]])^2) 
   	iter = iter + 1
   }
+  
+  if(iter < max_iterations){
+  	message("Registration converged.")
+  } else{
+  	warning("Convergence not reached. Try increasing max_iterations.")
+  }
 
   # final fpca step
   if(family == "binomial"){
