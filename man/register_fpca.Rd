@@ -11,6 +11,7 @@ register_fpca(
   family = "binomial",
   max_iterations = 10,
   npc = 1,
+  fpca_maxiter = 50,
   ...
 )
 }
@@ -26,6 +27,8 @@ register_fpca(
 \item{max_iterations}{Number of iterations for overall algorithm. Defaults to 10.}
 
 \item{npc}{Number of principal components to calculate. Defaults to 1.}
+
+\item{fpca_maxiter}{Number to pass to the \code{maxiter} argument of `bfpca()` or `fpca_gauss()`. Default is 50.}
 
 \item{...}{Additional arguments passed to registr and fpca functions.}
 }
