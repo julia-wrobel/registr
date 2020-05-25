@@ -45,7 +45,7 @@ psi2_sim = function(grid){
 #' @param seed Seed for reproducibility. Default is 1988.
 #' @param vary_D Indicates if grid length vary by subject. If FALSE all subjects have grid length D.
 #' 
-#' @author Julia Wrobel \email{jw3134@@cumc.columbia.edu}
+#' @author Julia Wrobel \email{julia.wrobel@@cuanschutz.edu}
 #' @importFrom magrittr %>%
 #' @importFrom tidyr gather
 #' @importFrom stats rnorm rbinom runif plogis

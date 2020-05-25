@@ -22,7 +22,7 @@
 #' Default prior means are on the identity line. To use these priors, users must specify a value for `prior_sd`. 
 #' @param prior_sd For \code{warping = "piecewise_linear2"} only. Optional sd to apply to all 4 Normal priors. Default is `prior_sd = Inf` (no priors).
 #' 
-#' @author Julia Wrobel \email{jw3134@@cumc.columbia.edu},
+#' @author Julia Wrobel \email{julia.wrobel@@cuanschutz.edu},
 #' Erin McDonnell \email{eim2117@@cumc.columbia.edu}
 #' 
 #' @return The scalar value taken by the loss function.

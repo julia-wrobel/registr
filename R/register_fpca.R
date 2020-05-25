@@ -18,7 +18,7 @@
 #' @param npc Number of principal components to calculate. Defaults to 1. 
 #' @param ... Additional arguments passed to registr and fpca functions.
 #'
-#' @author Julia Wrobel \email{jw3134@@cumc.columbia.edu}
+#' @author Julia Wrobel \email{julia.wrobel@@cuanschutz.edu}
 #' Jeff Goldsmith \email{ajg2202@@cumc.columbia.edu}
 #' @export
 #' 

@@ -46,5 +46,5 @@ based on sine and cosine functions. Subject-specific scores for each PC are draw
 distributions with standard deviation lambda1 and lambda2.
 }
 \author{
-Julia Wrobel \email{jw3134@cumc.columbia.edu}
+Julia Wrobel \email{julia.wrobel@cuanschutz.edu}
 }

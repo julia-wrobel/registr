@@ -68,6 +68,6 @@ The scalar value taken by the loss function.
 Loss function for registration step optimization
 }
 \author{
-Julia Wrobel \email{jw3134@cumc.columbia.edu},
+Julia Wrobel \email{julia.wrobel@cuanschutz.edu},
 Erin McDonnell \email{eim2117@cumc.columbia.edu}
 }

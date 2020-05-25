@@ -51,5 +51,5 @@ A numeric vector of spline coefficients for the gradient of the loss function.
 Gradient of loss function for registration step
 }
 \author{
-Julia Wrobel \email{jw3134@cumc.columbia.edu}
+Julia Wrobel \email{julia.wrobel@cuanschutz.edu}
 }

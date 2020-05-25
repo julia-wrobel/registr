@@ -70,6 +70,6 @@ Tipping, M. E. and Bishop, C (1999). Probabilistic Principal Component Analysis.
 \emph{Journal of the Royal Statistical Society Series B,}, 592--598.
 }
 \author{
-Julia Wrobel \email{jw3134@cumc.columbia.edu},
+Julia Wrobel \email{julia.wrobel@cuanschutz.edu},
 Jeff Goldsmith \email{ajg2202@cumc.columbia.edu}
 }

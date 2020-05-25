@@ -35,7 +35,7 @@
 #' \item{loss}{Value of the loss function after registraton.}
 #' \item{beta}{Matrix of B-spline basis coefficients used to construct subject-specific warping functions.}
 #' 
-#' @author Julia Wrobel \email{jw3134@@cumc.columbia.edu},
+#' @author Julia Wrobel \email{julia.wrobel@@cuanschutz.edu},
 #' Erin McDonnell \email{eim2117@@cumc.columbia.edu}
 #' @export
 #' 

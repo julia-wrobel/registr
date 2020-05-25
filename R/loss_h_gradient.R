@@ -15,7 +15,7 @@
 #' If \code{piecewise_linear2} they follow a piecewise linear function with 2 knots.
 #' \code{loss_h_gradient()} is currently only available for \code{warping = "nonparametric"}.
 #' 
-#' @author Julia Wrobel \email{jw3134@@cumc.columbia.edu}
+#' @author Julia Wrobel \email{julia.wrobel@@cuanschutz.edu}
 #' 
 #' @importFrom stats plogis
 #' 

@@ -68,6 +68,6 @@ respectively. The code calls two
 
 }
 \author{
-Julia Wrobel \email{jw3134@cumc.columbia.edu}
+Julia Wrobel \email{julia.wrobel@cuanschutz.edu}
 Jeff Goldsmith \email{ajg2202@cumc.columbia.edu}
 }
