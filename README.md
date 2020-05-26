@@ -169,5 +169,5 @@ To site the Journal of Open Source Software paper, usue
 If you find small bugs, larger issues, or have suggestions, please file
 them using the [issue
 tracker](https://github.com/julia-wrobel/registr/issues) or email the
-maintainer at <jw3134@cumc.columbia.edu>. Contributions (via pull
+maintainer at <julia.wrobel@cuanschutz.edu>. Contributions (via pull
 requests or otherwise) are welcome.
