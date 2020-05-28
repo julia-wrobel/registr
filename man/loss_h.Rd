@@ -13,7 +13,7 @@ loss_h(
   family,
   t_min,
   t_max,
-  parametric_warps = FALSE
+  prior_sd = 1
 )
 }
 \arguments{
@@ -33,9 +33,7 @@ loss_h(
 
 \item{t_max}{maximum value to be evaluated on the time domain.}
 
-\item{parametric_warps}{If FALSE (default), inverse warping functions are 
-estimated nonparametrically. If 'beta_cdf', they are assumed to have the form of a 
-Beta(a,b) CDF. If 'piecewise' they follow a piecewise parameterized function.}
+\item{prior_sd}{standard deviation on prior for warping functions.}
 }
 \value{
 The scalar value taken by the loss function.
