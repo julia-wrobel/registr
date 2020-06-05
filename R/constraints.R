@@ -37,6 +37,13 @@ constraints = function(Kh, t_min = 0, t_max = 1, warping = "nonparametric"){
 									0,  1, -1,  0,  0,  0,
 									0,  0,  0,  0,  1, -1), 6, 4) 
 		ci = c(0.1, 0.1, -0.9, 0.1, 0.1, -0.9)
+		
+		# Additional constraints ensuring that the slopes can be no bigger than 5
+		#		ui = matrix(c(1, -1,  0,  0,  0,  0,  5, -5,  0,
+		#									0,  0,  0,  1, -1,  0, -1,  1,  0,
+		#									0,  1, -1,  0,  0,  0,  0,  5, -5,
+		#									0,  0,  0,  0,  1, -1,  0, -1,  1), 9, 4) 
+		#		ci = c(0.1, 0.1, -0.9, 0.1, 0.1, -0.9, 0, 0, -4)
 	}
   return(list(ui = ui, ci = ci))
 }

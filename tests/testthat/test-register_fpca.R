@@ -56,12 +56,12 @@ test_that("register_fpca function priors must be specified only when warping = p
 	data = data_clean(Y)
 	Y = data$Y
 	
-	expect_error(register_fpca(Y = Y, family = "binomial", warping = "nonparametric",
-														 prior_sd = 1),
+	expect_error(register_fpca(Y = Y, family = "binomial", warping = "nonparametric", 
+														 priors = TRUE, prior_sd = 1),
 							 "priors are only available for warping = piecewise_linear2")
 	
-	expect_error(register_fpca(Y = Y, family = "gaussian", warping = "piecewise_linear2",
-														 gradient = FALSE, prior_sd = 1),
+	expect_error(register_fpca(Y = Y, family = "gaussian", warping = "piecewise_linear2", gradient = FALSE, 
+														 priors = TRUE, prior_sd = 1),
 							 "priors are only available for family = binomial")
 })
 
@@ -70,23 +70,22 @@ test_that("register_fpca function with priors on the piecewise_linear2 warping f
 	data = data_clean(Y)
 	Y = data$Y
 	
-	prior_mean_1 = 0.5
-	prior_mean_2 = 0.7
+	expect_error(register_fpca(Y = Y, family = "binomial", warping = "piecewise_linear2", 
+														 gradient = FALSE, priors = TRUE, prior_sd = NULL),
+							 "priors = TRUE but no prior_sd supplied.")
+
+	expect_message(register_fpca(Y = Y, family = "binomial", warping = "piecewise_linear2", 
+															 gradient = FALSE, priors = FALSE, prior_sd = 1),
+								 "prior_sd supplied but priors = FALSE. No priors included.")
 	
 	test1 = register_fpca(Y = Y, family = "binomial", warping = "piecewise_linear2",
-												gradient = FALSE,
-												prior_1_x = prior_mean_1, prior_1_y = prior_mean_1,
-												prior_2_x = prior_mean_2, prior_2_y = prior_mean_2,
-												prior_sd = 1)
+												gradient = FALSE, priors = TRUE, prior_sd = 1)
 	
 	test2 = register_fpca(Y = Y, family = "binomial", warping = "piecewise_linear2",
-												gradient = FALSE,
-												prior_1_x = prior_mean_1, prior_1_y = prior_mean_1,
-												prior_2_x = prior_mean_2, prior_2_y = prior_mean_2,
-												prior_sd = 0.1)
-	
-	expect_true(all(colMeans(abs(test2$beta[,c(1:2)] - prior_mean_1)) < colMeans(abs(test1$beta[,c(1:2)] - prior_mean_1))))
-	expect_true(all(colMeans(abs(test2$beta[,c(3:4)] - prior_mean_2)) < colMeans(abs(test1$beta[,c(3:4)] - prior_mean_2))))
+												gradient = FALSE, priors = TRUE, prior_sd = 0.1)
+
+	expect_true(all(colMeans(abs(test2$beta[,c(1:2)] - 0.25)) < colMeans(abs(test1$beta[,c(1:2)] - 0.25))))
+	expect_true(all(colMeans(abs(test2$beta[,c(3:4)] - 0.75)) < colMeans(abs(test1$beta[,c(3:4)] - 0.75))))
 })
 
 test_that("register_fpca for binary data with parametric warping functions and/or periodic basis functions throws no errors",{

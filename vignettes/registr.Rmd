@@ -297,28 +297,23 @@ ggplot(registr_parametric$Y, aes(x = tstar, y = t_hat, group = id)) +
 	labs(title = "warping = piecewise_linear2")
 ```
 
-Beyond interpretability, another advantage of parametric inverse warping functions is the ability to specify prior information about how they should look. The `register_fpca()` function can include normally-distributed priors on any combination of the four knot coordinates. To activate the priors, one must choose a value for the argument `prior_sd`, the standard deviation that will be applied to all 4 prior distributions. By default, the prior means are designed to pull warping functions toward the identity line. However, any set of prior means can be specified by the user. To incorporate priors, use the following code:
+Beyond interpretability, another advantage of parametric inverse warping functions is the ability to specify prior information about how they should look. The `register_fpca()` function can include normally-distributed priors which pull warping functions toward the identity line. Specifically, the priors pull the knot coordinates toward (0.25, 0.25) and (0.75, 0.75). 
+
+To activate the priors, one must specify `priors = TRUE` and choose a value for the argument `prior_sd`, the standard deviation that will be applied to all 4 prior distributions.
 
 ```{r register_par_priors}
 registr_par_priors = register_fpca(Y = registration_data, family = "binomial", 
                                    Kt = 8, Kh = 4, npc = 1, gradient = FALSE,
                                    warping = "piecewise_linear2",
-                                   prior_1_x = 0.2, prior_1_y = 0.3,
-                                   prior_2_x = 0.8, prior_2_y = 0.6,
-                                   prior_sd = 0.1)
+                                   priors = TRUE, prior_sd = 0.1)
 ```
-
-In the code above, the priors suggest that the two knots should lie near $(0.2, 0.3)$ and $(0.8, 0.6)$, with a standard deviation of 1 across all four priors. To place priors on only a subset of the 4 knot coordinates, set the unwanted prior mean arguments to `NULL`. 
-
 As expected, a smaller variance lead to stronger tendency toward the prior means. This is demonstrated in the warping function plots below.
 
 ```{r, register_par_priors_plots, echo = FALSE, fig.show='hold'}
 registr_par_priors2 = register_fpca(Y = registration_data, family = "binomial", 
                                     Kt = 8, Kh = 4, npc = 1, gradient = FALSE,
 																		warping = "piecewise_linear2",
-                                    prior_1_x = 0.2, prior_1_y = 0.3,
-                                    prior_2_x = 0.8, prior_2_y = 0.6,
-                                    prior_sd = 0.01)
+                                    priors = TRUE, prior_sd = 0.01)
 
 ggplot(registr_par_priors$Y, aes(x = tstar, y = t_hat, group = id)) +
 	geom_line() + 

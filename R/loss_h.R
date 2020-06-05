@@ -12,15 +12,9 @@
 #' If \code{piecewise_linear2} they follow a piecewise linear function with 2 knots.
 #' @param periodic If \code{TRUE} uses periodic b-spline basis functions. Default is \code{FALSE}.
 #' @param Kt Number of B-spline basis functions used to estimate mean functions. Default is 8.
-#' @param prior_1_x For \code{warping = "piecewise_linear2"} only. Optional mean for a Normal distribution prior on the first knot's x location. 
-#' Default prior means are on the identity line. To use these priors, users must specify a value for `prior_sd`. 
-#' @param prior_1_y For \code{warping = "piecewise_linear2"} only. Optional mean for a Normal distribution prior on the first knot's y location. 
-#' Default prior means are on the identity line. To use these priors, users must specify a value for `prior_sd`. 
-#' @param prior_2_x For \code{warping = "piecewise_linear2"} only. Optional mean for a Normal distribution prior on the second knot's x location. 
-#' Default prior means are on the identity line. To use these priors, users must specify a value for `prior_sd`. 
-#' @param prior_2_y For \code{warping = "piecewise_linear2"} only. Optional mean for a Normal distribution prior on the second knot's y location. 
-#' Default prior means are on the identity line. To use these priors, users must specify a value for `prior_sd`. 
-#' @param prior_sd For \code{warping = "piecewise_linear2"} only. Optional sd to apply to all 4 Normal priors. Default is `prior_sd = Inf` (no priors).
+#' @param priors For \code{warping = "piecewise_linear2"} only. Logical indicator of whether to add Normal priors to pull the knots toward the identity line. 
+#' @param prior_sd For \code{warping = "piecewise_linear2"} with \code{priors = TRUE} only. User-specified standard deviation for the Normal priors 
+#' (single value applied to all 4 knot priors). 
 #' 
 #' @author Julia Wrobel \email{jw3134@@cumc.columbia.edu},
 #' Erin McDonnell \email{eim2117@@cumc.columbia.edu}
@@ -36,14 +30,19 @@
 
 loss_h = function(Y, Theta_h, mean_coefs, knots, beta.inner, family, t_min, t_max, 
 									periodic = FALSE, Kt = 8, warping = "nonparametric", 
-									prior_1_x = 0.25, prior_1_y = 0.25, prior_2_x = 0.75, prior_2_y = 0.75,
-									prior_sd = NULL){
+									priors = FALSE, prior_sd = NULL){
 	
-	if(warping != "piecewise_linear2" & !is.null(prior_sd)){
+	if(warping != "piecewise_linear2" & priors == TRUE){
 		stop("priors are only available for warping = piecewise_linear2")
 	}
-	if(family != "binomial" & !is.null(prior_sd)){
+	if(family != "binomial" & priors == TRUE){
 		stop("priors are only available for family = binomial")
+	}
+	if(priors == TRUE & is.null(prior_sd)){
+		stop("priors = TRUE but no prior_sd supplied.")
+	}
+	if(priors == FALSE & !is.null(prior_sd)){
+		message("prior_sd supplied but priors = FALSE. No priors included.")
 	}
 
 	if(warping == "nonparametric"){
@@ -74,11 +73,12 @@ loss_h = function(Y, Theta_h, mean_coefs, knots, beta.inner, family, t_min, t_ma
   }
 
   # Add prior distributions on the knot locations as needed
-	if(warping == "piecewise_linear2" & !is.null(prior_sd)){
-		if(!is.null(prior_1_x)){ loss = loss - log(dnorm(x = beta.inner[1], mean = prior_1_x, sd = prior_sd)) }
-		if(!is.null(prior_1_y)){ loss = loss - log(dnorm(x = beta.inner[2], mean = prior_1_y, sd = prior_sd)) }
-		if(!is.null(prior_2_x)){ loss = loss - log(dnorm(x = beta.inner[3], mean = prior_2_x, sd = prior_sd)) }
-		if(!is.null(prior_2_y)){ loss = loss - log(dnorm(x = beta.inner[4], mean = prior_2_y, sd = prior_sd)) }
+	if(warping == "piecewise_linear2" & priors == TRUE){
+		loss = loss - 
+			log(dnorm(x = beta.inner[1], mean = 0.25, sd = prior_sd)) - 
+			log(dnorm(x = beta.inner[2], mean = 0.25, sd = prior_sd)) - 
+			log(dnorm(x = beta.inner[3], mean = 0.75, sd = prior_sd)) -
+			log(dnorm(x = beta.inner[4], mean = 0.75, sd = prior_sd))
 	}
   return(loss)
 }
