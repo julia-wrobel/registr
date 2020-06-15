@@ -12,6 +12,7 @@ register_fpca(
   max_iterations = 10,
   npc = 1,
   fpca_maxiter = 50,
+  fpca_seed = 1988,
   ...
 )
 }
@@ -29,6 +30,8 @@ register_fpca(
 \item{npc}{Number of principal components to calculate. Defaults to 1.}
 
 \item{fpca_maxiter}{Number to pass to the \code{maxiter} argument of `bfpca()` or `fpca_gauss()`. Default is 50.}
+
+\item{fpca_seed}{Number to pass to the \code{seed} argument of `bfpca()` or `fpca_gauss()`. Default is 1988.}
 
 \item{...}{Additional arguments passed to registr and fpca functions.}
 }
