@@ -15,6 +15,7 @@ bfpca(
   row_obj = NULL,
   seed = 1988,
   periodic = FALSE,
+  psi_init = "random",
   ...
 )
 }
@@ -39,6 +40,10 @@ Keep this NULL if you are using standalone \code{register} function.}
 \item{seed}{Set seed for reproducibility. Default is 1988.}
 
 \item{periodic}{If TRUE, uses periodic b-spline basis functions. Default is FALSE.}
+
+\item{psi_init}{If "data", then initializes psi with data-driven starting values. 
+If "fixed" then initializes psi with all values of 0.1. 
+If "random" (default), then initializes psi with random values.}
 
 \item{...}{Additional arguments passed to or from other functions}
 }

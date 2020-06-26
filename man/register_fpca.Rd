@@ -13,6 +13,7 @@ register_fpca(
   npc = 1,
   fpca_maxiter = 50,
   fpca_seed = 1988,
+  fpca_psi_init = "random",
   ...
 )
 }
@@ -32,6 +33,8 @@ register_fpca(
 \item{fpca_maxiter}{Number to pass to the \code{maxiter} argument of `bfpca()` or `fpca_gauss()`. Default is 50.}
 
 \item{fpca_seed}{Number to pass to the \code{seed} argument of `bfpca()` or `fpca_gauss()`. Default is 1988.}
+
+\item{fpca_psi_init}{Value to pass to the \code{psi_init} argument of `bfpca()`. Default is "random".}
 
 \item{...}{Additional arguments passed to registr and fpca functions.}
 }
