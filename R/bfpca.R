@@ -126,8 +126,8 @@ bfpca <- function(Y, npc = 1, Kt = 8, maxiter = 50, t_min = NULL, t_max = NULL,
     psi_coefs = matrix(coef(lm(svd$u ~ 0 + Theta_phi)), Kt, npc)
 
   } else if(psi_init == "fixed"){
-    psi_coefs = matrix(0.1, Kt, npc)
-    
+    psi_coefs = matrix(0.1, Kt, 1)
+    psi_coefs = cbind(psi_coefs, matrix(rnorm(Kt * (npc - 1)), Kt, (npc - 1)) * 0.5)
   } else if(psi_init == "random"){
     psi_coefs = matrix(rnorm(Kt * npc), Kt, npc) * 0.5
   }
@@ -198,6 +198,12 @@ bfpca <- function(Y, npc = 1, Kt = 8, maxiter = 50, t_min = NULL, t_max = NULL,
     temp_alpha_coefs = alpha_coefs
     
   } ## end while loop
+  
+  if(curr_iter < maxiter){
+  	message("BFPCA converged.")
+  } else{
+  	warning("BFPCA convergence not reached. Try increasing maxiter")
+  }
 
   fits = rep(NA, dim(Y)[1])
   subject_coef = alpha_coefs + tcrossprod(psi_coefs, scores)
