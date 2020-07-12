@@ -16,6 +16,7 @@ bfpca(
   seed = 1988,
   periodic = FALSE,
   psi_init = "random",
+  error_thresh = 0.001,
   ...
 )
 }
@@ -44,6 +45,8 @@ Keep this NULL if you are using standalone \code{register} function.}
 \item{psi_init}{If "data", then initializes psi with data-driven starting values. 
 If "fixed" then initializes psi with all values of 0.1. 
 If "random" (default), then initializes psi with random values.}
+
+\item{error_thresh}{Error threshold to end iterations.}
 
 \item{...}{Additional arguments passed to or from other functions}
 }

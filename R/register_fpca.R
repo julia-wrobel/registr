@@ -19,6 +19,7 @@
 #' @param fpca_maxiter Number to pass to the \code{maxiter} argument of `bfpca()` or `fpca_gauss()`. Default is 50.
 #' @param fpca_seed Number to pass to the \code{seed} argument of `bfpca()` or `fpca_gauss()`. Default is 1988.
 #' @param fpca_psi_init Value to pass to the \code{psi_init} argument of `bfpca()`. Default is "random".
+#' @param fpca_error_thresh Number to pass to the \code{error_thresh} argument of `bfpca()`. Default is 0.001.
 #' @param ... Additional arguments passed to registr and fpca functions.
 #'
 #' @author Julia Wrobel \email{jw3134@@cumc.columbia.edu}
@@ -50,7 +51,7 @@
 #'
 register_fpca <- function(Y, Kt = 8, Kh = 4, family = "binomial", max_iterations = 10, 
 													npc = 1, fpca_maxiter = 50, fpca_seed = 1988, 
-													fpca_psi_init = "random", ...){
+													fpca_psi_init = "random", fpca_error_thresh = 0.001, ...){
 	
   if( !(family %in% c("binomial", "gaussian")) ){
   	stop("Package currently handles only 'binomial' or 'gaussian' families.")
@@ -76,10 +77,10 @@ register_fpca <- function(Y, Kt = 8, Kh = 4, family = "binomial", max_iterations
   	message("current iteration: ", iter)
   	
   	if(family == "binomial"){
-  		fpca_step = bfpca(registr_step$Y, npc = npc, Kt = Kt, row_obj = rows, seed = fpca_seed + iter, maxiter = fpca_maxiter, 
-  											psi_init = fpca_psi_init, ...)
+  		fpca_step = bfpca(registr_step$Y, npc = npc, Kt = Kt, row_obj = rows, seed = fpca_seed, maxiter = fpca_maxiter, 
+  											psi_init = fpca_psi_init, error_thresh = fpca_error_thresh, ...)
   	}else if(family == "gaussian"){
-  		fpca_step = fpca_gauss(registr_step$Y, npc = npc, Kt = Kt, row_obj = rows, seed = fpca_seed + iter, maxiter = fpca_maxiter, ...)
+  		fpca_step = fpca_gauss(registr_step$Y, npc = npc, Kt = Kt, row_obj = rows, seed = fpca_seed, maxiter = fpca_maxiter, ...)
   	}
   	
   	registr_step = registr(obj = fpca_step, Kt = Kt, Kh = Kh, family = family, 
@@ -102,7 +103,7 @@ register_fpca <- function(Y, Kt = 8, Kh = 4, family = "binomial", max_iterations
   # final fpca step
   if(family == "binomial"){
   	fpca_step = bfpca(registr_step$Y,npc = npc, Kt = Kt, row_obj = rows, seed = fpca_seed, maxiter = fpca_maxiter, 
-  										psi_init = fpca_psi_init, ...)
+  										psi_init = fpca_psi_init, error_thresh = fpca_error_thresh, ...)
   }else if(family == "gaussian"){
   	fpca_step = fpca_gauss(registr_step$Y,npc = npc, Kt = Kt, row_obj = rows, seed = fpca_seed, maxiter = fpca_maxiter, ...)
   }

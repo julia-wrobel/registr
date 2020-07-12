@@ -19,6 +19,7 @@
 #' @param psi_init If "data", then initializes psi with data-driven starting values. 
 #' If "fixed" then initializes psi with all values of 0.1. 
 #' If "random" (default), then initializes psi with random values.
+#' @param error_thresh Error threshold to end iterations.
 #' @param ... Additional arguments passed to or from other functions
 #' 
 #' @author Julia Wrobel \email{jw3134@@cumc.columbia.edu},
@@ -58,7 +59,7 @@
 bfpca <- function(Y, npc = 1, Kt = 8, maxiter = 50, t_min = NULL, t_max = NULL, 
                   print.iter = FALSE, row_obj= NULL,
 									seed = 1988, periodic = FALSE, 
-									psi_init = "random", ...){
+									psi_init = "random", error_thresh = 0.001, ...){
 	
   curr_iter = 1
   error = rep(NA, maxiter)
@@ -139,7 +140,7 @@ bfpca <- function(Y, npc = 1, Kt = 8, maxiter = 50, t_min = NULL, t_max = NULL,
   phi_b = matrix(0, nrow = Kt * (npc+1), ncol = I)
   scores = matrix(NA, I, npc)
   
-  while(curr_iter < maxiter && error[curr_iter] > 0.001){
+  while(curr_iter < maxiter && error[curr_iter] > error_thresh){
 
     if(print.iter){
       message("current iteration: ", curr_iter)

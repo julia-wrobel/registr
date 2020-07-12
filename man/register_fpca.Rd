@@ -14,6 +14,7 @@ register_fpca(
   fpca_maxiter = 50,
   fpca_seed = 1988,
   fpca_psi_init = "random",
+  fpca_error_thresh = 0.001,
   ...
 )
 }
@@ -35,6 +36,8 @@ register_fpca(
 \item{fpca_seed}{Number to pass to the \code{seed} argument of `bfpca()` or `fpca_gauss()`. Default is 1988.}
 
 \item{fpca_psi_init}{Value to pass to the \code{psi_init} argument of `bfpca()`. Default is "random".}
+
+\item{fpca_error_thresh}{Number to pass to the \code{error_thresh} argument of `bfpca()`. Default is 0.001.}
 
 \item{...}{Additional arguments passed to registr and fpca functions.}
 }
