@@ -15,6 +15,7 @@ fpca_gauss(
   row_obj = NULL,
   seed = 1988,
   periodic = FALSE,
+  error_thresh = 1e-04,
   ...
 )
 }
@@ -39,6 +40,8 @@ Keep this NULL if you are using standalone \code{register} function.}
 \item{seed}{Set seed for reproducibility. Default is 1991.}
 
 \item{periodic}{If TRUE, uses periodic b-spline basis functions. Default is FALSE.}
+
+\item{error_thresh}{Error threshold to end iterations. Default is 0.0001.}
 
 \item{...}{Additional arguments passed to or from other functions}
 }
