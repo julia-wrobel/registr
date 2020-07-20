@@ -16,6 +16,7 @@
 #' Keep this NULL if you are using standalone \code{register} function.
 #' @param seed Set seed for reproducibility. Default is 1991.
 #' @param periodic If TRUE, uses periodic b-spline basis functions. Default is FALSE.
+#' @param error_thresh Error threshold to end iterations. Default is 0.0001.
 #' @param ... Additional arguments passed to or from other functions
 #' 
 #' @author Julia Wrobel \email{jw3134@@cumc.columbia.edu},
@@ -45,7 +46,8 @@
 #'
 #'
 fpca_gauss <- function(Y, npc = 1, Kt = 8, maxiter = 20, t_min = NULL, t_max = NULL, 
-									print.iter = FALSE, row_obj= NULL, seed = 1988, periodic = FALSE, ...){
+									print.iter = FALSE, row_obj= NULL, seed = 1988, periodic = FALSE, 
+									error_thresh = 0.0001, ...){
 	
 	curr_iter = 1
 	error = rep(NA, maxiter)
@@ -99,7 +101,7 @@ fpca_gauss <- function(Y, npc = 1, Kt = 8, maxiter = 20, t_min = NULL, t_max = N
   scores = matrix(NA, I, npc)
   sigma_vec = rep(NA, I)
 	##### update parameters
-  while(curr_iter < maxiter && error[curr_iter] > 0.0001){
+  while(curr_iter < maxiter && error[curr_iter] > error_thresh){
   	if(print.iter){
   		message("current iteration: ", curr_iter)
   		message("current error: ", error[curr_iter])

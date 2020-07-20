@@ -16,10 +16,7 @@
 #' Keep this NULL if you are using standalone \code{register} function.
 #' @param seed Set seed for reproducibility. Default is 1988.
 #' @param periodic If TRUE, uses periodic b-spline basis functions. Default is FALSE.
-#' @param psi_init If "data", then initializes psi with data-driven starting values. 
-#' If "fixed" then initializes psi with all values of 0.1. 
-#' If "random" (default), then initializes psi with random values.
-#' @param error_thresh Error threshold to end iterations.
+#' @param error_thresh Error threshold to end iterations. Default is 0.0001.
 #' @param ... Additional arguments passed to or from other functions
 #' 
 #' @author Julia Wrobel \email{jw3134@@cumc.columbia.edu},
@@ -58,8 +55,7 @@
 #'
 bfpca <- function(Y, npc = 1, Kt = 8, maxiter = 50, t_min = NULL, t_max = NULL, 
                   print.iter = FALSE, row_obj= NULL,
-									seed = 1988, periodic = FALSE, 
-									psi_init = "random", error_thresh = 0.001, ...){
+									seed = 1988, periodic = FALSE, error_thresh = 0.0001, ...){
 	
   curr_iter = 1
   error = rep(NA, maxiter)
@@ -109,29 +105,7 @@ bfpca <- function(Y, npc = 1, Kt = 8, maxiter = 50, t_min = NULL, t_max = NULL,
   xi = matrix(rnorm(dim(Y)[1]), ncol = 1) * 0.5
   alpha_coefs = matrix(coef(glm(Y$value ~ 0 + Theta_phi, family = "binomial")), Kt, 1)
   
-  if(psi_init == "data"){
-    
-    Y_centered = Y %>%
-      group_by(index) %>%
-      mutate(value_centered = value - mean(value)) %>%
-      ungroup()
-    
-    Y_centered_matrix = as.matrix(Y_centered %>%
-      select(id, index, value_centered) %>%
-      pivot_wider(names_from = index,
-                   values_from = value_centered) %>%
-      select(-id))
-    
-    svd = svd(Y_centered_matrix)
-    pcs = svd$u %*% diag(svd$d)
-    psi_coefs = matrix(coef(lm(svd$u ~ 0 + Theta_phi)), Kt, npc)
-
-  } else if(psi_init == "fixed"){
-    psi_coefs = matrix(0.1, Kt, 1)
-    psi_coefs = cbind(psi_coefs, matrix(rnorm(Kt * (npc - 1)), Kt, (npc - 1)) * 0.5)
-  } else if(psi_init == "random"){
-    psi_coefs = matrix(rnorm(Kt * npc), Kt, npc) * 0.5
-  }
+  psi_coefs = matrix(rnorm(Kt * npc), Kt, npc) * 0.5
   
   temp_alpha_coefs = alpha_coefs
   temp_psi_coefs = psi_coefs
