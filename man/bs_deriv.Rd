@@ -36,5 +36,5 @@ A matrix containing:
 This function gets derivative of a spline basis. Adapted from \code{bs()} function in \code{splines} package.
 }
 \author{
-Julia Wrobel \email{jw3134@cumc.columbia.edu}
+Julia Wrobel \email{julia.wrobel@cuanschutz.edu}
 }

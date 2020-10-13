@@ -154,7 +154,6 @@ Y %>%
 	ggplot(aes(index, value)) + theme_bw() +
 	geom_point(alpha = 0.75, size = 0.25) + geom_line(aes(y = plogis(latent_mean))) +
 	labs(y = "Pr(Y = 1)")
-
 ```
 
 We can alter the score variance for the principal components using the arguments `lambda1` and `lambda2`. The default setting is for all subjects to have the same number of time points. However, by specifying `vary_D = TRUE`, we can generate data with uneven grid lengths for each subject.
@@ -168,7 +167,6 @@ We can alter the score variance for the principal components using the arguments
 To register binary data use the following code:
 
 ```{r register_binary, message = FALSE}
-
 registr_bin = register_fpca(Y = registration_data, family = "binomial", Kt = 8, Kh = 4, npc = 1)
 ```
 
@@ -198,7 +196,6 @@ ggplot(Y, aes(tstar, t, group = id)) + theme_bw() +
 ggplot(Y, aes(tstar, t_hat, group = id)) + theme_bw() + 
 	geom_line(alpha = 0.25)
 
-
 ```
 
 The true and estimated warping functions are plotted above. 
@@ -220,7 +217,6 @@ This `bfpca()` function works for data that is sparse and irregular (subjects do
 
 ```{r bfpca}
 bfpca_object = bfpca(fpca_data$Y, npc = 2, Kt = 8, print.iter = TRUE)
-
 ```
 
 The argument `print.iter = TRUE` prints the error after each iteration. The true and estimated population-level mean and FPCs are plotted below.
@@ -278,7 +274,7 @@ The `registr` package currently supports two types of inverse warping functions:
 To register data with parametric inverse warping functions, using the following code:
 
 ```{r register_parametric}
-registration_data = simulate_unregistered_curves(I = 50, D = 200, seed = 2018)
+registration_data = simulate_unregistered_curves(I = 10, D = 50, seed = 2018)
 
 registr_parametric = register_fpca(Y = registration_data, family = "binomial", 
                                    Kt = 8, Kh = 4, npc = 1, gradient = FALSE,

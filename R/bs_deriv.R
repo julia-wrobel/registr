@@ -11,7 +11,7 @@
 #' Value of 0 returns the original set of b-spline basis functions. 
 #' @param intercept if TRUE, an intercept is included in the basis; default is TRUE
 #' 
-#' @author Julia Wrobel \email{jw3134@@cumc.columbia.edu}
+#' @author Julia Wrobel \email{julia.wrobel@@cuanschutz.edu}
 #' @importFrom splines splineDesign
 #' 
 #' @return A matrix containing:

@@ -16,7 +16,7 @@
 #' @param prior_sd For \code{warping = "piecewise_linear2"} with \code{priors = TRUE} only. User-specified standard deviation for the Normal priors 
 #' (single value applied to all 4 knot priors). 
 #' 
-#' @author Julia Wrobel \email{jw3134@@cumc.columbia.edu},
+#' @author Julia Wrobel \email{julia.wrobel@@cuanschutz.edu},
 #' Erin McDonnell \email{eim2117@@cumc.columbia.edu}
 #' 
 #' @return The scalar value taken by the loss function.
@@ -52,7 +52,8 @@ loss_h = function(Y, Theta_h, mean_coefs, knots, beta.inner, family, t_min, t_ma
 	} else if(warping == "piecewise_linear2"){
   	# does not currently allow minimum values different from zero
   	tstar = seq(0, t_max, length.out = length(Y))
-  	hinv_tstar = piecewise_linear2_hinv(tstar, beta.inner[1], beta.inner[2], beta.inner[3], beta.inner[4])
+  	#hinv_tstar = piecewise_linear2_hinv(tstar, beta.inner[1], beta.inner[2], beta.inner[3], beta.inner[4])
+  	hinv_tstar = piecewise_linear2_hinv(tstar, beta.inner)
 	}
 
   if(periodic){

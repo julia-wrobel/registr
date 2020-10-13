@@ -83,7 +83,7 @@ grid_subj_create = function(coefs, D) {
 #' @param phase_variation If TRUE, creates phase variation 
 #' (registered curves are observed on uneven grid). If FALSE, no phase variation.
 #' 
-#' @author Julia Wrobel \email{jw3134@@cumc.columbia.edu},
+#' @author Julia Wrobel \email{julia.wrobel@@cuanschutz.edu},
 #' Jeff Goldsmith \email{ajg2202@@cumc.columbia.edu}
 #' @importFrom magrittr %>%
 #' @importFrom stats rbinom runif plogis

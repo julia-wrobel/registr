@@ -1,3 +1,17 @@
+initial_params = function(warping, Kh, t_min, t_max, I){
+	if(warping == "nonparametric"){
+		beta_new = matrix(NA, Kh - 2, I) 
+		beta_0 = seq(t_min, t_max, length.out = Kh)[-c(1, Kh)] 
+	} else if(warping == "piecewise_linear2"){
+		beta_new = matrix(NA, 4, I)
+		beta_0 = c(0.25, 0.3,  0.75, 0.8)
+		rownames(beta_new) = c("knot1_x", "knot1_y", "knot2_x", "knot2_y")
+	}
+	
+	return(list(beta_new = beta_new, beta_0 = beta_0))
+}
+
+
 #' Create two-parameter piecewise linear (inverse) warping functions
 #'
 #' This function uses a 2-knot piecewise linear model to calculate inverse warping 
@@ -9,17 +23,15 @@
 #' consistent with #' functional data literature on registration.
 #' 
 #' @param grid grid of values over which to evaluate the function.
-#' @param knot1_x controls the x-location of the first knot. Defaults is \code{0.25}.
-#' @param knot1_y controls the y-location of the first knot. Defaults is \code{0.3}. 
-#' @param knot2_x controls the x-location of the second knot. Defaults is \code{0.75}. 
-#' @param knot2_y controls the y-location of the second knot. Defaults is \code{0.9}. 
+#' @param knot_locations controls the x and y locations of the two knots.
 #'  
-#' @author Erin McDonnell \email{eim2117@@cumc.columbia.edu},
-#' Julia Wrobel \email{jw3134@@cumc.columbia.edu}
+#' @author Erin McDonnell \email{eim2117@@cumc.columbia.edu}
 #' @importFrom stats quantile
-#' @export
-
-piecewise_linear2_hinv = function(grid, knot1_x = 0.25, knot1_y = 0.3, knot2_x = 0.75, knot2_y = 0.9){
+piecewise_linear2_hinv = function(grid, knot_locations = c(0.25, 0.3, 0.75, 0.9)){
+	knot1_x = knot_locations[1]
+	knot1_y = knot_locations[2]
+	knot2_x = knot_locations[3]
+	knot2_y = knot_locations[4]
 	
 	beta1 = knot1_y / knot1_x
 	beta2 = (knot2_y - knot1_y) / (knot2_x - knot1_x)

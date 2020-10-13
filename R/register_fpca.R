@@ -21,7 +21,7 @@
 #' @param fpca_error_thresh Number to pass to the \code{error_thresh} argument of `bfpca()` or `fpca_gauss()`. Default is 0.0001.
 #' @param ... Additional arguments passed to registr and fpca functions.
 #'
-#' @author Julia Wrobel \email{jw3134@@cumc.columbia.edu}
+#' @author Julia Wrobel \email{julia.wrobel@@cuanschutz.edu}
 #' Jeff Goldsmith \email{ajg2202@@cumc.columbia.edu}
 #' @export
 #' 

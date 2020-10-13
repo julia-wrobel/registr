@@ -41,6 +41,6 @@ the unregistered curves (t_star) and the registered curves (t). Curves all have 
 of which is shifted on the unregistered domain, meant to mimic accelerometer data.
 }
 \author{
-Julia Wrobel \email{jw3134@cumc.columbia.edu},
+Julia Wrobel \email{julia.wrobel@cuanschutz.edu},
 Jeff Goldsmith \email{ajg2202@cumc.columbia.edu}
 }
