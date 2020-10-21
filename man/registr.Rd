@@ -18,6 +18,7 @@ registr(
   row_obj = NULL,
   periodic = FALSE,
   warping = "nonparametric",
+  cores = 1L,
   ...
 )
 }
@@ -52,6 +53,11 @@ Keep this NULL if you are using standalone \code{registr} function.}
 \item{warping}{If \code{nonparametric} (default), inverse warping functions are estimated nonparametrically. 
 If \code{piecewise_linear2} they follow a piecewise linear function with 2 knots.}
 
+\item{cores}{Number of cores to be used. If \code{cores > 1}, the registration
+call is parallelized by using \code{parallel::mclapply} (for Unix-based
+systems) or \code{parallel::parLapply} (for Windows). Defaults to 1,
+no parallelized call.}
+
 \item{...}{additional arguments passed to or from other functions}
 }
 \value{
@@ -72,6 +78,7 @@ You have to either specify \code{obj}, which is a fpca
 object from an earlier step, or \code{Y}, a dataframe in long format with variables 
 \code{id}, \code{index}, and \code{value} to indicate subject IDs, times, and observations, 
 respectively.
+By specifying \code{cores > 1}, the registration call can be parallelized.
 }
 \examples{
 Y = simulate_unregistered_curves()
@@ -92,5 +99,6 @@ register_step = registr(obj = NULL, Y = Y, Kt = 6, Kh = 4, family = "binomial",
 Julia Wrobel
 
 Julia Wrobel \email{julia.wrobel@cuanschutz.edu},
-Erin McDonnell \email{eim2117@cumc.columbia.edu}
+Erin McDonnell \email{eim2117@cumc.columbia.edu},
+Alexander Bauer \email{alexander.bauer@stat.uni-muenchen.de}
 }

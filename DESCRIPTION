@@ -1,12 +1,13 @@
 Package: registr
 Title: Curve Registration for Exponential Family Functional Data
-Version: 1.0.0
+Version: 1.0.1
 Authors@R: c(
     person("Julia", "Wrobel", role = c("aut", "cre"), 
     email = "julia.wrobel@cuanschutz.edu",
     comment = c(ORCID = "0000-0001-6783-1421")),
     person("Jeff", "Goldsmith", role = "aut", email = "jeff.goldsmith@columbia.edu"),
-    person("Erin", "McDonnell", role = "aut", email = "eim2117@cumc.columbia.edu")
+    person("Erin", "McDonnell", role = "aut", email = "eim2117@cumc.columbia.edu"),
+    person("Alexander", "Bauer", role = "aut", email = "alexander.bauer@stat.uni-muenchen.de")
     )
 Description: A method for registering curves (functional data) that are generated from exponential family distributions.  This 
     implements the algorithms described in 'Wrobel et al. (2019)' <doi:10.1111/biom.12963>. Curve registration is an active area of 
@@ -18,15 +19,16 @@ Depends:
 Imports:
     ggplot2,
     tidyr,
-    magrittr,	
+    magrittr,
     dplyr,
     gridExtra,
     pbs,
-    Rcpp (>= 0.11.5)
+    Rcpp (>= 0.11.5),
+    parallel
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1
 LinkingTo: Rcpp, RcppArmadillo
 Suggests: testthat,
     knitr,

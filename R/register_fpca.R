@@ -5,6 +5,7 @@
 #' \code{\link{bfpca}} if \code{family = "binomial"} or the function 
 #' \code{\link{fpca_gauss}} if \code{family = "gaussian"}. Warping functions are calculated 
 #' by the function \code{\link{registr}}.
+#' By specifying \code{cores > 1}, the registration call can be parallelized.
 #' 
 #' Requires input data \code{Y} to be a dataframe in long format with variables 
 #' \code{id}, \code{index}, and \code{value} to indicate subject IDs, times, and observations, 
@@ -20,6 +21,7 @@
 #' @param fpca_seed Number to pass to the \code{seed} argument of `bfpca()` or `fpca_gauss()`. Default is 1988.
 #' @param fpca_error_thresh Number to pass to the \code{error_thresh} argument of `bfpca()` or `fpca_gauss()`. Default is 0.0001.
 #' @param ... Additional arguments passed to registr and fpca functions.
+#' @inheritParams registr
 #'
 #' @author Julia Wrobel \email{julia.wrobel@@cuanschutz.edu}
 #' Jeff Goldsmith \email{ajg2202@@cumc.columbia.edu}
@@ -50,7 +52,7 @@
 #'
 register_fpca <- function(Y, Kt = 8, Kh = 4, family = "binomial", max_iterations = 10, 
 													npc = 1, fpca_maxiter = 50, fpca_seed = 1988, 
-													fpca_error_thresh = 0.0001, ...){
+													fpca_error_thresh = 0.0001, cores = 1L, ...){
 	
   if( !(family %in% c("binomial", "gaussian")) ){
   	stop("Package currently handles only 'binomial' or 'gaussian' families.")
@@ -65,7 +67,8 @@ register_fpca <- function(Y, Kt = 8, Kh = 4, family = "binomial", max_iterations
   loss = rep(NA, max_iterations + 1)
 
   # first register values to the overall mean
-  registr_step = registr(Y = Y, Kt = Kt, Kh = Kh, family = family, row_obj = rows, ...)
+  registr_step = registr(Y = Y, Kt = Kt, Kh = Kh, family = family,
+  											 row_obj = rows, cores = cores, ...)
   time_warps[[2]] = registr_step$Y$index
   loss[1] = registr_step$loss
   
@@ -84,7 +87,7 @@ register_fpca <- function(Y, Kt = 8, Kh = 4, family = "binomial", max_iterations
   	}
   	
   	registr_step = registr(obj = fpca_step, Kt = Kt, Kh = Kh, family = family, 
-  												 row_obj = rows, beta = registr_step$beta, ...)
+  												 row_obj = rows, beta = registr_step$beta, cores = cores, ...)
   	
   	time_warps[[iter + 2]] = registr_step$Y$index
   	loss[iter + 1] = registr_step$loss

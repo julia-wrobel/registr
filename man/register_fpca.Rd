@@ -14,6 +14,7 @@ register_fpca(
   fpca_maxiter = 50,
   fpca_seed = 1988,
   fpca_error_thresh = 1e-04,
+  cores = 1L,
   ...
 )
 }
@@ -36,6 +37,11 @@ register_fpca(
 
 \item{fpca_error_thresh}{Number to pass to the \code{error_thresh} argument of `bfpca()` or `fpca_gauss()`. Default is 0.0001.}
 
+\item{cores}{Number of cores to be used. If \code{cores > 1}, the registration
+call is parallelized by using \code{parallel::mclapply} (for Unix-based
+systems) or \code{parallel::parLapply} (for Windows). Defaults to 1,
+no parallelized call.}
+
 \item{...}{Additional arguments passed to registr and fpca functions.}
 }
 \value{
@@ -57,6 +63,7 @@ exponential family curves. The FPCA step is performed through the function
 \code{\link{bfpca}} if \code{family = "binomial"} or the function 
 \code{\link{fpca_gauss}} if \code{family = "gaussian"}. Warping functions are calculated 
 by the function \code{\link{registr}}.
+By specifying \code{cores > 1}, the registration call can be parallelized.
 }
 \details{
 Requires input data \code{Y} to be a dataframe in long format with variables 
