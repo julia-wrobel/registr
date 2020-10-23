@@ -9,6 +9,7 @@
 #' object from an earlier step, or \code{Y}, a dataframe in long format with variables 
 #' \code{id}, \code{index}, and \code{value} to indicate subject IDs, times, and observations, 
 #' respectively.
+#' By specifying \code{cores > 1}, the registration call can be parallelized.
 #' 
 #' @param obj Current estimate of FPC object. 
 #' Can be NULL only if Y argument is selected.
@@ -28,6 +29,10 @@
 #' @param periodic If \code{TRUE}, uses periodic b-spline basis functions. Default is \code{FALSE}.
 #' @param warping If \code{nonparametric} (default), inverse warping functions are estimated nonparametrically. 
 #' If \code{piecewise_linear2} they follow a piecewise linear function with 2 knots.
+#' @param cores Number of cores to be used. If \code{cores > 1}, the registration
+#' call is parallelized by using \code{parallel::mclapply} (for Unix-based
+#' systems) or \code{parallel::parLapply} (for Windows). Defaults to 1,
+#' no parallelized call.
 #' @param ... additional arguments passed to or from other functions
 #' 
 #' @return An object of class \code{fpca} containing:
@@ -36,12 +41,14 @@
 #' \item{beta}{Matrix of B-spline basis coefficients used to construct subject-specific warping functions.}
 #' 
 #' @author Julia Wrobel \email{julia.wrobel@@cuanschutz.edu},
-#' Erin McDonnell \email{eim2117@@cumc.columbia.edu}
+#' Erin McDonnell \email{eim2117@@cumc.columbia.edu},
+#' Alexander Bauer \email{alexander.bauer@@stat.uni-muenchen.de}
 #' @export
 #' 
-#' @importFrom stats glm coef constrOptim quantile optim pbeta
+#' @importFrom stats glm coef quantile pbeta
 #' @importFrom splines bs
 #' @importFrom pbs pbs
+#' @importFrom parallel mclapply makePSOCKcluster clusterExport clusterEvalQ parLapply stopCluster
 #' 
 #' @examples
 #' Y = simulate_unregistered_curves()
@@ -59,7 +66,7 @@
 #'
 registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gradient = TRUE,
 									 beta = NULL, t_min = NULL, t_max = NULL, row_obj = NULL,
-									 periodic = FALSE, warping = "nonparametric", ...){
+									 periodic = FALSE, warping = "nonparametric", cores = 1L, ...){
 	
   if(is.null(Y)) { 
   	Y = obj$Y
@@ -147,39 +154,115 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
   # initialize beta and create an empty matrix to store new values
   initial_beta = initial_params(warping = warping, Kh, t_min, t_max, I)
 	
-  for (i in 1:I) {
-
-    subject_rows = rows$first_row[i]:rows$last_row[i]
-    
-    Yi = Y$value[subject_rows]
-    Di = length(Yi)
-    
-    Theta_h_i = Theta_h[subject_rows ,]
-    
-    if (is.null(beta)) {beta_i = initial_beta$beta_0} else {beta_i = beta[, i]}
-    if (is.null(obj)) {mean_coefs_i = mean_coefs} else {mean_coefs_i = mean_coefs[, i]}
-    if (gradient) {gradf = loss_h_gradient} else {gradf = NULL}
-
-  	beta_optim = constrOptim(beta_i, loss_h, grad = gradf, ui = ui, ci = ci, Y = Yi, 
-  													 Theta_h = Theta_h_i, mean_coefs = mean_coefs_i, 
-  													 knots = global_knots, 
-  													 family = family, t_min = t_min, t_max = t_max, 
-  													 periodic = periodic, Kt = Kt, warping = warping, ...)
+  arg_list <- list(obj          = obj,          Y            = Y,
+  								 Kt           = Kt,           family       = family,
+  								 gradient     = gradient,     beta         = beta,
+  								 t_min        = t_min,        t_max        = t_max,
+  								 rows         = rows,         periodic     = periodic,
+  								 warping      = warping,      Theta_h      = Theta_h,
+  								 initial_beta = initial_beta, global_knots = global_knots,
+  								 mean_coefs   = mean_coefs,   ui           = ui,
+  								 ci           = ci)
+  
+  # main function call
+  if (cores == 1) { # serial call
+  	results_list <- lapply(1:I, registr_oneCurve, arg_list, ...)
   	
-  	initial_beta$beta_new[,i] = beta_optim$par
-
-    if(warping == "nonparametric"){
-    	beta_full_i = c(t_min, 	initial_beta$beta_new[,i], t_max)
-    	#t_hat[subject_rows] = cbind(1, Theta_h_i) %*% beta_full_i
-    	t_hat[subject_rows] = Theta_h_i %*% beta_full_i
-    } else if(warping == "piecewise_linear2"){
-    	t_hat[subject_rows] = piecewise_linear2_hinv(seq(0, t_max, length.out = Di),
-    																							 initial_beta$beta_new[,i])
-    }
-    
-    loss_subjects[i] = beta_optim$value
+  } else if (.Platform$OS.type == "unix") { # parallelized call on Unix-based systems
+  	results_list <- parallel::mclapply(1:I, registr_oneCurve, arg_list, ...,
+  																		 mc.cores = cores)
+  	
+  } else { # parallelized call on Windows
+  	local_cluster <- parallel::makePSOCKcluster(rep("localhost", cores)) # set up cluster
+  	# export functions and packages to the cluster
+  	parallel::clusterExport(cl = local_cluster, c("arg_list"), envir=environment())
+  	parallel::clusterEvalQ(cl = local_cluster, c(library(registr), library(stats)))
+  	
+  	results_list <- parallel::parLapply(cl  = local_cluster, X = 1:I,
+  																			fun = registr_oneCurve, arg_list, ...)
+  	
+  	parallel::stopCluster(cl = local_cluster) # close cluster
   }
+  
+  # gather the results
+  beta_new      = sapply(results_list, function(x) x$beta_new)
+  t_hat         = unlist(sapply(results_list, function(x) as.vector(x$t_hat), simplify = FALSE))
+  loss_subjects = unlist(sapply(results_list, function(x) as.vector(x$loss),  simplify = FALSE))
+  
   Y$index = t_hat
 	Y$tstar = tstar
-  return(list(Y = Y, loss = sum(loss_subjects), beta = initial_beta$beta_new)) 
+	
+  return(list(Y    = Y,
+  						loss = sum(loss_subjects),
+  						beta = beta_new)) 
 } 
+
+
+
+#' Internal function to register one curve
+#' 
+#' This internal function is only to be used from within \code{registr}.
+#' It performs the main optimization step with \code{constrOptim} for the
+#' registration of one curve.
+#' 
+#' @param i Numeric index of the curve under focus.
+#' @param arg_list Named list of all arguments necessary for the registration
+#' step.
+#' @param ... additional arguments passed to or from other functions
+#' 
+#' @return An list containing:
+#' \item{beta_new}{Estimated parameter vector of the warping function.}
+#' \item{t_hat}{Vector of registered time domain.}
+#' \item{loss}{Loss of the optimal solution.}
+#' 
+#' @author Alexander Bauer \email{alexander.bauer@@stat.uni-muenchen.de}
+#' 
+#' @importFrom stats constrOptim
+#' 
+registr_oneCurve <- function(i, arg_list, ...) {
+	
+	subject_rows = arg_list$rows$first_row[i]:arg_list$rows$last_row[i]
+	
+	Yi = arg_list$Y$value[subject_rows]
+	Di = length(Yi)
+	
+	Theta_h_i = arg_list$Theta_h[subject_rows ,]
+	
+	if (is.null(arg_list$beta)) {beta_i = arg_list$initial_beta$beta_0} else {beta_i = arg_list$beta[, i]}
+	if (is.null(arg_list$obj)) {mean_coefs_i = arg_list$mean_coefs} else {mean_coefs_i = arg_list$mean_coefs[, i]}
+	if (arg_list$gradient) {gradf = loss_h_gradient} else {gradf = NULL}
+	
+	beta_optim = constrOptim(theta      = beta_i,
+													 f          = loss_h,
+													 grad       = gradf,
+													 ui         = arg_list$ui,
+													 ci         = arg_list$ci,
+													 Y          = Yi, 
+													 Theta_h    = Theta_h_i,
+													 mean_coefs = mean_coefs_i, 
+													 knots      = arg_list$global_knots, 
+													 family     = arg_list$family,
+													 t_min      = arg_list$t_min,
+													 t_max      = arg_list$t_max, 
+													 periodic   = arg_list$periodic,
+													 Kt         = arg_list$Kt,
+													 warping    = arg_list$warping,
+													 ...)
+	
+	beta_new = beta_optim$par
+	
+	if (arg_list$warping == "nonparametric") {
+		beta_full_i = c(arg_list$t_min, 	beta_new, arg_list$t_max)
+		#t_hat = as.vector(cbind(1, Theta_h_i) %*% beta_full_i)
+		t_hat = as.vector(Theta_h_i %*% beta_full_i)
+		
+	} else if (arg_list$warping == "piecewise_linear2") {
+		t_hat = piecewise_linear2_hinv(grid = seq(0, arg_list$t_max, length.out = Di),
+																	 knot_locations = beta_new)
+	}
+	
+	return(list(beta_new = beta_new,
+							t_hat    = t_hat,
+							loss     = beta_optim$value))
+	
+}

@@ -265,6 +265,8 @@ numeric_gradient = as.numeric(round((end_time - start_time), 2))
 
 On a dataset with just 50 subjects and 100 time points per subject, the `registr()` function runs in `r analytic_gradient` seconds with an analytic gradient and `r numeric_gradient` seconds with a numeric gradient. Since the `register_fpca()` algorithm is iterative and calls the `registr()` function several times, using an analytic derivative drastically increases the computational efficiency, especially if number of subjects in the dataset is large.
 
+The registration step can further be parallelized by using the `cores` argument.
+
 ## Additional features
 
 ### Parametric inverse warping functions: `warping = "piecewise_linear2"`
