@@ -37,11 +37,11 @@ fpca_gauss(
 \item{row_obj}{If NULL, the function cleans the data and calculates row indices. 
 Keep this NULL if you are using standalone \code{register} function.}
 
-\item{seed}{Set seed for reproducibility. Default is 1991.}
+\item{seed}{Set seed for reproducibility. Defaults to 1988.}
 
 \item{periodic}{If TRUE, uses periodic b-spline basis functions. Default is FALSE.}
 
-\item{error_thresh}{Error threshold to end iterations. Default is 0.0001.}
+\item{error_thresh}{Error threshold to end iterations. Defaults to 0.0001.}
 
 \item{...}{Additional arguments passed to or from other functions}
 }

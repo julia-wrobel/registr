@@ -14,9 +14,9 @@
 #' @param print.iter Prints current error and iteration
 #' @param row_obj If NULL, the function cleans the data and calculates row indices. 
 #' Keep this NULL if you are using standalone \code{register} function.
-#' @param seed Set seed for reproducibility. Default is 1991.
+#' @param seed Set seed for reproducibility. Defaults to 1988.
 #' @param periodic If TRUE, uses periodic b-spline basis functions. Default is FALSE.
-#' @param error_thresh Error threshold to end iterations. Default is 0.0001.
+#' @param error_thresh Error threshold to end iterations. Defaults to 0.0001.
 #' @param ... Additional arguments passed to or from other functions
 #' 
 #' @author Julia Wrobel \email{julia.wrobel@@cuanschutz.edu},
@@ -46,8 +46,8 @@
 #'
 #'
 fpca_gauss <- function(Y, npc = 1, Kt = 8, maxiter = 20, t_min = NULL, t_max = NULL, 
-									print.iter = FALSE, row_obj= NULL, seed = 1988, periodic = FALSE, 
-									error_thresh = 0.0001, ...){
+											 print.iter = FALSE, row_obj= NULL, seed = 1988, periodic = FALSE, 
+											 error_thresh = 0.0001, ...){
 	
 	curr_iter = 1
 	error = rep(NA, maxiter)

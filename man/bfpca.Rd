@@ -22,7 +22,7 @@ bfpca(
 \arguments{
 \item{Y}{Dataframe. Should have variables id, value, index.}
 
-\item{npc}{Default is 1. Number of principal components to calculate.}
+\item{npc}{Defaults to 1. Number of principal components to calculate.}
 
 \item{Kt}{Number of B-spline basis functions used to estimate mean functions. Default is 8.}
 
@@ -37,11 +37,11 @@ bfpca(
 \item{row_obj}{If NULL, the function cleans the data and calculates row indices. 
 Keep this NULL if you are using standalone \code{register} function.}
 
-\item{seed}{Set seed for reproducibility. Default is 1988.}
+\item{seed}{Set seed for reproducibility. Defaults to 1988.}
 
 \item{periodic}{If TRUE, uses periodic b-spline basis functions. Default is FALSE.}
 
-\item{error_thresh}{Error threshold to end iterations. Default is 0.0001.}
+\item{error_thresh}{Error threshold to end iterations. Defaults to 0.0001.}
 
 \item{...}{Additional arguments passed to or from other functions}
 }

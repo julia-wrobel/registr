@@ -5,19 +5,7 @@
 #' This method uses a variational EM algorithm to estimate scores and principal components for 
 #' binary functional data.
 #'
-#' @param Y Dataframe. Should have variables id, value, index. 
-#' @param npc Default is 1. Number of principal components to calculate.
-#' @param Kt Number of B-spline basis functions used to estimate mean functions. Default is 8.
-#' @param maxiter Maximum number of iterations to perform for EM algorithm. Default is 50.
-#' @param t_min Minimum value to be evaluated on the time domain. 
-#' @param t_max Maximum value to be evaluated on the time domain.
-#' @param print.iter Prints current error and iteration
-#' @param row_obj If NULL, the function cleans the data and calculates row indices. 
-#' Keep this NULL if you are using standalone \code{register} function.
-#' @param seed Set seed for reproducibility. Default is 1988.
-#' @param periodic If TRUE, uses periodic b-spline basis functions. Default is FALSE.
-#' @param error_thresh Error threshold to end iterations. Default is 0.0001.
-#' @param ... Additional arguments passed to or from other functions
+#' @inheritParams fpca_gauss
 #' 
 #' @author Julia Wrobel \email{julia.wrobel@@cuanschutz.edu},
 #' Jeff Goldsmith \email{ajg2202@@cumc.columbia.edu}
