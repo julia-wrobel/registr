@@ -13,6 +13,9 @@ loss_h(
   family,
   t_min,
   t_max,
+  t_max_curve,
+  preserve_domain = TRUE,
+  lambda_endpoint = NULL,
   periodic = FALSE,
   Kt = 8,
   warping = "nonparametric",
@@ -37,6 +40,17 @@ loss_h(
 
 \item{t_max}{maximum value to be evaluated on the time domain.}
 
+\item{t_max_curve}{maximum value of the observed time domain of the
+(potentially incomplete) curve.}
+
+\item{preserve_domain}{Indicator if the registration should preserve the
+time domain, leading to warping functions that end on the diagonal.
+Defaults to \code{TRUE}.}
+
+\item{lambda_endpoint}{Penalization parameter to control the amount of
+deviation of the warping function endpoints from the diagonal. Only used if
+\code{preserve_domain = FALSE}.}
+
 \item{periodic}{If \code{TRUE} uses periodic b-spline basis functions. Default is \code{FALSE}.}
 
 \item{Kt}{Number of B-spline basis functions used to estimate mean functions. Default is 8.}
@@ -57,5 +71,6 @@ Loss function for registration step optimization
 }
 \author{
 Julia Wrobel \email{julia.wrobel@cuanschutz.edu},
-Erin McDonnell \email{eim2117@cumc.columbia.edu}
+Erin McDonnell \email{eim2117@cumc.columbia.edu},
+Alexander Bauer \email{alexander.bauer@stat.uni-muenchen.de}
 }

@@ -14,7 +14,7 @@
 #' \item{Y_rows}{A dataframe containing the first and last row for each subject.}
 #' 
 #' @export
-
+#' 
 data_clean <- function(data, family = "binomial"){
   
 	## NULLify global values called by tidyverse functions
@@ -38,14 +38,14 @@ data_clean <- function(data, family = "binomial"){
   	group_by(id) %>% 
     filter(row_number() == 1 | row_number() == n()) %>% 
   	mutate(index = c("first", "last")) %>%
-    select(-value ) %>% 
-  	spread(index, row) %>% 
+    select(-value) %>% 
+  	tidyr::spread(index, row) %>% 
   	ungroup() %>% 
   	mutate(subject = row_number())
   
   data = data %>%
   	group_by(id) %>%
-  	mutate(index_scaled = (index - min(index))/max(index) ) %>%
+  	mutate(index_scaled = (index - min(index))/ (max(index) - min(index)) ) %>%
   	ungroup()
   
   colnames(data_rows) <- c("id", "first_row", "last_row", "subject")

@@ -9,6 +9,8 @@ register_fpca(
   Kt = 8,
   Kh = 4,
   family = "binomial",
+  preserve_domain = TRUE,
+  lambda_endpoint = NULL,
   max_iterations = 10,
   npc = 1,
   fpca_maxiter = 50,
@@ -21,11 +23,20 @@ register_fpca(
 \arguments{
 \item{Y}{Dataframe. Should have values id, value, index.}
 
-\item{Kt}{Number of B-spline basis functions used to estimate mean functions. Defaults to 8.}
+\item{Kt}{Number of B-spline basis functions used to estimate mean functions. Default is 8.}
 
-\item{Kh}{Number of B-spline basis functions used to estimate warping functions \emph{h}. Defaults to 4.}
+\item{Kh}{Number of B-spline basis functions used to estimate warping functions \emph{h}. Default is 4.}
 
 \item{family}{\code{gaussian} or \code{binomial}.}
+
+\item{preserve_domain}{Indicator if the registration should preserve the
+time domain, leading to warping functions that end on the diagonal.
+Defaults to \code{TRUE}. Can only be set to \code{FALSE} when
+\code{warping = "nonparametric"}.}
+
+\item{lambda_endpoint}{Penalization parameter to control the amount of
+deviation of the warping function endpoints from the diagonal. Only used if
+\code{preserve_domain = FALSE}.}
 
 \item{max_iterations}{Number of iterations for overall algorithm. Defaults to 10.}
 
@@ -62,8 +73,8 @@ Function combines constrained optimization and FPCA to estimate warping function
 exponential family curves. The FPCA step is performed through the function 
 \code{\link{bfpca}} if \code{family = "binomial"} or the function 
 \code{\link{fpca_gauss}} if \code{family = "gaussian"}. Warping functions are calculated 
-by the function \code{\link{registr}}.
-By specifying \code{cores > 1}, the registration call can be parallelized.
+by the function \code{\link{registr}}. \cr \cr
+By specifying \code{cores > 1} the registration call can be parallelized.
 }
 \details{
 Requires input data \code{Y} to be a dataframe in long format with variables 
@@ -85,5 +96,6 @@ respectively. The code calls two
 }
 \author{
 Julia Wrobel \email{julia.wrobel@cuanschutz.edu}
-Jeff Goldsmith \email{ajg2202@cumc.columbia.edu}
+Jeff Goldsmith \email{ajg2202@cumc.columbia.edu},
+Alexander Bauer \email{alexander.bauer@stat.uni-muenchen.de}
 }

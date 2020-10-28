@@ -4,17 +4,13 @@
 #' exponential family curves. The FPCA step is performed through the function 
 #' \code{\link{bfpca}} if \code{family = "binomial"} or the function 
 #' \code{\link{fpca_gauss}} if \code{family = "gaussian"}. Warping functions are calculated 
-#' by the function \code{\link{registr}}.
-#' By specifying \code{cores > 1}, the registration call can be parallelized.
+#' by the function \code{\link{registr}}. \cr \cr
+#' By specifying \code{cores > 1} the registration call can be parallelized.
 #' 
 #' Requires input data \code{Y} to be a dataframe in long format with variables 
 #' \code{id}, \code{index}, and \code{value} to indicate subject IDs, times, and observations, 
 #' respectively. The code calls two 
 #'
-#' @param Y Dataframe. Should have values id, value, index.
-#' @param Kt Number of B-spline basis functions used to estimate mean functions. Defaults to 8.
-#' @param Kh Number of B-spline basis functions used to estimate warping functions \emph{h}. Defaults to 4.
-#' @param family \code{gaussian} or \code{binomial}.
 #' @param max_iterations Number of iterations for overall algorithm. Defaults to 10.
 #' @param npc Number of principal components to calculate. Defaults to 1. 
 #' @param fpca_maxiter Number to pass to the \code{maxiter} argument of `bfpca()` or `fpca_gauss()`. Default is 50.
@@ -24,7 +20,8 @@
 #' @inheritParams registr
 #'
 #' @author Julia Wrobel \email{julia.wrobel@@cuanschutz.edu}
-#' Jeff Goldsmith \email{ajg2202@@cumc.columbia.edu}
+#' Jeff Goldsmith \email{ajg2202@@cumc.columbia.edu},
+#' Alexander Bauer \email{alexander.bauer@@stat.uni-muenchen.de}
 #' @export
 #' 
 #' @return An object of class \code{registration} containing:
@@ -50,9 +47,10 @@
 #'  register_nhanes = register_fpca(nhanes, npc = 2, family = "binomial", max_iterations = 5)
 #' }
 #'
-register_fpca <- function(Y, Kt = 8, Kh = 4, family = "binomial", max_iterations = 10, 
-													npc = 1, fpca_maxiter = 50, fpca_seed = 1988, 
-													fpca_error_thresh = 0.0001, cores = 1L, ...){
+register_fpca <- function(Y, Kt = 8, Kh = 4, family = "binomial",
+													preserve_domain = TRUE, lambda_endpoint = NULL,
+													max_iterations = 10, npc = 1, fpca_maxiter = 50,
+													fpca_seed = 1988, fpca_error_thresh = 0.0001, cores = 1L, ...){
 	
   if( !(family %in% c("binomial", "gaussian")) ){
   	stop("Package currently handles only 'binomial' or 'gaussian' families.")
@@ -68,6 +66,8 @@ register_fpca <- function(Y, Kt = 8, Kh = 4, family = "binomial", max_iterations
 
   # first register values to the overall mean
   registr_step = registr(Y = Y, Kt = Kt, Kh = Kh, family = family,
+  											 preserve_domain = preserve_domain,
+  											 lambda_endpoint = lambda_endpoint,
   											 row_obj = rows, cores = cores, ...)
   time_warps[[2]] = registr_step$Y$index
   loss[1] = registr_step$loss
@@ -87,6 +87,8 @@ register_fpca <- function(Y, Kt = 8, Kh = 4, family = "binomial", max_iterations
   	}
   	
   	registr_step = registr(obj = fpca_step, Kt = Kt, Kh = Kh, family = family, 
+  												 preserve_domain = preserve_domain,
+  												 lambda_endpoint = lambda_endpoint,
   												 row_obj = rows, beta = registr_step$beta, cores = cores, ...)
   	
   	time_warps[[iter + 2]] = registr_step$Y$index
