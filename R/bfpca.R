@@ -46,98 +46,98 @@ bfpca <- function(Y, npc = 1, Kt = 8, maxiter = 50, t_min = NULL, t_max = NULL,
 									seed = 1988, periodic = FALSE, error_thresh = 0.0001, ...){
 	
   curr_iter = 1
-  error = rep(NA, maxiter)
-  error[1] = 100.0
+  error     = rep(NA, maxiter)
+  error[1]  = 100.0
   
   ## clean data
-  if(is.null(row_obj)){
+  if (is.null(row_obj)) {
     data = data_clean(Y)
-    Y = data$Y
+    Y    = data$Y
     rows = data$Y_rows
-    I = data$I
-  }else{
+    I    = data$I
+  } else {
     rows = row_obj
-    I = dim(rows)[1]
+    I    = dim(rows)[1]
   }
   
-  if(Kt < 3){
+  if (Kt < 3) {
   	stop("Kt must be greater than or equal to 3.")
   }
   
   time = Y$index
   
   ## check that data is binary
-  if(any( !(Y$value %in% c(0, 1)))){
+  if (any( !(Y$value %in% c(0, 1)))) {
   	stop("'binomial' family requires data with binary values of 0 or 1")
   }
   
   ## construct theta matrix
-  if (is.null(t_min)) {t_min = min(time)}
-  if (is.null(t_max)) {t_max = max(time)}
+  if (is.null(t_min)) { t_min = min(time) }
+  if (is.null(t_max)) { t_max = max(time) }
   
-  if(periodic){
+  if (periodic) {
   	# if periodic, then we want more global knots, because the resulting object from pbs 
   	# only has (knots+intercept) columns.
-  	knots = quantile(time, probs = seq(0, 1, length = Kt + 1))[-c(1, Kt + 1)]
+  	knots     = quantile(time, probs = seq(0, 1, length = Kt + 1))[-c(1, Kt + 1)]
   	Theta_phi = pbs(c(t_min, t_max, time), knots = knots, intercept = TRUE)[-(1:2),]
-  }else{
+  } else {
   	# if not periodic, then we want fewer global knots, because the resulting object from bs
   	# has (knots+degree+intercept) columns, and degree is set to 3 by default.
-  	knots = quantile(time, probs = seq(0, 1, length = Kt - 2))[-c(1, Kt - 2)]
-  	Theta_phi =  bs(c(t_min, t_max, time), knots = knots, intercept = TRUE)[-(1:2),]
+  	knots     = quantile(time, probs = seq(0, 1, length = Kt - 2))[-c(1, Kt - 2)]
+  	Theta_phi = bs(c(t_min, t_max, time), knots = knots, intercept = TRUE)[-(1:2),]
   }
   
   ## initialize all your vectors
   set.seed(seed)
   
-  xi = matrix(rnorm(dim(Y)[1]), ncol = 1) * 0.5
+  xi          = matrix(rnorm(dim(Y)[1]), ncol = 1) * 0.5
   alpha_coefs = matrix(coef(glm(Y$value ~ 0 + Theta_phi, family = "binomial")), Kt, 1)
   
   psi_coefs = matrix(rnorm(Kt * npc), Kt, npc) * 0.5
   
   temp_alpha_coefs = alpha_coefs
-  temp_psi_coefs = psi_coefs
+  temp_psi_coefs   = psi_coefs
   
-  phi_a = list(NA, I)
-  phi_b = matrix(0, nrow = Kt * (npc+1), ncol = I)
+  phi_a  = list(NA, I)
+  phi_b  = matrix(0, nrow = Kt * (npc+1), ncol = I)
   scores = matrix(NA, I, npc)
   
-  while(curr_iter < maxiter && error[curr_iter] > error_thresh){
+  while (curr_iter < maxiter && error[curr_iter] > error_thresh) {
 
-    if(print.iter){
+    if (print.iter) {
       message("current iteration: ", curr_iter)
       message("current error: ", error[curr_iter])
     }
     
-    for(i in 1:I){
+    for (i in 1:I) {
     
       subject_rows = rows$first_row[i]:rows$last_row[i]
       
       Yi = Y$value[subject_rows]
       Di = length(Yi)
-      Theta_i = Theta_phi[subject_rows, ] 
-      xi_i = xi[subject_rows,]
+      Theta_i      = Theta_phi[subject_rows, ] 
+      xi_i         = xi[subject_rows,]
       Theta_i_quad = squareTheta(xi_i, Theta_i)
        
-      ##### posterior scores
+      # posterior scores
       mlist = expectedScores(Yi, temp_alpha_coefs, temp_psi_coefs, Theta_i, Theta_i_quad)
       
       Ci = mlist$Ci
       mi = mlist$mi
       mm = Ci + tcrossprod(mi)
       
-      ##### variational parameter xi
+      # variational parameter xi
       xi[ subject_rows, 1] = expectedXi(Theta_i, temp_alpha_coefs, mi, temp_psi_coefs, Ci)
       xi_i = xi[subject_rows, ]
       
       Theta_i_quad = squareTheta(xi_i, Theta_i)
       
-      #***************** estimate phi by maximum likelihood
+      # estimate phi by maximum likelihood
       si = rbind(mi, 1)
       ss = cbind(rbind(mm, t(mi)), si)
       
       phi_a[[i]] = 2.0 * kronecker(Theta_i_quad, ss)  
-      phi_b[,i] = t((Yi - 0.5) %*% kronecker(Theta_i, t(si)) )
+      phi_b[,i]  = t((Yi - 0.5) %*% kronecker(Theta_i, t(si)) )
       
       scores[i,] = mi
       
@@ -149,61 +149,61 @@ bfpca <- function(Y, npc = 1, Kt = 8, maxiter = 50, t_min = NULL, t_max = NULL,
     phi_mat = matrix(phi_vec, nrow = Kt, ncol = npc + 1, byrow = TRUE)
     
     alpha_coefs = phi_mat[, npc+1]
-    psi_coefs = phi_mat[, 1:npc]
+    psi_coefs   = phi_mat[, 1:npc]
     
-    if(npc == 1){ psi_coefs = matrix(psi_coefs, ncol = 1)}
+    if (npc == 1) { psi_coefs = matrix(psi_coefs, ncol = 1) }
     
     ## calculate error
-    curr_iter = curr_iter + 1
+    curr_iter        = curr_iter + 1
     error[curr_iter] = sum((psi_coefs-temp_psi_coefs)^2) + sum((alpha_coefs-temp_alpha_coefs)^2)
 
-    temp_psi_coefs = psi_coefs
+    temp_psi_coefs   = psi_coefs
     temp_alpha_coefs = alpha_coefs
     
   } ## end while loop
   
-  if(curr_iter < maxiter){
+  if (curr_iter < maxiter) {
   	message("BFPCA converged.")
-  } else{
+  } else {
   	warning("BFPCA convergence not reached. Try increasing maxiter")
   }
 
-  fits = rep(NA, dim(Y)[1])
+  fits         = rep(NA, dim(Y)[1])
   subject_coef = alpha_coefs + tcrossprod(psi_coefs, scores)
  
-   for(i in 1:I){
-    subject_rows = rows$first_row[i]:rows$last_row[i]
+   for (i in 1:I) {
+    subject_rows       = rows$first_row[i]:rows$last_row[i]
     fits[subject_rows] = Theta_phi[subject_rows, ] %*% subject_coef[,i]
    }
   
   fittedVals = data.frame(id = Y$id, index = Y$index, value = fits)
   
   ## mean and eigenfunctions will have same number of grid points as last subject
-  if(periodic){
+  if (periodic) {
   	Theta_phi_mean = pbs(seq(t_min, t_max, length.out = Di), knots = knots, intercept = TRUE)
-  }else{
-  	Theta_phi_mean =  bs(seq(t_min, t_max, length.out = Di), knots = knots, intercept = TRUE)
+  } else {
+  	Theta_phi_mean = bs(seq(t_min, t_max, length.out = Di), knots = knots, intercept = TRUE)
   }
   
   # orthogonalize eigenvectors and extract eigenvalues
-  psi_svd = svd(Theta_phi_mean %*% psi_coefs)
+  psi_svd    = svd(Theta_phi_mean %*% psi_coefs)
   efunctions = psi_svd$u
-  evalues = ( psi_svd$d ) ^ 2
-  scores = scores %*% psi_svd$v
+  evalues    = ( psi_svd$d ) ^ 2
+  scores     = scores %*% psi_svd$v
   
   ret = list(
-    "knots" = knots, 
-    "alpha" = Theta_phi_mean %*% alpha_coefs,
-    "mu" = Theta_phi_mean %*% alpha_coefs, # return this to be consistent with refund.shiny
-    "efunctions" = efunctions, 
-    "evalues" =  evalues,
-    "npc" = npc,
-    "scores" = scores,
-    "subject_coefs" = subject_coef,
-    "Yhat" = fittedVals, 
-    "Y" = Y, 
-    "family" = "binomial",
-    "error" = error[!is.na(error)]
+    knots         = knots, 
+    alpha         = Theta_phi_mean %*% alpha_coefs,
+    mu            = Theta_phi_mean %*% alpha_coefs, # return this to be consistent with refund.shiny
+    efunctions    = efunctions, 
+    evalues       =  evalues,
+    npc           = npc,
+    scores        = scores,
+    subject_coefs = subject_coef,
+    Yhat          = fittedVals, 
+    Y             = Y, 
+    family        = "binomial",
+    error         = error[!is.na(error)]
   )
 
   class(ret) = "fpca" 

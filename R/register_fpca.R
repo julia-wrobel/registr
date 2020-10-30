@@ -9,7 +9,7 @@
 #' 
 #' Requires input data \code{Y} to be a dataframe in long format with variables 
 #' \code{id}, \code{index}, and \code{value} to indicate subject IDs, times, and observations, 
-#' respectively. The code calls two 
+#' respectively.
 #'
 #' @param max_iterations Number of iterations for overall algorithm. Defaults to 10.
 #' @param npc Number of principal components to calculate. Defaults to 1. 

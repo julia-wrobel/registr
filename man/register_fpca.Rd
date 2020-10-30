@@ -79,7 +79,7 @@ By specifying \code{cores > 1} the registration call can be parallelized.
 \details{
 Requires input data \code{Y} to be a dataframe in long format with variables 
 \code{id}, \code{index}, and \code{value} to indicate subject IDs, times, and observations, 
-respectively. The code calls two
+respectively.
 }
 \examples{
 
