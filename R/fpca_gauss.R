@@ -111,8 +111,7 @@ fpca_gauss <- function(Y, npc = 1, Kt = 8, maxiter = 20, t_min = NULL, t_max = N
   	for (i in 1:I) {
   		subject_rows = rows$first_row[i]:rows$last_row[i]
   		
-  		Yi = Y$value[subject_rows]
-  		Di = length(Yi)
+  		Yi           = Y$value[subject_rows]
   		Theta_i      = Theta_phi[subject_rows, ] 
   		Theta_i_quad = crossprod(Theta_i)
   		
@@ -173,11 +172,13 @@ fpca_gauss <- function(Y, npc = 1, Kt = 8, maxiter = 20, t_min = NULL, t_max = N
   
   fittedVals = data.frame(id = Y$id, index = Y$index, value = fits)
   
-  ## mean and eigenfunctions will have same number of grid points as last subject
+  ## mean and eigenfunctions will have the same grid as the subject with most measurements
+  id_mostObserved = names(sort(table(data$Y$id), decreasing = TRUE))[1]
+  t_vec           = sort(data$Y$index[data$Y$id == id_mostObserved])
   if (periodic) {
-  	Theta_phi_mean = pbs(seq(t_min, t_max, length.out = Di), knots = knots, intercept = TRUE)
+  	Theta_phi_mean = pbs(t_vec, knots = knots, intercept = TRUE)
   } else {
-  	Theta_phi_mean =  bs(seq(t_min, t_max, length.out = Di), knots = knots, intercept = TRUE)
+  	Theta_phi_mean =  bs(t_vec, knots = knots, intercept = TRUE)
   }
   
   # orthogonalize eigenvectors and extract eigenvalues
@@ -191,7 +192,7 @@ fpca_gauss <- function(Y, npc = 1, Kt = 8, maxiter = 20, t_min = NULL, t_max = N
   	alpha         = Theta_phi_mean %*% alpha_coefs,
   	mu            = Theta_phi_mean %*% alpha_coefs, # return this to be consistent with refund.shiny
   	efunctions    = efunctions, 
-  	evalues       =  evalues,
+  	evalues       = evalues,
   	npc           = npc,
   	scores        = scores,
   	subject_coefs = subject_coef,
