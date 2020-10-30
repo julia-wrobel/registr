@@ -97,3 +97,40 @@ test_that("register_fpca for binary data with parametric warping functions and/o
 	expect_error(register_fpca(Y, family = "binomial", periodic = FALSE, warping = "piecewise_linear2", gradient = FALSE), NA)
 	expect_error(register_fpca(Y, family = "binomial", periodic = TRUE,  warping = "piecewise_linear2", gradient = FALSE), NA)
 })
+
+test_that("register_fpca with preserve_domain = TRUE leads to endpoints on the diagonal",{
+	Y   = registr::growth_incomplete
+	reg = register_fpca(Y = Y, family = "gaussian", preserve_domain = TRUE)
+	
+	t_max_observed   = tapply(X = reg$Y$tstar, INDEX = reg$Y$id, FUN = max)
+	t_max_registered = tapply(X = reg$Y$index, INDEX = reg$Y$id, FUN = max)
+	expect_equal(t_max_registered, expected = t_max_observed)
+})
+
+test_that("register_fpca with preserve_domain = FALSE and lambda_endpoint = 0: warping functions do not exceed the overall time domain",{
+	Y   = registr::growth_incomplete
+	reg = register_fpca(Y = Y, family = "gaussian", preserve_domain = TRUE)
+	
+	t_min = min(Y$index)
+	t_max = max(Y$index)
+	# round the registered times to prevent numerical / machine number errors
+	expect_gte(round(min(reg$Y$t_hat), 10), expected = t_min)
+	expect_lte(round(max(reg$Y$t_hat), 10), expected = t_max)
+})
+
+test_that("register_fpca with preserve_domain = FALSE: higher lambda_endpoint values lead to endpoints closer to the diagonal",{
+	Y = registr::growth_incomplete
+	reg1 = register_fpca(Y = Y, family = "gaussian", preserve_domain = FALSE,
+											 lambda_endpoint = 1)
+	reg2 = register_fpca(Y = Y, family = "gaussian", preserve_domain = FALSE,
+											 lambda_endpoint = 10)
+	
+	# compare the MSE values of the warping function endpoints to the diagonal
+	t_max_observed_1   = tapply(X = reg1$Y$tstar, INDEX = reg1$Y$id, FUN = max)
+	t_max_registered_1 = tapply(X = reg1$Y$t_hat, INDEX = reg1$Y$id, FUN = max)
+	t_max_observed_2   = tapply(X = reg2$Y$tstar, INDEX = reg2$Y$id, FUN = max)
+	t_max_registered_2 = tapply(X = reg2$Y$t_hat, INDEX = reg2$Y$id, FUN = max)
+	MSE1 <- sum((t_max_registered_1 - t_max_observed_1)^2)
+	MSE2 <- sum((t_max_registered_2 - t_max_observed_2)^2)
+	expect_gt(MSE1, expected = MSE2)
+})

@@ -26,7 +26,7 @@ test_that("fpca_gauss output has correct number of dimensions",{
 	expect_equal(dim(fpca_object$scores), c(100, 2))
 	expect_equal(length(fpca_object$knots), Kt - 4)
 	
-	fpca_object = bfpca(Y, npc = 1, Kt = Kt, print.iter = TRUE)
+	fpca_object = fpca_gauss(Y, npc = 1, Kt = Kt, print.iter = TRUE)
 	expect_equal(dim(fpca_object$efunctions), c(200, 1))
 })
 
@@ -41,6 +41,21 @@ test_that("fpca_gauss output has correct number of dimensions when periodic = TR
 	expect_equal(dim(fpca_object$scores), c(100, 2))
 	expect_equal(length(fpca_object$knots), Kt - 1)
 	
-	fpca_object = bfpca(Y, npc = 1, Kt = Kt, periodic = TRUE, print.iter = TRUE)
+	fpca_object = fpca_gauss(Y, npc = 1, Kt = Kt, periodic = TRUE, print.iter = TRUE)
 	expect_equal(dim(fpca_object$efunctions), c(200, 1))
+})
+
+test_that("fpca_gauss has correct number of dimensions when applied on incomplete curves",{
+	Y = registr::growth_incomplete
+	Kt = 8
+	fpca_object = fpca_gauss(Y, npc = 2, Kt = Kt, print.iter = TRUE)
+	
+	expect_equal(dim(fpca_object$alpha), c(length(unique(Y$index)), 1))
+	expect_equal(dim(fpca_object$efunctions), c(length(unique(Y$index)), 2))
+	expect_equal(length(fpca_object$evalues), 2)
+	expect_equal(dim(fpca_object$scores), c(length(unique(Y$id)), 2))
+	expect_equal(length(fpca_object$knots), Kt - 4)
+	
+	fpca_object = fpca_gauss(Y, npc = 1, Kt = Kt, print.iter = TRUE)
+	expect_equal(dim(fpca_object$efunctions), c(length(unique(Y$index)), 1))
 })

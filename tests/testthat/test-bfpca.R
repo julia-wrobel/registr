@@ -92,3 +92,20 @@ test_that("bfpca output has correct number of dimensions when periodic = TRUE ",
 	bfpca_object = bfpca(Y, npc = 1, periodic = TRUE, print.iter = TRUE)
 	expect_equal(dim(bfpca_object$efunctions), c(200, 1))
 })
+
+test_that("bfpca has correct number of dimensions when applied on incomplete curves",{
+	# simulate incompleteness by cutting-off some ids at some point
+	Y  = simulate_functional_data(I = 100, D = 200)$Y
+	Y  = Y[!(Y$id %in% unique(Y$id)[1:50]) | (Y$index < 0.5),]
+	Kt = 8
+	fpca_object = bfpca(Y, npc = 2, Kt = Kt, print.iter = TRUE)
+	
+	expect_equal(dim(fpca_object$alpha), c(length(unique(Y$index)), 1))
+	expect_equal(dim(fpca_object$efunctions), c(length(unique(Y$index)), 2))
+	expect_equal(length(fpca_object$evalues), 2)
+	expect_equal(dim(fpca_object$scores), c(length(unique(Y$id)), 2))
+	expect_equal(length(fpca_object$knots), Kt - 4)
+	
+	fpca_object = bfpca(Y, npc = 1, Kt = Kt, print.iter = TRUE)
+	expect_equal(dim(fpca_object$efunctions), c(length(unique(Y$index)), 1))
+})
