@@ -173,8 +173,8 @@ fpca_gauss <- function(Y, npc = 1, Kt = 8, maxiter = 20, t_min = NULL, t_max = N
   fittedVals = data.frame(id = Y$id, index = Y$index, value = fits)
   
   ## mean and eigenfunctions will have the same grid as the subject with most measurements
-  id_mostObserved = names(sort(table(data$Y$id), decreasing = TRUE))[1]
-  t_vec           = sort(data$Y$index[data$Y$id == id_mostObserved])
+  id_mostObserved = names(sort(table(Y$id), decreasing = TRUE))[1]
+  t_vec           = sort(Y$index[Y$id == id_mostObserved])
   if (periodic) {
   	Theta_phi_mean = pbs(t_vec, knots = knots, intercept = TRUE)
   } else {
