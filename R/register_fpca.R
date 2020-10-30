@@ -36,15 +36,33 @@
 #' @return family \code{gaussian} or \code{binomial}.
 #'  
 #' @examples
-#'
-#' 
-#'  Y = simulate_unregistered_curves(I = 20, D = 200)
-#'  registr_object = register_fpca(Y, family = "binomial", max_iterations = 5)
-#' 
+#' ### complete binomial curves
+#' Y = simulate_unregistered_curves(I = 20, D = 200)
+#' registr_object = register_fpca(Y, family = "binomial", max_iterations = 5)
 #' \donttest{ 
-#'  # example using accelerometer data from nhanes 2003-2004 study
-#'  data(nhanes)
-#'  register_nhanes = register_fpca(nhanes, npc = 2, family = "binomial", max_iterations = 5)
+#' # example using accelerometer data from nhanes 2003-2004 study
+#' data(nhanes)
+#' register_nhanes = register_fpca(nhanes, npc = 2, family = "binomial", max_iterations = 5)
+#' 
+#' ### incomplete Gaussian curves
+#' data(growth_incomplete)
+#' library(ggplot2)
+#' 
+#' # Force the warping functions to end on the diagonal
+#' registr_object2a = register_fpca(growth_incomplete, npc = 2, family = "gaussian",
+#'                                  preserve_domain = TRUE, max_iterations = 5)
+#' ggplot(registr_object2a$Y, aes(x = tstar, y = t_hat, group = id)) +
+#'   geom_line(alpha = 0.2) +
+#'   ggtitle("Estimated warping functions")
+#'
+#' # Allow the warping functions to not end on the diagonal.
+#' # The higher lambda_endpoint, the more the endpoints are forced towards the diagonal.
+#' registr_object2b = register_fpca(growth_incomplete, npc = 2, family = "gaussian",
+#'                                  preserve_domain = FALSE, lambda_endpoint = 1,
+#'                                  max_iterations = 5)
+#' ggplot(registr_object2b$Y, aes(x = tstar, y = t_hat, group = id)) +
+#'   geom_line(alpha = 0.2) +
+#'   ggtitle("Estimated warping functions")
 #' }
 #'
 register_fpca <- function(Y, Kt = 8, Kh = 4, family = "binomial",

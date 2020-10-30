@@ -29,8 +29,9 @@
 #' Defaults to \code{TRUE}. Can only be set to \code{FALSE} when
 #' \code{warping = "nonparametric"}.
 #' @param lambda_endpoint Penalization parameter to control the amount of
-#' deviation of the warping function endpoints from the diagonal. Only used if
-#' \code{preserve_domain = FALSE}.
+#' deviation of the warping function endpoints from the diagonal. The higher
+#' this lambda, the more the endpoints are forced towards the diagonal.
+#' Only used if \code{preserve_domain = FALSE}.
 #' @param beta Current estimates for beta for each subject. Default is NULL. 
 #' @param t_min Minimum value to be evaluated on the time domain.
 #' if `NULL`, taken to be minimum observed value.
@@ -63,17 +64,31 @@
 #' @importFrom parallel mclapply makePSOCKcluster clusterExport clusterEvalQ parLapply stopCluster
 #' 
 #' @examples
+#' ### complete binomial curves
 #' Y = simulate_unregistered_curves()
 #' register_step = registr(obj = NULL, Y = Y, Kt = 6, Kh = 4, family = "binomial", 
-#'    gradient = TRUE)
-#' testthat::expect_error({
-#' registr(obj = list(Y = Y), Kt = 6, Kh = 4, family = "binomial", 
-#'    gradient = TRUE)
-#' })
+#' 	 											 gradient = TRUE)
 #' \donttest{
-#' Y = simulate_unregistered_curves()
-#' register_step = registr(obj = NULL, Y = Y, Kt = 6, Kh = 4, family = "binomial", 
-#'    gradient = TRUE)
+#' ### incomplete Gaussian curves
+#' data(growth_incomplete)
+#' library(ggplot2)
+#' 
+#' # Force the warping functions to end on the diagonal
+#' register_step2a = registr(obj = NULL, Y = growth_incomplete, Kt = 6, Kh = 4,
+#'                           family = "gaussian", gradient = TRUE,
+#'                           preserve_domain = TRUE)
+#' ggplot(register_step2a$Y, aes(x = tstar, y = index, group = id)) +
+#'   geom_line(alpha = 0.2) +
+#'   ggtitle("Estimated warping functions")
+#' 	
+#' # Allow the warping functions to not end on the diagonal.
+#' # The higher lambda_endpoint, the more the endpoints are forced towards the diagonal.
+#' register_step2b = registr(obj = NULL, Y = growth_incomplete, Kt = 6, Kh = 4,
+#'                           family = "gaussian", gradient = TRUE,
+#'                           preserve_domain = FALSE, lambda_endpoint = 1)
+#' ggplot(register_step2b$Y, aes(x = tstar, y = index, group = id)) +
+#'   geom_line(alpha = 0.2) +
+#'   ggtitle("Estimated warping functions")
 #' }
 #'
 registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gradient = TRUE,
@@ -240,7 +255,7 @@ registr_oneCurve <- function(i, arg_list, ...) {
 	t_max_i       = arg_list$Y$tstar[arg_list$rows$last_row[i]]
 	Y_cropped     = arg_list$Y[arg_list$Y$tstar <= t_max_i,]
 	tstar_cropped = Y_cropped$tstar
-	rows_i        = arg_list$rows$first_row[i]:arg_list$rows$last_row[i]
+	rows_i        = which(Y_cropped$id == arg_list$rows$id[i])
 	Y_i           = Y_cropped$value[rows_i]
 	D_i           = length(Y_i)
 	
