@@ -34,6 +34,7 @@
 #' @importFrom splines bs
 #' @importFrom pbs pbs
 #' @importFrom stats dnorm
+#' @importFrom utils tail
 #' @export
 #'
 loss_h = function(Y, Theta_h, mean_coefs, knots, beta.inner, family, t_min, t_max, 
@@ -85,7 +86,7 @@ loss_h = function(Y, Theta_h, mean_coefs, knots, beta.inner, family, t_min, t_ma
   if (preserve_domain || (lambda_endpoint == 0)) { # no penalization
   	pen_term = 0
   } else { # penalize the deviation of the endpoint from the diagonal
-  	pen_term = (tail(hinv_tstar, 1) - t_max_curve)^2
+  	pen_term = (utils::tail(hinv_tstar, 1) - t_max_curve)^2
   	pen_term = lambda_endpoint * pen_term
   }
   

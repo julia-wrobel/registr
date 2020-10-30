@@ -4,6 +4,7 @@
 ^appveyor\.yml$
 ^paper$
 ^README\.Rmd$
+^data-raw$
 ^\.DS_Store
 ^cran-comments\.md$
 ^README_files$
