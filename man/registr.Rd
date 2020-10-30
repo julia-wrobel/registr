@@ -101,7 +101,7 @@ By specifying \code{cores > 1} the registration call can be parallelized.
 ### complete binomial curves
 Y = simulate_unregistered_curves()
 register_step = registr(obj = NULL, Y = Y, Kt = 6, Kh = 4, family = "binomial", 
-	 											 gradient = TRUE)
+                        gradient = TRUE)
 \donttest{
 ### incomplete Gaussian curves
 data(growth_incomplete)
