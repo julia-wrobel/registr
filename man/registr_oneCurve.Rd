@@ -26,5 +26,7 @@ It performs the main optimization step with \code{constrOptim} for the
 registration of one curve.
 }
 \author{
+Julia Wrobel \email{julia.wrobel@cuanschutz.edu},
+Erin McDonnell \email{eim2117@cumc.columbia.edu},
 Alexander Bauer \email{alexander.bauer@stat.uni-muenchen.de}
 }

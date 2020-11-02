@@ -1,30 +1,26 @@
 #' Gradient of loss function for registration step
 #'
-#' @param Y vector of observed points.
-#' @param Theta_h B-spline basis for inverse warping functions.
-#' @param mean_coefs spline coefficient vector for mean curve.
-#' @param knots knot locations for B-spline basis used to estimate mean and FPC basis function.
-#' @param beta.inner spline coefficient vector to be estimated for warping function h.
-#' @param family \code{gaussian} or \code{binomial}.
-#' @param t_min minimum value to be evaluated on the time domain. 
-#' @param t_max maximum value to be evaluated on the time domain. 
-#' @param Kt Number of B-spline basis functions used to estimate mean functions. Default is 8.
 #' @param periodic If \code{TRUE}, uses periodic b-spline basis functions. Default is \code{FALSE}. 
 #' \code{loss_h_gradient()} is currently only available for \code{periodic = FALSE}.
 #' @param warping If \code{nonparametric} (default), inverse warping functions are estimated nonparametrically. 
 #' If \code{piecewise_linear2} they follow a piecewise linear function with 2 knots.
 #' \code{loss_h_gradient()} is currently only available for \code{warping = "nonparametric"}.
+#' @inheritParams loss_h
 #' 
-#' @author Julia Wrobel \email{julia.wrobel@@cuanschutz.edu}
+#' @author Julia Wrobel \email{julia.wrobel@@cuanschutz.edu},
+#' Alexander Bauer \email{alexander.bauer@@stat.uni-muenchen.de}
 #' 
 #' @importFrom stats plogis
+#' @importFrom splines bs
 #' 
 #' @return A numeric vector of spline coefficients for the gradient of the loss function.
 #' 
 #' @export
 #'
 loss_h_gradient = function(Y, Theta_h, mean_coefs, knots, beta.inner, family = "gaussian",
-                           t_min, t_max, Kt = 8, periodic = FALSE, warping = "nonparametric"){
+                           preserve_domain = TRUE, lambda_endpoint = NULL,
+                           t_min, t_max, t_max_curve, Kt = 8, periodic = FALSE,
+                           warping = "nonparametric"){
   
   if(periodic){
     stop("loss_h_gradient() only available for periodic = FALSE")
@@ -33,34 +29,54 @@ loss_h_gradient = function(Y, Theta_h, mean_coefs, knots, beta.inner, family = "
     stop("loss_h_gradient() only available for warping = nonparametric")
   }
   
-	Di = length(Y)
-	Kh = dim(Theta_h)[2]
-  beta = c(t_min, beta.inner, t_max)
-  
-  hinv_tstar = Theta_h %*% beta
+	D_i        = length(Y)
+	Kh         = dim(Theta_h)[2]
   mean_coefs = matrix(mean_coefs, ncol = 1)
   
-  Theta_phi = bs(hinv_tstar, knots = knots, intercept = TRUE)
-  Theta_phi_deriv = bs_deriv(hinv_tstar, knots)
+	# get the registered t values
+	if (preserve_domain) { # the warping function should end on the diagonal
+	  beta = c(t_min, beta.inner, t_max)
+	} else { # the warping function not necessarily ends on the diagonal
+	  beta = c(t_min, beta.inner)
+	}
+	hinv_tstar = c(Theta_h %*% beta) # c() as a slightly faster version of as.vector()
   
-  if(family == "binomial"){
+	# evaluate the gradient at the registered t values
+	Theta_phi       = splines::bs(c(t_min, t_max, hinv_tstar), 
+	                              knots = knots, intercept = TRUE)[-(1:2),]
+	boundary_knots  = c(t_min, t_max)
+  Theta_phi_deriv = bs_deriv(hinv_tstar, knots)
+  if (family == "binomial") {
   	varphi = 1
   	b_g_deriv = plogis(Theta_phi %*% mean_coefs)
-  }else if (family == "gaussian"){
+  } else if (family == "gaussian") {
   	varphi = 1
   	b_g_deriv = Theta_phi %*% mean_coefs
-  }else{
+  } else {
   	stop("Package currently handles only 'binomial' or 'gaussian' families.")
   }
   
-  gradient_mat = matrix(NA, Kh, Di)
-  for(j in 1:Di){
+  gradient_mat = matrix(NA, Kh, D_i)
+  for(j in 1:D_i){
   	gradient_mat[, j] = (Y - b_g_deriv)[j] * (Theta_phi_deriv %*% mean_coefs)[j] * Theta_h[j,]
   }
   
-  grad = 1/varphi * rowSums(gradient_mat)
+  # derivatives of the penalization term
+  if (preserve_domain || (lambda_endpoint == 0)) { # no penalization
+    pen_term = 0
+  } else { # penalize the deviation of the endpoint from the diagonal
+    theta_h  <- Theta_h[D_i,]
+    pen_term <- 2 * (hinv_tstar[D_i] - t_max_curve) * theta_h
+    pen_term <- lambda_endpoint * pen_term
+  }
   
-  grad.last = length(grad)
-  grad.inner = grad[-c(1, grad.last)]
+  grad = 1/varphi * rowSums(gradient_mat) - pen_term
+  
+  if (preserve_domain) { # the warping function should end on the diagonal
+    grad.inner = grad[-c(1, length(grad))]
+  } else { # the warping function not necessarily ends on the diagonal
+    grad.inner = grad[-1]
+  }
+  
   return(-1 * grad.inner)
 }

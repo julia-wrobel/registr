@@ -1,15 +1,31 @@
-initial_params = function(warping, Kh, t_min, t_max, I){
-	if(warping == "nonparametric"){
-		beta_new = matrix(NA, Kh - 2, I) 
-		beta_0 = seq(t_min, t_max, length.out = Kh)[-c(1, Kh)] 
-	} else if(warping == "piecewise_linear2"){
-		beta_new = matrix(NA, 4, I)
+#' Create initial parameters for (inverse) warping functions
+#' 
+#' Dependent on the specific type of warping functions, this function creates
+#' a vector of initial parameters. For \code{"nonparametric"} warpings that
+#' are based on a given spline basis matrix, the initial parameters are defined
+#' s.t. the resulting (inverse) warping function equals a diagonal line.
+#' For \code{"piecewise_linear2"} warpings a fixed parameter vector is returned.
+#' 
+#' @param K Spline basis matrix defined over the interval \code{c(t_min, t_max)}.
+#' @param t_vec Vector of the observed and potentially irregular time grid.
+#' @inheritParams registr
+#' 
+#' @importFrom MASS ginv
+#' 
+initial_params = function(warping = "nonparametric", K, t_vec){
+
+	if (warping == "nonparametric") {
+		# generalized inverse of non-square matrix
+		K_inv  = MASS::ginv(K)
+		beta_0 = as.vector(K_inv %*% t_vec)
+		
+	} else if (warping == "piecewise_linear2") {
 		beta_0 = c(0.25, 0.3,  0.75, 0.8)
-		rownames(beta_new) = c("knot1_x", "knot1_y", "knot2_x", "knot2_y")
 	}
 	
-	return(list(beta_new = beta_new, beta_0 = beta_0))
+	return(beta_0)
 }
+
 
 
 #' Create two-parameter piecewise linear (inverse) warping functions

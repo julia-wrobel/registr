@@ -8,16 +8,25 @@
 #' @param family \code{gaussian} or \code{binomial}.
 #' @param t_min minimum value to be evaluated on the time domain. 
 #' @param t_max maximum value to be evaluated on the time domain. 
+#' @param t_max_curve maximum value of the observed time domain of the
+#' (potentially incomplete) curve.
+#' @param preserve_domain Indicator if the registration should preserve the
+#' time domain, leading to warping functions that end on the diagonal.
+#' Defaults to \code{TRUE}.
+#' @param lambda_endpoint Penalization parameter to control the amount of
+#' deviation of the warping function endpoints from the diagonal. Only used if
+#' \code{preserve_domain = FALSE}.
 #' @param warping If \code{nonparametric} (default), inverse warping functions are estimated nonparametrically. 
 #' If \code{piecewise_linear2} they follow a piecewise linear function with 2 knots.
 #' @param periodic If \code{TRUE} uses periodic b-spline basis functions. Default is \code{FALSE}.
 #' @param Kt Number of B-spline basis functions used to estimate mean functions. Default is 8.
 #' @param priors For \code{warping = "piecewise_linear2"} only. Logical indicator of whether to add Normal priors to pull the knots toward the identity line. 
 #' @param prior_sd For \code{warping = "piecewise_linear2"} with \code{priors = TRUE} only. User-specified standard deviation for the Normal priors 
-#' (single value applied to all 4 knot priors). 
+#' (single value applied to all 4 knot priors).
 #' 
 #' @author Julia Wrobel \email{julia.wrobel@@cuanschutz.edu},
-#' Erin McDonnell \email{eim2117@@cumc.columbia.edu}
+#' Erin McDonnell \email{eim2117@@cumc.columbia.edu},
+#' Alexander Bauer \email{alexander.bauer@@stat.uni-muenchen.de}
 #' 
 #' @return The scalar value taken by the loss function.
 #' 
@@ -25,10 +34,11 @@
 #' @importFrom splines bs
 #' @importFrom pbs pbs
 #' @importFrom stats dnorm
+#' @importFrom utils tail
 #' @export
 #'
-
 loss_h = function(Y, Theta_h, mean_coefs, knots, beta.inner, family, t_min, t_max, 
+									t_max_curve, preserve_domain = TRUE, lambda_endpoint = NULL,
 									periodic = FALSE, Kt = 8, warping = "nonparametric", 
 									priors = FALSE, prior_sd = NULL){
 	
@@ -44,11 +54,17 @@ loss_h = function(Y, Theta_h, mean_coefs, knots, beta.inner, family, t_min, t_ma
 	if(priors == FALSE & !is.null(prior_sd)){
 		message("prior_sd supplied but priors = FALSE. No priors included.")
 	}
-
-	if(warping == "nonparametric"){
-  	beta = c(t_min, beta.inner, t_max)
+	
+	# get the registered t values
+	if (warping == "nonparametric") {
+		if (preserve_domain) { # the warping function should end on the diagonal
+			beta = c(t_min, beta.inner, t_max)
+		} else { # the warping function not necessarily ends on the diagonal
+			beta = c(t_min, beta.inner)
+		}
   	#hinv_tstar = cbind(1, Theta_h) %*% beta
-  	hinv_tstar = Theta_h %*% beta ## changed
+  	hinv_tstar = c(Theta_h %*% beta) # c() as a slightly faster version of as.vector()
+  	
 	} else if(warping == "piecewise_linear2"){
   	# does not currently allow minimum values different from zero
   	tstar = seq(0, t_max, length.out = length(Y))
@@ -56,13 +72,23 @@ loss_h = function(Y, Theta_h, mean_coefs, knots, beta.inner, family, t_min, t_ma
   	hinv_tstar = piecewise_linear2_hinv(tstar, beta.inner)
 	}
 
-  if(periodic){
-  	Theta_phi = pbs(hinv_tstar, knots = knots, intercept = TRUE)
-  }else{
-  	Theta_phi =  bs(hinv_tstar, knots = knots, intercept = TRUE)
+	# evaluate the template curve at the registered t values
+  if (periodic) {
+  	Theta_phi = pbs::pbs(c(t_min, t_max, hinv_tstar),
+  											 knots = knots, intercept = TRUE)[-(1:2),]
+  } else {
+  	Theta_phi = splines::bs(c(t_min, t_max, hinv_tstar),
+  													knots = knots, intercept = TRUE)[-(1:2),]
   }
-	
   g_mu_t = Theta_phi %*% mean_coefs
+
+  # penalization term for the endpoint of the warping function
+  if (preserve_domain || (lambda_endpoint == 0)) { # no penalization
+  	pen_term = 0
+  } else { # penalize the deviation of the endpoint from the diagonal
+  	pen_term = (utils::tail(hinv_tstar, 1) - t_max_curve)^2
+  	pen_term = lambda_endpoint * pen_term
+  }
   
   # Calculate the negative log likelihood
   # For gaussian, drop unnecessary constant terms and assume variance = 1
@@ -81,6 +107,10 @@ loss_h = function(Y, Theta_h, mean_coefs, knots, beta.inner, family, t_min, t_ma
 			log(dnorm(x = beta.inner[3], mean = 0.75, sd = prior_sd)) -
 			log(dnorm(x = beta.inner[4], mean = 0.75, sd = prior_sd))
 	}
-  return(loss)
+  
+  # compute the penalized log-likelihood
+  loss_pen = loss + pen_term
+  
+  return(loss_pen)
 }
 

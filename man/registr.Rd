@@ -12,6 +12,8 @@ registr(
   Kh = 4,
   family = "binomial",
   gradient = TRUE,
+  preserve_domain = TRUE,
+  lambda_endpoint = NULL,
   beta = NULL,
   t_min = NULL,
   t_max = NULL,
@@ -36,6 +38,16 @@ Can be NULL only if Y argument is selected.}
 
 \item{gradient}{if \code{TRUE}, uses analytic gradient to calculate derivative. 
 If \code{FALSE}, calculates gradient numerically.}
+
+\item{preserve_domain}{Indicator if the registration should preserve the
+time domain, leading to warping functions that end on the diagonal.
+Defaults to \code{TRUE}. Can only be set to \code{FALSE} when
+\code{warping = "nonparametric"}.}
+
+\item{lambda_endpoint}{Penalization parameter to control the amount of
+deviation of the warping function endpoints from the diagonal. The higher
+this lambda, the more the endpoints are forced towards the diagonal.
+Only used if \code{preserve_domain = FALSE}.}
 
 \item{beta}{Current estimates for beta for each subject. Default is NULL.}
 
@@ -70,28 +82,47 @@ An object of class \code{fpca} containing:
 Software for registering functional data from the exponential family of distributions.
 
 Function used in the registration step of an FPCA-based approach for 
-registering exponential-family functional data, called by \code{\link{register_fpca}}. 
+registering exponential-family, potentially incomplete functional data,
+called by \code{\link{register_fpca}}. 
 This method uses constrained optimization to estimate spline 
 coefficients for warping functions, where the objective function for optimization comes from 
 maximizing the EF likelihood subject to monotonicity constraints on the warping functions. 
 You have to either specify \code{obj}, which is a fpca 
 object from an earlier step, or \code{Y}, a dataframe in long format with variables 
 \code{id}, \code{index}, and \code{value} to indicate subject IDs, times, and observations, 
-respectively.
-By specifying \code{cores > 1}, the registration call can be parallelized.
+respectively. \cr \cr
+Warping functions by default are forced to end on the diagonal to be
+domain-preserving. This behavior can be changed by setting
+\code{preserve_domain = FALSE} and a reasonable \code{lambda_endpoint} value.
+For further details see the accompanying vignette. \cr \cr
+By specifying \code{cores > 1} the registration call can be parallelized.
 }
 \examples{
+### complete binomial curves
 Y = simulate_unregistered_curves()
 register_step = registr(obj = NULL, Y = Y, Kt = 6, Kh = 4, family = "binomial", 
-   gradient = TRUE)
-testthat::expect_error({
-registr(obj = list(Y = Y), Kt = 6, Kh = 4, family = "binomial", 
-   gradient = TRUE)
-})
+                        gradient = TRUE)
 \donttest{
-Y = simulate_unregistered_curves()
-register_step = registr(obj = NULL, Y = Y, Kt = 6, Kh = 4, family = "binomial", 
-   gradient = TRUE)
+### incomplete Gaussian curves
+data(growth_incomplete)
+library(ggplot2)
+
+# Force the warping functions to end on the diagonal
+register_step2a = registr(obj = NULL, Y = growth_incomplete, Kt = 6, Kh = 4,
+                          family = "gaussian", gradient = TRUE,
+                          preserve_domain = TRUE)
+ggplot(register_step2a$Y, aes(x = tstar, y = index, group = id)) +
+  geom_line(alpha = 0.2) +
+  ggtitle("Estimated warping functions")
+	
+# Allow the warping functions to not end on the diagonal.
+# The higher lambda_endpoint, the more the endpoints are forced towards the diagonal.
+register_step2b = registr(obj = NULL, Y = growth_incomplete, Kt = 6, Kh = 4,
+                          family = "gaussian", gradient = TRUE,
+                          preserve_domain = FALSE, lambda_endpoint = 1)
+ggplot(register_step2b$Y, aes(x = tstar, y = index, group = id)) +
+  geom_line(alpha = 0.2) +
+  ggtitle("Estimated warping functions")
 }
 
 }

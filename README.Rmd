@@ -39,7 +39,8 @@ Classic functional data analysis assumes that each curve is continuous or comes 
 
 Often in a functional dataset curves have similar underlying patterns but the main features of each curve, such as the minimum and maximum, have shifts such that the data appear misaligned. This misalignment can obscure patterns shared across curves and produce messy summary statistics. Registration methods reduce variability in functional data and clarify underlying patterns by aligning curves.
 
-This package implements statistical methods for registering exponential family functional data. The methods are described in more detail in our [paper](http://juliawrobel.com/Downloads/registration_ef.pdf). Instructions for installing the software and using it to register simulated binary data are provided below.
+This package implements statistical methods for registering exponential family functional data. The basic methods are described in more detail in our [paper](http://juliawrobel.com/Downloads/registration_ef.pdf) and were further adapted to (potentially) incomplete curve settings where (some) curves
+are not observed until the end of the common domain. Instructions for installing the software and using it to register simulated binary data are provided below.
 
 ### Installation
 
@@ -60,7 +61,7 @@ devtools::install_github("julia-wrobel/registr")
 ```
 
 
-The `registr` package includes a vignette with more details on package use and functionality. To install the latest version and pull up the vignette please use:
+The `registr` package includes vignettes with more details on package use and functionality. To install the latest version and pull up the vignettes please use:
 
 ```{r, eval = FALSE, echo = TRUE}
 devtools::install_github("julia-wrobel/registr", build_vignettes = TRUE)
@@ -72,7 +73,7 @@ vignette(package = "registr")
 
 ---------------
 
-This example registers simulated binary data. More details on use of the package can be found in the vignette mentioned above. 
+This example registers simulated binary data. More details on the use of the package can be found in the vignettes mentioned above. 
 
 The code below uses `registr::simulate_unregistered_curves()` to simulate curves for 100 subjects with 200 timepoints each, observed over domain $(0, 1)$. All curves have similar structure but the location of the peak is shifted. On the observed domain $t^*$ the curves are unregistered (misaligned). On the domain $t$ the curves are registered (aligned). 
 
@@ -179,7 +180,7 @@ If you like our software, please cite it in your work! To cite the latest `CRAN`
 
 
 
-To site the Journal of Open Source Software paper, usue
+To cite the Journal of Open Source Software paper, use
 
 ```{}
 @article{wrobel2018regis,

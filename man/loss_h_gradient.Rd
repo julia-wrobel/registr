@@ -11,8 +11,11 @@ loss_h_gradient(
   knots,
   beta.inner,
   family = "gaussian",
+  preserve_domain = TRUE,
+  lambda_endpoint = NULL,
   t_min,
   t_max,
+  t_max_curve,
   Kt = 8,
   periodic = FALSE,
   warping = "nonparametric"
@@ -31,9 +34,20 @@ loss_h_gradient(
 
 \item{family}{\code{gaussian} or \code{binomial}.}
 
+\item{preserve_domain}{Indicator if the registration should preserve the
+time domain, leading to warping functions that end on the diagonal.
+Defaults to \code{TRUE}.}
+
+\item{lambda_endpoint}{Penalization parameter to control the amount of
+deviation of the warping function endpoints from the diagonal. Only used if
+\code{preserve_domain = FALSE}.}
+
 \item{t_min}{minimum value to be evaluated on the time domain.}
 
 \item{t_max}{maximum value to be evaluated on the time domain.}
+
+\item{t_max_curve}{maximum value of the observed time domain of the
+(potentially incomplete) curve.}
 
 \item{Kt}{Number of B-spline basis functions used to estimate mean functions. Default is 8.}
 
@@ -51,5 +65,6 @@ A numeric vector of spline coefficients for the gradient of the loss function.
 Gradient of loss function for registration step
 }
 \author{
-Julia Wrobel \email{julia.wrobel@cuanschutz.edu}
+Julia Wrobel \email{julia.wrobel@cuanschutz.edu},
+Alexander Bauer \email{alexander.bauer@stat.uni-muenchen.de}
 }

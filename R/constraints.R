@@ -19,18 +19,19 @@
 #' @export
 constraints = function(Kh, t_min = 0, t_max = 1, warping = "nonparametric"){
 	if(warping == "nonparametric"){
-		ui = matrix(0, nrow = Kh -1 , ncol = Kh - 2) 
+		ui = matrix(0, nrow = Kh, ncol = Kh - 1) 
 		ui[1,1] = 1; 
-		ui[Kh-1, Kh - 2] = -1
+		ui[Kh, Kh - 1] = -1
 		if(Kh > 3){
-			for(i in 2:(Kh-2)){ 
+			for(i in 2:(Kh-1)){ 
 				ui[i, (i-1):i] = c(-1,1)  
 			}
 		}
-		ci = rep(0, Kh-1)
+		ci = rep(0, Kh)
 		
-		ci[1] = t_min  
-		ci[Kh-1] = -t_max 
+		ci[1]  = t_min  
+		ci[Kh] = -t_max 
+		
 	} else if(warping == "piecewise_linear2"){
 		ui = matrix(c(1, -1,  0,  0,  0,  0,
 									0,  0,  0,  1, -1,  0,

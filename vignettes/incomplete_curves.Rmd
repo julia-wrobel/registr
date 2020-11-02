@@ -1,0 +1,195 @@
+---
+title: "Registering Incomplete Curves"
+author: "Alexander Bauer"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Registering Incomplete Curves}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  message = FALSE,
+  warning = FALSE,
+  fig.width = 5
+)
+```
+
+This vignette outlines the functionalities of the `registr` package with
+regard to incomplete curves.
+
+```{r load_libraries, echo = FALSE}
+library(registr)
+library(ggplot2)
+theme_set(theme_minimal() + theme(plot.title = element_text(hjust = 0.5)))
+```
+
+## Introduction
+
+Incomplete curves arise in many applications. Incompleteness refers to functional
+data where (some) curves were not observed until the very end of the common
+domain.
+Such a data structure is e.g. observed in the presence of drop-out in panel studies.
+Exemplarily, we showcase the following functionalities on data from the Berkeley
+Growth Study (see `?growth_incomplete`) where we artificially simulated that
+children dropped out of the study at some point in time:
+
+```{r Berkeley data}
+dat <- registr::growth_incomplete
+
+# sort the data by the amount of incompleteness
+ids <- levels(dat$id)
+dat$id <- factor(dat$id, levels = ids[order(sapply(ids, function(curve_id) {
+	sum(!is.na(dat$value[dat$id == curve_id]))
+}))])
+
+# spaghetti plot
+ggplot(dat, aes(x = index, y = value, group = id)) +
+	geom_line(alpha = 0.2) +
+	xlab("t* [observed]") + ylab("Derivative") +
+	ggtitle("First derivative of growth curves")
+```
+
+
+```{r Berkeley data 2, fig.height = 4}
+# lasagna plot
+ggplot(dat, aes(x = index, y = id, col = value)) + 
+	geom_line(lwd = 2.5) +
+	scale_color_continuous("Derivative", high = "midnightblue", low = "lightskyblue1") +
+  xlab("t* [observed]") + ylab("curve") +
+  ggtitle("First derivative of growth curves") +
+	theme(panel.grid  = element_blank(),
+				axis.text.y = element_blank())
+```
+
+
+## Incomplete curve methodology
+
+We adapt the registration methodology outlined in Wrobel et al. (2019) to
+handle incomplete curves. Since each curve potentially has an individual range
+of its observed time domain, the spline basis for estimating a curve's warping
+function is defined individually for each curve, based on a given number of
+basis functions.
+
+It often is a quite strict assumption in incomplete data
+settings that all warping functions end on the diagonal, i.e. that the individual,
+observed part of the whole time domain is not (to some extent) distorted.
+Therefore, the `registr` package gives the additional option to estimate
+warping functions without the constraint that the endpoint lies on the diagonal.
+
+On the other end, if we fully remove the constraint for the endpoints
+to lie on the diagonal, this can lead to very extreme and unrealistic distortions
+of the time domain. This problem is further accompanied by the fact that
+the assessment of some given warping to be realistic or unrealistic can heavily
+vary between different applications.
+As of this reason, our method includes a penalization parameter $\lambda$ that
+has to be set manually to specify which kinds of distortions are deemed realistic
+in the application at hand.
+
+Mathematically speaking, we add a penalization term to the likelihood $\ell(i)$ 
+for curve $i$:
+$$
+\begin{aligned}
+\ell_{pen}(i) &= \ell(i) - \lambda \cdot pen(i), \\
+\text{with} \ \ \ 
+pen(i) &= \left( \hat{h}^{-1}_i(t^*_{max,i}) - t^*_{max,i} \right)^2,
+\end{aligned}
+$$
+where $t^*_{max,i}$ is the maximum of the observed time domain of curve $i$ and
+$\hat{h}^{-1}_i(t^*_{max,i})$ the inverse warping function evaluated at this
+maximum.
+
+The higher the penalization parameter $\lambda$, the more the endpoint
+of the warping function is forced towards an identity warp, i.e. the diagonal line.
+Given a specific application, $\lambda$ should be chosen s.t.
+unrealistic distortions of the time domain are prevented.
+To do so, the user has to run the registration approach multiple times with
+different $\lambda$'s to find an optimal value.
+
+
+## Application on incomplete growth data
+
+By default, both functions `register_fpca` and `registr` include the argument
+`preserve_domain = TRUE` to constrain all warping functions to end on the diagonal.
+
+```{r application 1}
+reg1 <- registr(Y = dat, family = "gaussian")
+
+ggplot(reg1$Y, aes(x = tstar, y = index, group = id)) + 
+	geom_line(alpha = 0.2) +
+	xlab("t* [observed]") + ylab("t [registered]") +
+	ggtitle("Estimated warping functions")
+```
+
+```{r application 1 lasagna, fig.height = 4}
+ggplot(reg1$Y, aes(x = index, y = id, col = value)) + 
+	geom_line(lwd = 2.5) +
+	scale_color_continuous("Derivative", high = "midnightblue", low = "lightskyblue1") +
+  xlab("t [registered]") + ylab("curve") +
+  ggtitle("Registered curves") +
+	theme(panel.grid  = element_blank(),
+				axis.text.y = element_blank())
+```
+
+The assumption can be dropped by setting `preserve_domain = FALSE` and
+some nonnegative value for the penalization parameter `lambda_endpoint`.
+The higher `lambda_endpoint` is chosen, the more all warping functions are forced
+to end close to the diagonal.
+
+#### Small `lambda_endpoint`
+
+```{r application 2}
+reg2 <- registr(Y = dat, family = "gaussian",
+								preserve_domain = FALSE, lambda_endpoint = 1)
+
+ggplot(reg2$Y, aes(x = tstar, y = index, group = id)) + 
+	geom_line(alpha = 0.2) +
+	xlab("t* [observed]") + ylab("t [registered]") +
+	ggtitle("Estimated warping functions")
+```
+
+```{r application 2 lasagna, fig.height = 4}
+ggplot(reg2$Y, aes(x = index, y = id, col = value)) + 
+	geom_line(lwd = 2.5) +
+	scale_color_continuous("Derivative", high = "midnightblue", low = "lightskyblue1") +
+  xlab("t [registered]") + ylab("curve") +
+  ggtitle("Registered curves") +
+	theme(panel.grid  = element_blank(),
+				axis.text.y = element_blank())
+```
+
+#### Large `lambda_endpoint`
+
+```{r application 3}
+reg3 <- registr(Y = dat, family = "gaussian",
+								preserve_domain = FALSE, lambda_endpoint = 10)
+
+ggplot(reg3$Y, aes(x = tstar, y = index, group = id)) + 
+	geom_line(alpha = 0.2) +
+	xlab("t* [observed]") + ylab("t [registered]") +
+	ggtitle("Estimated warping functions")
+```
+
+```{r application 3 lasagna, fig.height = 4}
+ggplot(reg3$Y, aes(x = index, y = id, col = value)) + 
+	geom_line(lwd = 2.5) +
+	scale_color_continuous("Derivative", high = "midnightblue", low = "lightskyblue1") +
+  xlab("t [registered]") + ylab("curve") +
+  ggtitle("Registered curves") +
+	theme(panel.grid  = element_blank(),
+				axis.text.y = element_blank())
+```
+
+
+## Help files
+
+Documentation for individual functions gives more information on their arguments and return objects, and can be pulled up via the following:
+
+- `?register_fpca`
+- `?registr`

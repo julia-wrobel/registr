@@ -32,6 +32,12 @@ knitr::opts_chunk$set(
 
 The `registr` package is for registering, or aligning, exponential family functional data. 
 
+This vignette outlines the general functionality of the package.
+The package can handle both complete and incomplete functional data,
+i.e. curves which were not observed until the very end of the common domain.
+Details on how to handle incomplete curves with the `registr` package can be
+found in vignette `"incomplete_curves"`.
+
 ```{r load_libraries, echo = FALSE}
 library(registr)
 library(ggplot2)
