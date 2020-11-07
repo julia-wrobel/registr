@@ -13,9 +13,25 @@
 #'
 #' @param max_iterations Number of iterations for overall algorithm. Defaults to 10.
 #' @param npc Number of principal components to calculate. Defaults to 1. 
-#' @param fpca_maxiter Number to pass to the \code{maxiter} argument of `bfpca()` or `fpca_gauss()`. Default is 50.
-#' @param fpca_seed Number to pass to the \code{seed} argument of `bfpca()` or `fpca_gauss()`. Default is 1988.
-#' @param fpca_error_thresh Number to pass to the \code{error_thresh} argument of `bfpca()` or `fpca_gauss()`. Default is 0.0001.
+#' @param fpca_type One of \code{c("variationalEM","two-step")}. The former uses
+#' the GFPCA approaches as outlined in Wrobel et al. (2019). The latter uses
+#' the two-step GFPCA approach as outlined in Gertheiss et al. (2017).
+#' For further details see the package vignette. Defaults to \code{"variationalEM"}.
+#' @param fpca_maxiter Only used if \code{fpca_type = "variationalEM"}. Number
+#' to pass to the \code{maxiter} argument of `bfpca()` or `fpca_gauss()`. 
+#' Defaults to 50.
+#' @param fpca_seed Only used if \code{fpca_type = "variationalEM"}. Number to
+#' pass to the \code{seed} argument of `bfpca()` or `fpca_gauss()`. Defaults to
+#' 1988.
+#' @param fpca_error_thresh Only used if \code{fpca_type = "variationalEM"}.
+#' Number to pass to the \code{error_thresh} argument of `bfpca()` or
+#' `fpca_gauss()`. Defaults to 0.0001.
+#' @param fpca_index_relevantDigits Only used if \code{fpca_type = "two-step"}.
+#' Positive integer \code{>= 2}, stating the number of relevant digits to which
+#' the index grid should be rounded in the GFPCA step. Coarsening the index grid
+#' is necessary since otherwise the covariance surface matrix explodes in size
+#' in the presence of too many unique index values (which is the case after some
+#' registration step). Defaults to 2. Set to \code{NULL} to prevent rounding.
 #' @param ... Additional arguments passed to registr and fpca functions.
 #' @inheritParams registr
 #'
@@ -67,12 +83,15 @@
 #'
 register_fpca <- function(Y, Kt = 8, Kh = 4, family = "binomial",
 													preserve_domain = TRUE, lambda_endpoint = NULL,
-													max_iterations = 10, npc = 1, fpca_maxiter = 50,
-													fpca_seed = 1988, fpca_error_thresh = 0.0001, cores = 1L, ...){
+													max_iterations = 10, npc = 1,
+													fpca_type = "variationalEM", fpca_maxiter = 50,
+													fpca_seed = 1988, fpca_error_thresh = 0.0001,
+													fpca_index_relevantDigits = 2L, cores = 1L, ...){
 	
-  if( !(family %in% c("binomial", "gaussian")) ){
+  if (!(family %in% c("binomial", "gaussian"))) {
   	stop("Package currently handles only 'binomial' or 'gaussian' families.")
   }
+	
 		
   data = data_clean(Y)
   Y = data$Y
@@ -96,12 +115,30 @@ register_fpca <- function(Y, Kt = 8, Kh = 4, family = "binomial",
   while( iter < max_iterations && error[iter] > 0.01 ){
   	message("current iteration: ", iter)
   	
-  	if(family == "binomial"){
-  		fpca_step = bfpca(registr_step$Y, npc = npc, Kt = Kt, row_obj = rows, seed = fpca_seed, maxiter = fpca_maxiter, 
-  											error_thresh = fpca_error_thresh, ...)
-  	}else if(family == "gaussian"){
-  		fpca_step = fpca_gauss(registr_step$Y, npc = npc, Kt = Kt, row_obj = rows, seed = fpca_seed, maxiter = fpca_maxiter, 
-  													 error_thresh = fpca_error_thresh, ...)
+  	if (fpca_type == "variationalEM") { # GFPCA after Wrobel et al. (2019)
+  		if (family == "binomial") {
+  			fpca_step = bfpca(registr_step$Y, npc = npc, Kt = Kt, row_obj = rows, seed = fpca_seed, maxiter = fpca_maxiter, 
+  												error_thresh = fpca_error_thresh, ...)
+  		} else if (family == "gaussian") {
+  			fpca_step = fpca_gauss(registr_step$Y, npc = npc, Kt = Kt, row_obj = rows, seed = fpca_seed, maxiter = fpca_maxiter,
+  														 error_thresh = fpca_error_thresh, ...)
+  		}
+  		
+  	} else if (fpca_type == "two-step") { # Two-step GFPCA after Gertheiss et al. (2017)
+  		
+  		# estimation details
+  		estimation_accuracy = ifelse(iter == 1, "high", "low")
+  		if (iter == 1) {
+  			gamm4_startParams = NULL
+  		} else {
+  			gamm4_startParams = fpca_step$gamm4_theta # parameters from last step
+  		}
+  		
+  		fpca_step = gfpca_twoStep(registr_step$Y, family = family, npc = npc,
+  															Kt = Kt, row_obj = rows,
+  															index_relevantDigits = fpca_index_relevantDigits,
+  															estimation_accuracy  = estimation_accuracy,
+  															start_params         = gamm4_startParams)
   	}
   	
   	registr_step = registr(obj = fpca_step, Kt = Kt, Kh = Kh, family = family, 
@@ -124,12 +161,21 @@ register_fpca <- function(Y, Kt = 8, Kh = 4, family = "binomial",
   }
 
   # final fpca step
-  if(family == "binomial"){
-  	fpca_step = bfpca(registr_step$Y,npc = npc, Kt = Kt, row_obj = rows, seed = fpca_seed, maxiter = fpca_maxiter, 
-  										error_thresh = fpca_error_thresh, ...)
-  }else if(family == "gaussian"){
-  	fpca_step = fpca_gauss(registr_step$Y,npc = npc, Kt = Kt, row_obj = rows, seed = fpca_seed, maxiter = fpca_maxiter, 
-  												 error_thresh = fpca_error_thresh, ...)
+  if (fpca_type == "variationalEM") { # GFPCA after Wrobel et al. (2019)
+  	if (family == "binomial") {
+  		fpca_step = bfpca(registr_step$Y, npc = npc, Kt = Kt, row_obj = rows, seed = fpca_seed, maxiter = fpca_maxiter, 
+  											error_thresh = fpca_error_thresh, ...)
+  	} else if (family == "gaussian") {
+  		fpca_step = fpca_gauss(registr_step$Y, npc = npc, Kt = Kt, row_obj = rows, seed = fpca_seed, maxiter = fpca_maxiter, 
+  													 error_thresh = fpca_error_thresh, ...)
+  	}
+  	
+  } else if (fpca_type == "two-step") { # Two-step GFPCA after Gertheiss et al. (2017)
+  	fpca_step = gfpca_twoStep(registr_step$Y, family = family, npc = npc,
+  														Kt = Kt, row_obj = rows,
+  														index_relevantDigits = fpca_index_relevantDigits,
+  														estimation_accuracy  = "high",
+  														start_params         = fpca_step$gamm4_theta)
   }
   
   Y$tstar = time_warps[[1]]

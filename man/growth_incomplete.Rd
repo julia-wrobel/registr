@@ -4,11 +4,13 @@
 \name{growth_incomplete}
 \alias{growth_incomplete}
 \title{Berkeley Growth Study data with simulated incompleteness}
-\format{A dataframe made up of \describe{
+\format{
+A dataframe made up of \describe{
  \item{id}{A unique subject identifier;}
  \item{index}{Observed age of the child's height;}
  \item{value}{First derivative of the height development in the given age.}
-}}
+}
+}
 \usage{
 data(growth_incomplete)
 }

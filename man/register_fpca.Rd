@@ -13,9 +13,11 @@ register_fpca(
   lambda_endpoint = NULL,
   max_iterations = 10,
   npc = 1,
+  fpca_type = "variationalEM",
   fpca_maxiter = 50,
   fpca_seed = 1988,
   fpca_error_thresh = 1e-04,
+  fpca_index_relevantDigits = 2L,
   cores = 1L,
   ...
 )
@@ -43,11 +45,29 @@ Only used if \code{preserve_domain = FALSE}.}
 
 \item{npc}{Number of principal components to calculate. Defaults to 1.}
 
-\item{fpca_maxiter}{Number to pass to the \code{maxiter} argument of `bfpca()` or `fpca_gauss()`. Default is 50.}
+\item{fpca_type}{One of \code{c("variationalEM","two-step")}. The former uses
+the GFPCA approaches as outlined in Wrobel et al. (2019). The latter uses
+the two-step GFPCA approach as outlined in Gertheiss et al. (2017).
+For further details see the package vignette. Defaults to \code{"variationalEM"}.}
 
-\item{fpca_seed}{Number to pass to the \code{seed} argument of `bfpca()` or `fpca_gauss()`. Default is 1988.}
+\item{fpca_maxiter}{Only used if \code{fpca_type = "variationalEM"}. Number
+to pass to the \code{maxiter} argument of `bfpca()` or `fpca_gauss()`. 
+Defaults to 50.}
 
-\item{fpca_error_thresh}{Number to pass to the \code{error_thresh} argument of `bfpca()` or `fpca_gauss()`. Default is 0.0001.}
+\item{fpca_seed}{Only used if \code{fpca_type = "variationalEM"}. Number to
+pass to the \code{seed} argument of `bfpca()` or `fpca_gauss()`. Defaults to
+1988.}
+
+\item{fpca_error_thresh}{Only used if \code{fpca_type = "variationalEM"}.
+Number to pass to the \code{error_thresh} argument of `bfpca()` or
+`fpca_gauss()`. Defaults to 0.0001.}
+
+\item{fpca_index_relevantDigits}{Only used if \code{fpca_type = "two-step"}.
+Positive integer \code{>= 2}, stating the number of relevant digits to which
+the index grid should be rounded in the GFPCA step. Coarsening the index grid
+is necessary since otherwise the covariance surface matrix explodes in size
+in the presence of too many unique index values (which is the case after some
+registration step). Defaults to 2. Set to \code{NULL} to prevent rounding.}
 
 \item{cores}{Number of cores to be used. If \code{cores > 1}, the registration
 call is parallelized by using \code{parallel::mclapply} (for Unix-based

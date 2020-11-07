@@ -157,9 +157,12 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
   if (is.null(t_min)) { t_min = min(tstar) }
   if (is.null(t_max)) { t_max = max(tstar) }
 
-  if (is.null(obj)) { # estimate template function as mean of all curves
+	if (!is.null(obj)) { # template function = GFPCA representation
+		global_knots = obj$knots
+		mean_coefs   = obj$subject_coefs
+		
+	} else { # template function = mean of all curves
   	
-    # define population mean
   	if (periodic) {
   		# if periodic, then we want more global knots, because the resulting object from pbs 
   		# only has (knots+intercept) columns.
@@ -175,11 +178,6 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
 
     mean_coefs = coef(glm(Y$value ~ 0 + mean_basis, family = family))
     rm(mean_basis)
-    
-  } else { # template function = current GFPCA representation
-  	# stopifnot(!all(c("knots", "subject_coefs") %in% names(obj)))
-    global_knots = obj$knots
-    mean_coefs   = obj$subject_coefs
   }
 
   ### Calculate warping functions  
@@ -247,6 +245,7 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
 #' Erin McDonnell \email{eim2117@@cumc.columbia.edu},
 #' Alexander Bauer \email{alexander.bauer@@stat.uni-muenchen.de}
 #' 
+#' @importFrom pbs pbs
 #' @importFrom splines bs
 #' @importFrom stats constrOptim
 #' 
@@ -261,17 +260,17 @@ registr_oneCurve <- function(i, arg_list, ...) {
 	
 	# spline basis on the curve-specific time interval.
 	# Pre-calculate the knots similarly to splines::bs to make the final splines::bs call faster.
-	tstar_bs_i      <- c(tstar_cropped[rows_i], range(tstar_cropped))
-	degree          <- 3 # cubic splines
-	n_innerKnots    <- arg_list$Kh - (1 + degree)
+	tstar_bs_i      = c(tstar_cropped[rows_i], range(tstar_cropped))
+	degree          = 3 # cubic splines
+	n_innerKnots    = arg_list$Kh - (1 + degree)
 	if (n_innerKnots <= 0) {
-		inner_knots <- NULL
+		inner_knots = NULL
 	} else if (n_innerKnots > 0) {
-		p_quantiles <- seq.int(from = 0, to = 1, length.out = n_innerKnots + 2)[-c(1,n_innerKnots + 2)]
-		inner_knots <- quantile(tstar_cropped, probs = p_quantiles)
+		p_quantiles = seq.int(from = 0, to = 1, length.out = n_innerKnots + 2)[-c(1,n_innerKnots + 2)]
+		inner_knots = quantile(tstar_cropped, probs = p_quantiles)
 	}
-	Theta_h_cropped <- splines::bs(tstar_bs_i, df = NULL, knots = inner_knots, intercept = TRUE)
-	Theta_h_i       <- Theta_h_cropped[1:length(rows_i),]
+	Theta_h_cropped = splines::bs(tstar_bs_i, df = NULL, knots = inner_knots, intercept = TRUE)
+	Theta_h_i       = Theta_h_cropped[1:length(rows_i),]
 	
 	# start parameters
 	if (is.null(arg_list$beta)) { # newly initialize start parameters
@@ -294,7 +293,33 @@ registr_oneCurve <- function(i, arg_list, ...) {
 		beta_i = arg_list$beta[, i]
 	}
 	
-	if (is.null(arg_list$obj)) { mean_coefs_i = arg_list$mean_coefs } else { mean_coefs_i = arg_list$mean_coefs[, i] }
+	if (is.null(arg_list$obj)) { # template function = mean of all curves
+		mean_coefs_i = arg_list$mean_coefs
+		
+	} else { # template function = current GFPCA representation
+		
+		if (all(!is.na(arg_list$mean_coefs))) { # GFPCA based on fpca_gauss or bfpca
+			# In this case, the FPCA is explicitly based on the spline basis 'mean_basis'
+			mean_coefs_i = arg_list$mean_coefs[, i]
+		} else { # GFPCA based on gfpca_twoStep
+			# In this case, the FPCA is not based on the spline basis 'mean_basis'.
+			# Accordingly, smooth over the GFPCA representation of the i'th function
+			# using 'mean_basis'.
+			mean_dat_i = arg_list$obj$Yhat[arg_list$obj$Yhat$id == i,]
+
+			if (arg_list$periodic) {
+				mean_basis = pbs::pbs(c(arg_list$t_min, arg_list$t_max, mean_dat_i$index),
+															knots = arg_list$global_knots, intercept = TRUE)[-(1:2),]
+			} else {
+				mean_basis = splines::bs(c(arg_list$t_min, arg_list$t_max, mean_dat_i$index),
+																 knots = arg_list$global_knots, intercept = TRUE)[-(1:2),]
+			} 
+			
+			mean_coefs_i = coef(glm(value ~ 0 + mean_basis, family = arg_list$family,
+															data = mean_dat_i))
+		}
+	}
+	
 	if (arg_list$gradient) { gradf = loss_h_gradient } else { gradf = NULL }
 	
 	# optimization constraints
