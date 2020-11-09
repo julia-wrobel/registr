@@ -47,6 +47,7 @@ Keep this NULL if you are using standalone \code{register} function.}
 }
 \value{
 An object of class \code{fpca} containing:
+\item{t_vec}{Time vector over which the mean \code{mu} was evaluated.}
 \item{knots}{Cutpoints for B-spline basis used to rebuild \code{alpha}.}
 \item{efunctions}{\eqn{D \times npc} matrix of estimated FPC basis functions.}
 \item{evalues}{Estimated variance of the FPC scores.}
@@ -67,6 +68,13 @@ Function used in the FPCA step for registering functional data,
 called by \code{\link{register_fpca}} when \code{family = "gaussian"}. 
 Parameters estimated based on probabilistic PCA framework originally 
 introduced by Tipping and Bishop in 1999.
+}
+\examples{
+data(growth_incomplete)
+
+fpca_obj = fpca_gauss(Y = growth_incomplete, npc = 2)
+plot_fpca(fpca_obj)
+
 }
 \references{
 Tipping, M. E. and Bishop, C (1999). Probabilistic Principal Component Analysis.

@@ -14,6 +14,7 @@
 #' @importFrom stats rnorm quantile
 #' 
 #' @return An object of class \code{fpca} containing:
+#' \item{t_vec}{Time vector over which the mean \code{mu} was evaluated.}
 #' \item{knots}{Cutpoints for B-spline basis used to rebuild \code{alpha}.}
 #' \item{efunctions}{\eqn{D \times npc} matrix of estimated FPC basis functions.}
 #' \item{evalues}{Estimated variance of the FPC scores.}
@@ -38,8 +39,10 @@
 #' \emph{Advances in neural information processing systems}, 592--598.
 #' 
 #' @examples
-##' Y = simulate_functional_data()$Y
-##' bfpca_object = bfpca(Y, npc = 2, print.iter = TRUE)
+#' Y = simulate_functional_data()$Y
+#' 
+#' bfpca_object = bfpca(Y, npc = 2, print.iter = TRUE)
+#' plot_fpca(bfpca_object)
 #'
 bfpca <- function(Y, npc = 1, Kt = 8, maxiter = 50, t_min = NULL, t_max = NULL, 
                   print.iter = FALSE, row_obj= NULL,
@@ -193,6 +196,7 @@ bfpca <- function(Y, npc = 1, Kt = 8, maxiter = 50, t_min = NULL, t_max = NULL,
   scores     = scores %*% psi_svd$v
   
   ret = list(
+    t_vec         = t_vec,
     knots         = knots, 
     alpha         = Theta_phi_mean %*% alpha_coefs,
     mu            = Theta_phi_mean %*% alpha_coefs, # return this to be consistent with refund.shiny

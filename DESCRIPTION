@@ -27,7 +27,8 @@ Imports:
     Rcpp (>= 0.11.5),
     parallel,
     MASS,
-    utils
+    utils,
+    cowplot
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true

@@ -47,6 +47,7 @@ Keep this NULL if you are using standalone \code{register} function.}
 }
 \value{
 An object of class \code{fpca} containing:
+\item{t_vec}{Time vector over which the mean \code{mu} was evaluated.}
 \item{knots}{Cutpoints for B-spline basis used to rebuild \code{alpha}.}
 \item{efunctions}{\eqn{D \times npc} matrix of estimated FPC basis functions.}
 \item{evalues}{Estimated variance of the FPC scores.}
@@ -70,7 +71,9 @@ binary functional data.
 }
 \examples{
 Y = simulate_functional_data()$Y
+
 bfpca_object = bfpca(Y, npc = 2, print.iter = TRUE)
+plot_fpca(bfpca_object)
 
 }
 \references{
