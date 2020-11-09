@@ -12,7 +12,7 @@ gfpca_twoStep(
   t_min = NULL,
   t_max = NULL,
   row_obj = NULL,
-  index_relevantDigits = 2L,
+  index_relevantDigits = 3L,
   estimation_accuracy = "high",
   start_params = NULL,
   periodic = FALSE,
@@ -40,10 +40,12 @@ Keep this NULL if you are using standalone \code{register} function.}
 of relevant digits to which the index grid should be rounded. Coarsening the
 index grid is necessary since otherwise the covariance surface matrix
 explodes in size in the presence of too many unique index values (which is
-the case after some registration step). Defaults to 2. Set to \code{NULL} to
+the case after some registration step). Defaults to 3. Set to \code{NULL} to
 prevent rounding.}
 
-\item{estimation_accuracy}{TODO}
+\item{estimation_accuracy}{One of \code{c("high","low")}. When set to \code{"low"},
+the mixed model estimation step in \code{lme4} is performed with lower
+accuracy, reducing computation time. Defaults to \code{"high"}.}
 
 \item{start_params}{Optional start values for gamm4.}
 
@@ -83,7 +85,10 @@ Gertheiss for Gertheiss et al. (2017), with focus on higher (RAM) efficiency
 for large data settings.
 }
 \examples{
-TODO
+data(growth_incomplete)
+
+fpca_obj = gfpca_twoStep(Y = growth_incomplete, npc = 2, family = "gaussian")
+plot_fpca(fpca_obj)
 
 }
 \references{

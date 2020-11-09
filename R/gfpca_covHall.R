@@ -32,7 +32,10 @@
 #' @import mgcv
 #' 
 #' @examples
-#' TODO
+#' data(growth_incomplete)
+#' 
+#' index_grid = c(1.25, seq(from = 2, to = 18, by = 1))
+#' cov_matrix = cov_hall(growth_incomplete, index_evalGrid = index_grid)
 #' 
 cov_hall = function(Y, index_evalGrid, Kt = 8, Kc = 10, family = "gaussian",
                     diag_epsilon = 0.01){

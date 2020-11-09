@@ -34,3 +34,14 @@ test_that("coarsen_index correctly rounds negative values",{
 	expect_equal(coarsen_index(index_values2, relevant_digits = 4),
 							 expected = c(-310, 86940, -10))
 })
+
+test_that("cov_hall returns a covariance matrix with correct dimensions",{
+	data(growth_incomplete)
+	
+	index_grid = c(1.25, seq(from = 2, to = 18, by = 1))
+	cov_matrix = cov_hall(growth_incomplete, index_evalGrid = index_grid)
+	
+	expect_identical(class(cov_matrix)[1], expected = "matrix")
+	expect_type(cov_matrix, type = "double")
+	expect_identical(dim(cov_matrix), expected = rep(length(index_grid), 2))
+})

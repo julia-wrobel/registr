@@ -41,7 +41,10 @@ Gertheiss and Ana-Maria Staicu for Gertheiss et al. (2017), with focus on
 higher (RAM) efficiency for large data settings.
 }
 \examples{
-TODO
+data(growth_incomplete)
+
+index_grid = c(1.25, seq(from = 2, to = 18, by = 1))
+cov_matrix = cov_hall(growth_incomplete, index_evalGrid = index_grid)
 
 }
 \references{

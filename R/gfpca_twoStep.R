@@ -16,9 +16,11 @@
 #' of relevant digits to which the index grid should be rounded. Coarsening the
 #' index grid is necessary since otherwise the covariance surface matrix
 #' explodes in size in the presence of too many unique index values (which is
-#' the case after some registration step). Defaults to 2. Set to \code{NULL} to
+#' the case after some registration step). Defaults to 3. Set to \code{NULL} to
 #' prevent rounding.
-#' @param estimation_accuracy TODO
+#' @param estimation_accuracy One of \code{c("high","low")}. When set to \code{"low"},
+#' the mixed model estimation step in \code{lme4} is performed with lower
+#' accuracy, reducing computation time. Defaults to \code{"high"}.
 #' @param start_params Optional start values for gamm4.
 #' @inheritParams register_fpca
 #' @inheritParams fpca_gauss
@@ -59,11 +61,14 @@
 #' @import lme4 mgcv
 #' 
 #' @examples
-#' TODO
+#' data(growth_incomplete)
+#' 
+#' fpca_obj = gfpca_twoStep(Y = growth_incomplete, npc = 2, family = "gaussian")
+#' plot_fpca(fpca_obj)
 #' 
 gfpca_twoStep = function (Y, family = "gaussian", npc = 1, Kt = 8,
                           t_min = NULL, t_max = NULL,
-                          row_obj = NULL, index_relevantDigits = 2L,
+                          row_obj = NULL, index_relevantDigits = 3L,
                           estimation_accuracy = "high", start_params = NULL,
                           periodic = FALSE,
                           ...) {
@@ -124,7 +129,7 @@ gfpca_twoStep = function (Y, family = "gaussian", npc = 1, Kt = 8,
     Y.obs[i,indexi] = Yi
   }
   
-  dta = data.frame(
+  dat = data.frame(
     value = as.vector(t(Y.obs)),
     id    = rep(1:I, rep(D,I)),
     index = rep(output_index, I)
@@ -154,10 +159,10 @@ gfpca_twoStep = function (Y, family = "gaussian", npc = 1, Kt = 8,
   
   # prepare data for mixed model estimation
   for (i in 1:npc) {
-    dta = cbind(dta, rep(efunctions[,i], I))
+    dat = cbind(dat, rep(efunctions[,i], I))
   }
-  names(dta)[4:(4 + npc - 1)] = c(paste0("psi", 1:npc))
-  dta_fit = dta[!is.na(dta$value),]
+  names(dat)[4:(4 + npc - 1)] = c(paste0("psi", 1:npc))
+  dat_fit = dat[!is.na(dat$value),]
   
   # define the model family
   family_mgcv = family
@@ -168,25 +173,31 @@ gfpca_twoStep = function (Y, family = "gaussian", npc = 1, Kt = 8,
   if (estimation_accuracy == "high") {
     model = gamm4::gamm4(value ~ s(index, bs = "ps", k = Kt),
                          family = family_mgcv,
-                         data   = dta_fit,
+                         data   = dat_fit,
                          random = random.formula,
                          start  = start_params)
+    
   } else if (estimation_accuracy == "low") {
+    # Note: Some of the following arguments are commented out since they
+    #       require a coming update of the gamm4 package.
+    #       When the gamm4 update goes public:
+    #       1) Uncomment the arguments
+    #       2) Document the exact arguments for the optimization routine in more detail
     model = gamm4::gamm4(value ~ s(index, bs = "ps", k = Kt),
                          family  = family_mgcv,
-                         data    = dta_fit,
+                         data    = dat_fit,
                          random  = random.formula,
                          start   = start_params,
-                         control = lme4:::glmerControl(optimizer     = "nloptwrap",
-                                                       calc.derivs   = FALSE,
-                                                       nAGQ0initStep = FALSE,
-                                                       boundary.tol  = 0,
-                                                       tolPwrss      = 1e-3,
+                         control = lme4:::glmerControl(# optimizer     = "nloptwrap",
+                                                       # calc.derivs   = FALSE,
+                                                       # nAGQ0initStep = FALSE,
+                                                       # boundary.tol  = 0,
+                                                       # tolPwrss      = 1e-3,
                                                        optCtrl = list(algorithm = "NLOPT_LN_BOBYQA", # default in lme4
                                                                       xtol_abs  = 1e-04,             # default: 1e-08
                                                                       ftol_abs  = 1e-04,             # default: 1e-08
-                                                                      maxeval   = 1e+02)),           # default: 1e+05
-                         nAGQ = 0)
+                                                                      maxeval   = 1e+02)))           # default: 1e+05
+                         # nAGQ = 0)
   }
   
   gamm4_theta = attributes(model$mer)$theta

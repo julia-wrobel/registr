@@ -92,7 +92,7 @@ plot_fpca = function(fpca_obj, plot_npc = fpca_obj$npc, var_factor = 2,
   plot_list = lapply(1:plot_npc, function(i) {
     
     # plot '+' and '-' symbols along the curves
-    n_symbols = 7 # only plot the symbols this many times along each line
+    n_symbols = 4 # only plot the symbols this many times along each line
     t_symbols = unique(plotDat_list[[i]]$t)[round(seq(1, length(unique(plotDat_list[[i]]$t)), 
                                                       length.out = n_symbols))]
     symbol_dat      = plotDat_list[[i]] %>% filter(t %in% t_symbols)
@@ -100,9 +100,10 @@ plot_fpca = function(fpca_obj, plot_npc = fpca_obj$npc, var_factor = 2,
     symbolMinus_dat = symbol_dat %>% filter(curve == paste0("mean - ",var_factor,"*FPC"))
     
     # plot
-    ggplot(mapping = aes(x = t, y = value, col = curve)) +
+    ggplot(mapping = aes(x = t, y = value, col = curve, lty = curve)) +
       geom_line(data = plotDat_list[[i]]) +
-      scale_color_manual(values = c("black", "gray80", "gray80")) +
+      scale_color_manual(values = c("black", "gray70", "gray60")) +
+      scale_linetype_manual(values = c(1, 2, 3)) +
       geom_text(data = symbolPlus_dat,  label = "+", size = 7, col = "gray40") +
       geom_text(data = symbolMinus_dat, label = "-", size = 7, col = "gray40") +
       xlim(xlim) + ylim(ylim) + xlab(xlab) + ylab(ylab) +

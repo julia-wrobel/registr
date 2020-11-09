@@ -315,8 +315,7 @@ registr_oneCurve <- function(i, arg_list, ...) {
 																 knots = arg_list$global_knots, intercept = TRUE)[-(1:2),]
 			} 
 			
-			mean_coefs_i = coef(glm(value ~ 0 + mean_basis, family = arg_list$family,
-															data = mean_dat_i))
+			mean_coefs_i = coef(glm(value ~ 0 + mean_basis, data = mean_dat_i))
 		}
 	}
 	

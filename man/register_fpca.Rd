@@ -45,10 +45,8 @@ Only used if \code{preserve_domain = FALSE}.}
 
 \item{npc}{Number of principal components to calculate. Defaults to 1.}
 
-\item{fpca_type}{One of \code{c("variationalEM","two-step")}. The former uses
-the GFPCA approaches as outlined in Wrobel et al. (2019). The latter uses
-the two-step GFPCA approach as outlined in Gertheiss et al. (2017).
-For further details see the package vignette. Defaults to \code{"variationalEM"}.}
+\item{fpca_type}{One of \code{c("variationalEM","two-step")}.
+Defaults to \code{"variationalEM"}.}
 
 \item{fpca_maxiter}{Only used if \code{fpca_type = "variationalEM"}. Number
 to pass to the \code{maxiter} argument of `bfpca()` or `fpca_gauss()`. 
@@ -90,11 +88,13 @@ exponential family likelihood with natural parameter from the FPCA step.}
 family \code{gaussian} or \code{binomial}.
 }
 \description{
-Function combines constrained optimization and FPCA to estimate warping functions for 
-exponential family curves. The FPCA step is performed through the function 
-\code{\link{bfpca}} if \code{family = "binomial"} or the function 
-\code{\link{fpca_gauss}} if \code{family = "gaussian"}. Warping functions are calculated 
-by the function \code{\link{registr}}. \cr \cr
+Function combines constrained optimization and GFPCA to estimate warping functions for 
+exponential family curves. The implementation covers Gaussian and binomial
+curves. Warping functions are calculated by the function \code{\link{registr}}.
+The GFPCA step can be performed either using the variational EM-based GFPCA
+approaches of Wrobel et al. (2019) (\code{fpca_type = "variationalEM"}, default)
+or the mixed model-based two-step approach of Gertheiss et al. (2017)
+(\code{fpca_type = "two-step"}). \cr \cr
 By specifying \code{cores > 1} the registration call can be parallelized.
 }
 \details{
