@@ -8,7 +8,7 @@ cov_hall(
   Y,
   index_evalGrid,
   Kt = 8,
-  Kc = 10,
+  Kc = 8,
   family = "gaussian",
   diag_epsilon = 0.01
 )
@@ -22,7 +22,7 @@ cov_hall(
 marginal mean. Defaults to 8.}
 
 \item{Kc}{Number of marginal P-spline basis functions for smoothing the
-covariance surface. Defaults to 10.}
+covariance surface. Defaults to 8.}
 
 \item{family}{One of \code{c("gaussian","binomial")}. Defaults to
 \code{"gaussian"}.}
@@ -35,7 +35,8 @@ Covariance matrix with dimension \code{time_evalGrid x time_evalGrid}.
 }
 \description{
 Internal function for the estimation of the covariance matrix of the latent
-process using the approach of Hall et al. (2008). \cr \cr
+process using the approach of Hall et al. (2008). Used in the
+two-step GFPCA approach implemented in \code{\link{gfpca_twoStep}}. \cr \cr
 This function is an adaptation of the implementation of Jan
 Gertheiss and Ana-Maria Staicu for Gertheiss et al. (2017), with focus on
 higher (RAM) efficiency for large data settings.
@@ -44,7 +45,7 @@ higher (RAM) efficiency for large data settings.
 data(growth_incomplete)
 
 index_grid = c(1.25, seq(from = 2, to = 18, by = 1))
-cov_matrix = cov_hall(growth_incomplete, index_evalGrid = index_grid)
+cov_matrix = registr:::cov_hall(growth_incomplete, index_evalGrid = index_grid)
 
 }
 \references{

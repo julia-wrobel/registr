@@ -1,7 +1,8 @@
 #' Covariance estimation after Hall et al. (2008)
 #' 
 #' Internal function for the estimation of the covariance matrix of the latent
-#' process using the approach of Hall et al. (2008). \cr \cr
+#' process using the approach of Hall et al. (2008). Used in the
+#' two-step GFPCA approach implemented in \code{\link{gfpca_twoStep}}. \cr \cr
 #' This function is an adaptation of the implementation of Jan
 #' Gertheiss and Ana-Maria Staicu for Gertheiss et al. (2017), with focus on
 #' higher (RAM) efficiency for large data settings.
@@ -10,7 +11,7 @@
 #' @param Kt Number of P-spline basis functions for the estimation of the
 #' marginal mean. Defaults to 8.
 #' @param Kc Number of marginal P-spline basis functions for smoothing the
-#' covariance surface. Defaults to 10.
+#' covariance surface. Defaults to 8.
 #' @param diag_epsilon Small constant to which diagonal elements of the
 #' covariance matrix are set if they are smaller. Defaults to 0.01.
 #' @inheritParams gfpca_twoStep
@@ -35,9 +36,9 @@
 #' data(growth_incomplete)
 #' 
 #' index_grid = c(1.25, seq(from = 2, to = 18, by = 1))
-#' cov_matrix = cov_hall(growth_incomplete, index_evalGrid = index_grid)
+#' cov_matrix = registr:::cov_hall(growth_incomplete, index_evalGrid = index_grid)
 #' 
-cov_hall = function(Y, index_evalGrid, Kt = 8, Kc = 10, family = "gaussian",
+cov_hall = function(Y, index_evalGrid, Kt = 8, Kc = 8, family = "gaussian",
                     diag_epsilon = 0.01){
   
   family_mgcv = family
@@ -75,9 +76,9 @@ cov_hall = function(Y, index_evalGrid, Kt = 8, Kc = 10, family = "gaussian",
   # smooth the covariance surface
   model_smoothed = mgcv::gam(as.vector(Yi_2mom) ~ te(row.vec, col.vec, k = Kc, bs = "ps"))
   Yi_2mom_sm     = matrix(
-    predict(model_smoothed,
-            newdata = data.frame(row.vec = rep(index_evalGrid, each  = length(index_evalGrid)),
-                                 col.vec = rep(index_evalGrid, times = length(index_evalGrid)))),
+    mgcv::predict.gam(model_smoothed,
+                      newdata = data.frame(row.vec = rep(index_evalGrid, each  = length(index_evalGrid)),
+                                           col.vec = rep(index_evalGrid, times = length(index_evalGrid)))),
     ncol = length(index_evalGrid))
   Yi_2mom_sm = (Yi_2mom_sm + t(Yi_2mom_sm)) / 2 # ensure symmetry
   

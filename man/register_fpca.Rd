@@ -17,7 +17,7 @@ register_fpca(
   fpca_maxiter = 50,
   fpca_seed = 1988,
   fpca_error_thresh = 1e-04,
-  fpca_index_relevantDigits = 2L,
+  fpca_index_relevantDigits = 3L,
   cores = 1L,
   ...
 )
@@ -65,14 +65,14 @@ Positive integer \code{>= 2}, stating the number of relevant digits to which
 the index grid should be rounded in the GFPCA step. Coarsening the index grid
 is necessary since otherwise the covariance surface matrix explodes in size
 in the presence of too many unique index values (which is the case after some
-registration step). Defaults to 2. Set to \code{NULL} to prevent rounding.}
+registration step). Defaults to 3. Set to \code{NULL} to prevent rounding.}
 
 \item{cores}{Number of cores to be used. If \code{cores > 1}, the registration
 call is parallelized by using \code{parallel::mclapply} (for Unix-based
 systems) or \code{parallel::parLapply} (for Windows). Defaults to 1,
 no parallelized call.}
 
-\item{...}{Additional arguments passed to registr and fpca functions.}
+\item{...}{Additional arguments passed to registr and gfpca functions.}
 }
 \value{
 An object of class \code{registration} containing:
@@ -103,17 +103,32 @@ Requires input data \code{Y} to be a dataframe in long format with variables
 respectively.
 }
 \examples{
+library(ggplot2)
+
 ### complete binomial curves
 Y = simulate_unregistered_curves(I = 20, D = 200)
-registr_object = register_fpca(Y, family = "binomial", max_iterations = 5)
+
+# estimation based on Wrobel et al. (2019)
+registr_object = register_fpca(Y, npc = 2, family = "binomial",
+                               fpca_type = "variationalEM", max_iterations = 5)
+# estimation based on Gertheiss et al. (2017)
+registr_object2 = register_fpca(Y, npc = 2, family = "binomial",
+                                fpca_type = "two-step", max_iterations = 5)
+
+ggplot(registr_object$Y, aes(x = tstar, y = t_hat, group = id)) +
+  geom_line(alpha = 0.2) + ggtitle("Estimated warping functions")
+
+plot_fpca(registr_object$fpca_obj, response_function = function(x) { 1 / (1 + exp(-x)) })
+
+
 \donttest{ 
 # example using accelerometer data from nhanes 2003-2004 study
 data(nhanes)
 register_nhanes = register_fpca(nhanes, npc = 2, family = "binomial", max_iterations = 5)
 
+
 ### incomplete Gaussian curves
 data(growth_incomplete)
-library(ggplot2)
 
 # Force the warping functions to end on the diagonal
 registr_object2a = register_fpca(growth_incomplete, npc = 2, family = "gaussian",

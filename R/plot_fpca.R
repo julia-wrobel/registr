@@ -41,6 +41,9 @@ plot_fpca = function(fpca_obj, plot_npc = fpca_obj$npc, var_factor = 2,
                      subtitle = TRUE, xlim = NULL, ylim = NULL,
                      xlab = "t [registered]", ylab = "y") {
   
+  # some NULL variable definitions to appease CRAN package checks regarding the use of ggplot2
+  fpc_value <- type <- value <- NULL
+  
   # data preparation
   mean_dat = data.frame(t    = fpca_obj$t_vec,
                         mean = as.vector(fpca_obj$mu))
@@ -73,13 +76,13 @@ plot_fpca = function(fpca_obj, plot_npc = fpca_obj$npc, var_factor = 2,
                           value = c(plot_dat$mean_y,
                                     plot_dat$mean_plusFPC,
                                     plot_dat$mean_minusFPC),
-                          curve = rep(c("mean curve",
-                                        paste0("mean + ",var_factor,"*FPC"),
-                                        paste0("mean - ",var_factor,"*FPC")), 
-                                      each = nrow(plot_dat)),
+                          type = rep(c("mean curve",
+                                       paste0("mean + ",var_factor,"*FPC"),
+                                       paste0("mean - ",var_factor,"*FPC")), 
+                                     each = nrow(plot_dat)),
                           stringsAsFactors = FALSE) %>%
-      mutate(curve = factor(curve, levels = c("mean curve",
-                                              paste0("mean + ",var_factor,"*FPC"),
+      mutate(type = factor(type, levels = c("mean curve",
+                                            paste0("mean + ",var_factor,"*FPC"),
                                               paste0("mean - ",var_factor,"*FPC"))))
   })
   
@@ -96,11 +99,11 @@ plot_fpca = function(fpca_obj, plot_npc = fpca_obj$npc, var_factor = 2,
     t_symbols = unique(plotDat_list[[i]]$t)[round(seq(1, length(unique(plotDat_list[[i]]$t)), 
                                                       length.out = n_symbols))]
     symbol_dat      = plotDat_list[[i]] %>% filter(t %in% t_symbols)
-    symbolPlus_dat  = symbol_dat %>% filter(curve == paste0("mean + ",var_factor,"*FPC"))
-    symbolMinus_dat = symbol_dat %>% filter(curve == paste0("mean - ",var_factor,"*FPC"))
+    symbolPlus_dat  = symbol_dat %>% filter(type == paste0("mean + ",var_factor,"*FPC"))
+    symbolMinus_dat = symbol_dat %>% filter(type == paste0("mean - ",var_factor,"*FPC"))
     
     # plot
-    ggplot(mapping = aes(x = t, y = value, col = curve, lty = curve)) +
+    ggplot(mapping = aes(x = t, y = value, col = type, lty = type)) +
       geom_line(data = plotDat_list[[i]]) +
       scale_color_manual(values = c("black", "gray70", "gray60")) +
       scale_linetype_manual(values = c(1, 2, 3)) +

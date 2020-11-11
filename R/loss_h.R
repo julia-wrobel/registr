@@ -52,7 +52,7 @@ loss_h = function(Y, Theta_h, mean_coefs, knots, beta.inner, family, t_min, t_ma
 		stop("priors = TRUE but no prior_sd supplied.")
 	}
 	if(priors == FALSE & !is.null(prior_sd)){
-		message("prior_sd supplied but priors = FALSE. No priors included.")
+		warning("prior_sd supplied but priors = FALSE. No priors included.")
 	}
 	
 	# get the registered t values

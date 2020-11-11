@@ -45,3 +45,77 @@ test_that("cov_hall returns a covariance matrix with correct dimensions",{
 	expect_type(cov_matrix, type = "double")
 	expect_identical(dim(cov_matrix), expected = rep(length(index_grid), 2))
 })
+
+test_that("gfpca_twoStep (Gaussian) output is a list with non-null items and class fpca",{
+	Y = simulate_functional_data(seed = 2020)$Y
+	Y$value = Y$latent_mean
+	
+	fpca_object = gfpca_twoStep(Y, npc = 2)
+	
+	expect_equal(class(fpca_object), "fpca")
+	expect_equal(fpca_object$family, "gaussian")
+	
+	expect_false(any(is.na(fpca_object$t_vec)))
+	expect_false(any(is.na(fpca_object$mu)))
+	expect_false(any(is.na(fpca_object$efunctions)))
+	expect_false(any(is.na(fpca_object$evalues)))
+	expect_false(any(is.na(fpca_object$scores)))
+})
+
+test_that("gfpca_twoStep (Gaussian) output has correct number of dimensions",{
+	Y = simulate_functional_data(I = 100, D = 200, seed = 2020)$Y
+	Kt = 8
+	fpca_object = gfpca_twoStep(Y, npc = 2, Kt = Kt, index_relevantDigits = 3)
+	
+	expect_equal(length(fpca_object$t_vec), 101)
+	expect_equal(dim(fpca_object$alpha), c(101, 1))
+	expect_equal(dim(fpca_object$efunctions), c(101, 2))
+	expect_equal(length(fpca_object$evalues), 2)
+	expect_equal(dim(fpca_object$scores), c(length(unique(Y$id)), 2))
+	expect_equal(length(fpca_object$knots), Kt - 4)
+	
+	fpca_object = gfpca_twoStep(Y, npc = 1, Kt = Kt, index_relevantDigits = 3)
+	expect_equal(dim(fpca_object$efunctions), c(101, 1))
+})
+
+test_that("gfpca_twoStep (binomial) output has correct number of dimensions",{
+	Y = simulate_functional_data(I = 100, D = 200, seed = 2020)$Y
+	Kt = 8
+	fpca_object = gfpca_twoStep(Y, npc = 2, Kt = Kt, family = "binomial",
+															index_relevantDigits = 3)
+	
+	expect_equal(length(fpca_object$t_vec), 101)
+	expect_equal(dim(fpca_object$alpha), c(101, 1))
+	expect_equal(dim(fpca_object$efunctions), c(101, 2))
+	expect_equal(length(fpca_object$evalues), 2)
+	expect_equal(dim(fpca_object$scores), c(length(unique(Y$id)), 2))
+	expect_equal(length(fpca_object$knots), Kt - 4)
+	
+	fpca_object = gfpca_twoStep(Y, npc = 1, Kt = Kt, family = "binomial",
+															index_relevantDigits = 3)
+	expect_equal(dim(fpca_object$efunctions), c(101, 1))
+})
+
+test_that("gfpca_twoStep (Gaussian) returns a correct knots vector when periodic = TRUE",{
+	Y = simulate_functional_data(I = 100, D = 200, seed = 2020)$Y
+	Kt = 8
+	fpca_object = gfpca_twoStep(Y, npc = 2, Kt = Kt, periodic = TRUE)
+	
+	expect_equal(length(fpca_object$knots), Kt - 1)
+})
+
+test_that("gfpca_twoStep (Gaussian) has correct number of dimensions when applied on incomplete curves",{
+	Y = registr::growth_incomplete
+	Kt = 8
+	fpca_object = gfpca_twoStep(Y, npc = 2, Kt = Kt, index_relevantDigits = 3)
+	
+	expect_equal(length(fpca_object$t_vec), 30)
+	expect_equal(dim(fpca_object$alpha), c(30, 1))
+	expect_equal(dim(fpca_object$efunctions), c(30, 2))
+	expect_equal(length(fpca_object$evalues), 2)
+	expect_equal(dim(fpca_object$scores), c(length(unique(Y$id)), 2))
+	expect_equal(length(fpca_object$knots), Kt - 4)
+	
+	fpca_object = gfpca_twoStep(Y, npc = 1, Kt = Kt, index_relevantDigits = 3)
+	expect_equal(dim(fpca_object$efunctions), c(30, 1))
+})

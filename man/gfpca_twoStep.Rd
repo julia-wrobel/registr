@@ -40,8 +40,8 @@ Keep this NULL if you are using standalone \code{register} function.}
 of relevant digits to which the index grid should be rounded. Coarsening the
 index grid is necessary since otherwise the covariance surface matrix
 explodes in size in the presence of too many unique index values (which is
-the case after some registration step). Defaults to 3. Set to \code{NULL} to
-prevent rounding.}
+always the case after some registration step). Defaults to 3. Set to
+\code{NULL} to prevent rounding.}
 
 \item{estimation_accuracy}{One of \code{c("high","low")}. When set to \code{"low"},
 the mixed model estimation step in \code{lme4} is performed with lower
@@ -49,13 +49,17 @@ accuracy, reducing computation time. Defaults to \code{"high"}.}
 
 \item{start_params}{Optional start values for gamm4.}
 
-\item{periodic}{If TRUE, uses periodic b-spline basis functions. Default is FALSE.}
+\item{periodic}{Only contained for full consistency with \code{fpca_gauss}
+and \code{bfpca}. If TRUE, returns the knots vector for periodic b-spline
+basis functions. Defaults to FALSE. This parameter does not change the
+results of the two-step GFPCA.}
 
-\item{...}{Additional arguments passed to registr and fpca functions.}
+\item{...}{Additional arguments passed to \code{\link{cov_hall}}.}
 }
 \value{
 An object of class \code{fpca} containing:
-\item{t_vec}{Time vector over which the mean \code{mu} was evaluated.}
+\item{t_vec}{Time vector over which the mean \code{mu} was evaluated.
+The resolution is can be specified by setting \code{index_relevantDigits}.}
 \item{knots}{Cutpoints for B-spline basis used to rebuild \code{alpha}.}
 \item{efunctions}{\eqn{D \times npc} matrix of estimated FPC basis functions.}
 \item{evalues}{Estimated variance of the FPC scores.}
@@ -74,12 +78,12 @@ with \code{fpca_gauss} and \code{bfpca}.}
 \item{gamm4_theta}{Estimated parameters of the mixed model.}
 }
 \description{
-Function for applying FPCA to different exponential family distributions,
-used in the FPCA step for registering functional data,
+Function for applying FPCA to different exponential family distributions.
+Used in the FPCA step for registering functional data,
 called by \code{\link{register_fpca}} when \code{GFPCA_type = "two-step"}. \cr \cr
-The method is partly based on the approach of Hall et al. (2008) to estimate
-functional principal components. The full method is outlined as 
-`two-step approach` in Gertheiss et al. (2017). \cr \cr
+The method implements the `two-step approach` of Gertheiss et al. (2017)
+and is based on the approach of Hall et al. (2008) to estimate functional
+principal components. \cr \cr
 This function is an adaptation of the implementation of Jan
 Gertheiss for Gertheiss et al. (2017), with focus on higher (RAM) efficiency
 for large data settings.

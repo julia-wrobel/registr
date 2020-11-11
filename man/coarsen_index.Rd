@@ -22,12 +22,12 @@ two-step GFPCA with \code{\link{gfpca_twoStep}}.
 }
 \examples{
 index_vector = c(0.7892, 0.2984, 0.328)
-coarsen_index(index_vector, 1)
-coarsen_index(index_vector, 3)
+registr:::coarsen_index(index_vector, 1)
+registr:::coarsen_index(index_vector, 3)
 
 index_vector2 = c(2803, -7639, 13)
-coarsen_index(index_vector2, 1)
-coarsen_index(index_vector2, 3)
+registr:::coarsen_index(index_vector2, 1)
+registr:::coarsen_index(index_vector2, 3)
 
 }
 \author{

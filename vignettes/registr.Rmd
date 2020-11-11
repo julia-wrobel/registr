@@ -3,22 +3,14 @@ title: "registr: a vignette"
 author: "Julia Wrobel and Erin McDonnell"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
-references:
-- id: tipping1999
-  title: Probabilistic Visualisation of High-dimensional binary data
-  author:
-  - family: Tipping
-    given: M.E.
-  container-title: Advances in neural information processing systems
-  page: 592-598
-  type: article-journal
-  issued:
-    year: 1999
+bibliography: references.bib
 vignette: >
-  %\VignetteIndexEntry{registr: a vignette}
-  %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
   
+  %\VignetteIndexEntry{registr: a vignette}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include = FALSE}
@@ -30,7 +22,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-The `registr` package is for registering, or aligning, exponential family functional data. 
+The `registr` package is for registering, or aligning, exponential family functional data.
 
 This vignette outlines the general functionality of the package.
 The package can handle both complete and incomplete functional data,
@@ -42,6 +34,7 @@ found in vignette `"incomplete_curves"`.
 library(registr)
 library(ggplot2)
 library(dplyr)
+theme_set(theme_bw())
 ```
 
 
@@ -80,7 +73,7 @@ The methods implemented in `registr` are described in more detail in this [paper
 
 ## The `registr` package
 
-The main function in the package is `register_fpca()`. It calls two sub-functions: a GFPCA function to implement **step 1** of the iterative algorithm, and `registr()`, a function to implement **step 2** of the algorithm. The function that calculates GFPCA depends on the family. For `family = "binomial"` the `bfpca()` function performs this step and for `family = "gaussian"` the `fpca_gauss()` function performs this step. The `register_fpca()` function iterates between the alignment and template calculation steps until curves are registered. 
+The main function in the package is `register_fpca()`. It calls two sub-functions: a GFPCA function to implement **step 1** of the iterative algorithm, and `registr()`, a function to implement **step 2** of the algorithm. The function that calculates GFPCA can either be based on the variational EM approach outlined in @wrobel_2019 or the two-step method outlined in @gertheiss_2017. In the former case, the called function depends on the family. For `family = "binomial"` and `family = "gaussian"` the functions `bfpca()` and `fpca_gauss()` are called for the GFPCA step, respectively. In the latter case, function `gfpca_twoStep()` is called. The `register_fpca()` function iterates between the alignment and template calculation steps until curves are registered. 
 
 ### A note on data formatting
 
@@ -126,7 +119,7 @@ Each curve has one main peak, but the location of that peak is shifted. When cur
 `simulate_functional_data()` simulates data with a population-level mean and two orthogonal principal components based on sine and cosine functions. The code below generates data with $I = 100$ subjects and $D = 200$ time points per subject using this function:
 
 ```{r sim_data1}
-fpca_data = simulate_functional_data(I = 100, D = 200)
+fpca_data = simulate_functional_data(I = 100, D = 200, seed = 2018)
 
 ls(fpca_data)
 
@@ -167,6 +160,7 @@ We can alter the score variance for the principal components using the arguments
 ## Registration using `register_fpca()`
 
 `register_fpca()` is the main function for the `registr` package. Use the `family` argument to this function to specify what type of exponential family data you would like to align. The package supports `family = "binomial"` for registering binary data and `family = "gaussian"` for registering continuous data.
+The type of GFPCA is specified by the argument `fpca_type`, either calling the variational EM approach of @wrobel_2019 (`fpca_type = "variationalEM`; default) or the two-step approach of @gertheiss_2017 (`fpca_type = "two-step"`).
 
 ### `register_fpca(family = "binomial")` for binary data
 
@@ -217,7 +211,7 @@ registr_gauss = register_fpca(Y = registration_data, family = "gaussian", Kt = 1
 
 ## `bfpca()` function
 
-The `registr` package includes a novel variational EM algorithm for binary functional principal component analysis (bfpca), derived from methods for binary probabilistic PCA [@tipping1999].
+The `registr` package includes a novel variational EM algorithm for binary functional principal component analysis (bfpca), derived from methods for binary probabilistic PCA [@tipping_1999].
 
 This `bfpca()` function works for data that is sparse and irregular (subjects do not have to be observed on the same grid and do not have to have the same number of grid points), as well as dense, regularly observed data. The following code runs bfpca on the `fpca_data` dataset.
 
@@ -246,6 +240,27 @@ ggplot(pc_df, aes(index, psi2)) + theme_bw() + geom_line(color = "blue") +
 
 The algorithm runs quickly and does a good job recovering the true FPCs. Note that while the truth and estimation are not perfectly aligned, this is to be expected -- the data used to estimate these functions are binary observations that are generated for the truth with some variability, so results are not expected to perfectly align. One would expect results to get better with increasing number of time points per subject.
 
+In `registr`, the estimated FPCs can be easily visualized using function
+`plot_fpca`.
+
+```{r plot_fpca, echo = FALSE, fig.show='hold', fig.width=6}
+plot_fpca(bfpca_object)
+```
+
+## `gfpca_twoStep()` function
+
+If `register_fpca()` is called with `fpca_type = "two-step"`, the GFPCA step
+is performed with function `gfpca_twoStep()`.
+As @gertheiss_2017 outline, in comparison to purely marginal and thus
+biased GFPCA approaches, this two-step approach can be seen as a
+*"quick-fix" for the marginal approach* of @hall_2008 that *works well in practice*.
+
+Our implementation is based on the codebase accompanying their paper which can
+be found at [github.com/jeff-goldsmith/gfpca](https://www.github.com/jeff-goldsmith/gfpca).
+We further adapted the functions to work more efficiently both regarding the 
+need for computation time and RAM, especially for large data settings with
+thousands of curves.
+
 ## `registr()` function
 
 The registration step of `register_fpca()` calls the `registr` function. Though registration is intended to be performed through the `register_fpca()` function `registr()` can work as a standalone function. `registr()` uses constrained maximization of an exponential family likelihood function to estimate functions that align curves.
@@ -253,7 +268,7 @@ The registration step of `register_fpca()` calls the `registr` function. Though 
 The default option `gradient = TRUE` implements an analytic gradient for this optimization problem. Selecting `gradient = FALSE` implements a numeric gradient which is less computationally efficient. This is illustrated in the code below. 
 
 ```{r registr_function}
-data_test_gradient = simulate_unregistered_curves(I = 50, D = 100)
+data_test_gradient = simulate_unregistered_curves(I = 50, D = 100, seed = 2018)
 
 start_time = Sys.time()
 reg_analytic = registr(Y = data_test_gradient, family = "binomial", gradient = TRUE)
@@ -388,5 +403,7 @@ Documentation for individual functions gives more information on their arguments
 - `?register_fpca`
 - `?registr`
 - `?bfpca`
+- `?fpca_gauss`
+- `?gfpca_twoStep`
 
 ## References

@@ -167,7 +167,7 @@ bfpca <- function(Y, npc = 1, Kt = 8, maxiter = 50, t_min = NULL, t_max = NULL,
   if (curr_iter < maxiter) {
   	message("BFPCA converged.")
   } else {
-  	warning("BFPCA convergence not reached. Try increasing maxiter")
+  	warning("BFPCA convergence not reached. Try increasing maxiter.")
   }
 
   fits         = rep(NA, dim(Y)[1])

@@ -1,11 +1,11 @@
 #' Generalized functional principal component analysis
 #' 
-#' Function for applying FPCA to different exponential family distributions,
-#' used in the FPCA step for registering functional data,
+#' Function for applying FPCA to different exponential family distributions.
+#' Used in the FPCA step for registering functional data,
 #' called by \code{\link{register_fpca}} when \code{GFPCA_type = "two-step"}. \cr \cr
-#' The method is partly based on the approach of Hall et al. (2008) to estimate
-#' functional principal components. The full method is outlined as 
-#' `two-step approach` in Gertheiss et al. (2017). \cr \cr
+#' The method implements the `two-step approach` of Gertheiss et al. (2017)
+#' and is based on the approach of Hall et al. (2008) to estimate functional
+#' principal components. \cr \cr
 #' This function is an adaptation of the implementation of Jan
 #' Gertheiss for Gertheiss et al. (2017), with focus on higher (RAM) efficiency
 #' for large data settings.
@@ -16,17 +16,23 @@
 #' of relevant digits to which the index grid should be rounded. Coarsening the
 #' index grid is necessary since otherwise the covariance surface matrix
 #' explodes in size in the presence of too many unique index values (which is
-#' the case after some registration step). Defaults to 3. Set to \code{NULL} to
-#' prevent rounding.
+#' always the case after some registration step). Defaults to 3. Set to
+#' \code{NULL} to prevent rounding.
 #' @param estimation_accuracy One of \code{c("high","low")}. When set to \code{"low"},
 #' the mixed model estimation step in \code{lme4} is performed with lower
 #' accuracy, reducing computation time. Defaults to \code{"high"}.
 #' @param start_params Optional start values for gamm4.
+#' @param periodic Only contained for full consistency with \code{fpca_gauss}
+#' and \code{bfpca}. If TRUE, returns the knots vector for periodic b-spline
+#' basis functions. Defaults to FALSE. This parameter does not change the
+#' results of the two-step GFPCA.
+#' @param ... Additional arguments passed to \code{\link{cov_hall}}.
 #' @inheritParams register_fpca
 #' @inheritParams fpca_gauss
 #' 
 #' @return An object of class \code{fpca} containing:
-#' \item{t_vec}{Time vector over which the mean \code{mu} was evaluated.}
+#' \item{t_vec}{Time vector over which the mean \code{mu} was evaluated.
+#' The resolution is can be specified by setting \code{index_relevantDigits}.}
 #' \item{knots}{Cutpoints for B-spline basis used to rebuild \code{alpha}.}
 #' \item{efunctions}{\eqn{D \times npc} matrix of estimated FPC basis functions.}
 #' \item{evalues}{Estimated variance of the FPC scores.}
@@ -58,6 +64,7 @@
 #' based on work of Jan Gertheiss
 #' 
 #' @importFrom gamm4 gamm4
+#' @importFrom stats formula
 #' @import lme4 mgcv
 #' 
 #' @examples
@@ -137,8 +144,8 @@ gfpca_twoStep = function (Y, family = "gaussian", npc = 1, Kt = 8,
   
   ### obtain eigenfunctions and eigenvalues
   # estimate the covariance matrix of the latent Gaussian process
-  hmy_cov = cov_hall(Y, index_evalGrid = output_index, Kt = Kt, Kc = 10,
-                     family = family, diag_epsilon = 0.01)
+  hmy_cov = cov_hall(Y, index_evalGrid = output_index, Kt = Kt,
+                     family = family, diag_epsilon = 0.01, ...)
   
   # spectral decomposition
   eigen_HMY  = eigen(hmy_cov)
@@ -169,7 +176,7 @@ gfpca_twoStep = function (Y, family = "gaussian", npc = 1, Kt = 8,
   
   # mixed model
   random.structure = paste(paste0("psi", 1:npc), collapse = "+")
-  random.formula   = formula(paste("~(0+", random.structure, "|| id)"))
+  random.formula   = stats::formula(paste("~(0+", random.structure, "|| id)"))
   if (estimation_accuracy == "high") {
     model = gamm4::gamm4(value ~ s(index, bs = "ps", k = Kt),
                          family = family_mgcv,
@@ -178,7 +185,7 @@ gfpca_twoStep = function (Y, family = "gaussian", npc = 1, Kt = 8,
                          start  = start_params)
     
   } else if (estimation_accuracy == "low") {
-    # Note: Some of the following arguments are commented out since they
+    # Note: The following control arguments are commented out since they
     #       require a coming update of the gamm4 package.
     #       When the gamm4 update goes public:
     #       1) Uncomment the arguments
@@ -187,32 +194,29 @@ gfpca_twoStep = function (Y, family = "gaussian", npc = 1, Kt = 8,
                          family  = family_mgcv,
                          data    = dat_fit,
                          random  = random.formula,
-                         start   = start_params,
-                         control = lme4:::glmerControl(# optimizer     = "nloptwrap",
-                                                       # calc.derivs   = FALSE,
-                                                       # nAGQ0initStep = FALSE,
-                                                       # boundary.tol  = 0,
-                                                       # tolPwrss      = 1e-3,
-                                                       optCtrl = list(algorithm = "NLOPT_LN_BOBYQA", # default in lme4
-                                                                      xtol_abs  = 1e-04,             # default: 1e-08
-                                                                      ftol_abs  = 1e-04,             # default: 1e-08
-                                                                      maxeval   = 1e+02)))           # default: 1e+05
+                         start   = start_params)
+                         # control = lme4::glmerControl(optimizer     = "nloptwrap",
+                         #                              calc.derivs   = FALSE,
+                         #                              nAGQ0initStep = FALSE,
+                         #                              boundary.tol  = 0,
+                         #                              tolPwrss      = 1e-3,
+                         #                              optCtrl = list(algorithm = "NLOPT_LN_BOBYQA", # default in lme4
+                         #                                             xtol_abs  = 1e-04,             # default: 1e-08
+                         #                                             ftol_abs  = 1e-04,             # default: 1e-08
+                         #                                             maxeval   = 1e+02)),           # default: 1e+05
                          # nAGQ = 0)
   }
   
   gamm4_theta = attributes(model$mer)$theta
   
-  scores      = as.matrix(lme4:::coef.merMod(model$mer)$id[,npc:1])
+  scores      = as.matrix(coef(model$mer)$id[,npc:1])
   Z.gamm.fpca = scores %*% t(efunctions[,1:npc])
   alpha       = as.vector(predict.gam(model$gam, newdata = data.frame(index = output_index)))
+  alpha_matrix = matrix(rep(alpha, I), nrow = I, byrow = TRUE)
   if (family == "gaussian") {
-    alpha_matrix = matrix(rep(alpha, I), nrow = I, byrow = TRUE)
     Yhat         = alpha_matrix + Z.gamm.fpca
-    
   } else if (family == "binomial") {
-    alpha_matrix = matrix(rep(alpha, I), nrow = I, byrow = TRUE)
     Yhat         = 1 / (1 + exp(-1 * (alpha_matrix + Z.gamm.fpca)))
-    alpha        = 1 / (1 + exp(-alpha)) # mean
   }
   
   ## format output
@@ -224,8 +228,8 @@ gfpca_twoStep = function (Y, family = "gaussian", npc = 1, Kt = 8,
   
   ret = list(t_vec         = output_index,
              knots         = knots,
-             alpha         = alpha,
-             mu            = alpha,
+             alpha         = matrix(alpha, ncol = 1), # return matrix for consistency with fpca_gauss()
+             mu            = matrix(alpha, ncol = 1),
              efunctions    = efunctions,
              evalues       = evalues,
              evalues_sum   = evalues_sum,

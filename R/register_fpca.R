@@ -31,8 +31,8 @@
 #' the index grid should be rounded in the GFPCA step. Coarsening the index grid
 #' is necessary since otherwise the covariance surface matrix explodes in size
 #' in the presence of too many unique index values (which is the case after some
-#' registration step). Defaults to 2. Set to \code{NULL} to prevent rounding.
-#' @param ... Additional arguments passed to registr and fpca functions.
+#' registration step). Defaults to 3. Set to \code{NULL} to prevent rounding.
+#' @param ... Additional arguments passed to registr and gfpca functions.
 #' @inheritParams registr
 #'
 #' @author Julia Wrobel \email{julia.wrobel@@cuanschutz.edu}
@@ -52,17 +52,32 @@
 #' @return family \code{gaussian} or \code{binomial}.
 #'  
 #' @examples
+#' library(ggplot2)
+#' 
 #' ### complete binomial curves
 #' Y = simulate_unregistered_curves(I = 20, D = 200)
-#' registr_object = register_fpca(Y, family = "binomial", max_iterations = 5)
+#' 
+#' # estimation based on Wrobel et al. (2019)
+#' registr_object = register_fpca(Y, npc = 2, family = "binomial",
+#'                                fpca_type = "variationalEM", max_iterations = 5)
+#' # estimation based on Gertheiss et al. (2017)
+#' registr_object2 = register_fpca(Y, npc = 2, family = "binomial",
+#'                                 fpca_type = "two-step", max_iterations = 5)
+#' 
+#' ggplot(registr_object$Y, aes(x = tstar, y = t_hat, group = id)) +
+#'   geom_line(alpha = 0.2) + ggtitle("Estimated warping functions")
+#' 
+#' plot_fpca(registr_object$fpca_obj, response_function = function(x) { 1 / (1 + exp(-x)) })
+#' 
+#' 
 #' \donttest{ 
 #' # example using accelerometer data from nhanes 2003-2004 study
 #' data(nhanes)
 #' register_nhanes = register_fpca(nhanes, npc = 2, family = "binomial", max_iterations = 5)
 #' 
+#' 
 #' ### incomplete Gaussian curves
 #' data(growth_incomplete)
-#' library(ggplot2)
 #' 
 #' # Force the warping functions to end on the diagonal
 #' registr_object2a = register_fpca(growth_incomplete, npc = 2, family = "gaussian",
@@ -70,7 +85,7 @@
 #' ggplot(registr_object2a$Y, aes(x = tstar, y = t_hat, group = id)) +
 #'   geom_line(alpha = 0.2) +
 #'   ggtitle("Estimated warping functions")
-#'
+#' 
 #' # Allow the warping functions to not end on the diagonal.
 #' # The higher lambda_endpoint, the more the endpoints are forced towards the diagonal.
 #' registr_object2b = register_fpca(growth_incomplete, npc = 2, family = "gaussian",
@@ -86,7 +101,7 @@ register_fpca <- function(Y, Kt = 8, Kh = 4, family = "binomial",
 													max_iterations = 10, npc = 1,
 													fpca_type = "variationalEM", fpca_maxiter = 50,
 													fpca_seed = 1988, fpca_error_thresh = 0.0001,
-													fpca_index_relevantDigits = 2L, cores = 1L, ...){
+													fpca_index_relevantDigits = 3L, cores = 1L, ...){
 	
   if (!(family %in% c("binomial", "gaussian"))) {
   	stop("Package currently handles only 'binomial' or 'gaussian' families.")
@@ -138,7 +153,7 @@ register_fpca <- function(Y, Kt = 8, Kh = 4, family = "binomial",
   															Kt = Kt, row_obj = rows,
   															index_relevantDigits = fpca_index_relevantDigits,
   															estimation_accuracy  = estimation_accuracy,
-  															start_params         = gamm4_startParams)
+  															start_params         = gamm4_startParams, ...)
   	}
   	
   	registr_step = registr(obj = fpca_step, Kt = Kt, Kh = Kh, family = family, 
@@ -175,7 +190,7 @@ register_fpca <- function(Y, Kt = 8, Kh = 4, family = "binomial",
   														Kt = Kt, row_obj = rows,
   														index_relevantDigits = fpca_index_relevantDigits,
   														estimation_accuracy  = "high",
-  														start_params         = fpca_step$gamm4_theta)
+  														start_params         = fpca_step$gamm4_theta, ...)
   }
   
   Y$tstar = time_warps[[1]]
