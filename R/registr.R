@@ -351,9 +351,11 @@ registr_oneCurve <- function(i, arg_list, ...) {
 	# values slightly outside the possible domain, or to slightly nonmonotone beta
 	# values that don't fulfill the constraints.
 	# Correct these slight inconsistencies to ensure proper beta values.
-	beta_i <- ensure_proper_beta(beta  = beta_i,
-															 t_min = arg_list$t_min,
-															 t_max = ifelse(arg_list$preserve_domain, t_max_i, arg_list$t_max))
+	if (arg_list$warping != "piecewise_linear2") {
+		beta_i <- ensure_proper_beta(beta  = beta_i,
+																 t_min = arg_list$t_min,
+																 t_max = ifelse(arg_list$preserve_domain, t_max_i, arg_list$t_max))
+	}
 	
 	# main registration step	
 	beta_optim = constrOptim(theta           = beta_i,

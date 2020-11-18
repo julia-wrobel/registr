@@ -26,7 +26,7 @@
 #' 
 #' @examples
 #' beta_improper <- c(0.24, 1.000047, 1.000002)
-#' ensure_proper_beta(beta_improper, t_min = 0, t_max = 1)
+#' registr:::ensure_proper_beta(beta_improper, t_min = 0, t_max = 1)
 ensure_proper_beta <- function(beta, t_min, t_max) {
 	
 	# problem 1: constrOptim sometimes runs into problems if two neighboring

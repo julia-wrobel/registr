@@ -33,7 +33,7 @@ the parameter vector is not monotone.
 }
 \examples{
 beta_improper <- c(0.24, 1.000047, 1.000002)
-ensure_proper_beta(beta_improper, t_min = 0, t_max = 1)
+registr:::ensure_proper_beta(beta_improper, t_min = 0, t_max = 1)
 }
 \author{
 Alexander Bauer \email{alexander.bauer@stat.uni-muenchen.de}
