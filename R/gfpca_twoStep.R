@@ -16,7 +16,7 @@
 #' of relevant digits to which the index grid should be rounded. Coarsening the
 #' index grid is necessary since otherwise the covariance surface matrix
 #' explodes in size in the presence of too many unique index values (which is
-#' always the case after some registration step). Defaults to 3. Set to
+#' always the case after some registration step). Defaults to 4. Set to
 #' \code{NULL} to prevent rounding.
 #' @param estimation_accuracy One of \code{c("high","low")}. When set to \code{"low"},
 #' the mixed model estimation step in \code{lme4} is performed with lower
@@ -75,7 +75,7 @@
 #' 
 gfpca_twoStep = function (Y, family = "gaussian", npc = 1, Kt = 8,
                           t_min = NULL, t_max = NULL,
-                          row_obj = NULL, index_relevantDigits = 3L,
+                          row_obj = NULL, index_relevantDigits = 4L,
                           estimation_accuracy = "high", start_params = NULL,
                           periodic = FALSE,
                           ...) {

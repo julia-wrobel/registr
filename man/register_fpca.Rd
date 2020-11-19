@@ -17,7 +17,7 @@ register_fpca(
   fpca_maxiter = 50,
   fpca_seed = 1988,
   fpca_error_thresh = 1e-04,
-  fpca_index_relevantDigits = 3L,
+  fpca_index_relevantDigits = 4L,
   cores = 1L,
   ...
 )
@@ -65,7 +65,7 @@ Positive integer \code{>= 2}, stating the number of relevant digits to which
 the index grid should be rounded in the GFPCA step. Coarsening the index grid
 is necessary since otherwise the covariance surface matrix explodes in size
 in the presence of too many unique index values (which is the case after some
-registration step). Defaults to 3. Set to \code{NULL} to prevent rounding.}
+registration step). Defaults to 4. Set to \code{NULL} to prevent rounding.}
 
 \item{cores}{Number of cores to be used. If \code{cores > 1}, the registration
 call is parallelized by using \code{parallel::mclapply} (for Unix-based

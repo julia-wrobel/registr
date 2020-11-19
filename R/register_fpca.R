@@ -31,7 +31,7 @@
 #' the index grid should be rounded in the GFPCA step. Coarsening the index grid
 #' is necessary since otherwise the covariance surface matrix explodes in size
 #' in the presence of too many unique index values (which is the case after some
-#' registration step). Defaults to 3. Set to \code{NULL} to prevent rounding.
+#' registration step). Defaults to 4. Set to \code{NULL} to prevent rounding.
 #' @param ... Additional arguments passed to registr and gfpca functions.
 #' @inheritParams registr
 #'
@@ -101,7 +101,7 @@ register_fpca <- function(Y, Kt = 8, Kh = 4, family = "binomial",
 													max_iterations = 10, npc = 1,
 													fpca_type = "variationalEM", fpca_maxiter = 50,
 													fpca_seed = 1988, fpca_error_thresh = 0.0001,
-													fpca_index_relevantDigits = 3L, cores = 1L, ...){
+													fpca_index_relevantDigits = 4L, cores = 1L, ...){
 	
   if (!(family %in% c("binomial", "gaussian"))) {
   	stop("Package currently handles only 'binomial' or 'gaussian' families.")
