@@ -3,20 +3,25 @@ context("register_fpca")
 
 # for all tests implement for both gaussian and binary data
 test_that("code only accepts supported family of distributions", {
-	Y = simulate_unregistered_curves()
-	registr_object = register_fpca(Y, family = "binomial", max_iterations = 3)
+	Y = simulate_unregistered_curves(seed = 2020)
 	
-	expect_error(register_fpca(Y, family = "gaussian", max_iterations = 3), NA)
+	expect_warning(register_fpca(Y, family = "binomial", max_iterations = 3),
+								 "Convergence not reached. Try increasing max_iterations.")
+	expect_warning(register_fpca(Y, family = "gaussian", max_iterations = 3),
+								 "Convergence not reached. Try increasing max_iterations.")
+	
 	expect_error(register_fpca(Y, family = "poisson"),
 							 "Package currently handles only 'binomial' or 'gaussian' families.")
-
 	expect_error(register_fpca(Y, family = 25),
 							 "Package currently handles only 'binomial' or 'gaussian' families.")
 })
 
 test_that("registering binary and gaussian data throws no errors",{
 	Y = simulate_unregistered_curves(seed = 10001)
-	expect_error(register_fpca(Y, family = "binomial"), NA)
+	expect_warning(register_fpca(Y, family = "binomial", fpca_type = "variationalEM", max_iterations = 3),
+								 "Convergence not reached. Try increasing max_iterations.")
+	expect_warning(register_fpca(Y, family = "binomial", fpca_type = "two-step", max_iterations = 3),
+								 "Convergence not reached. Try increasing max_iterations.")
 	
 	dat = Y$index
 	expect_error(register_fpca(dat, family = "binomial"), 
@@ -25,23 +30,26 @@ test_that("registering binary and gaussian data throws no errors",{
 
 test_that("register_fpca output is a list with non-null items and class registration",{
 	Y = simulate_unregistered_curves(seed = 1001)
-	registr_object = register_fpca(Y, family = "binomial", max_iterations = 10)
+	expect_warning({
+		registr_object1 = register_fpca(Y, family = "binomial", fpca_type = "variationalEM", max_iterations = 3)
+	}, "Convergence not reached. Try increasing max_iterations.")
+	expect_warning({
+		registr_object2 = register_fpca(Y, family = "binomial", fpca_type = "two-step", max_iterations = 3)
+	}, "Convergence not reached. Try increasing max_iterations.")
 	
-	expect_equal(class(registr_object), "registration")
+	expect_equal(class(registr_object1), "registration")
+	expect_equal(class(registr_object2), "registration")
 	
-	expect_false(any(is.na(registr_object$loss)))
-	expect_false(any(is.na(registr_object$time_warps)))
-	expect_false(any(is.na(registr_object$Y$t_hat)))
-	
-	# throws error in code:
-	# Y = simulate_unregistered_curves(seed = 10001)
-	# registr_object = register_fpca(Y, family = "binomial", max_iterations = 25)
-	
-	
+	expect_false(any(is.na(registr_object1$loss)))
+	expect_false(any(is.na(registr_object2$loss)))
+	expect_false(any(is.na(registr_object1$time_warps)))
+	expect_false(any(is.na(registr_object2$time_warps)))
+	expect_false(any(is.na(registr_object1$Y$t_hat)))
+	expect_false(any(is.na(registr_object2$Y$t_hat)))
 })
 
 test_that("register_fpca function forces gradient = FALSE when using warping = piecewise_linear2 or periodic = TRUE",{
-	Y = simulate_unregistered_curves()
+	Y = simulate_unregistered_curves(seed = 2020)
 	data = data_clean(Y)
 	Y = data$Y
 
@@ -52,7 +60,7 @@ test_that("register_fpca function forces gradient = FALSE when using warping = p
 })
 
 test_that("register_fpca function priors must be specified only when warping = piecewise_linear2 and family = binomial",{
-	Y = simulate_unregistered_curves()
+	Y = simulate_unregistered_curves(seed = 2020)
 	data = data_clean(Y)
 	Y = data$Y
 	
@@ -66,7 +74,7 @@ test_that("register_fpca function priors must be specified only when warping = p
 })
 
 test_that("register_fpca function with priors on the piecewise_linear2 warping functions works as expected",{
-	Y = simulate_unregistered_curves()
+	Y = simulate_unregistered_curves(seed = 2020)
 	data = data_clean(Y)
 	Y = data$Y
 	
@@ -74,7 +82,7 @@ test_that("register_fpca function with priors on the piecewise_linear2 warping f
 														 gradient = FALSE, priors = TRUE, prior_sd = NULL),
 							 "priors = TRUE but no prior_sd supplied.")
 
-	expect_message(register_fpca(Y = Y, family = "binomial", warping = "piecewise_linear2", 
+	expect_warning(register_fpca(Y = Y, family = "binomial", warping = "piecewise_linear2", 
 															 gradient = FALSE, priors = FALSE, prior_sd = 1),
 								 "prior_sd supplied but priors = FALSE. No priors included.")
 	
@@ -89,7 +97,7 @@ test_that("register_fpca function with priors on the piecewise_linear2 warping f
 })
 
 test_that("register_fpca for binary data with parametric warping functions and/or periodic basis functions throws no errors",{
-	Y = simulate_unregistered_curves()
+	Y = simulate_unregistered_curves(seed = 2020)
 	data = data_clean(Y)
 	Y = data$Y
 	
@@ -100,7 +108,9 @@ test_that("register_fpca for binary data with parametric warping functions and/o
 
 test_that("register_fpca with preserve_domain = TRUE leads to endpoints on the diagonal",{
 	Y   = registr::growth_incomplete
-	reg = register_fpca(Y = Y, family = "gaussian", preserve_domain = TRUE)
+	expect_warning({
+		reg = register_fpca(Y = Y, family = "gaussian", preserve_domain = TRUE)
+	}, "Convergence not reached. Try increasing max_iterations.")
 	
 	t_max_observed   = tapply(X = reg$Y$tstar, INDEX = reg$Y$id, FUN = max)
 	t_max_registered = tapply(X = reg$Y$index, INDEX = reg$Y$id, FUN = max)
@@ -109,7 +119,9 @@ test_that("register_fpca with preserve_domain = TRUE leads to endpoints on the d
 
 test_that("register_fpca with preserve_domain = FALSE and lambda_endpoint = 0: warping functions do not exceed the overall time domain",{
 	Y   = registr::growth_incomplete
-	reg = register_fpca(Y = Y, family = "gaussian", preserve_domain = TRUE)
+	expect_warning({
+		reg = register_fpca(Y = Y, family = "gaussian", preserve_domain = TRUE)
+	}, "Convergence not reached. Try increasing max_iterations.")
 	
 	t_min = min(Y$index)
 	t_max = max(Y$index)

@@ -26,6 +26,7 @@
 #' @importFrom stats rnorm quantile
 #' 
 #' @return An object of class \code{fpca} containing:
+#' \item{t_vec}{Time vector over which the mean \code{mu} was evaluated.}
 #' \item{knots}{Cutpoints for B-spline basis used to rebuild \code{alpha}.}
 #' \item{efunctions}{\eqn{D \times npc} matrix of estimated FPC basis functions.}
 #' \item{evalues}{Estimated variance of the FPC scores.}
@@ -41,10 +42,16 @@
 #' \item{family}{\code{gaussian}, for compatibility with \code{refund.shiny} package.}
 #' \item{sigma2}{Estimated error variance}
 #' @export
+#' 
 #' @references Tipping, M. E. and Bishop, C (1999). Probabilistic Principal Component Analysis.
 #' \emph{Journal of the Royal Statistical Society Series B,}, 592--598.
-#'
-#'
+#' 
+#' @examples
+#' data(growth_incomplete)
+#' 
+#' fpca_obj = fpca_gauss(Y = growth_incomplete, npc = 2)
+#' plot_fpca(fpca_obj)
+#' 
 fpca_gauss <- function(Y, npc = 1, Kt = 8, maxiter = 20, t_min = NULL, t_max = NULL, 
 											 print.iter = FALSE, row_obj= NULL, seed = 1988, periodic = FALSE, 
 											 error_thresh = 0.0001, ...){
@@ -188,6 +195,7 @@ fpca_gauss <- function(Y, npc = 1, Kt = 8, maxiter = 20, t_min = NULL, t_max = N
   scores     = scores %*% psi_svd$v
   
   ret = list(
+  	t_vec         = t_vec,
   	knots         = knots, 
   	alpha         = Theta_phi_mean %*% alpha_coefs,
   	mu            = Theta_phi_mean %*% alpha_coefs, # return this to be consistent with refund.shiny

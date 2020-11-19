@@ -1,19 +1,20 @@
 Package: registr
 Title: Curve Registration for Exponential Family Functional Data
-Version: 1.1.0
+Version: 1.1.1
 Authors@R: c(
     person("Julia", "Wrobel", role = c("aut", "cre"), 
     email = "julia.wrobel@cuanschutz.edu",
     comment = c(ORCID = "0000-0001-6783-1421")),
+    person("Alexander", "Bauer", role = "aut", email = "alexander.bauer@stat.uni-muenchen.de"),
     person("Jeff", "Goldsmith", role = "aut", email = "jeff.goldsmith@columbia.edu"),
-    person("Erin", "McDonnell", role = "aut", email = "eim2117@cumc.columbia.edu"),
-    person("Alexander", "Bauer", role = "aut", email = "alexander.bauer@stat.uni-muenchen.de")
+    person("Erin", "McDonnell", role = "aut", email = "eim2117@cumc.columbia.edu")
     )
-Description: A method for registering curves (functional data) that are generated from exponential family distributions.  This 
-    implements the algorithms described in 'Wrobel et al. (2019)' <doi:10.1111/biom.12963> and further adapts them to potentially
-    incomplete curves where (some) curves are not observed until the end of the common domain. Curve registration is an active area of 
-    research in functional data analysis, and can be used to better understand patterns in functional data by separating curves 
-    into phase and amplitude variability. This software handles both binary and continuous functional data, and is
+Description: A method for performing joint registration and functional principal
+    component analysis for curves (functional data) that are generated from exponential family distributions. This 
+    mainly implements the algorithms described in 'Wrobel et al. (2019)' <doi:10.1111/biom.12963> and further adapts them to potentially
+    incomplete curves where (some) curves are not observed until the end of the common domain. Curve registration 
+    can be used to better understand patterns in functional data by separating curves into phase and amplitude variability.
+    This software handles both binary and continuous functional data, and is
     especially applicable in accelerometry and wearable technology.
 Depends:
     R (>= 3.2)
@@ -27,7 +28,11 @@ Imports:
     Rcpp (>= 0.11.5),
     parallel,
     MASS,
-    utils
+    utils,
+    cowplot,
+    gamm4,
+    lme4,
+    mgcv
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true

@@ -1,7 +1,7 @@
 context("fpca_gauss")
 
 test_that("fpca_gauss output is a list with non-null items and class fpca",{
-	Y = simulate_functional_data()$Y
+	Y = simulate_functional_data(seed = 2020)$Y
 	Y$value = Y$latent_mean
 	
 	fpca_object = fpca_gauss(Y, npc = 2, print.iter = TRUE)
@@ -16,7 +16,7 @@ test_that("fpca_gauss output is a list with non-null items and class fpca",{
 })
 
 test_that("fpca_gauss output has correct number of dimensions",{
-	Y = simulate_functional_data(I = 100, D = 200)$Y
+	Y = simulate_functional_data(I = 100, D = 200, seed = 2020)$Y
 	Kt = 8
 	fpca_object = fpca_gauss(Y, npc = 2, Kt = Kt, print.iter = TRUE)
 	
@@ -31,7 +31,7 @@ test_that("fpca_gauss output has correct number of dimensions",{
 })
 
 test_that("fpca_gauss output has correct number of dimensions when periodic = TRUE",{
-	Y = simulate_functional_data(I = 100, D = 200)$Y
+	Y = simulate_functional_data(I = 100, D = 200, seed = 2020)$Y
 	Kt = 8
 	fpca_object = fpca_gauss(Y, npc = 2, Kt = Kt, periodic = TRUE, print.iter = TRUE)
 	
