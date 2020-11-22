@@ -194,17 +194,17 @@ gfpca_twoStep = function (Y, family = "gaussian", npc = 1, Kt = 8,
                          family  = family_mgcv,
                          data    = dat_fit,
                          random  = random.formula,
-                         start   = start_params)
-                         # control = lme4::glmerControl(optimizer     = "nloptwrap",
-                         #                              calc.derivs   = FALSE,
-                         #                              nAGQ0initStep = FALSE,
-                         #                              boundary.tol  = 0,
-                         #                              tolPwrss      = 1e-3,
-                         #                              optCtrl = list(algorithm = "NLOPT_LN_BOBYQA", # default in lme4
-                         #                                             xtol_abs  = 1e-04,             # default: 1e-08
-                         #                                             ftol_abs  = 1e-04,             # default: 1e-08
-                         #                                             maxeval   = 1e+02)),           # default: 1e+05
-                         # nAGQ = 0)
+                         start   = start_params,
+                         control = lme4::glmerControl(optimizer     = "nloptwrap",
+                                                      calc.derivs   = FALSE,
+                                                      nAGQ0initStep = FALSE,
+                                                      boundary.tol  = 0,
+                                                      tolPwrss      = 1e-3,
+                                                      optCtrl = list(algorithm = "NLOPT_LN_BOBYQA", # default in lme4
+                                                                     xtol_abs  = 1e-04,             # default: 1e-08
+                                                                     ftol_abs  = 1e-04,             # default: 1e-08
+                                                                     maxeval   = 1e+02)),           # default: 1e+05
+                         nAGQ = 0)
   }
   
   gamm4_theta = attributes(model$mer)$theta
