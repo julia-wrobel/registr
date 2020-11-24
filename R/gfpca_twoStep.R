@@ -209,15 +209,11 @@ gfpca_twoStep = function (Y, family = "gaussian", npc = 1, Kt = 8,
   
   gamm4_theta = attributes(model$mer)$theta
   
-  scores      = as.matrix(coef(model$mer)$id[,npc:1])
-  Z.gamm.fpca = scores %*% t(efunctions[,1:npc])
-  alpha       = as.vector(predict.gam(model$gam, newdata = data.frame(index = output_index)))
+  scores       = as.matrix(coef(model$mer)$id[,npc:1])
+  Z.gamm.fpca  = scores %*% t(efunctions[,1:npc])
+  alpha        = as.vector(predict.gam(model$gam, newdata = data.frame(index = output_index)))
   alpha_matrix = matrix(rep(alpha, I), nrow = I, byrow = TRUE)
-  if (family == "gaussian") {
-    Yhat         = alpha_matrix + Z.gamm.fpca
-  } else if (family == "binomial") {
-    Yhat         = 1 / (1 + exp(-1 * (alpha_matrix + Z.gamm.fpca)))
-  }
+  Yhat         = alpha_matrix + Z.gamm.fpca
   
   ## format output
   fittedVals = data.frame(
