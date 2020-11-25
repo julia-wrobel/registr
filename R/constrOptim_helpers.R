@@ -34,6 +34,7 @@ ensure_proper_beta <- function(beta, t_min, t_max) {
 	# solution:  ensure a minimal difference between neighboring values
 	while (any(diff(beta) < 1e-6)) {
 		index <- which(diff(beta) < 1e-6)[1]
+		beta[index]     <- min(beta[index], beta[index + 1])
 		beta[index + 1] <- beta[index] + 1e-5
 	}
 	
