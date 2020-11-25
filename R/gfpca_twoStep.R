@@ -94,7 +94,7 @@ gfpca_twoStep = function (Y, family = "gaussian", npc = 1, Kt = 8,
   if (Kt < 3) {
     stop("Kt must be greater than or equal to 3.")
   }
-  if (index_relevantDigits < 2) {
+  if (!is.null(index_relevantDigits) && index_relevantDigits < 2) {
     stop("'relevant_digits' must be a positive integer >= 2.")
   }
   
