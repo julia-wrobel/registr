@@ -1,6 +1,6 @@
 Package: registr
 Title: Curve Registration for Exponential Family Functional Data
-Version: 1.1.3
+Version: 1.1.4
 Authors@R: c(
     person("Julia", "Wrobel", role = c("aut", "cre"), 
     email = "julia.wrobel@cuanschutz.edu",
