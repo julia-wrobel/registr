@@ -13,6 +13,9 @@
 #' \code{id}, \code{index}, and \code{value} to indicate subject IDs, times, and observations, 
 #' respectively.
 #'
+#' @param family One of \code{c("gaussian","binomial","gamma")}.
+#' For \code{"gamma"}, the \code{fpca_type} is fixed to \code{"two-step"}.
+#' Defaults to \code{"gaussian"}.
 #' @param max_iterations Number of iterations for overall algorithm. Defaults to 10.
 #' @param npc Number of principal components to calculate. Defaults to 1. 
 #' @param fpca_type One of \code{c("variationalEM","two-step")}.
@@ -103,10 +106,14 @@ register_fpca <- function(Y, Kt = 8, Kh = 4, family = "binomial",
 													fpca_seed = 1988, fpca_error_thresh = 0.0001,
 													fpca_index_relevantDigits = 4L, cores = 1L, ...){
 	
-  if (!(family %in% c("binomial", "gaussian"))) {
-  	stop("Package currently handles only 'binomial' or 'gaussian' families.")
+  if (!(family %in% c("gaussian","binomial","gamma"))) {
+  	stop("Package currently handles only families 'gaussian', 'binomial' and 'gamma'.")
   }
 	
+	if (family == "gamma" && fpca_type == "variationalEM") {
+		warning("fpca_type = 'variationalEM' is only available for families 'gaussian' and 'binomial'. Setting fpca_type = 'two-step'.")
+		fpca_type = "two-step"
+	}
 		
   data = data_clean(Y)
   Y = data$Y

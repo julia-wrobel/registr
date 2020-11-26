@@ -21,9 +21,11 @@
 #' @param Y Dataframe. Should have values id, value, index.
 #' @param Kt Number of B-spline basis functions used to estimate mean functions. Default is 8.
 #' @param Kh Number of B-spline basis functions used to estimate warping functions \emph{h}. Default is 4.
-#' @param family \code{gaussian} or \code{binomial}.
-#' @param gradient if \code{TRUE}, uses analytic gradient to calculate derivative. 
-#' If \code{FALSE}, calculates gradient numerically.
+#' @param family One of \code{c("gaussian","binomial","gamma")}. Defaults to
+#' \code{"gaussian"}.
+#' @param gradient If \code{TRUE}, uses analytic gradient to calculate derivative. 
+#' If \code{FALSE}, calculates gradient numerically. Not available for
+#' \code{family = "gamma"}.
 #' @param preserve_domain Indicator if the registration should preserve the
 #' time domain, leading to warping functions that end on the diagonal.
 #' Defaults to \code{TRUE}. Can only be set to \code{FALSE} when
@@ -143,6 +145,11 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
 		stop("warping argument can only take values of nonparametric or piecewise_linear2")
 	}
 
+	if (gradient & family == "gamma") {
+		warning("gradient = TRUE is only available for families 'gaussian' and 'binomial'. Setting gradient = FALSE.")
+		gradient = FALSE
+	}
+	
 	if (gradient & periodic){
 		warning("gradient = TRUE is only available for periodic = FALSE. Setting gradient = FALSE.")
 		gradient = FALSE

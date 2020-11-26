@@ -34,10 +34,12 @@ Can be NULL only if Y argument is selected.}
 
 \item{Kh}{Number of B-spline basis functions used to estimate warping functions \emph{h}. Default is 4.}
 
-\item{family}{\code{gaussian} or \code{binomial}.}
+\item{family}{One of \code{c("gaussian","binomial","gamma")}. Defaults to
+\code{"gaussian"}.}
 
-\item{gradient}{if \code{TRUE}, uses analytic gradient to calculate derivative. 
-If \code{FALSE}, calculates gradient numerically.}
+\item{gradient}{If \code{TRUE}, uses analytic gradient to calculate derivative. 
+If \code{FALSE}, calculates gradient numerically. Not available for
+\code{family = "gamma"}.}
 
 \item{preserve_domain}{Indicator if the registration should preserve the
 time domain, leading to warping functions that end on the diagonal.

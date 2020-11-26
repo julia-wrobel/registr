@@ -29,7 +29,9 @@ register_fpca(
 
 \item{Kh}{Number of B-spline basis functions used to estimate warping functions \emph{h}. Default is 4.}
 
-\item{family}{\code{gaussian} or \code{binomial}.}
+\item{family}{One of \code{c("gaussian","binomial","gamma")}.
+For \code{"gamma"}, the \code{fpca_type} is fixed to \code{"two-step"}.
+Defaults to \code{"gaussian"}.}
 
 \item{preserve_domain}{Indicator if the registration should preserve the
 time domain, leading to warping functions that end on the diagonal.
