@@ -22,7 +22,7 @@ gfpca_twoStep(
 \arguments{
 \item{Y}{Dataframe. Should have values id, value, index.}
 
-\item{family}{One of \code{c("gaussian","binomial")}. Defaults to
+\item{family}{One of \code{c("gaussian","binomial","gamma")}. Defaults to
 \code{"gaussian"}.}
 
 \item{npc}{Number of principal components to calculate. Defaults to 1.}
