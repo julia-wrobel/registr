@@ -73,7 +73,7 @@ The methods implemented in `registr` are described in more detail in this [paper
 
 ## The `registr` package
 
-The main function in the package is `register_fpca()`. It calls two sub-functions: a GFPCA function to implement **step 1** of the iterative algorithm, and `registr()`, a function to implement **step 2** of the algorithm. The function that calculates GFPCA can either be based on the variational EM approach outlined in @wrobel_2019 or the two-step method outlined in @gertheiss_2017. In the former case, the called function depends on the family. For `family = "binomial"` and `family = "gaussian"` the functions `bfpca()` and `fpca_gauss()` are called for the GFPCA step, respectively. In the latter case, function `gfpca_twoStep()` is called. The `register_fpca()` function iterates between the alignment and template calculation steps until curves are registered. 
+The main function in the package is `register_fpca()`. It calls two sub-functions: a GFPCA function to implement **step 1** of the iterative algorithm, and `registr()`, a function to implement **step 2** of the algorithm. The function that calculates GFPCA can either be based on the variational EM approach outlined in @wrobel_2019 or the two-step method outlined in @gertheiss_2017. In the former case, the called function depends on the family. For `family = "binomial"` and `family = "gaussian"` the functions `bfpca()` and `fpca_gauss()` are called for the GFPCA step, respectively. In the latter case, function `gfpca_twoStep()` is called, which also supports `family = "gamma"`. The `register_fpca()` function iterates between the alignment and template calculation steps until curves are registered. 
 
 ### A note on data formatting
 
@@ -159,7 +159,7 @@ We can alter the score variance for the principal components using the arguments
 
 ## Registration using `register_fpca()`
 
-`register_fpca()` is the main function for the `registr` package. Use the `family` argument to this function to specify what type of exponential family data you would like to align. The package supports `family = "binomial"` for registering binary data and `family = "gaussian"` for registering continuous data.
+`register_fpca()` is the main function for the `registr` package. Use the `family` argument to this function to specify what type of exponential family data you would like to align. The package supports `family = "binomial"` for registering binary data, `family = "gaussian"` for registering continuous data and `family = "gamma"` for strictly positive data with a Gamma structure.
 The type of GFPCA is specified by the argument `fpca_type`, either calling the variational EM approach of @wrobel_2019 (`fpca_type = "variationalEM`; default) or the two-step approach of @gertheiss_2017 (`fpca_type = "two-step"`).
 
 ### `register_fpca(family = "binomial")` for binary data
@@ -304,7 +304,7 @@ registr_parametric = register_fpca(Y = registration_data, family = "binomial",
                                    warping = "piecewise_linear2")
 ```
 
-This argument works for both `binomial` and `gaussian` families. Note that the `gradient` option is currently unavailable for parametric inverse warping functions. Below are the resulting inverse warping functions from both the `nonparametric` (left) and `piecewise_linear2` (right) specifications. The slopes of the 3 line segments that make up one's parametric function can provide some interpretation about how that particular subject's data was warped to align with the population mean.
+This argument works for all families. Note that the `gradient` option is currently unavailable for parametric inverse warping functions. Below are the resulting inverse warping functions from both the `nonparametric` (left) and `piecewise_linear2` (right) specifications. The slopes of the 3 line segments that make up one's parametric function can provide some interpretation about how that particular subject's data was warped to align with the population mean.
 
 ```{r register_parametric_plots, echo = FALSE, fig.show='hold'}
 ggplot(registr_gauss$Y, aes(x = tstar, y = t_hat, group = id)) +
