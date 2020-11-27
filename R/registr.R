@@ -115,6 +115,9 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
   	Y = obj$Y
   }
 	
+	if (family == "gamma" & any(Y$value <= 0))
+		stop("family = 'gamma' can only be applied to strictly positive data.")
+	
 	if(is.null(obj)) { 
 		if(warping == "nonparametric"){
 			Y$tstar = Y$index

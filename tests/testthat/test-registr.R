@@ -102,3 +102,10 @@ test_that("registr function with preserve_domain = FALSE: higher lambda_endpoint
 	MSE2 <- sum((t_max_registered_2 - t_max_observed_2)^2)
 	expect_gt(MSE1, expected = MSE2)
 })
+
+test_that("registr function throws an error when family = 'gamma' is applied to non-strictly positive data",{
+	Y = registr::growth_incomplete
+	
+	expect_error(registr(Y = Y, family = "gamma"),
+							 "family = 'gamma' can only be applied to strictly positive data.")
+})

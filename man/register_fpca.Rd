@@ -74,7 +74,8 @@ call is parallelized by using \code{parallel::mclapply} (for Unix-based
 systems) or \code{parallel::parLapply} (for Windows). Defaults to 1,
 no parallelized call.}
 
-\item{...}{Additional arguments passed to registr and gfpca functions.}
+\item{...}{Additional arguments passed to registr and to the gfpca functions
+(if \code{fpca_type = "variationalEM"}).}
 }
 \value{
 An object of class \code{registration} containing:

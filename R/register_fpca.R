@@ -35,7 +35,8 @@
 #' is necessary since otherwise the covariance surface matrix explodes in size
 #' in the presence of too many unique index values (which is the case after some
 #' registration step). Defaults to 4. Set to \code{NULL} to prevent rounding.
-#' @param ... Additional arguments passed to registr and gfpca functions.
+#' @param ... Additional arguments passed to registr and to the gfpca functions
+#' (if \code{fpca_type = "variationalEM"}).
 #' @inheritParams registr
 #'
 #' @author Julia Wrobel \email{julia.wrobel@@cuanschutz.edu}
@@ -160,7 +161,7 @@ register_fpca <- function(Y, Kt = 8, Kh = 4, family = "binomial",
   															Kt = Kt, row_obj = rows,
   															index_relevantDigits = fpca_index_relevantDigits,
   															estimation_accuracy  = estimation_accuracy,
-  															start_params         = gamm4_startParams, ...)
+  															start_params         = gamm4_startParams)
   	}
   	
   	registr_step = registr(obj = fpca_step, Kt = Kt, Kh = Kh, family = family, 
@@ -197,7 +198,7 @@ register_fpca <- function(Y, Kt = 8, Kh = 4, family = "binomial",
   														Kt = Kt, row_obj = rows,
   														index_relevantDigits = fpca_index_relevantDigits,
   														estimation_accuracy  = "high",
-  														start_params         = fpca_step$gamm4_theta, ...)
+  														start_params         = fpca_step$gamm4_theta)
   }
   
   Y$tstar = time_warps[[1]]
