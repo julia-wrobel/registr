@@ -8,7 +8,7 @@ plot_fpca(
   fpca_obj,
   plot_npc = fpca_obj$npc,
   var_factor = 2,
-  response_function = function(x) {     x },
+  response_function = NULL,
   subtitle = TRUE,
   xlim = NULL,
   ylim = NULL,
@@ -27,7 +27,9 @@ to display their variation in the plots. Defaults to 2, but can be set to
 2 times the standard deviation of the obtained FPC scores.}
 
 \item{response_function}{Optional response function to be applied before
-plotting the curves. Defaults to the identity function.}
+plotting the curves. Defaults to \code{NULL}, i.e. the identity function if
+\code{fpca_obj$family} is one of \code{c("gaussian","binomial")} or
+\code{exp()} if \code{fpca_obj$family = "gamma"}.}
 
 \item{subtitle}{If TRUE (default) the parameter \code{var_factor}
 is displayed in the plot subtitle.}

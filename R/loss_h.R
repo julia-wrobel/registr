@@ -58,6 +58,8 @@ loss_h = function(Y, Theta_h, mean_coefs, knots, beta.inner, family, t_min, t_ma
 	if (family == "gamma") { # the last element of beta.inner is the scale parameter
 		scale      = tail(beta.inner, 1)
 		beta.inner = beta.inner[1:(length(beta.inner) - 1)]
+		if (scale <= 0) # ensure a positive scale value
+			return(-1 * scale * 10^10)
 	}
 	
 	
@@ -107,11 +109,11 @@ loss_h = function(Y, Theta_h, mean_coefs, knots, beta.inner, family, t_min, t_ma
   } else if (family == "gamma") {
   	mu_t  = as.vector(exp(g_mu_t))
   	n     = length(Y)
-  	alpha = g_mu_t * scale
+  	alpha = mu_t * scale
   	loss  = -1 * (
   		sum((alpha - 1) * log(Y)) -
   			scale * sum(Y) +
-  			log(scale) * scale * sum(g_mu_t) -
+  			log(scale) * scale * sum(mu_t) -
   			sum(log(gamma(alpha)))
   	)
   }

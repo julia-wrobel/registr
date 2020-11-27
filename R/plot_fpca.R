@@ -15,7 +15,9 @@
 #' to display their variation in the plots. Defaults to 2, but can be set to
 #' 2 times the standard deviation of the obtained FPC scores.
 #' @param response_function Optional response function to be applied before
-#' plotting the curves. Defaults to the identity function.
+#' plotting the curves. Defaults to \code{NULL}, i.e. the identity function if
+#' \code{fpca_obj$family} is one of \code{c("gaussian","binomial")} or
+#' \code{exp()} if \code{fpca_obj$family = "gamma"}.
 #' @param subtitle If TRUE (default) the parameter \code{var_factor}
 #' is displayed in the plot subtitle.
 #' @param xlim,ylim Optional numeric vectors with limits for the x and y axis.
@@ -37,12 +39,20 @@
 #' plot_fpca(fpca_obj)
 #' 
 plot_fpca = function(fpca_obj, plot_npc = fpca_obj$npc, var_factor = 2,
-                     response_function = function(x) { x },
+                     response_function = NULL,
                      subtitle = TRUE, xlim = NULL, ylim = NULL,
                      xlab = "t [registered]", ylab = "y") {
   
   # some NULL variable definitions to appease CRAN package checks regarding the use of ggplot2
   fpc_value <- type <- value <- NULL
+  
+  if (is.null(response_function)) {
+    if (fpca_obj$family == "gamma") {
+      response_function = exp
+    } else {
+      response_function = function(x) { x }
+    }
+  }
   
   # data preparation
   mean_dat = data.frame(t    = fpca_obj$t_vec,

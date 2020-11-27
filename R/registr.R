@@ -111,7 +111,7 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
 		}
 	}
 	
-  if(is.null(Y)) { 
+  if (is.null(Y)) { 
   	Y = obj$Y
   }
 	
@@ -183,7 +183,12 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
   		mean_basis   =  bs(c(t_min, t_max, tstar), knots = global_knots, intercept = TRUE)[-(1:2),]
   	} 
 
-    mean_coefs = coef(glm(Y$value ~ 0 + mean_basis, family = family))
+		if (family == "gamma") {
+			mean_family = Gamma(link = "log")
+		} else {
+			mean_family = family
+		}
+    mean_coefs = coef(glm(Y$value ~ 0 + mean_basis, family = mean_family))
     rm(mean_basis)
   }
 
@@ -231,7 +236,7 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
 						 beta = beta_new)
 	if (family == "gamma") {
 		gamma_scales    = unlist(sapply(results_list, function(x) as.vector(x$gamma_scale),  simplify = FALSE))
-		re$gamma_scales = gamma_scales
+		res$gamma_scales = gamma_scales
 	}
 	
   return(res) 
@@ -328,8 +333,16 @@ registr_oneCurve <- function(i, arg_list, ...) {
 				mean_basis = splines::bs(c(arg_list$t_min, arg_list$t_max, mean_dat_i$index),
 																 knots = arg_list$global_knots, intercept = TRUE)[-(1:2),]
 			} 
-			
-			mean_coefs_i = coef(glm(value ~ 0 + mean_basis, data = mean_dat_i))
+
+			if (arg_list$family == "gamma") {
+				mean_family      = Gamma(link = "log")
+				mean_dat_i$value = exp(mean_dat_i$value)
+				# set very small positive values to some lowest threshold to prevent numerical problems
+				mean_dat_i$value[mean_dat_i$value > 0 & mean_dat_i$value < 1e-4] = 1e-4
+			} else {
+				mean_family = arg_list$family
+			}
+			mean_coefs_i = coef(glm(value ~ 0 + mean_basis, data = mean_dat_i, family = mean_family))
 		}
 	}
 	
@@ -355,7 +368,7 @@ registr_oneCurve <- function(i, arg_list, ...) {
 		ci_i      = constrs_i$ci
 	}
 	
-	if (family == "gamma") { # add the scale parameter to be optimized as last element of beta_i
+	if (arg_list$family == "gamma") { # add the scale parameter to be optimized as last element of beta_i
 		ui_i   = cbind(ui_i, 0)
 		ui_i   = rbind(ui_i, c(rep(0, ncol(ui_i) - 1), 1))
 		ci_i   = append(ci_i, 0)
@@ -403,7 +416,7 @@ registr_oneCurve <- function(i, arg_list, ...) {
 	
 	beta_new = beta_optim$par
 	
-	if (family == "gamma") {
+	if (arg_list$family == "gamma") {
 		scale    = tail(beta_new, 1)
 		beta_new = beta_new[1:(length(beta_new)-1)]
 	}
@@ -425,7 +438,7 @@ registr_oneCurve <- function(i, arg_list, ...) {
 	res = list(beta_new = beta_new,
 						 t_hat    = t_hat,
 						 loss     = beta_optim$value)
-	if (family == "gamma")
+	if (arg_list$family == "gamma")
 		res$gamma_scale = scale
 	
 	return(res)
