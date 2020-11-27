@@ -1,5 +1,6 @@
 #' Gradient of loss function for registration step
 #'
+#' @param family One of \code{c("gaussian","binomial")}. Defaults to \code{"gaussian"}.
 #' @param periodic If \code{TRUE}, uses periodic b-spline basis functions. Default is \code{FALSE}. 
 #' \code{loss_h_gradient()} is currently only available for \code{periodic = FALSE}.
 #' @param warping If \code{nonparametric} (default), inverse warping functions are estimated nonparametrically. 

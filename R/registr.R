@@ -44,6 +44,9 @@
 #' @param periodic If \code{TRUE}, uses periodic b-spline basis functions. Default is \code{FALSE}.
 #' @param warping If \code{nonparametric} (default), inverse warping functions are estimated nonparametrically. 
 #' If \code{piecewise_linear2} they follow a piecewise linear function with 2 knots.
+#' @param gamma_scales Only used for \code{family = "gamma"}.
+#' Vector with one entry for each subject, containing the current estimate for the scale parameter of its
+#' gamma distribution. Default is NULL, which sets the starting value for the scale parameter to 1.5.
 #' @param cores Number of cores to be used. If \code{cores > 1}, the registration
 #' call is parallelized by using \code{parallel::mclapply} (for Unix-based
 #' systems) or \code{parallel::parLapply} (for Windows). Defaults to 1,
@@ -96,7 +99,8 @@
 registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gradient = TRUE,
 									 preserve_domain = TRUE, lambda_endpoint = NULL,
 									 beta = NULL, t_min = NULL, t_max = NULL, row_obj = NULL,
-									 periodic = FALSE, warping = "nonparametric", cores = 1L, ...){
+									 periodic = FALSE, warping = "nonparametric",
+									 gamma_scales = NULL, cores = 1L, ...){
 	
 	if (!preserve_domain) {
 		if (warping != "nonparametric") {
@@ -148,14 +152,10 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
 	if (gradient & family == "gamma") {
 		warning("gradient = TRUE is only available for families 'gaussian' and 'binomial'. Setting gradient = FALSE.")
 		gradient = FALSE
-	}
-	
-	if (gradient & periodic){
+	} else if (gradient & periodic){
 		warning("gradient = TRUE is only available for periodic = FALSE. Setting gradient = FALSE.")
 		gradient = FALSE
-	}
-	
-	if (gradient & warping != "nonparametric"){
+	} else if (gradient & warping != "nonparametric"){
 		warning("gradient = TRUE is only available for warping = nonparametric. Setting gradient = FALSE.")
 		gradient = FALSE
 	}
@@ -195,7 +195,8 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
   								 beta            = beta,            t_min           = t_min,
   								 t_max           = t_max,           rows            = rows,
   								 periodic        = periodic,        warping         = warping,
-  								 global_knots    = global_knots,    mean_coefs      = mean_coefs)
+  								 global_knots    = global_knots,    mean_coefs      = mean_coefs,
+  								 gamma_scales    = gamma_scales)
   
   # main function call
   if (cores == 1) { # serial call
@@ -225,9 +226,15 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
   Y$index = t_hat
 	Y$tstar = tstar
 	
-  return(list(Y    = Y,
-  						loss = sum(loss_subjects),
-  						beta = beta_new)) 
+	res = list(Y    = Y,
+						 loss = sum(loss_subjects),
+						 beta = beta_new)
+	if (family == "gamma") {
+		gamma_scales    = unlist(sapply(results_list, function(x) as.vector(x$gamma_scale),  simplify = FALSE))
+		re$gamma_scales = gamma_scales
+	}
+	
+  return(res) 
 } 
 
 
@@ -343,10 +350,19 @@ registr_oneCurve <- function(i, arg_list, ...) {
 		}
 		
 	} else { # warping functions not necessarily end on the diagonal
-		constrs_i <- constraints(arg_list$Kh, arg_list$t_min, arg_list$t_max)
-		ui_i      <- constrs_i$ui
-		ci_i      <- constrs_i$ci
+		constrs_i = constraints(arg_list$Kh, arg_list$t_min, arg_list$t_max)
+		ui_i      = constrs_i$ui
+		ci_i      = constrs_i$ci
 	}
+	
+	if (family == "gamma") { # add the scale parameter to be optimized as last element of beta_i
+		ui_i   = cbind(ui_i, 0)
+		ui_i   = rbind(ui_i, c(rep(0, ncol(ui_i) - 1), 1))
+		ci_i   = append(ci_i, 0)
+		scale  = ifelse(!is.null(arg_list$gamma_scales[i]), arg_list$gamma_scales[i], 1.5)
+		beta_i = append(beta_i, scale)
+	}
+	
 	
 	# workaround: sometimes constrOptim states that the starting values are not
 	# inside the feasible region. This is only a numerical error, so let's simply
@@ -387,6 +403,11 @@ registr_oneCurve <- function(i, arg_list, ...) {
 	
 	beta_new = beta_optim$par
 	
+	if (family == "gamma") {
+		scale    = tail(beta_new, 1)
+		beta_new = beta_new[1:(length(beta_new)-1)]
+	}
+	
 	if (arg_list$warping == "nonparametric") {
 		if (arg_list$preserve_domain) { # final param is fixed and wasn't estimated
 			beta_full_i = c(arg_list$t_min, beta_new, t_max_i)
@@ -401,8 +422,12 @@ registr_oneCurve <- function(i, arg_list, ...) {
 																	 knot_locations = beta_new)
 	}
 	
-	return(list(beta_new = beta_new,
-							t_hat    = t_hat,
-							loss     = beta_optim$value))
+	res = list(beta_new = beta_new,
+						 t_hat    = t_hat,
+						 loss     = beta_optim$value)
+	if (family == "gamma")
+		res$gamma_scale = scale
+	
+	return(res)
 	
 }

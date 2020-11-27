@@ -20,6 +20,7 @@ registr(
   row_obj = NULL,
   periodic = FALSE,
   warping = "nonparametric",
+  gamma_scales = NULL,
   cores = 1L,
   ...
 )
@@ -66,6 +67,10 @@ Keep this NULL if you are using standalone \code{registr} function.}
 
 \item{warping}{If \code{nonparametric} (default), inverse warping functions are estimated nonparametrically. 
 If \code{piecewise_linear2} they follow a piecewise linear function with 2 knots.}
+
+\item{gamma_scales}{Only used for \code{family = "gamma"}.
+Vector with one entry for each subject, containing the current estimate for the scale parameter of its
+gamma distribution. Default is NULL, which sets the starting value for the scale parameter to 1.5.}
 
 \item{cores}{Number of cores to be used. If \code{cores > 1}, the registration
 call is parallelized by using \code{parallel::mclapply} (for Unix-based
