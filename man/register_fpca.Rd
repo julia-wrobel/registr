@@ -116,7 +116,8 @@ registr_object = register_fpca(Y, npc = 2, family = "binomial",
                                fpca_type = "variationalEM", max_iterations = 5)
 # estimation based on Gertheiss et al. (2017)
 registr_object2 = register_fpca(Y, npc = 2, family = "binomial",
-                                fpca_type = "two-step", max_iterations = 5)
+                                fpca_type = "two-step", max_iterations = 5,
+                                fpca_index_relevantDigits = 4)
 
 ggplot(registr_object$Y, aes(x = tstar, y = t_hat, group = id)) +
   geom_line(alpha = 0.2) + ggtitle("Estimated warping functions")

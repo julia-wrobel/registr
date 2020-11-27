@@ -63,7 +63,7 @@
 #' Alexander Bauer \email{alexander.bauer@@stat.uni-muenchen.de}
 #' @export
 #' 
-#' @importFrom stats glm coef quantile pbeta
+#' @importFrom stats glm coef Gamma quantile pbeta
 #' @importFrom splines bs
 #' @importFrom pbs pbs
 #' @importFrom parallel mclapply makePSOCKcluster clusterExport clusterEvalQ parLapply stopCluster
@@ -187,7 +187,7 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
   	} 
 
 		if (family == "gamma") {
-			mean_family = Gamma(link = "log")
+			mean_family = stats::Gamma(link = "log")
 		} else {
 			mean_family = family
 		}
@@ -269,7 +269,7 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
 #' 
 #' @importFrom pbs pbs
 #' @importFrom splines bs
-#' @importFrom stats constrOptim
+#' @importFrom stats constrOptim Gamma
 #' 
 registr_oneCurve <- function(i, arg_list, ...) {
 	
@@ -338,12 +338,12 @@ registr_oneCurve <- function(i, arg_list, ...) {
 			} 
 
 			if (arg_list$family == "gamma") {
-				mean_family      = Gamma(link = "log")
+				mean_family      = stats::Gamma(link = "log")
 				mean_dat_i$value = exp(mean_dat_i$value)
 				# set very small positive values to some lowest threshold to prevent numerical problems
 				mean_dat_i$value[mean_dat_i$value > 0 & mean_dat_i$value < 1e-4] = 1e-4
 			} else {
-				mean_family = arg_list$family
+				mean_family = "gaussian"
 			}
 			mean_coefs_i = coef(glm(value ~ 0 + mean_basis, data = mean_dat_i, family = mean_family))
 		}

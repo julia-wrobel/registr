@@ -4,19 +4,20 @@ context("register_fpca")
 # for all tests implement for both gaussian and binary data
 test_that("code only accepts supported family of distributions", {
 	Y       = simulate_unregistered_curves(seed = 2020)
-	Y$value = Y$value + 1 # make y values strictly positive for gamma family
 	
 	expect_warning(register_fpca(Y, family = "binomial", max_iterations = 3),
 								 "Convergence not reached. Try increasing max_iterations.")
 	expect_warning(register_fpca(Y, family = "gaussian", max_iterations = 3),
 								 "Convergence not reached. Try increasing max_iterations.")
+								 
+	Y$value = Y$value + 1 # make y values strictly positive for gamma family
 	expect_warning(register_fpca(Y, family = "gamma", max_iterations = 3, fpca_index_relevantDigits = 2),
 								 "Convergence not reached. Try increasing max_iterations.")
 	
 	expect_error(register_fpca(Y, family = "poisson"),
-							 "Package currently handles only 'binomial' or 'gaussian' families.")
+							 "Package currently handles only families 'gaussian', 'binomial' and 'gamma'.")
 	expect_error(register_fpca(Y, family = 25),
-							 "Package currently handles only 'binomial' or 'gaussian' families.")
+							 "Package currently handles only families 'gaussian', 'binomial' and 'gamma'.")
 })
 
 test_that("registering binary data throws no errors",{
@@ -118,7 +119,6 @@ test_that("register_fpca function with priors on the piecewise_linear2 warping f
 	
 	test1 = register_fpca(Y = Y, family = "binomial", warping = "piecewise_linear2",
 												gradient = FALSE, priors = TRUE, prior_sd = 1)
-	
 	test2 = register_fpca(Y = Y, family = "binomial", warping = "piecewise_linear2",
 												gradient = FALSE, priors = TRUE, prior_sd = 0.1)
 
@@ -172,8 +172,8 @@ test_that("register_fpca with preserve_domain = FALSE: higher lambda_endpoint va
 	t_max_registered_1 = tapply(X = reg1$Y$t_hat, INDEX = reg1$Y$id, FUN = max)
 	t_max_observed_2   = tapply(X = reg2$Y$tstar, INDEX = reg2$Y$id, FUN = max)
 	t_max_registered_2 = tapply(X = reg2$Y$t_hat, INDEX = reg2$Y$id, FUN = max)
-	MSE1 <- sum((t_max_registered_1 - t_max_observed_1)^2)
-	MSE2 <- sum((t_max_registered_2 - t_max_observed_2)^2)
+	MSE1 = sum((t_max_registered_1 - t_max_observed_1)^2)
+	MSE2 = sum((t_max_registered_2 - t_max_observed_2)^2)
 	expect_gt(MSE1, expected = MSE2)
 })
 
