@@ -21,9 +21,11 @@
 #' @param Y Dataframe. Should have values id, value, index.
 #' @param Kt Number of B-spline basis functions used to estimate mean functions. Default is 8.
 #' @param Kh Number of B-spline basis functions used to estimate warping functions \emph{h}. Default is 4.
-#' @param family \code{gaussian} or \code{binomial}.
-#' @param gradient if \code{TRUE}, uses analytic gradient to calculate derivative. 
-#' If \code{FALSE}, calculates gradient numerically.
+#' @param family One of \code{c("gaussian","binomial","gamma")}. Defaults to
+#' \code{"gaussian"}.
+#' @param gradient If \code{TRUE}, uses analytic gradient to calculate derivative. 
+#' If \code{FALSE}, calculates gradient numerically. Not available for
+#' \code{family = "gamma"}.
 #' @param preserve_domain Indicator if the registration should preserve the
 #' time domain, leading to warping functions that end on the diagonal.
 #' Defaults to \code{TRUE}. Can only be set to \code{FALSE} when
@@ -42,6 +44,9 @@
 #' @param periodic If \code{TRUE}, uses periodic b-spline basis functions. Default is \code{FALSE}.
 #' @param warping If \code{nonparametric} (default), inverse warping functions are estimated nonparametrically. 
 #' If \code{piecewise_linear2} they follow a piecewise linear function with 2 knots.
+#' @param gamma_scales Only used for \code{family = "gamma"}.
+#' Vector with one entry for each subject, containing the current estimate for the scale parameter of its
+#' gamma distribution. Default is NULL, which sets the starting value for the scale parameter to 1.5.
 #' @param cores Number of cores to be used. If \code{cores > 1}, the registration
 #' call is parallelized by using \code{parallel::mclapply} (for Unix-based
 #' systems) or \code{parallel::parLapply} (for Windows). Defaults to 1,
@@ -58,7 +63,7 @@
 #' Alexander Bauer \email{alexander.bauer@@stat.uni-muenchen.de}
 #' @export
 #' 
-#' @importFrom stats glm coef quantile pbeta
+#' @importFrom stats glm coef Gamma quantile pbeta
 #' @importFrom splines bs
 #' @importFrom pbs pbs
 #' @importFrom parallel mclapply makePSOCKcluster clusterExport clusterEvalQ parLapply stopCluster
@@ -94,7 +99,8 @@
 registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gradient = TRUE,
 									 preserve_domain = TRUE, lambda_endpoint = NULL,
 									 beta = NULL, t_min = NULL, t_max = NULL, row_obj = NULL,
-									 periodic = FALSE, warping = "nonparametric", cores = 1L, ...){
+									 periodic = FALSE, warping = "nonparametric",
+									 gamma_scales = NULL, cores = 1L, ...){
 	
 	if (!preserve_domain) {
 		if (warping != "nonparametric") {
@@ -105,9 +111,12 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
 		}
 	}
 	
-  if(is.null(Y)) { 
+  if (is.null(Y)) { 
   	Y = obj$Y
   }
+	
+	if (family == "gamma" & any(Y$value <= 0))
+		stop("family = 'gamma' can only be applied to strictly positive data.")
 	
 	if(is.null(obj)) { 
 		if(warping == "nonparametric"){
@@ -143,12 +152,13 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
 		stop("warping argument can only take values of nonparametric or piecewise_linear2")
 	}
 
-	if (gradient & periodic){
+	if (gradient & family == "gamma") {
+		warning("gradient = TRUE is only available for families 'gaussian' and 'binomial'. Setting gradient = FALSE.")
+		gradient = FALSE
+	} else if (gradient & periodic){
 		warning("gradient = TRUE is only available for periodic = FALSE. Setting gradient = FALSE.")
 		gradient = FALSE
-	}
-	
-	if (gradient & warping != "nonparametric"){
+	} else if (gradient & warping != "nonparametric"){
 		warning("gradient = TRUE is only available for warping = nonparametric. Setting gradient = FALSE.")
 		gradient = FALSE
 	}
@@ -176,36 +186,42 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
   		mean_basis   =  bs(c(t_min, t_max, tstar), knots = global_knots, intercept = TRUE)[-(1:2),]
   	} 
 
-    mean_coefs = coef(glm(Y$value ~ 0 + mean_basis, family = family))
+		if (family == "gamma") {
+			mean_family = stats::Gamma(link = "log")
+		} else {
+			mean_family = family
+		}
+    mean_coefs = coef(glm(Y$value ~ 0 + mean_basis, family = mean_family))
     rm(mean_basis)
   }
 
   ### Calculate warping functions  
-  arg_list <- list(obj             = obj,             Y               = Y,
-  								 Kt              = Kt,              Kh              = Kh,
-  								 family          = family,          gradient        = gradient,
-  								 preserve_domain = preserve_domain, lambda_endpoint = lambda_endpoint,
-  								 beta            = beta,            t_min           = t_min,
-  								 t_max           = t_max,           rows            = rows,
-  								 periodic        = periodic,        warping         = warping,
-  								 global_knots    = global_knots,    mean_coefs      = mean_coefs)
+	arg_list = list(obj             = obj,             Y               = Y,
+									Kt              = Kt,              Kh              = Kh,
+									family          = family,          gradient        = gradient,
+									preserve_domain = preserve_domain, lambda_endpoint = lambda_endpoint,
+									beta            = beta,            t_min           = t_min,
+									t_max           = t_max,           rows            = rows,
+									periodic        = periodic,        warping         = warping,
+									global_knots    = global_knots,    mean_coefs      = mean_coefs,
+									gamma_scales    = gamma_scales)
   
   # main function call
   if (cores == 1) { # serial call
-  	results_list <- lapply(1:I, registr_oneCurve, arg_list, ...)
+  	results_list = lapply(1:I, registr_oneCurve, arg_list, ...)
   	
   } else if (.Platform$OS.type == "unix") { # parallelized call on Unix-based systems
-  	results_list <- parallel::mclapply(1:I, registr_oneCurve, arg_list, ...,
-  																		 mc.cores = cores)
+  	results_list = parallel::mclapply(1:I, registr_oneCurve, arg_list, ...,
+  																		mc.cores = cores)
   	
   } else { # parallelized call on Windows
-  	local_cluster <- parallel::makePSOCKcluster(rep("localhost", cores)) # set up cluster
+  	local_cluster = parallel::makePSOCKcluster(rep("localhost", cores)) # set up cluster
   	# export functions and packages to the cluster
   	parallel::clusterExport(cl = local_cluster, c("arg_list"), envir=environment())
   	parallel::clusterEvalQ(cl = local_cluster, c(library(registr), library(stats)))
   	
-  	results_list <- parallel::parLapply(cl  = local_cluster, X = 1:I,
-  																			fun = registr_oneCurve, arg_list, ...)
+  	results_list = parallel::parLapply(cl  = local_cluster, X = 1:I,
+  																		 fun = registr_oneCurve, arg_list, ...)
   	
   	parallel::stopCluster(cl = local_cluster) # close cluster
   }
@@ -218,9 +234,15 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
   Y$index = t_hat
 	Y$tstar = tstar
 	
-  return(list(Y    = Y,
-  						loss = sum(loss_subjects),
-  						beta = beta_new)) 
+	res = list(Y    = Y,
+						 loss = sum(loss_subjects),
+						 beta = beta_new)
+	if (family == "gamma") {
+		gamma_scales    = unlist(sapply(results_list, function(x) as.vector(x$gamma_scale),  simplify = FALSE))
+		res$gamma_scales = gamma_scales
+	}
+	
+  return(res) 
 } 
 
 
@@ -247,9 +269,9 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
 #' 
 #' @importFrom pbs pbs
 #' @importFrom splines bs
-#' @importFrom stats constrOptim
+#' @importFrom stats constrOptim Gamma
 #' 
-registr_oneCurve <- function(i, arg_list, ...) {
+registr_oneCurve = function(i, arg_list, ...) {
 	
 	t_max_i       = arg_list$Y$tstar[arg_list$rows$last_row[i]]
 	Y_cropped     = arg_list$Y[arg_list$Y$tstar <= t_max_i,]
@@ -286,7 +308,7 @@ registr_oneCurve <- function(i, arg_list, ...) {
 				beta_i = beta_full_i[-1]
 			}
 		} else if (arg_list$warping == "piecewise_linear2") {
-			beta_i <- beta_full_i
+			beta_i = beta_full_i
 		}
 		
 	} else { # use the last estimates (from the joint approach) as start parameters
@@ -314,8 +336,16 @@ registr_oneCurve <- function(i, arg_list, ...) {
 				mean_basis = splines::bs(c(arg_list$t_min, arg_list$t_max, mean_dat_i$index),
 																 knots = arg_list$global_knots, intercept = TRUE)[-(1:2),]
 			} 
-			
-			mean_coefs_i = coef(glm(value ~ 0 + mean_basis, data = mean_dat_i))
+
+			if (arg_list$family == "gamma") {
+				mean_family      = stats::Gamma(link = "log")
+				mean_dat_i$value = exp(mean_dat_i$value)
+				# set very small positive values to some lowest threshold to prevent numerical problems
+				mean_dat_i$value[mean_dat_i$value > 0 & mean_dat_i$value < 1e-4] = 1e-4
+			} else {
+				mean_family = "gaussian"
+			}
+			mean_coefs_i = coef(glm(value ~ 0 + mean_basis, data = mean_dat_i, family = mean_family))
 		}
 	}
 	
@@ -336,25 +366,34 @@ registr_oneCurve <- function(i, arg_list, ...) {
 		}
 		
 	} else { # warping functions not necessarily end on the diagonal
-		constrs_i <- constraints(arg_list$Kh, arg_list$t_min, arg_list$t_max)
-		ui_i      <- constrs_i$ui
-		ci_i      <- constrs_i$ci
+		constrs_i = constraints(arg_list$Kh, arg_list$t_min, arg_list$t_max)
+		ui_i      = constrs_i$ui
+		ci_i      = constrs_i$ci
 	}
+	
+	if (arg_list$family == "gamma") { # add the scale parameter to be optimized as last element of beta_i
+		ui_i   = cbind(ui_i, 0)
+		ui_i   = rbind(ui_i, c(rep(0, ncol(ui_i) - 1), 1))
+		ci_i   = append(ci_i, 0)
+		scale  = ifelse(!is.null(arg_list$gamma_scales[i]), arg_list$gamma_scales[i], 1.5)
+		beta_i = append(beta_i, scale)
+	}
+	
 	
 	# workaround: sometimes constrOptim states that the starting values are not
 	# inside the feasible region. This is only a numerical error, so let's simply
 	# substract a minor value from ci
 	# (source: https://stackoverflow.com/questions/50472525/constroptim-in-r-init-val-is-not-in-the-interior-of-the-feasible-region-error)
-	ci_i <- ci_i - 1e-6
+	ci_i = ci_i - 1e-6
 	
 	# when an analytic gradient is used, constrOptim sometimes leads to beta
 	# values slightly outside the possible domain, or to slightly nonmonotone beta
 	# values that don't fulfill the constraints.
 	# Correct these slight inconsistencies to ensure proper beta values.
 	if (arg_list$warping != "piecewise_linear2") {
-		beta_i <- ensure_proper_beta(beta  = beta_i,
-																 t_min = arg_list$t_min,
-																 t_max = ifelse(arg_list$preserve_domain, t_max_i, arg_list$t_max))
+		beta_i = ensure_proper_beta(beta  = beta_i,
+																t_min = arg_list$t_min,
+																t_max = ifelse(arg_list$preserve_domain, t_max_i, arg_list$t_max))
 	}
 	
 	# main registration step	
@@ -380,6 +419,11 @@ registr_oneCurve <- function(i, arg_list, ...) {
 	
 	beta_new = beta_optim$par
 	
+	if (arg_list$family == "gamma") {
+		scale    = tail(beta_new, 1)
+		beta_new = beta_new[1:(length(beta_new)-1)]
+	}
+	
 	if (arg_list$warping == "nonparametric") {
 		if (arg_list$preserve_domain) { # final param is fixed and wasn't estimated
 			beta_full_i = c(arg_list$t_min, beta_new, t_max_i)
@@ -394,8 +438,12 @@ registr_oneCurve <- function(i, arg_list, ...) {
 																	 knot_locations = beta_new)
 	}
 	
-	return(list(beta_new = beta_new,
-							t_hat    = t_hat,
-							loss     = beta_optim$value))
+	res = list(beta_new = beta_new,
+						 t_hat    = t_hat,
+						 loss     = beta_optim$value)
+	if (arg_list$family == "gamma")
+		res$gamma_scale = scale
+	
+	return(res)
 	
 }

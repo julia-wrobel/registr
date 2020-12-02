@@ -32,7 +32,7 @@ loss_h_gradient(
 
 \item{beta.inner}{spline coefficient vector to be estimated for warping function h.}
 
-\item{family}{\code{gaussian} or \code{binomial}.}
+\item{family}{One of \code{c("gaussian","binomial")}. Defaults to \code{"gaussian"}.}
 
 \item{preserve_domain}{Indicator if the registration should preserve the
 time domain, leading to warping functions that end on the diagonal.

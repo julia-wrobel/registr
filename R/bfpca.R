@@ -42,12 +42,12 @@
 #' Y = simulate_functional_data()$Y
 #' 
 #' bfpca_object = bfpca(Y, npc = 2, print.iter = TRUE)
-#' plot_fpca(bfpca_object)
+#' plot(bfpca_object)
 #'
-bfpca <- function(Y, npc = 1, Kt = 8, maxiter = 50, t_min = NULL, t_max = NULL, 
-                  print.iter = FALSE, row_obj= NULL,
-									seed = 1988, periodic = FALSE, error_thresh = 0.0001, ...){
-	
+bfpca = function(Y, npc = 1, Kt = 8, maxiter = 50, t_min = NULL, t_max = NULL, 
+                 print.iter = FALSE, row_obj= NULL,
+                 seed = 1988, periodic = FALSE, error_thresh = 0.0001, ...){
+  
   curr_iter = 1
   error     = rep(NA, maxiter)
   error[1]  = 100.0

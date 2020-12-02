@@ -20,7 +20,7 @@
 #' @export
 #'
 
-bs_deriv <- function(x, knots, degree = 3L, Boundary.knots = range(x), derivative = 1, intercept = TRUE){
+bs_deriv = function(x, knots, degree = 3L, Boundary.knots = range(x), derivative = 1, intercept = TRUE){
   order = 1L + as.integer(degree)
   D = length(x)
   
@@ -29,7 +29,7 @@ bs_deriv <- function(x, knots, degree = 3L, Boundary.knots = range(x), derivativ
   
   basis = splineDesign(Aknots, x, order, derivs = derivatives)
   if (!intercept) 
-    basis <- basis[, -1L, drop = FALSE]
+    basis = basis[, -1L, drop = FALSE]
   
   return(basis)
 }

@@ -10,7 +10,7 @@
 #' Gertheiss for Gertheiss et al. (2017), with focus on higher (RAM) efficiency
 #' for large data settings.
 #' 
-#' @param family One of \code{c("gaussian","binomial")}. Defaults to
+#' @param family One of \code{c("gaussian","binomial","gamma")}. Defaults to
 #' \code{"gaussian"}.
 #' @param index_relevantDigits Positive integer \code{>= 2}, stating the number
 #' of relevant digits to which the index grid should be rounded. Coarsening the
@@ -71,7 +71,7 @@
 #' data(growth_incomplete)
 #' 
 #' fpca_obj = gfpca_twoStep(Y = growth_incomplete, npc = 2, family = "gaussian")
-#' plot_fpca(fpca_obj)
+#' plot(fpca_obj)
 #' 
 gfpca_twoStep = function (Y, family = "gaussian", npc = 1, Kt = 8,
                           t_min = NULL, t_max = NULL,
@@ -79,6 +79,9 @@ gfpca_twoStep = function (Y, family = "gaussian", npc = 1, Kt = 8,
                           estimation_accuracy = "high", start_params = NULL,
                           periodic = FALSE,
                           ...) {
+  
+  if (family == "gamma" & any(Y$value <= 0))
+    stop("family = 'gamma' can only be applied to strictly positive data.")
   
   # clean data
   if (is.null(row_obj)) {
@@ -172,7 +175,11 @@ gfpca_twoStep = function (Y, family = "gaussian", npc = 1, Kt = 8,
   dat_fit = dat[!is.na(dat$value),]
   
   # define the model family
-  family_mgcv = family
+  if (family == "gamma") {
+    family_mgcv = mgcv::Tweedie(p = 2, link = "log")
+  } else {
+    family_mgcv = family
+  }
   
   # mixed model
   random.structure = paste(paste0("psi", 1:npc), collapse = "+")

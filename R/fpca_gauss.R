@@ -50,11 +50,11 @@
 #' data(growth_incomplete)
 #' 
 #' fpca_obj = fpca_gauss(Y = growth_incomplete, npc = 2)
-#' plot_fpca(fpca_obj)
+#' plot(fpca_obj)
 #' 
-fpca_gauss <- function(Y, npc = 1, Kt = 8, maxiter = 20, t_min = NULL, t_max = NULL, 
-											 print.iter = FALSE, row_obj= NULL, seed = 1988, periodic = FALSE, 
-											 error_thresh = 0.0001, ...){
+fpca_gauss = function(Y, npc = 1, Kt = 8, maxiter = 20, t_min = NULL, t_max = NULL, 
+											print.iter = FALSE, row_obj= NULL, seed = 1988, periodic = FALSE, 
+											error_thresh = 0.0001, ...){
 	
 	curr_iter = 1
 	error     = rep(NA, maxiter)

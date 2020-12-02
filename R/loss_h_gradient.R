@@ -1,5 +1,6 @@
 #' Gradient of loss function for registration step
 #'
+#' @param family One of \code{c("gaussian","binomial")}. Defaults to \code{"gaussian"}.
 #' @param periodic If \code{TRUE}, uses periodic b-spline basis functions. Default is \code{FALSE}. 
 #' \code{loss_h_gradient()} is currently only available for \code{periodic = FALSE}.
 #' @param warping If \code{nonparametric} (default), inverse warping functions are estimated nonparametrically. 
@@ -65,9 +66,9 @@ loss_h_gradient = function(Y, Theta_h, mean_coefs, knots, beta.inner, family = "
   if (preserve_domain || (lambda_endpoint == 0)) { # no penalization
     pen_term = 0
   } else { # penalize the deviation of the endpoint from the diagonal
-    theta_h  <- Theta_h[D_i,]
-    pen_term <- 2 * (hinv_tstar[D_i] - t_max_curve) * theta_h
-    pen_term <- lambda_endpoint * pen_term
+    theta_h  = Theta_h[D_i,]
+    pen_term = 2 * (hinv_tstar[D_i] - t_max_curve) * theta_h
+    pen_term = lambda_endpoint * pen_term
   }
   
   grad = 1/varphi * rowSums(gradient_mat) - pen_term

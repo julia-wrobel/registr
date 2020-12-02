@@ -41,11 +41,11 @@ Growth Study (see `?growth_incomplete`) where we artificially simulated that
 children dropped out of the study at some point in time:
 
 ```{r Berkeley data}
-dat <- registr::growth_incomplete
+dat = registr::growth_incomplete
 
 # sort the data by the amount of incompleteness
-ids <- levels(dat$id)
-dat$id <- factor(dat$id, levels = ids[order(sapply(ids, function(curve_id) {
+ids    = levels(dat$id)
+dat$id = factor(dat$id, levels = ids[order(sapply(ids, function(curve_id) {
 	sum(!is.na(dat$value[dat$id == curve_id]))
 }))])
 
@@ -119,7 +119,7 @@ By default, both functions `register_fpca` and `registr` include the argument
 `preserve_domain = TRUE` to constrain all warping functions to end on the diagonal.
 
 ```{r application 1}
-reg1 <- registr(Y = dat, family = "gaussian")
+reg1 = registr(Y = dat, family = "gaussian")
 
 ggplot(reg1$Y, aes(x = tstar, y = index, group = id)) + 
 	geom_line(alpha = 0.2) +
@@ -145,8 +145,8 @@ to end close to the diagonal.
 #### Small `lambda_endpoint`
 
 ```{r application 2}
-reg2 <- registr(Y = dat, family = "gaussian",
-								preserve_domain = FALSE, lambda_endpoint = 1)
+reg2 = registr(Y = dat, family = "gaussian",
+							 preserve_domain = FALSE, lambda_endpoint = 1)
 
 ggplot(reg2$Y, aes(x = tstar, y = index, group = id)) + 
 	geom_line(alpha = 0.2) +
@@ -167,8 +167,8 @@ ggplot(reg2$Y, aes(x = index, y = id, col = value)) +
 #### Large `lambda_endpoint`
 
 ```{r application 3}
-reg3 <- registr(Y = dat, family = "gaussian",
-								preserve_domain = FALSE, lambda_endpoint = 10)
+reg3 = registr(Y = dat, family = "gaussian",
+							 preserve_domain = FALSE, lambda_endpoint = 10)
 
 ggplot(reg3$Y, aes(x = tstar, y = index, group = id)) + 
 	geom_line(alpha = 0.2) +

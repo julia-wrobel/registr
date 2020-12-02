@@ -55,6 +55,14 @@ loss_h = function(Y, Theta_h, mean_coefs, knots, beta.inner, family, t_min, t_ma
 		warning("prior_sd supplied but priors = FALSE. No priors included.")
 	}
 	
+	if (family == "gamma") { # the last element of beta.inner is the scale parameter
+		scale      = tail(beta.inner, 1)
+		beta.inner = beta.inner[1:(length(beta.inner) - 1)]
+		if (scale <= 0) # ensure a positive scale value
+			return(-1 * scale * 10^10)
+	}
+	
+	
 	# get the registered t values
 	if (warping == "nonparametric") {
 		if (preserve_domain) { # the warping function should end on the diagonal
@@ -91,12 +99,23 @@ loss_h = function(Y, Theta_h, mean_coefs, knots, beta.inner, family, t_min, t_ma
   }
   
   # Calculate the negative log likelihood
-  # For gaussian, drop unnecessary constant terms and assume variance = 1
-  if (family == "gaussian") {
+  if (family == "gaussian") { # drop unnecessary constant terms, assume variance = 1
   	loss = 1/2 * sum((Y - g_mu_t) ^ 2)
+  	
   } else if (family == "binomial") {
     pi_h = plogis(g_mu_t)
     loss = -1 * sum(Y * log(pi_h) + (1 - Y) * log(1 - pi_h))
+    
+  } else if (family == "gamma") {
+  	mu_t  = as.vector(exp(g_mu_t))
+  	n     = length(Y)
+  	alpha = mu_t * scale
+  	loss  = -1 * (
+  		sum((alpha - 1) * log(Y)) -
+  			scale * sum(Y) +
+  			log(scale) * scale * sum(mu_t) -
+  			sum(log(gamma(alpha)))
+  	)
   }
 
   # Add prior distributions on the knot locations as needed

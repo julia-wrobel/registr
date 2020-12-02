@@ -73,7 +73,7 @@ binary functional data.
 Y = simulate_functional_data()$Y
 
 bfpca_object = bfpca(Y, npc = 2, print.iter = TRUE)
-plot_fpca(bfpca_object)
+plot(bfpca_object)
 
 }
 \references{
