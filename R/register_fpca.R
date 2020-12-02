@@ -100,6 +100,12 @@
 #'   geom_line(alpha = 0.2) +
 #'   ggtitle("Estimated warping functions")
 #' }
+#' 
+#' ### complete Gamma curves
+#' Y             = simulate_unregistered_curves(I = 20, D = 100)
+#' Y$value       = exp(Y$latent_mean)
+#' registr_gamma = register_fpca(Y, npc = 2, family = "gamma", fpca_type = "two-step",
+#'                               gradient = FALSE, max_iterations = 5)
 #'
 register_fpca <- function(Y, Kt = 8, Kh = 4, family = "binomial",
 													preserve_domain = TRUE, lambda_endpoint = NULL,

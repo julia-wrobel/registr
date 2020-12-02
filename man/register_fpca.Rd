@@ -151,6 +151,12 @@ ggplot(registr_object2b$Y, aes(x = tstar, y = t_hat, group = id)) +
   ggtitle("Estimated warping functions")
 }
 
+### complete Gamma curves
+Y             = simulate_unregistered_curves(I = 20, D = 100)
+Y$value       = exp(Y$latent_mean)
+registr_gamma = register_fpca(Y, npc = 2, family = "gamma", fpca_type = "two-step",
+                              gradient = FALSE, max_iterations = 5)
+
 }
 \author{
 Julia Wrobel \email{julia.wrobel@cuanschutz.edu}
