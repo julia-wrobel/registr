@@ -44,7 +44,7 @@ cov_hall = function(Y, index_evalGrid, Kt = 8, Kc = 8, family = "gaussian",
   if (family == "gamma") {
     # let the data start at 1.01 to make the marginal cov estimation more stable
     if (min(Y$value) < 1.01)
-      Y$value <- Y$value - min(Y$value) + 1.01
+      Y$value = Y$value - min(Y$value) + 1.01
   }
   
   # define the model family

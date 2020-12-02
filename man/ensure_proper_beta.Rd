@@ -32,7 +32,7 @@ the maximum of the underlying time domain \cr
 the parameter vector is not monotone.
 }
 \examples{
-beta_improper <- c(0.24, 1.000047, 1.000002)
+beta_improper = c(0.24, 1.000047, 1.000002)
 registr:::ensure_proper_beta(beta_improper, t_min = 0, t_max = 1)
 }
 \author{

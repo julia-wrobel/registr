@@ -15,7 +15,7 @@
 #' 
 #' @export
 #' 
-data_clean <- function(data, family = "binomial"){
+data_clean = function(data, family = "binomial"){
   
 	## NULLify global values called by tidyverse functions
 	value = index = NULL
@@ -48,7 +48,7 @@ data_clean <- function(data, family = "binomial"){
   	mutate(index_scaled = (index - min(index))/ (max(index) - min(index)) ) %>%
   	ungroup()
   
-  colnames(data_rows) <- c("id", "first_row", "last_row", "subject")
+  colnames(data_rows) = c("id", "first_row", "last_row", "subject")
   I = dim(data_rows)[1]
   
   return(list(Y = data, I = I, Y_rows = data_rows))

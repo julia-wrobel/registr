@@ -98,8 +98,8 @@ test_that("registr function with preserve_domain = FALSE: higher lambda_endpoint
 	t_max_registered_1 = tapply(X = reg1$Y$index, INDEX = reg1$Y$id, FUN = max)
 	t_max_observed_2   = tapply(X = reg2$Y$tstar, INDEX = reg2$Y$id, FUN = max)
 	t_max_registered_2 = tapply(X = reg2$Y$index, INDEX = reg2$Y$id, FUN = max)
-	MSE1 <- sum((t_max_registered_1 - t_max_observed_1)^2)
-	MSE2 <- sum((t_max_registered_2 - t_max_observed_2)^2)
+	MSE1 = sum((t_max_registered_1 - t_max_observed_1)^2)
+	MSE2 = sum((t_max_registered_2 - t_max_observed_2)^2)
 	expect_gt(MSE1, expected = MSE2)
 })
 

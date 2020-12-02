@@ -46,7 +46,7 @@ plot.fpca = function(x, plot_npc = x$npc, var_factor = 2,
                      xlab = "t [registered]", ylab = "y", ...) {
   
   # some NULL variable definitions to appease CRAN package checks regarding the use of ggplot2
-  fpc_value <- type <- value <- NULL
+  fpc_value = type = value = NULL
   
   if (is.null(response_function)) {
     if (x$family == "gamma") {

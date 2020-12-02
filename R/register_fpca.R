@@ -107,12 +107,12 @@
 #' registr_gamma = register_fpca(Y, npc = 2, family = "gamma", fpca_type = "two-step",
 #'                               gradient = FALSE, max_iterations = 5)
 #'
-register_fpca <- function(Y, Kt = 8, Kh = 4, family = "binomial",
-													preserve_domain = TRUE, lambda_endpoint = NULL,
-													max_iterations = 10, npc = 1,
-													fpca_type = "variationalEM", fpca_maxiter = 50,
-													fpca_seed = 1988, fpca_error_thresh = 0.0001,
-													fpca_index_relevantDigits = 4L, cores = 1L, ...){
+register_fpca = function(Y, Kt = 8, Kh = 4, family = "binomial",
+												 preserve_domain = TRUE, lambda_endpoint = NULL,
+												 max_iterations = 10, npc = 1,
+												 fpca_type = "variationalEM", fpca_maxiter = 50,
+												 fpca_seed = 1988, fpca_error_thresh = 0.0001,
+												 fpca_index_relevantDigits = 4L, cores = 1L, ...){
 	
   if (!(family %in% c("gaussian","binomial","gamma"))) {
   	stop("Package currently handles only families 'gaussian', 'binomial' and 'gamma'.")
@@ -216,6 +216,6 @@ register_fpca <- function(Y, Kt = 8, Kh = 4, family = "binomial",
   
 	ret = list(fpca_obj = fpca_step, Y = Y, time_warps = time_warps[!is.na(time_warps)],
 						 loss = loss[!is.na(loss)], family = family, beta = beta)
-	class(ret) <- "registration"
+	class(ret) = "registration"
   return(ret)
 }

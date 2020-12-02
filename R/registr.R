@@ -196,32 +196,32 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
   }
 
   ### Calculate warping functions  
-  arg_list <- list(obj             = obj,             Y               = Y,
-  								 Kt              = Kt,              Kh              = Kh,
-  								 family          = family,          gradient        = gradient,
-  								 preserve_domain = preserve_domain, lambda_endpoint = lambda_endpoint,
-  								 beta            = beta,            t_min           = t_min,
-  								 t_max           = t_max,           rows            = rows,
-  								 periodic        = periodic,        warping         = warping,
-  								 global_knots    = global_knots,    mean_coefs      = mean_coefs,
-  								 gamma_scales    = gamma_scales)
+	arg_list = list(obj             = obj,             Y               = Y,
+									Kt              = Kt,              Kh              = Kh,
+									family          = family,          gradient        = gradient,
+									preserve_domain = preserve_domain, lambda_endpoint = lambda_endpoint,
+									beta            = beta,            t_min           = t_min,
+									t_max           = t_max,           rows            = rows,
+									periodic        = periodic,        warping         = warping,
+									global_knots    = global_knots,    mean_coefs      = mean_coefs,
+									gamma_scales    = gamma_scales)
   
   # main function call
   if (cores == 1) { # serial call
-  	results_list <- lapply(1:I, registr_oneCurve, arg_list, ...)
+  	results_list = lapply(1:I, registr_oneCurve, arg_list, ...)
   	
   } else if (.Platform$OS.type == "unix") { # parallelized call on Unix-based systems
-  	results_list <- parallel::mclapply(1:I, registr_oneCurve, arg_list, ...,
-  																		 mc.cores = cores)
+  	results_list = parallel::mclapply(1:I, registr_oneCurve, arg_list, ...,
+  																		mc.cores = cores)
   	
   } else { # parallelized call on Windows
-  	local_cluster <- parallel::makePSOCKcluster(rep("localhost", cores)) # set up cluster
+  	local_cluster = parallel::makePSOCKcluster(rep("localhost", cores)) # set up cluster
   	# export functions and packages to the cluster
   	parallel::clusterExport(cl = local_cluster, c("arg_list"), envir=environment())
   	parallel::clusterEvalQ(cl = local_cluster, c(library(registr), library(stats)))
   	
-  	results_list <- parallel::parLapply(cl  = local_cluster, X = 1:I,
-  																			fun = registr_oneCurve, arg_list, ...)
+  	results_list = parallel::parLapply(cl  = local_cluster, X = 1:I,
+  																		 fun = registr_oneCurve, arg_list, ...)
   	
   	parallel::stopCluster(cl = local_cluster) # close cluster
   }
@@ -271,7 +271,7 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
 #' @importFrom splines bs
 #' @importFrom stats constrOptim Gamma
 #' 
-registr_oneCurve <- function(i, arg_list, ...) {
+registr_oneCurve = function(i, arg_list, ...) {
 	
 	t_max_i       = arg_list$Y$tstar[arg_list$rows$last_row[i]]
 	Y_cropped     = arg_list$Y[arg_list$Y$tstar <= t_max_i,]
@@ -308,7 +308,7 @@ registr_oneCurve <- function(i, arg_list, ...) {
 				beta_i = beta_full_i[-1]
 			}
 		} else if (arg_list$warping == "piecewise_linear2") {
-			beta_i <- beta_full_i
+			beta_i = beta_full_i
 		}
 		
 	} else { # use the last estimates (from the joint approach) as start parameters
@@ -384,16 +384,16 @@ registr_oneCurve <- function(i, arg_list, ...) {
 	# inside the feasible region. This is only a numerical error, so let's simply
 	# substract a minor value from ci
 	# (source: https://stackoverflow.com/questions/50472525/constroptim-in-r-init-val-is-not-in-the-interior-of-the-feasible-region-error)
-	ci_i <- ci_i - 1e-6
+	ci_i = ci_i - 1e-6
 	
 	# when an analytic gradient is used, constrOptim sometimes leads to beta
 	# values slightly outside the possible domain, or to slightly nonmonotone beta
 	# values that don't fulfill the constraints.
 	# Correct these slight inconsistencies to ensure proper beta values.
 	if (arg_list$warping != "piecewise_linear2") {
-		beta_i <- ensure_proper_beta(beta  = beta_i,
-																 t_min = arg_list$t_min,
-																 t_max = ifelse(arg_list$preserve_domain, t_max_i, arg_list$t_max))
+		beta_i = ensure_proper_beta(beta  = beta_i,
+																t_min = arg_list$t_min,
+																t_max = ifelse(arg_list$preserve_domain, t_max_i, arg_list$t_max))
 	}
 	
 	# main registration step	
