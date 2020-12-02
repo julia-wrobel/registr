@@ -5,22 +5,23 @@
 \title{Plot the results of a functional PCA}
 \usage{
 \method{plot}{fpca}(
-  fpca_obj,
-  plot_npc = fpca_obj$npc,
+  x,
+  plot_npc = x$npc,
   var_factor = 2,
   response_function = NULL,
   subtitle = TRUE,
   xlim = NULL,
   ylim = NULL,
   xlab = "t [registered]",
-  ylab = "y"
+  ylab = "y",
+  ...
 )
 }
 \arguments{
-\item{fpca_obj}{Object of class \code{"fpca"}.}
+\item{x}{Object of class \code{"fpca"}.}
 
 \item{plot_npc}{Optional number of the main FPCs to be plotted. Defaults to
-all FPCs contained in \code{fpca_obj}.}
+all FPCs contained in \code{x}.}
 
 \item{var_factor}{Numeric factor with which the FPC's are multiplied
 to display their variation in the plots. Defaults to 2, but can be set to
@@ -28,8 +29,8 @@ to display their variation in the plots. Defaults to 2, but can be set to
 
 \item{response_function}{Optional response function to be applied before
 plotting the curves. Defaults to \code{NULL}, i.e. the identity function if
-\code{fpca_obj$family} is one of \code{c("gaussian","binomial")} or
-\code{exp()} if \code{fpca_obj$family = "gamma"}.}
+\code{x$family} is one of \code{c("gaussian","binomial")} or
+\code{exp()} if \code{x$family = "gamma"}.}
 
 \item{subtitle}{If TRUE (default) the parameter \code{var_factor}
 is displayed in the plot subtitle.}
@@ -37,6 +38,8 @@ is displayed in the plot subtitle.}
 \item{xlim, ylim}{Optional numeric vectors with limits for the x and y axis.}
 
 \item{xlab, ylab}{Optional titles for the x and y axis.}
+
+\item{...}{Additional arguments passed to \code{\link[ggplot2]{theme}}.}
 }
 \value{
 Grid of \code{ggplot} plots, created with \code{cowplot::plot_grid}.
@@ -47,7 +50,7 @@ Plot FPCA results by visualizing the variation of the individual FPCs around
 the global mean. based on an object created with function
 \code{\link{fpca_gauss}}, \code{\link{bfpca}} or \code{\link{gfpca_twoStep}}. \cr \cr
 The shares of explained variance are included in the plot titles if
-\code{fpca_obj} contains an element \code{evalues_sum}. This is currently
+\code{x} contains an element \code{evalues_sum}. This is currently
 only the case for FPCA objects created with \code{\link{gfpca_twoStep}}.
 }
 \examples{
