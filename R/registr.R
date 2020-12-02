@@ -194,7 +194,7 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
 			if (!all(c("id", "index", "value") %in% names(Y_template))) {
 				stop("Y_template must have variables 'id', 'index', and 'value'.")
 			} else if (!identical(range(Y_template$index), range(Y$index))) {
-				stop("range(Y_template$index) must be equal to range(Y$index).")
+				stop("The range of 'index' must be equal for Y_template and Y.")
 			}
 			Y_template$tstar = Y_template$index
 			mean_dat         = Y_template

@@ -109,3 +109,23 @@ test_that("registr function throws an error when family = 'gamma' is applied to 
 	expect_error(registr(Y = Y, family = "gamma"),
 							 "family = 'gamma' can only be applied to strictly positive data.")
 })
+
+test_that("registr function only accepts Y_template if it has the correct format.",{
+	Y = registr::growth_incomplete
+	
+	template_ids1 = "girl18"
+	Y_template1   = Y[Y$id %in% template_ids1,]
+	template_ids2 = "boy30"
+	Y_template2   = Y[Y$id %in% template_ids2,]
+	template_ids3 = c("boy01","boy29","boy30","boy31","boy34","boy36")
+	Y_template3   = Y[Y$id %in% template_ids3,]
+	
+	expect_error(registr(Y = Y, family = "gaussian", Y_template = Y_template1$value),
+							 "Y_template must have variables 'id', 'index', and 'value'.")
+	expect_error(registr(Y = Y, family = "gaussian", Y_template = Y_template1),
+							 "The range of 'index' must be equal for Y_template and Y.")
+	expect_error(registr(Y = Y, family = "gaussian", Y_template = Y_template2),
+							 NA)
+	expect_error(registr(Y = Y, family = "gaussian", Y_template = Y_template3),
+							 NA)
+})
