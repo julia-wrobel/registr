@@ -122,7 +122,7 @@ registr_object2 = register_fpca(Y, npc = 2, family = "binomial",
 ggplot(registr_object$Y, aes(x = tstar, y = t_hat, group = id)) +
   geom_line(alpha = 0.2) + ggtitle("Estimated warping functions")
 
-plot_fpca(registr_object$fpca_obj, response_function = function(x) { 1 / (1 + exp(-x)) })
+plot(registr_object$fpca_obj, response_function = function(x) { 1 / (1 + exp(-x)) })
 
 
 \donttest{ 

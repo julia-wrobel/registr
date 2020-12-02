@@ -240,11 +240,12 @@ ggplot(pc_df, aes(index, psi2)) + theme_bw() + geom_line(color = "blue") +
 
 The algorithm runs quickly and does a good job recovering the true FPCs. Note that while the truth and estimation are not perfectly aligned, this is to be expected -- the data used to estimate these functions are binary observations that are generated for the truth with some variability, so results are not expected to perfectly align. One would expect results to get better with increasing number of time points per subject.
 
-In `registr`, the estimated FPCs can be easily visualized using function
-`plot_fpca`.
+In `registr`, the estimated FPCs can be easily visualized using the internal function
+`plot.fpca`. This function is automatically called when calling the general
+`plot` function on an object of class `fpca`.
 
-```{r plot_fpca, echo = FALSE, fig.show='hold', fig.width=6}
-plot_fpca(bfpca_object)
+```{r plot.fpca, fig.show='hold', fig.width=6}
+registr:::plot.fpca(bfpca_object)
 ```
 
 ## `gfpca_twoStep()` function
@@ -359,7 +360,7 @@ Note that the `gradient` option is currently unavailable for `periodic = TRUE`.
 
 The resulting population mean and principal component from registering the continuous data using `periodic = FALSE` (default) and `periodic = TRUE` are plotted below, with dotted lines to demonstrate the unification of the start and end of the periodic functions.
 
-```{r plot_fpca_periodic, echo = FALSE, fig.show='hold'}
+```{r register_fpca_periodic, echo = FALSE, fig.show='hold'}
 
 registr_non_periodic = register_fpca(Y = registration_data, family = "binomial", 
                                  Kt = 8, Kh = 4, npc = 1, gradient = FALSE,

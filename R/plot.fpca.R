@@ -1,6 +1,7 @@
 
 #' Plot the results of a functional PCA
 #' 
+#' S3 plot method for class \code{fpca}.
 #' Plot FPCA results by visualizing the variation of the individual FPCs around
 #' the global mean. based on an object created with function
 #' \code{\link{fpca_gauss}}, \code{\link{bfpca}} or \code{\link{gfpca_twoStep}}. \cr \cr
@@ -26,7 +27,6 @@
 #' @import ggplot2
 #' @importFrom cowplot plot_grid
 #' @importFrom dplyr bind_rows
-#' @export
 #' 
 #' @return Grid of \code{ggplot} plots, created with \code{cowplot::plot_grid}.
 #' 
@@ -36,9 +36,9 @@
 #' data(growth_incomplete)
 #' 
 #' fpca_obj = fpca_gauss(Y = growth_incomplete, npc = 2)
-#' plot_fpca(fpca_obj)
+#' plot(fpca_obj)
 #' 
-plot_fpca = function(fpca_obj, plot_npc = fpca_obj$npc, var_factor = 2,
+plot.fpca = function(fpca_obj, plot_npc = fpca_obj$npc, var_factor = 2,
                      response_function = NULL,
                      subtitle = TRUE, xlim = NULL, ylim = NULL,
                      xlab = "t [registered]", ylab = "y") {

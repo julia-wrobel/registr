@@ -71,7 +71,7 @@
 #' data(growth_incomplete)
 #' 
 #' fpca_obj = gfpca_twoStep(Y = growth_incomplete, npc = 2, family = "gaussian")
-#' plot_fpca(fpca_obj)
+#' plot(fpca_obj)
 #' 
 gfpca_twoStep = function (Y, family = "gaussian", npc = 1, Kt = 8,
                           t_min = NULL, t_max = NULL,

@@ -92,7 +92,7 @@ for large data settings.
 data(growth_incomplete)
 
 fpca_obj = gfpca_twoStep(Y = growth_incomplete, npc = 2, family = "gaussian")
-plot_fpca(fpca_obj)
+plot(fpca_obj)
 
 }
 \references{
