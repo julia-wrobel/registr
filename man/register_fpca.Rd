@@ -29,7 +29,9 @@ register_fpca(
 
 \item{Kh}{Number of B-spline basis functions used to estimate warping functions \emph{h}. Default is 4.}
 
-\item{family}{\code{gaussian} or \code{binomial}.}
+\item{family}{One of \code{c("gaussian","binomial","gamma")}.
+For \code{"gamma"}, the \code{fpca_type} is fixed to \code{"two-step"}.
+Defaults to \code{"gaussian"}.}
 
 \item{preserve_domain}{Indicator if the registration should preserve the
 time domain, leading to warping functions that end on the diagonal.
@@ -72,7 +74,8 @@ call is parallelized by using \code{parallel::mclapply} (for Unix-based
 systems) or \code{parallel::parLapply} (for Windows). Defaults to 1,
 no parallelized call.}
 
-\item{...}{Additional arguments passed to registr and gfpca functions.}
+\item{...}{Additional arguments passed to registr and to the gfpca functions
+(if \code{fpca_type = "variationalEM"}).}
 }
 \value{
 An object of class \code{registration} containing:
@@ -113,12 +116,13 @@ registr_object = register_fpca(Y, npc = 2, family = "binomial",
                                fpca_type = "variationalEM", max_iterations = 5)
 # estimation based on Gertheiss et al. (2017)
 registr_object2 = register_fpca(Y, npc = 2, family = "binomial",
-                                fpca_type = "two-step", max_iterations = 5)
+                                fpca_type = "two-step", max_iterations = 5,
+                                fpca_index_relevantDigits = 4)
 
 ggplot(registr_object$Y, aes(x = tstar, y = t_hat, group = id)) +
   geom_line(alpha = 0.2) + ggtitle("Estimated warping functions")
 
-plot_fpca(registr_object$fpca_obj, response_function = function(x) { 1 / (1 + exp(-x)) })
+plot(registr_object$fpca_obj, response_function = function(x) { 1 / (1 + exp(-x)) })
 
 
 \donttest{ 
@@ -146,6 +150,12 @@ ggplot(registr_object2b$Y, aes(x = tstar, y = t_hat, group = id)) +
   geom_line(alpha = 0.2) +
   ggtitle("Estimated warping functions")
 }
+
+### complete Gamma curves
+Y             = simulate_unregistered_curves(I = 20, D = 100)
+Y$value       = exp(Y$latent_mean)
+registr_gamma = register_fpca(Y, npc = 2, family = "gamma", fpca_type = "two-step",
+                              gradient = FALSE, max_iterations = 5)
 
 }
 \author{

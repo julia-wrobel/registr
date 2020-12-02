@@ -78,7 +78,7 @@ test_that("gfpca_twoStep (Gaussian) output has correct number of dimensions",{
 	expect_equal(dim(fpca_object$efunctions), c(200, 1))
 })
 
-test_that("gfpca_twoStep (binomial) output has correct number of dimensions",{
+test_that("gfpca_twoStep (Binomial) output has correct number of dimensions",{
 	Y = simulate_functional_data(I = 100, D = 200, seed = 2020)$Y
 	Kt = 8
 	fpca_object = gfpca_twoStep(Y, npc = 2, Kt = Kt, family = "binomial",
@@ -92,6 +92,25 @@ test_that("gfpca_twoStep (binomial) output has correct number of dimensions",{
 	expect_equal(length(fpca_object$knots), Kt - 4)
 	
 	fpca_object = gfpca_twoStep(Y, npc = 1, Kt = Kt, family = "binomial",
+															index_relevantDigits = 4)
+	expect_equal(dim(fpca_object$efunctions), c(200, 1))
+})
+
+test_that("gfpca_twoStep (Gamma) output has correct number of dimensions",{
+	Y       = simulate_functional_data(I = 100, D = 200, seed = 2020)$Y
+	Y$value = Y$value + 1 # make data strictly positive for gamma family
+	Kt      = 8
+	fpca_object = gfpca_twoStep(Y, npc = 2, Kt = Kt, family = "gamma",
+															index_relevantDigits = 4)
+	
+	expect_equal(length(fpca_object$t_vec), 200)
+	expect_equal(dim(fpca_object$alpha), c(200, 1))
+	expect_equal(dim(fpca_object$efunctions), c(200, 2))
+	expect_equal(length(fpca_object$evalues), 2)
+	expect_equal(dim(fpca_object$scores), c(length(unique(Y$id)), 2))
+	expect_equal(length(fpca_object$knots), Kt - 4)
+	
+	fpca_object = gfpca_twoStep(Y, npc = 1, Kt = Kt, family = "gamma",
 															index_relevantDigits = 4)
 	expect_equal(dim(fpca_object$efunctions), c(200, 1))
 })
@@ -118,4 +137,11 @@ test_that("gfpca_twoStep (Gaussian) has correct number of dimensions when applie
 	
 	fpca_object = gfpca_twoStep(Y, npc = 1, Kt = Kt, index_relevantDigits = 4)
 	expect_equal(dim(fpca_object$efunctions), c(30, 1))
+})
+
+test_that("gfpca_twoStep (Gamma) throws an error when applied to non-strictly positive data",{
+	Y = registr::growth_incomplete
+	
+	expect_error(gfpca_twoStep(Y, family = "gamma"),
+							 "family = 'gamma' can only be applied to strictly positive data.")
 })

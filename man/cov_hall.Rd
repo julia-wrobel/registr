@@ -24,7 +24,7 @@ marginal mean. Defaults to 8.}
 \item{Kc}{Number of marginal P-spline basis functions for smoothing the
 covariance surface. Defaults to 8.}
 
-\item{family}{One of \code{c("gaussian","binomial")}. Defaults to
+\item{family}{One of \code{c("gaussian","binomial","gamma")}. Defaults to
 \code{"gaussian"}.}
 
 \item{diag_epsilon}{Small constant to which diagonal elements of the

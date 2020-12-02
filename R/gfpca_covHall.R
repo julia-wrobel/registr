@@ -41,7 +41,18 @@
 cov_hall = function(Y, index_evalGrid, Kt = 8, Kc = 8, family = "gaussian",
                     diag_epsilon = 0.01){
   
-  family_mgcv = family
+  if (family == "gamma") {
+    # let the data start at 1.01 to make the marginal cov estimation more stable
+    if (min(Y$value) < 1.01)
+      Y$value <- Y$value - min(Y$value) + 1.01
+  }
+  
+  # define the model family
+  if (family == "gamma") {
+    family_mgcv = mgcv::Tweedie(p = 2, link = "log")
+  } else {
+    family_mgcv = family
+  }
   
   ids  = as.character(unique(Y$id))
   grid = unique(Y$index)
@@ -99,6 +110,8 @@ cov_hall = function(Y, index_evalGrid, Kt = 8, Kc = 8, family = "gaussian",
     Zi.cov_sm = Yi.cov_sm # first derivative of identity function = 1
   } else if (family == "binomial") {
     Zi.cov_sm = diag(1 / deriv.inv.logit(mu)) %*% Yi.cov_sm %*% diag(1 / deriv.inv.logit(mu))
+  } else if (family == "gamma") {
+    Zi.cov_sm = diag(mu) %*% Yi.cov_sm %*% diag(mu)
   }
   
   # ensure a proper diagonal of the covariance surface

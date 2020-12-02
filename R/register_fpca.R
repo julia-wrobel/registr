@@ -13,6 +13,9 @@
 #' \code{id}, \code{index}, and \code{value} to indicate subject IDs, times, and observations, 
 #' respectively.
 #'
+#' @param family One of \code{c("gaussian","binomial","gamma")}.
+#' For \code{"gamma"}, the \code{fpca_type} is fixed to \code{"two-step"}.
+#' Defaults to \code{"gaussian"}.
 #' @param max_iterations Number of iterations for overall algorithm. Defaults to 10.
 #' @param npc Number of principal components to calculate. Defaults to 1. 
 #' @param fpca_type One of \code{c("variationalEM","two-step")}.
@@ -32,7 +35,8 @@
 #' is necessary since otherwise the covariance surface matrix explodes in size
 #' in the presence of too many unique index values (which is the case after some
 #' registration step). Defaults to 4. Set to \code{NULL} to prevent rounding.
-#' @param ... Additional arguments passed to registr and gfpca functions.
+#' @param ... Additional arguments passed to registr and to the gfpca functions
+#' (if \code{fpca_type = "variationalEM"}).
 #' @inheritParams registr
 #'
 #' @author Julia Wrobel \email{julia.wrobel@@cuanschutz.edu}
@@ -62,12 +66,13 @@
 #'                                fpca_type = "variationalEM", max_iterations = 5)
 #' # estimation based on Gertheiss et al. (2017)
 #' registr_object2 = register_fpca(Y, npc = 2, family = "binomial",
-#'                                 fpca_type = "two-step", max_iterations = 5)
+#'                                 fpca_type = "two-step", max_iterations = 5,
+#'                                 fpca_index_relevantDigits = 4)
 #' 
 #' ggplot(registr_object$Y, aes(x = tstar, y = t_hat, group = id)) +
 #'   geom_line(alpha = 0.2) + ggtitle("Estimated warping functions")
 #' 
-#' plot_fpca(registr_object$fpca_obj, response_function = function(x) { 1 / (1 + exp(-x)) })
+#' plot(registr_object$fpca_obj, response_function = function(x) { 1 / (1 + exp(-x)) })
 #' 
 #' 
 #' \donttest{ 
@@ -95,6 +100,12 @@
 #'   geom_line(alpha = 0.2) +
 #'   ggtitle("Estimated warping functions")
 #' }
+#' 
+#' ### complete Gamma curves
+#' Y             = simulate_unregistered_curves(I = 20, D = 100)
+#' Y$value       = exp(Y$latent_mean)
+#' registr_gamma = register_fpca(Y, npc = 2, family = "gamma", fpca_type = "two-step",
+#'                               gradient = FALSE, max_iterations = 5)
 #'
 register_fpca <- function(Y, Kt = 8, Kh = 4, family = "binomial",
 													preserve_domain = TRUE, lambda_endpoint = NULL,
@@ -103,10 +114,14 @@ register_fpca <- function(Y, Kt = 8, Kh = 4, family = "binomial",
 													fpca_seed = 1988, fpca_error_thresh = 0.0001,
 													fpca_index_relevantDigits = 4L, cores = 1L, ...){
 	
-  if (!(family %in% c("binomial", "gaussian"))) {
-  	stop("Package currently handles only 'binomial' or 'gaussian' families.")
+  if (!(family %in% c("gaussian","binomial","gamma"))) {
+  	stop("Package currently handles only families 'gaussian', 'binomial' and 'gamma'.")
   }
 	
+	if (family == "gamma" && fpca_type == "variationalEM") {
+		warning("fpca_type = 'variationalEM' is only available for families 'gaussian' and 'binomial'. Setting fpca_type = 'two-step'.")
+		fpca_type = "two-step"
+	}
 		
   data = data_clean(Y)
   Y = data$Y
@@ -153,7 +168,7 @@ register_fpca <- function(Y, Kt = 8, Kh = 4, family = "binomial",
   															Kt = Kt, row_obj = rows,
   															index_relevantDigits = fpca_index_relevantDigits,
   															estimation_accuracy  = estimation_accuracy,
-  															start_params         = gamm4_startParams, ...)
+  															start_params         = gamm4_startParams)
   	}
   	
   	registr_step = registr(obj = fpca_step, Kt = Kt, Kh = Kh, family = family, 
@@ -190,7 +205,7 @@ register_fpca <- function(Y, Kt = 8, Kh = 4, family = "binomial",
   														Kt = Kt, row_obj = rows,
   														index_relevantDigits = fpca_index_relevantDigits,
   														estimation_accuracy  = "high",
-  														start_params         = fpca_step$gamm4_theta, ...)
+  														start_params         = fpca_step$gamm4_theta)
   }
   
   Y$tstar = time_warps[[1]]
