@@ -16,6 +16,9 @@
 #' For further details see the accompanying vignette. \cr \cr
 #' By specifying \code{cores > 1} the registration call can be parallelized.
 #' 
+#' The template function for the registration is defined by argument \code{obj}
+#' or \code{Y_template}, depending on if \code{obj} is NULL or not, respectively.
+#' 
 #' @param obj Current estimate of FPC object. 
 #' Can be NULL only if Y argument is selected.
 #' @param Y Dataframe. Should have values id, value, index.
@@ -34,6 +37,11 @@
 #' deviation of the warping function endpoints from the diagonal. The higher
 #' this lambda, the more the endpoints are forced towards the diagonal.
 #' Only used if \code{preserve_domain = FALSE}.
+#' @param Y_template Optional dataframe with the same structure as \code{Y}.
+#' Only used if \code{obj} is NULL. If \code{Y_template} is NULL,
+#' curves are registered to the overall mean of all curves in \code{Y} as template function.
+#' If \code{Y_template} is specified, the template function is taken as the mean
+#' of all curves in \code{Y_template}. Default is NULL.
 #' @param beta Current estimates for beta for each subject. Default is NULL. 
 #' @param t_min Minimum value to be evaluated on the time domain.
 #' if `NULL`, taken to be minimum observed value.
@@ -95,9 +103,18 @@
 #'   geom_line(alpha = 0.2) +
 #'   ggtitle("Estimated warping functions")
 #' }
-#'
+#' 
+#' # Define the template function only over a subset of the curves
+#' template_ids    = c("boy01","boy29","boy30","boy31","boy34","boy36")
+#' Y_template      = growth_incomplete[growth_incomplete$id %in% template_ids,]
+#' register_step2c = registr(obj = NULL, Y = growth_incomplete, Kt = 6, Kh = 4,
+#'                           family = "gaussian", gradient = TRUE,
+#'                           Y_template = Y_template,
+#'                           preserve_domain = FALSE, lambda_endpoint = 1)
+#' 
 registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gradient = TRUE,
 									 preserve_domain = TRUE, lambda_endpoint = NULL,
+									 Y_template = NULL,
 									 beta = NULL, t_min = NULL, t_max = NULL, row_obj = NULL,
 									 periodic = FALSE, warping = "nonparametric",
 									 gamma_scales = NULL, cores = 1L, ...){
@@ -173,17 +190,29 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
 		
 	} else { # template function = mean of all curves
   	
+		if (!is.null(Y_template)) {
+			if (!all(c("id", "index", "value") %in% names(Y_template))) {
+				stop("Y_template must have variables 'id', 'index', and 'value'.")
+			} else if (!identical(range(Y_template$index), range(Y$index))) {
+				stop("range(Y_template$index) must be equal to range(Y$index).")
+			}
+			Y_template$tstar = Y_template$index
+			mean_dat         = Y_template
+		} else {
+			mean_dat = Y
+		}
+		
   	if (periodic) {
   		# if periodic, then we want more global knots, because the resulting object from pbs 
   		# only has (knots+intercept) columns.
-  		global_knots = quantile(tstar, probs = seq(0, 1, length = Kt+1))[-c(1, Kt+1)]
-  		mean_basis   = pbs(c(t_min, t_max, tstar), knots = global_knots, intercept = TRUE)[-(1:2),]
+  		global_knots = quantile(mean_dat$tstar, probs = seq(0, 1, length = Kt+1))[-c(1, Kt+1)]
+  		mean_basis   = pbs(c(t_min, t_max, mean_dat$tstar), knots = global_knots, intercept = TRUE)[-(1:2),]
   		
   	} else {
   		# if not periodic, then we want fewer global knots, because the resulting object from bs
   		# has (knots+degree+intercept) columns, and degree is set to 3 by default.
-  		global_knots = quantile(tstar, probs = seq(0, 1, length = Kt - 2))[-c(1, Kt - 2)]
-  		mean_basis   =  bs(c(t_min, t_max, tstar), knots = global_knots, intercept = TRUE)[-(1:2),]
+  		global_knots = quantile(mean_dat$tstar, probs = seq(0, 1, length = Kt - 2))[-c(1, Kt - 2)]
+  		mean_basis   =  bs(c(t_min, t_max, mean_dat$tstar), knots = global_knots, intercept = TRUE)[-(1:2),]
   	} 
 
 		if (family == "gamma") {
@@ -191,7 +220,7 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
 		} else {
 			mean_family = family
 		}
-    mean_coefs = coef(glm(Y$value ~ 0 + mean_basis, family = mean_family))
+    mean_coefs = coef(glm(mean_dat$value ~ 0 + mean_basis, family = mean_family))
     rm(mean_basis)
   }
 
