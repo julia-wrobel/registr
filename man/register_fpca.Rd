@@ -11,6 +11,7 @@ register_fpca(
   family = "binomial",
   preserve_domain = TRUE,
   lambda_endpoint = NULL,
+  Y_template = NULL,
   max_iterations = 10,
   npc = 1,
   fpca_type = "variationalEM",
@@ -42,6 +43,12 @@ Defaults to \code{TRUE}. Can only be set to \code{FALSE} when
 deviation of the warping function endpoints from the diagonal. The higher
 this lambda, the more the endpoints are forced towards the diagonal.
 Only used if \code{preserve_domain = FALSE}.}
+
+\item{Y_template}{Optional dataframe with the same structure as \code{Y}.
+Only used for the initial registration step. If NULL,
+curves are registered to the overall mean of all curves in \code{Y} as template function.
+If specified, the template function is taken as the mean
+of all curves in \code{Y_template}. Defaults to NULL.}
 
 \item{max_iterations}{Number of iterations for overall algorithm. Defaults to 10.}
 
@@ -104,6 +111,10 @@ By specifying \code{cores > 1} the registration call can be parallelized.
 Requires input data \code{Y} to be a dataframe in long format with variables 
 \code{id}, \code{index}, and \code{value} to indicate subject IDs, times, and observations, 
 respectively.
+
+The joint iterations start with a registration step.
+The template function for this registration step is defined by argument
+\code{Y_template}.
 }
 \examples{
 library(ggplot2)

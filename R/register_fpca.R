@@ -12,10 +12,19 @@
 #' Requires input data \code{Y} to be a dataframe in long format with variables 
 #' \code{id}, \code{index}, and \code{value} to indicate subject IDs, times, and observations, 
 #' respectively.
+#' 
+#' The joint iterations start with a registration step.
+#' The template function for this registration step is defined by argument
+#' \code{Y_template}.
 #'
 #' @param family One of \code{c("gaussian","binomial","gamma")}.
 #' For \code{"gamma"}, the \code{fpca_type} is fixed to \code{"two-step"}.
 #' Defaults to \code{"gaussian"}.
+#' @param Y_template Optional dataframe with the same structure as \code{Y}.
+#' Only used for the initial registration step. If NULL,
+#' curves are registered to the overall mean of all curves in \code{Y} as template function.
+#' If specified, the template function is taken as the mean
+#' of all curves in \code{Y_template}. Defaults to NULL.
 #' @param max_iterations Number of iterations for overall algorithm. Defaults to 10.
 #' @param npc Number of principal components to calculate. Defaults to 1. 
 #' @param fpca_type One of \code{c("variationalEM","two-step")}.
@@ -109,6 +118,7 @@
 #'
 register_fpca = function(Y, Kt = 8, Kh = 4, family = "binomial",
 												 preserve_domain = TRUE, lambda_endpoint = NULL,
+												 Y_template = NULL,
 												 max_iterations = 10, npc = 1,
 												 fpca_type = "variationalEM", fpca_maxiter = 50,
 												 fpca_seed = 1988, fpca_error_thresh = 0.0001,
@@ -135,6 +145,7 @@ register_fpca = function(Y, Kt = 8, Kh = 4, family = "binomial",
   registr_step = registr(Y = Y, Kt = Kt, Kh = Kh, family = family,
   											 preserve_domain = preserve_domain,
   											 lambda_endpoint = lambda_endpoint,
+  											 Y_template      = Y_template,
   											 row_obj = rows, cores = cores, ...)
   time_warps[[2]] = registr_step$Y$index
   loss[1] = registr_step$loss

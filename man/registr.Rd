@@ -14,6 +14,7 @@ registr(
   gradient = TRUE,
   preserve_domain = TRUE,
   lambda_endpoint = NULL,
+  Y_template = NULL,
   beta = NULL,
   t_min = NULL,
   t_max = NULL,
@@ -51,6 +52,12 @@ Defaults to \code{TRUE}. Can only be set to \code{FALSE} when
 deviation of the warping function endpoints from the diagonal. The higher
 this lambda, the more the endpoints are forced towards the diagonal.
 Only used if \code{preserve_domain = FALSE}.}
+
+\item{Y_template}{Optional dataframe with the same structure as \code{Y}.
+Only used if \code{obj} is NULL. If \code{Y_template} is NULL,
+curves are registered to the overall mean of all curves in \code{Y} as template function.
+If \code{Y_template} is specified, the template function is taken as the mean
+of all curves in \code{Y_template}. Default is NULL.}
 
 \item{beta}{Current estimates for beta for each subject. Default is NULL.}
 
@@ -104,6 +111,10 @@ domain-preserving. This behavior can be changed by setting
 For further details see the accompanying vignette. \cr \cr
 By specifying \code{cores > 1} the registration call can be parallelized.
 }
+\details{
+The template function for the registration is defined by argument \code{obj}
+or \code{Y_template}, depending on if \code{obj} is NULL or not, respectively.
+}
 \examples{
 ### complete binomial curves
 Y = simulate_unregistered_curves()
@@ -131,6 +142,14 @@ ggplot(register_step2b$Y, aes(x = tstar, y = index, group = id)) +
   geom_line(alpha = 0.2) +
   ggtitle("Estimated warping functions")
 }
+
+# Define the template function only over a subset of the curves
+template_ids    = c("boy01","boy29","boy30","boy31","boy34","boy36")
+Y_template      = growth_incomplete[growth_incomplete$id \%in\% template_ids,]
+register_step2c = registr(obj = NULL, Y = growth_incomplete, Kt = 6, Kh = 4,
+                          family = "gaussian", gradient = TRUE,
+                          Y_template = Y_template,
+                          preserve_domain = FALSE, lambda_endpoint = 1)
 
 }
 \author{
