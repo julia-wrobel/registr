@@ -45,8 +45,9 @@ If \code{FALSE}, calculates gradient numerically. Not available for
 
 \item{incompleteness}{Optional specification of incompleteness structure.
 One of \code{c("leading","trailing","full")}, specifying that incompleteness
-affects only the initial measurements, only the trailing measurements, or
-both, respectively. Defaults to NULL, i.e. no incompleteness structure.
+is present only in the initial measurements, only in the trailing measurements, or
+in both, respectively. For details see the accompanying vignette.
+Defaults to NULL, i.e. no incompleteness structure.
 Can only be set when \code{warping = "nonparametric"}.}
 
 \item{lambda_inc}{Penalization parameter to control the amount of
@@ -133,24 +134,34 @@ register_step2a = registr(obj = NULL, Y = growth_incomplete, Kt = 6, Kh = 4,
 ggplot(register_step2a$Y, aes(x = tstar, y = index, group = id)) +
   geom_line(alpha = 0.2) +
   ggtitle("Estimated warping functions")
-	
-# Allow the warping functions to not end on the diagonal.
-# The higher lambda_inc, the more the endpoints are forced towards the diagonal.
+ggplot(register_step2a$Y, aes(x = index, y = value, group = id)) +
+  geom_line(alpha = 0.2) +
+  ggtitle("Registered curves")
+
+# Allow the warping functions to not start / end on the diagonal.
+# The higher lambda_inc, the more the starting points and endpoints are
+# forced towards the diagonal.
 register_step2b = registr(obj = NULL, Y = growth_incomplete, Kt = 6, Kh = 4,
                           family = "gaussian", gradient = TRUE,
-                          incompleteness = "trailing", lambda_inc = 1)
+                          incompleteness = "full", lambda_inc = 1)
 ggplot(register_step2b$Y, aes(x = tstar, y = index, group = id)) +
   geom_line(alpha = 0.2) +
   ggtitle("Estimated warping functions")
-}
+ggplot(register_step2b$Y, aes(x = index, y = value, group = id)) +
+  geom_line(alpha = 0.2) +
+  ggtitle("Registered curves")
 
 # Define the template function only over a subset of the curves
-template_ids    = c("boy01","boy29","boy30","boy31","boy34","boy36")
+template_ids    = c("boy01","boy04","boy29","boy30","boy31","boy34","boy36")
 Y_template      = growth_incomplete[growth_incomplete$id \%in\% template_ids,]
 register_step2c = registr(obj = NULL, Y = growth_incomplete, Kt = 6, Kh = 4,
                           family = "gaussian", gradient = TRUE,
                           Y_template = Y_template,
-                          incompleteness = "trailing", lambda_inc = 1)
+                          incompleteness = "full", lambda_inc = 1)
+ggplot(register_step2c$Y, aes(x = index, y = value, group = id)) +
+  geom_line(alpha = 0.2) +
+  ggtitle("Registered curves")
+}
 
 }
 \author{

@@ -9,9 +9,6 @@
 #' @param t_min,t_max minimum and maximum value to be evaluated on the time domain. 
 #' @param t_min_curve,t_max_curve minimum and maximum value of the observed time domain of the
 #' (potentially incomplete) curve.
-#' @param lambda_inc Penalization parameter to control the amount of
-#' deviation of the warping function endpoints from the diagonal. Only used if
-#' \code{!is.null(incompleteness)}.
 #' @param warping If \code{nonparametric} (default), inverse warping functions are estimated nonparametrically. 
 #' If \code{piecewise_linear2} they follow a piecewise linear function with 2 knots.
 #' @param periodic If \code{TRUE} uses periodic b-spline basis functions. Default is \code{FALSE}.

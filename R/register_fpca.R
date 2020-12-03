@@ -7,6 +7,10 @@
 #' approaches of Wrobel et al. (2019) (\code{fpca_type = "variationalEM"}, default)
 #' or the mixed model-based two-step approach of Gertheiss et al. (2017)
 #' (\code{fpca_type = "two-step"}). \cr \cr
+#' Warping functions by default are forced to start and end on the diagonal to be
+#' domain-preserving. This behavior can be changed by setting
+#' \code{incompleteness} to some other value than NULL and a reasonable \code{lambda_inc} value.
+#' For further details see the accompanying vignette. \cr \cr
 #' By specifying \code{cores > 1} the registration call can be parallelized.
 #' 
 #' Requires input data \code{Y} to be a dataframe in long format with variables 
@@ -71,50 +75,57 @@
 #' Y = simulate_unregistered_curves(I = 20, D = 200)
 #' 
 #' # estimation based on Wrobel et al. (2019)
-#' registr_object = register_fpca(Y, npc = 2, family = "binomial",
-#'                                fpca_type = "variationalEM", max_iterations = 5)
+#' reg = register_fpca(Y, npc = 2, family = "binomial",
+#'                     fpca_type = "variationalEM", max_iterations = 5)
 #' # estimation based on Gertheiss et al. (2017)
-#' registr_object2 = register_fpca(Y, npc = 2, family = "binomial",
-#'                                 fpca_type = "two-step", max_iterations = 5,
-#'                                 fpca_index_relevantDigits = 4)
+#' reg2 = register_fpca(Y, npc = 2, family = "binomial",
+#'                      fpca_type = "two-step", max_iterations = 5,
+#'                      fpca_index_relevantDigits = 4)
 #' 
-#' ggplot(registr_object$Y, aes(x = tstar, y = t_hat, group = id)) +
+#' ggplot(reg$Y, aes(x = tstar, y = t_hat, group = id)) +
 #'   geom_line(alpha = 0.2) + ggtitle("Estimated warping functions")
 #' 
-#' plot(registr_object$fpca_obj, response_function = function(x) { 1 / (1 + exp(-x)) })
+#' plot(reg$fpca_obj, response_function = function(x) { 1 / (1 + exp(-x)) })
 #' 
 #' 
 #' \donttest{ 
 #' # example using accelerometer data from nhanes 2003-2004 study
 #' data(nhanes)
-#' register_nhanes = register_fpca(nhanes, npc = 2, family = "binomial", max_iterations = 5)
+#' reg_nhanes = register_fpca(nhanes, npc = 2, family = "binomial", max_iterations = 5)
 #' 
 #' 
 #' ### incomplete Gaussian curves
 #' data(growth_incomplete)
 #' 
-#' # Force the warping functions to end on the diagonal
-#' registr_object2a = register_fpca(growth_incomplete, npc = 2, family = "gaussian",
-#'                                  incompleteness = NULL, max_iterations = 5)
-#' ggplot(registr_object2a$Y, aes(x = tstar, y = t_hat, group = id)) +
+#' # Force the warping functions to start and end on the diagonal
+#' reg2a = register_fpca(growth_incomplete, npc = 2, family = "gaussian",
+#'                       incompleteness = NULL, max_iterations = 5)
+#' ggplot(reg2a$Y, aes(x = tstar, y = t_hat, group = id)) +
 #'   geom_line(alpha = 0.2) +
 #'   ggtitle("Estimated warping functions")
+#' ggplot(reg2a$Y, aes(x = t_hat, y = value, group = id)) +
+#'   geom_line(alpha = 0.2) +
+#'   ggtitle("Registered curves")
 #' 
-#' # Allow the warping functions to not end on the diagonal.
-#' # The higher lambda_inc, the more the endpoints are forced towards the diagonal.
-#' registr_object2b = register_fpca(growth_incomplete, npc = 2, family = "gaussian",
-#'                                  incompleteness = "trailing", lambda_inc = 1,
-#'                                  max_iterations = 5)
-#' ggplot(registr_object2b$Y, aes(x = tstar, y = t_hat, group = id)) +
+#' # Allow the warping functions to not start / end on the diagonal.
+#' # The higher lambda_inc, the more the starting points and endpoints are forced
+#' # towards the diagonal.
+#' reg2b = register_fpca(growth_incomplete, npc = 2, family = "gaussian",
+#'                       incompleteness = "full", lambda_inc = 1,
+#'                       max_iterations = 5)
+#' ggplot(reg2b$Y, aes(x = tstar, y = t_hat, group = id)) +
 #'   geom_line(alpha = 0.2) +
 #'   ggtitle("Estimated warping functions")
-#' }
+#' ggplot(reg2b$Y, aes(x = t_hat, y = value, group = id)) +
+#'   geom_line(alpha = 0.2) +
+#'   ggtitle("Registered curves")
 #' 
 #' ### complete Gamma curves
 #' Y             = simulate_unregistered_curves(I = 20, D = 100)
 #' Y$value       = exp(Y$latent_mean)
 #' registr_gamma = register_fpca(Y, npc = 2, family = "gamma", fpca_type = "two-step",
 #'                               gradient = FALSE, max_iterations = 5)
+#' }
 #'
 register_fpca = function(Y, Kt = 8, Kh = 4, family = "binomial",
 												 incompleteness = NULL, lambda_inc = NULL,

@@ -37,13 +37,15 @@ loss_h_gradient(
 
 \item{incompleteness}{Optional specification of incompleteness structure.
 One of \code{c("leading","trailing","full")}, specifying that incompleteness
-affects only the initial measurements, only the trailing measurements, or
-both, respectively. Defaults to NULL, i.e. no incompleteness structure.
+is present only in the initial measurements, only in the trailing measurements, or
+in both, respectively. For details see the accompanying vignette.
+Defaults to NULL, i.e. no incompleteness structure.
 Can only be set when \code{warping = "nonparametric"}.}
 
 \item{lambda_inc}{Penalization parameter to control the amount of
-deviation of the warping function endpoints from the diagonal. Only used if
-\code{!is.null(incompleteness)}.}
+deviation of the warping function starting points and/or endpoints from the diagonal.
+The higher this lambda, the more the starting points / endpoints are forced towards the diagonal.
+Only used if \code{incompleteness} is not NULL.}
 
 \item{t_min}{minimum and maximum value to be evaluated on the time domain.}
 
