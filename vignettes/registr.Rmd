@@ -43,9 +43,10 @@ The `registr` package is for registering, or aligning, exponential family functi
 
 This vignette outlines the general functionality of the package.
 The package can handle both complete and incomplete functional data,
-i.e. curves which were not observed until the very end of the common domain.
+i.e. curves which were not observed from the very beginning and/or until the very end
+of the common domain.
 Details on how to handle incomplete curves with the `registr` package can be
-found in vignette `"incomplete_curves"`.
+found in the separate vignette `"incomplete_curves"`.
 
 ```{r load_libraries, echo = FALSE}
 library(registr)
@@ -316,6 +317,20 @@ The registration step can further be parallelized by using the `cores` argument.
 
 # Additional features
 
+## Registering incomplete curves
+
+Incomplete curves arise in many applications. Incompleteness refers to functional data
+where (some) curves were not observed from the very beginning and/or until the very end
+of the common domain.
+Such a data structure is e.g. observed in the presence of drop-out in panel studies.
+
+The `registr` package offers the possibility to flexibly account for different
+types of incompleteness structures in the registration using `registr()`
+as well as in the joint approach using `register_fpca()`.
+All incomplete curve functionalities are outlined in the separate
+vignette `"incomplete_curves"`.
+
+
 ## Parametric inverse warping functions
 
 The `registr` package currently supports two types of inverse warping functions: nonparmetric B-spline basis functions (default), or parametric 2-knot piecewise linear functions. With `warping = "piecewise_linear2"`, the registration step estimates the $x$ and $y$ (or $t_i^*$ and $t$) coordinates of each of the two knots to construct an inverse warping function that consists of 3 line segments.
@@ -432,8 +447,9 @@ for an initial registration step, before the main iteration between registration
 and GFPCA starts.
 
 In some situations the overall mean is not the most reasonable choice for the
-template. See for example the following (partly incomplete)
-curves, where the shape of the mean curve does not match any of the observed
+template. See for example the following curves with a *trailing incompleteness*
+structure where some processes were not observed until their very end.
+The shape of the mean curve does not match any of the observed
 curve shapes well.
 
 ```{r template data sim, echo=F, fig.width=5}

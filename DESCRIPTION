@@ -12,7 +12,7 @@ Authors@R: c(
 Description: A method for performing joint registration and functional principal
     component analysis for curves (functional data) that are generated from exponential family distributions. This 
     mainly implements the algorithms described in 'Wrobel et al. (2019)' <doi:10.1111/biom.12963> and further adapts them to potentially
-    incomplete curves where (some) curves are not observed until the end of the common domain. Curve registration 
+    incomplete curves where (some) curves are not observed from the beginning and/or until the end of the common domain. Curve registration 
     can be used to better understand patterns in functional data by separating curves into phase and amplitude variability.
     This software handles both binary and continuous functional data, and is
     especially applicable in accelerometry and wearable technology.
