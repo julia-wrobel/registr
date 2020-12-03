@@ -165,7 +165,7 @@ ggplot(reg2a$Y, aes(x = t_hat, y = value, group = id)) +
 # The higher lambda_inc, the more the starting points and endpoints are forced
 # towards the diagonal.
 reg2b = register_fpca(growth_incomplete, npc = 2, family = "gaussian",
-                      incompleteness = "full", lambda_inc = 1,
+                      incompleteness = "full", lambda_inc = 0.1,
                       max_iterations = 5)
 ggplot(reg2b$Y, aes(x = tstar, y = t_hat, group = id)) +
   geom_line(alpha = 0.2) +

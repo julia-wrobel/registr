@@ -44,8 +44,8 @@ dat_deriv = dplyr::bind_rows(deriv_list) %>%
 index_raw = unique(dat_deriv$index)
 ids       = unique(dat_deriv$id)
 
-# for each curve, draw a random starting time point in the first quarter of the domain
-index_start = index_raw[index_raw < (max(index_raw) / 4)]
+# for each curve, draw a random starting time point in the first half of the domain
+index_start = index_raw[index_raw < (max(index_raw) / 2)]
 set.seed(2020)
 startpoints = sample(index_start,
 										 size    = length(ids),
