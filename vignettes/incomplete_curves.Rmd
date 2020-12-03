@@ -50,20 +50,49 @@ theme_set(theme_minimal() + theme(plot.title = element_text(hjust = 0.5)))
 # Introduction
 
 Incomplete curves arise in many applications. Incompleteness refers to functional
-data where (some) curves were not observed until the very end of the common
-domain.
+data where (some) curves were not observed from the very beginning and/or until
+the very end of the common domain.
 Such a data structure is e.g. observed in the presence of drop-out in panel studies.
+
+We differentiate three different types of (in)completeness:
+
+1. **no incompleteness**,
+where processes where all observed from their very beginning until their very end.
+In this case, it is reasonable to assume that both the starting points and the
+endpoints of the warping functions in the registration process lie on the diagonal
+since the observed process is fully comprised in the observed interval.
+2. **leading incompleteness**,  
+where processes where not necessarily observed from their very beginning, but
+until their very end. In this case it is reasonable to assume that the endpoints
+lie on the diagonal since the observed process is observed until its end.
+The starting points of the warping functions are able to vary from the diagonal
+to handle potential time distortions towards the beginning of the observed domains.
+3. **trailing incompleteness**,  
+where processes where observed from their very beginning, but not necessarily
+until their very end. In this case it is reasonable to assume that the starting points
+lie on the diagonal since the observed process is observed from its beginning.
+The endpoints of the warping functions are able to vary from the diagonal
+to handle potential time distortions towards the end of the observed domains.
+4. **full incompleteness**,  
+where processes where neither necessarily observed from their very beginning,
+nor until their very end. In this case it is not reasonable to assume that either
+the starting points or the endpoints lie on the diagonal.
+The starting points and the endpoints of the warping functions are able to
+vary from the diagonal to handle potential time distortions both towards the
+beginning and the end of the observed domains.
+
 Exemplarily, we showcase the following functionalities on data from the Berkeley
 Growth Study (see `?growth_incomplete`) where we artificially simulated that
-children dropped out of the study at some point in time:
+not all children were observed right from the start and that a relevant part of
+the children dropped out early of the study at some point in time:
 
 ```{r Berkeley data}
 dat = registr::growth_incomplete
 
-# sort the data by the amount of incompleteness
+# sort the data by the amount of trailing incompleteness
 ids    = levels(dat$id)
 dat$id = factor(dat$id, levels = ids[order(sapply(ids, function(curve_id) {
-	sum(!is.na(dat$value[dat$id == curve_id]))
+	max(dat$index[dat$id == curve_id])
 }))])
 
 # spaghetti plot
@@ -95,12 +124,13 @@ function is defined individually for each curve, based on a given number of
 basis functions.
 
 It often is a quite strict assumption in incomplete data
-settings that all warping functions end on the diagonal, i.e. that the individual,
+settings that all warping functions start and/or end on the diagonal, i.e. that the individual,
 observed part of the whole time domain is not (to some extent) distorted.
 Therefore, the `registr` package gives the additional option to estimate
-warping functions without the constraint that the endpoint lies on the diagonal.
+warping functions without the constraint that their starting point and/or endpoint
+lies on the diagonal.
 
-On the other end, if we fully remove the constraint for the endpoints
+On the other hand, if we fully remove the constraint for the starting points / endpoints
 to lie on the diagonal, this can lead to very extreme and unrealistic distortions
 of the time domain. This problem is further accompanied by the fact that
 the assessment of some given warping to be realistic or unrealistic can heavily
@@ -110,20 +140,22 @@ has to be set manually to specify which kinds of distortions are deemed realisti
 in the application at hand.
 
 Mathematically speaking, we add a penalization term to the likelihood $\ell(i)$ 
-for curve $i$:
+for curve $i$. For a setting with **full incompleteness** (i.e., where both the starting
+point and endpoint are free to vary from the diagonal) this results in
 $$
 \begin{aligned}
 \ell_{pen}(i) &= \ell(i) - \lambda \cdot pen(i), \\
 \text{with} \ \ \ 
-pen(i) &= \left( \hat{h}^{-1}_i(t^*_{max,i}) - t^*_{max,i} \right)^2,
+pen(i) &= \left( \hat{h}^{-1}_i(t^*_{min,i}) - t^*_{min,i} \right)^2 +
+\left( \hat{h}^{-1}_i(t^*_{max,i}) - t^*_{max,i} \right)^2,
 \end{aligned}
 $$
-where $t^*_{max,i}$ is the maximum of the observed time domain of curve $i$ and
-$\hat{h}^{-1}_i(t^*_{max,i})$ the inverse warping function evaluated at this
-maximum.
+where $t^*_{min,i},t^*_{max,i}$ are the minimum / maximum of the observed time domain of curve $i$ and
+$\hat{h}^{-1}_i(t^*_{min,i}), \hat{h}^{-1}_i(t^*_{max,i})$ the inverse warping function evaluated at this
+minimum / maximum.
 
-The higher the penalization parameter $\lambda$, the more the endpoint
-of the warping function is forced towards an identity warp, i.e. the diagonal line.
+The higher the penalization parameter $\lambda$, the more the starting point and endpoint
+of the warping function are forced towards an identity warp, i.e. the diagonal line.
 Given a specific application, $\lambda$ should be chosen s.t.
 unrealistic distortions of the time domain are prevented.
 To do so, the user has to run the registration approach multiple times with
@@ -163,7 +195,7 @@ to start/end close to the diagonal.
 
 ```{r application 2}
 reg2 = registr(Y = dat, family = "gaussian",
-							 incompleteness = "trailing", lambda_inc = 1)
+							 incompleteness = "full", lambda_inc = 1)
 
 ggplot(reg2$Y, aes(x = tstar, y = index, group = id)) + 
 	geom_line(alpha = 0.2) +
@@ -185,7 +217,7 @@ ggplot(reg2$Y, aes(x = index, y = id, col = value)) +
 
 ```{r application 3}
 reg3 = registr(Y = dat, family = "gaussian",
-							 incompleteness = "trailing", lambda_inc = 10)
+							 incompleteness = "full", lambda_inc = 10)
 
 ggplot(reg3$Y, aes(x = tstar, y = index, group = id)) + 
 	geom_line(alpha = 0.2) +
@@ -207,7 +239,7 @@ ggplot(reg3$Y, aes(x = index, y = id, col = value)) +
 # Constraint matrices for the optimization
 
 Warping functions are estimated using the function `constrOptim()`.
-For the estimation step of curve $i$ it uses linear inequality constraints of the form
+For the estimation of the warping function for curve $i$ it uses linear inequality constraints of the form
 $$
 \boldsymbol{u}_i \cdot \boldsymbol{\beta}_i - \boldsymbol{c}_i \geq \boldsymbol{0},
 $$
@@ -218,7 +250,7 @@ For the estimation of a warping function the parameter vector is constrained
 s.t. the resulting warping function is monotone and does not exceed the overall
 time domain $[t_{min},t_{max}]$.
 
-In the following the constraint matrices are listed for different settings 
+In the following the constraint matrices are listed for the different settings 
 of (in)completeness and assuming a parameter vector of length $p$:
 $$
 \boldsymbol{\beta}_i =
@@ -283,7 +315,7 @@ $$
 $$
 
 This results in the following constraint matrices, that allow a mapping from the
-observed domain $[t^*_{min,i},t^*_{max,i}]$ to the domain $[t_{min},t^*_{max,i}]$:
+observed domain $[t^*_{min,i},t^*_{max,i}]$ to the domain $[t_{min},t^*_{max,i}] \subset [t_{min},t_{max}]$:
 $$
 \begin{aligned}
 \boldsymbol{u}_i &=
@@ -317,7 +349,7 @@ $$
 $$
 
 This results in the following constraint matrices, that allow a mapping from the
-observed domain $[t^*_{min,i},t^*_{max,i}]$ to the domain $[t^*_{min,i},t_{max}]$:
+observed domain $[t^*_{min,i},t^*_{max,i}]$ to the domain $[t^*_{min,i},t_{max}] \subset [t_{min},t_{max}]$:
 $$
 \begin{aligned}
 \boldsymbol{u}_i &\text{  identical to the version for leading incompleteness} \\

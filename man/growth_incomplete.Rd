@@ -23,7 +23,7 @@ first derivative, the curves were slightly smoothed. \cr \cr
 To showcase the functionality of the \code{registr} package regarding the
 analysis of incomplete curves, the growth curves were artificially made
 incomplete. For each child, leading incompleteness was simulated by drawing
-a random cut-off age in the first quarter of the domain (i.e., ages [1.25,4]).
+a random initial age in the first quarter of the domain (i.e., ages [1.25,4]).
 Also, trailing incompleteness was simulated by drawing
 a random cut-off age in the second half of the domain (i.e., ages [9.5,18]).
 }
