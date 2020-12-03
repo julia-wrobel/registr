@@ -50,7 +50,7 @@ loss_h_gradient = function(Y, Theta_h, mean_coefs, knots, beta.inner, family = "
 	Theta_phi       = splines::bs(c(t_min, t_max, hinv_tstar), 
 	                              knots = knots, intercept = TRUE)[-(1:2),]
 	boundary_knots  = c(t_min, t_max)
-  Theta_phi_deriv = bs_deriv(hinv_tstar, knots)
+  Theta_phi_deriv = bs_deriv(hinv_tstar, knots, Boundary.knots = boundary_knots)
   if (family == "binomial") {
   	varphi = 1
   	b_g_deriv = plogis(Theta_phi %*% mean_coefs)
