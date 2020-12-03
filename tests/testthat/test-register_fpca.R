@@ -227,8 +227,8 @@ test_that("register_fpca only accepts Y_template if it has the correct format.",
 							 "Y_template must have variables 'id', 'index', and 'value'.")
 	expect_error(register_fpca(Y = Y, family = "gaussian", Y_template = Y_template1),
 							 "The range of 'index' must be equal for Y_template and Y.")
-	expect_error(register_fpca(Y = Y, family = "gaussian", Y_template = Y_template2, max_iterations = 2),
-							 NA)
-	expect_error(register_fpca(Y = Y, family = "gaussian", Y_template = Y_template3, max_iterations = 2),
-							 NA)
+	expect_warning(register_fpca(Y = Y, family = "gaussian", Y_template = Y_template2, max_iterations = 2),
+								 "Convergence not reached. Try increasing max_iterations.")
+	expect_warning(register_fpca(Y = Y, family = "gaussian", Y_template = Y_template3, max_iterations = 2),
+								 "Convergence not reached. Try increasing max_iterations.")
 })
