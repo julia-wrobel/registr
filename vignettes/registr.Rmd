@@ -1,8 +1,12 @@
 ---
 title: "registr: a vignette"
-author: "Julia Wrobel and Erin McDonnell"
+author: "Julia Wrobel, Alexander Bauer and Erin McDonnell"
 date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
+output: 
+  rmarkdown::html_vignette:
+    toc: true
+    toc_depth: 2
+    number_sections: true
 bibliography: references.bib
 vignette: >
   %\VignetteEncoding{UTF-8}
@@ -12,6 +16,19 @@ vignette: >
 editor_options: 
   chunk_output_type: console
 ---
+
+<style type="text/css">
+h1 { /* Header 1 */
+  font-size: 26px;
+}
+h2 { /* Header 2 */
+  font-size: 20px;
+}
+h3 { /* Header 3 */
+  font-size: 16px;
+}
+</style>
+
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
@@ -38,7 +55,7 @@ theme_set(theme_bw())
 ```
 
 
-## What is exponential family registration?
+# What is exponential family registration?
 
 Functional data analysis is a set of tools for understanding patterns and variability in data where the basic unit of observation is a curve measured over some domain such as time or space. An example is an accelerometer study where intensity of physical activity was measured at each minute over 24 hours for 50 subjects. The data will contain 50 curves, where each curve is the 24-hour activity profile for a particular subject.
 
@@ -48,7 +65,7 @@ Often in a functional dataset curves have similar underlying patterns but the ma
 
 At the core of this registration method is generalized functional principal components analysis (GFPCA), a popular technique for extracting patterns shared across curves. 
 
-### The `registr` model and algorithm 
+## The `registr` model and algorithm 
 
 The main model for exponential family registration is
 
@@ -71,21 +88,21 @@ The `registr` algorithm is based on this model and iterates between the followin
 The methods implemented in `registr` are described in more detail in this [paper](http://juliawrobel.com/Downloads/registration_ef.pdf).
 
 
-## The `registr` package
+# The `registr` package
 
 The main function in the package is `register_fpca()`. It calls two sub-functions: a GFPCA function to implement **step 1** of the iterative algorithm, and `registr()`, a function to implement **step 2** of the algorithm. The function that calculates GFPCA can either be based on the variational EM approach outlined in @wrobel_2019 or the two-step method outlined in @gertheiss_2017. In the former case, the called function depends on the family. For `family = "binomial"` and `family = "gaussian"` the functions `bfpca()` and `fpca_gauss()` are called for the GFPCA step, respectively. In the latter case, function `gfpca_twoStep()` is called, which also supports `family = "gamma"`. The `register_fpca()` function iterates between the alignment and template calculation steps until curves are registered. 
 
-### A note on data formatting
+## A note on data formatting
 
 Use of this package requires that data be in a specific format: a long-form data frame with variables `id`, `index`, and `value`, where the `value` column contains functional observations for all subjects, the `id` column identifies which observations belong to which subject, and `index` provides the grid (domain) over which the `value`s are observed.  
 
 The variable `id` should be a unique identifier in that each id identifies a single subject. Since we assume there is only one curve per subject for this package, `id` uniquely identifies each curve as well. Other covariates can be included in the data as long as the variables `id`, `index`, and `value` are present.
 
-## Simulated data
+# Data simulation
 
 There are two functions for simulating data included in the package: `simulate_unregistered_curves()` and `simulate_functional_data()`. Both simulate functional data; the first is intended for demonstrating the registration algorithm and the second is for testing GFPCA sub-functions in the package.
 
-### Simulate data for registration
+## Simulate data for registration
 
 `simulate_unregistered_curves()` generates curves with both unregistered and registered time grids.The code below generates data with $I = 10$ subjects and $D = 200$ using this function:
 
@@ -114,7 +131,7 @@ registration_data %>%
 
 Each curve has one main peak, but the location of that peak is shifted. When curves are registered the peaks are aligned.
 
-### Simulate data for GFPCA
+## Simulate data for GFPCA
 
 `simulate_functional_data()` simulates data with a population-level mean and two orthogonal principal components based on sine and cosine functions. The code below generates data with $I = 100$ subjects and $D = 200$ time points per subject using this function:
 
@@ -157,12 +174,12 @@ Y %>%
 
 We can alter the score variance for the principal components using the arguments `lambda1` and `lambda2`. The default setting is for all subjects to have the same number of time points. However, by specifying `vary_D = TRUE`, we can generate data with uneven grid lengths for each subject.
 
-## Registration using `register_fpca()`
+# Joint registration and GFPCA using `register_fpca()`
 
 `register_fpca()` is the main function for the `registr` package. Use the `family` argument to this function to specify what type of exponential family data you would like to align. The package supports `family = "binomial"` for registering binary data, `family = "gaussian"` for registering continuous data and `family = "gamma"` for strictly positive data with a Gamma structure.
 The type of GFPCA is specified by the argument `fpca_type`, either calling the variational EM approach of @wrobel_2019 (`fpca_type = "variationalEM`; default) or the two-step approach of @gertheiss_2017 (`fpca_type = "two-step"`).
 
-### `register_fpca(family = "binomial")` for binary data
+## Analyzing binary data
 
 To register binary data use the following code:
 
@@ -200,7 +217,7 @@ ggplot(Y, aes(tstar, t_hat, group = id)) + theme_bw() +
 
 The true and estimated warping functions are plotted above. 
 
-### `register_fpca(family = "gaussian")` for continuous data
+## Analyzing gaussian data
 
 To register continuous data use the following code:
 
@@ -209,7 +226,15 @@ registration_data$value = registration_data$latent_mean
 registr_gauss = register_fpca(Y = registration_data, family = "gaussian", Kt = 10)
 ```
 
-## `bfpca()` function
+# Estimating the GFPCA
+
+Approaches for (Generalized) FPCA are implemented in functions specific for
+gaussian data (`fpca_gauss()`) and binomial data (`bfpca()`).
+Alternatively, `gfpca_twoStep()` allows to apply GFPCA also for other exponential
+family distributions.
+
+
+## Binomial FPCA using `bfpca()`
 
 The `registr` package includes a novel variational EM algorithm for binary functional principal component analysis (bfpca), derived from methods for binary probabilistic PCA [@tipping_1999].
 
@@ -248,7 +273,7 @@ In `registr`, the estimated FPCs can be easily visualized using the internal fun
 registr:::plot.fpca(bfpca_object)
 ```
 
-## `gfpca_twoStep()` function
+## Generalized FPCA using `gfpca_twoStep()`
 
 If `register_fpca()` is called with `fpca_type = "two-step"`, the GFPCA step
 is performed with function `gfpca_twoStep()`.
@@ -262,7 +287,7 @@ We further adapted the functions to work more efficiently both regarding the
 need for computation time and RAM, especially for large data settings with
 thousands of curves.
 
-## `registr()` function
+# Estimating the registration using `registr()`
 
 The registration step of `register_fpca()` calls the `registr` function. Though registration is intended to be performed through the `register_fpca()` function `registr()` can work as a standalone function. `registr()` uses constrained maximization of an exponential family likelihood function to estimate functions that align curves.
 
@@ -289,9 +314,9 @@ On a dataset with just 50 subjects and 100 time points per subject, the `registr
 
 The registration step can further be parallelized by using the `cores` argument.
 
-## Additional features
+# Additional features
 
-### Parametric inverse warping functions: `warping = "piecewise_linear2"`
+## Parametric inverse warping functions
 
 The `registr` package currently supports two types of inverse warping functions: nonparmetric B-spline basis functions (default), or parametric 2-knot piecewise linear functions. With `warping = "piecewise_linear2"`, the registration step estimates the $x$ and $y$ (or $t_i^*$ and $t$) coordinates of each of the two knots to construct an inverse warping function that consists of 3 line segments.
 
@@ -346,9 +371,9 @@ ggplot(registr_par_priors2$Y, aes(x = tstar, y = t_hat, group = id)) +
 
 The ability to specify priors is currently only available for binary curve registration, not Gaussian. 
 
-### Periodic B-spline basis functions for GFPCA: `periodic = TRUE`
+## Periodic B-spline basis functions for GFPCA
 
-In some cases it may be of interest to place periodic boundary conditions on the B-spline basis functions for the population-level and subject-specific mean templates. The periodic conditions ensure that the resulting function starts and ends with the same value. This may be useful when modeling cyclical data, such as daily physical activity patterns. To use periodic B-spline basis functions during registration, use the following code:
+In some cases it may be of interest to place periodic boundary conditions on the B-spline basis functions for the population-level and subject-specific mean templates. The periodic conditions ensure that the resulting function starts and ends with the same value. This may be useful when modeling cyclical data, such as daily physical activity patterns. To use periodic B-spline basis functions during registration, use the option `periodic = TRUE`:
 
 ```{r fpca_periodic}
 registr_periodic = register_fpca(Y = registration_data, family = "binomial", 
@@ -397,7 +422,67 @@ tibble(psi1 = registr_periodic$fpca_obj$efunctions[,1]) %>%
 	labs(y = "psi1 (periodic)")
 ```
 
-## Help files
+
+## Choosing the template function
+
+By default `registr()` estimates the overall mean of all curves and uses this
+mean curve as the template function to which all curves are registered.
+In the joint approach (`register_fpca()`) this mean curve is used as template
+for an initial registration step, before the main iteration between registration
+and GFPCA starts.
+
+In some situations the overall mean is not the most reasonable choice for the
+template. See for example the following (partly incomplete)
+curves, where the shape of the mean curve does not match any of the observed
+curve shapes well.
+
+```{r template data sim, echo=F, fig.width=5}
+t = seq(0, 1, length.out = 100)
+temp_dat = data.frame(index = rep(t, times = 3),
+											value = c(dnorm(t, mean = 0.5, sd = 0.15),
+																dnorm(t, mean = 0.65, sd = 0.185),
+																dnorm(t, mean = 0.7, sd = 0.18)),
+											id    = factor(rep(1:3, each = length(t))))
+ggplot(temp_dat, aes(x = index, y = value)) + 
+	geom_line(aes(col = id)) +
+	geom_smooth(se = FALSE, col = "black") +
+	ggtitle("Simulated data with mean curve in black")
+```
+
+Performing the registration with this mean curve as template would lead to the
+following result:
+
+```{r temp registration without template, fig.width=5}
+reg1 = registr(Y = temp_dat, family = "gaussian", Kh = 4,
+               preserve_domain = FALSE, lambda_endpoint = 0)
+ggplot(reg1$Y, aes(x = index, y = value, col = id)) + 
+  geom_line() +
+  ggtitle("Registration with overall mean (black) as template function")
+```
+
+Alternatively, the template function can be manually defined using one of the
+following options:
+
+1. Define the template as the mean curve only based on some subset of the
+observed curves `Y`
+2. Define the template as one observed curve
+3. Define the template curve independently from the observed curves
+
+The subset of curves (for option 1) or one specific curve (for options 2 and 3)
+can be specified using the argument `Y_template`.
+In the following example, the red curve with id 1 is used as template:
+
+```{r temp registration with template, fig.width=5}
+Y_template = temp_dat %>% filter(id == 1)
+reg2 = registr(Y = temp_dat, family = "gaussian", Kh = 4, Y_template = Y_template,
+							 preserve_domain = FALSE, lambda_endpoint = 0)
+ggplot(reg2$Y, aes(x = index, y = value, col = id)) +
+	geom_line() +
+	ggtitle("Registration with red curve as template")
+```
+
+
+# Help files
 
 Documentation for individual functions gives more information on their arguments and return objects, and can be pulled up via the following:
 
@@ -407,4 +492,4 @@ Documentation for individual functions gives more information on their arguments
 - `?fpca_gauss`
 - `?gfpca_twoStep`
 
-## References
+# References

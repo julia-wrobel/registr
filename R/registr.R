@@ -420,9 +420,18 @@ registr_oneCurve = function(i, arg_list, ...) {
 	# values that don't fulfill the constraints.
 	# Correct these slight inconsistencies to ensure proper beta values.
 	if (arg_list$warping != "piecewise_linear2") {
+		
+		if (arg_list$family == "gamma") { # remove scale parameter as last element
+			scale = tail(beta_i, 1)
+			beta_i = beta_i[1:(length(beta_i) - 1)]
+		}
+		
 		beta_i = ensure_proper_beta(beta  = beta_i,
 																t_min = arg_list$t_min,
 																t_max = ifelse(arg_list$preserve_domain, t_max_i, arg_list$t_max))
+		
+		if (arg_list$family == "gamma") # add scale parameter again as last element
+			beta_i <- c(beta_i, scale)
 	}
 	
 	# main registration step	

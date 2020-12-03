@@ -2,7 +2,11 @@
 title: "Registering Incomplete Curves"
 author: "Alexander Bauer"
 date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
+output: 
+  rmarkdown::html_vignette:
+    toc: true
+    toc_depth: 2
+    number_sections: true
 vignette: >
   %\VignetteIndexEntry{Registering Incomplete Curves}
   %\VignetteEncoding{UTF-8}
@@ -10,6 +14,19 @@ vignette: >
 editor_options: 
   chunk_output_type: console
 ---
+
+<style type="text/css">
+h1 { /* Header 1 */
+  font-size: 26px;
+}
+h2 { /* Header 2 */
+  font-size: 20px;
+}
+h3 { /* Header 3 */
+  font-size: 16px;
+}
+</style>
+
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
@@ -30,7 +47,7 @@ library(ggplot2)
 theme_set(theme_minimal() + theme(plot.title = element_text(hjust = 0.5)))
 ```
 
-## Introduction
+# Introduction
 
 Incomplete curves arise in many applications. Incompleteness refers to functional
 data where (some) curves were not observed until the very end of the common
@@ -69,7 +86,7 @@ ggplot(dat, aes(x = index, y = id, col = value)) +
 ```
 
 
-## Incomplete curve methodology
+# Incomplete curve methodology
 
 We adapt the registration methodology outlined in Wrobel et al. (2019) to
 handle incomplete curves. Since each curve potentially has an individual range
@@ -113,7 +130,7 @@ To do so, the user has to run the registration approach multiple times with
 different $\lambda$'s to find an optimal value.
 
 
-## Application on incomplete growth data
+# Application on incomplete growth data
 
 By default, both functions `register_fpca` and `registr` include the argument
 `preserve_domain = TRUE` to constrain all warping functions to end on the diagonal.
@@ -142,7 +159,7 @@ some nonnegative value for the penalization parameter `lambda_endpoint`.
 The higher `lambda_endpoint` is chosen, the more all warping functions are forced
 to end close to the diagonal.
 
-#### Small `lambda_endpoint`
+### Small `lambda_endpoint`
 
 ```{r application 2}
 reg2 = registr(Y = dat, family = "gaussian",
@@ -164,7 +181,7 @@ ggplot(reg2$Y, aes(x = index, y = id, col = value)) +
 				axis.text.y = element_blank())
 ```
 
-#### Large `lambda_endpoint`
+### Large `lambda_endpoint`
 
 ```{r application 3}
 reg3 = registr(Y = dat, family = "gaussian",
@@ -187,7 +204,7 @@ ggplot(reg3$Y, aes(x = index, y = id, col = value)) +
 ```
 
 
-## Help files
+# Help files
 
 Documentation for individual functions gives more information on their arguments and return objects, and can be pulled up via the following:
 
