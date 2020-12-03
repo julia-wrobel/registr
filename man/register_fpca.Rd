@@ -9,8 +9,8 @@ register_fpca(
   Kt = 8,
   Kh = 4,
   family = "binomial",
-  preserve_domain = TRUE,
-  lambda_endpoint = NULL,
+  incompleteness = NULL,
+  lambda_inc = NULL,
   Y_template = NULL,
   max_iterations = 10,
   npc = 1,
@@ -34,15 +34,16 @@ register_fpca(
 For \code{"gamma"}, the \code{fpca_type} is fixed to \code{"two-step"}.
 Defaults to \code{"gaussian"}.}
 
-\item{preserve_domain}{Indicator if the registration should preserve the
-time domain, leading to warping functions that end on the diagonal.
-Defaults to \code{TRUE}. Can only be set to \code{FALSE} when
-\code{warping = "nonparametric"}.}
+\item{incompleteness}{Optional specification of incompleteness structure.
+One of \code{c("leading","trailing","full")}, specifying that incompleteness
+affects only the initial measurements, only the trailing measurements, or
+both, respectively. Defaults to NULL, i.e. no incompleteness structure.
+Can only be set when \code{warping = "nonparametric"}.}
 
-\item{lambda_endpoint}{Penalization parameter to control the amount of
-deviation of the warping function endpoints from the diagonal. The higher
-this lambda, the more the endpoints are forced towards the diagonal.
-Only used if \code{preserve_domain = FALSE}.}
+\item{lambda_inc}{Penalization parameter to control the amount of
+deviation of the warping function starting points and/or endpoints from the diagonal.
+The higher this lambda, the more the starting points / endpoints are forced towards the diagonal.
+Only used if \code{incompleteness} is not NULL.}
 
 \item{Y_template}{Optional dataframe with the same structure as \code{Y}.
 Only used for the initial registration step. If NULL,
@@ -147,15 +148,15 @@ data(growth_incomplete)
 
 # Force the warping functions to end on the diagonal
 registr_object2a = register_fpca(growth_incomplete, npc = 2, family = "gaussian",
-                                 preserve_domain = TRUE, max_iterations = 5)
+                                 incompleteness = NULL, max_iterations = 5)
 ggplot(registr_object2a$Y, aes(x = tstar, y = t_hat, group = id)) +
   geom_line(alpha = 0.2) +
   ggtitle("Estimated warping functions")
 
 # Allow the warping functions to not end on the diagonal.
-# The higher lambda_endpoint, the more the endpoints are forced towards the diagonal.
+# The higher lambda_inc, the more the endpoints are forced towards the diagonal.
 registr_object2b = register_fpca(growth_incomplete, npc = 2, family = "gaussian",
-                                 preserve_domain = FALSE, lambda_endpoint = 1,
+                                 incompleteness = "trailing", lambda_inc = 1,
                                  max_iterations = 5)
 ggplot(registr_object2b$Y, aes(x = tstar, y = t_hat, group = id)) +
   geom_line(alpha = 0.2) +

@@ -133,7 +133,7 @@ different $\lambda$'s to find an optimal value.
 # Application on incomplete growth data
 
 By default, both functions `register_fpca` and `registr` include the argument
-`preserve_domain = TRUE` to constrain all warping functions to end on the diagonal.
+`incompleteness = NULL` to constrain all warping functions to start and end on the diagonal.
 
 ```{r application 1}
 reg1 = registr(Y = dat, family = "gaussian")
@@ -154,16 +154,16 @@ ggplot(reg1$Y, aes(x = index, y = id, col = value)) +
 				axis.text.y = element_blank())
 ```
 
-The assumption can be dropped by setting `preserve_domain = FALSE` and
-some nonnegative value for the penalization parameter `lambda_endpoint`.
-The higher `lambda_endpoint` is chosen, the more all warping functions are forced
-to end close to the diagonal.
+The assumption can be dropped by setting `incompleteness` to some other value than NULL and
+some nonnegative value for the penalization parameter `lambda_inc`.
+The higher `lambda_inc` is chosen, the more all warping functions are forced
+to start/end close to the diagonal.
 
-### Small `lambda_endpoint`
+### Small `lambda_inc`
 
 ```{r application 2}
 reg2 = registr(Y = dat, family = "gaussian",
-							 preserve_domain = FALSE, lambda_endpoint = 1)
+							 incompleteness = "trailing", lambda_inc = 1)
 
 ggplot(reg2$Y, aes(x = tstar, y = index, group = id)) + 
 	geom_line(alpha = 0.2) +
@@ -181,11 +181,11 @@ ggplot(reg2$Y, aes(x = index, y = id, col = value)) +
 				axis.text.y = element_blank())
 ```
 
-### Large `lambda_endpoint`
+### Large `lambda_inc`
 
 ```{r application 3}
 reg3 = registr(Y = dat, family = "gaussian",
-							 preserve_domain = FALSE, lambda_endpoint = 10)
+							 incompleteness = "trailing", lambda_inc = 10)
 
 ggplot(reg3$Y, aes(x = tstar, y = index, group = id)) + 
 	geom_line(alpha = 0.2) +
@@ -202,6 +202,158 @@ ggplot(reg3$Y, aes(x = index, y = id, col = value)) +
 	theme(panel.grid  = element_blank(),
 				axis.text.y = element_blank())
 ```
+
+
+# Constraint matrices for the optimization
+
+Warping functions are estimated using the function `constrOptim()`.
+For the estimation step of curve $i$ it uses linear inequality constraints of the form
+$$
+\boldsymbol{u}_i \cdot \boldsymbol{\beta}_i - \boldsymbol{c}_i \geq \boldsymbol{0},
+$$
+where $\boldsymbol{\beta}_i$ is the parameter vector and matrix
+$\boldsymbol{u}_i$ and vector $\boldsymbol{c}_i$ define the constraints.
+
+For the estimation of a warping function the parameter vector is constrained
+s.t. the resulting warping function is monotone and does not exceed the overall
+time domain $[t_{min},t_{max}]$.
+
+In the following the constraint matrices are listed for different settings 
+of (in)completeness and assuming a parameter vector of length $p$:
+$$
+\boldsymbol{\beta}_i =
+\left( \begin{array}{c}
+\beta_{i1} \\ \beta_{i2} \\ \vdots \\ \beta_{ip}
+\end{array} \right) \in \mathbb{R}_{p \times 1}
+$$
+
+**Note:**  
+All following constraint matrices refer to the estimation of nonparametric inverse
+warping functions with `warping = "nonparametric"`.
+
+
+## Complete curve setting
+
+When all curves were observed completely -- i.e. the underlying processes of
+interest were all observed from the beginning until the end -- warping functions
+can typically be assumed to start and end on the diagonal, since each process is
+completely observed in its observation interval $[t^*_{min,i},t^*_{max,i}] \subset [t_{min},t_{max}]$.
+
+Assuming that both the starting point and the endpoint lie on the diagonal,
+we set $\beta_{i1} = t^*_{min,i}$ and $\beta_{ip} = t^*_{max,i}$ and only perform
+the estimation for
+$$
+\left( \begin{array}{c}
+\beta_{i2} \\ \beta_{i3} \\ \vdots \\ \beta_{i(p-1)}
+\end{array} \right) \in \mathbb{R}_{(p-2) \times 1}
+$$
+
+This results in the following constraint matrices, that allow a mapping from the
+observed domain $[t^*_{min,i},t^*_{max,i}]$ to the domain itself $[t^*_{min,i},t^*_{max,i}] \subset [t_{min},t_{max}]$:
+$$
+\begin{aligned}
+\boldsymbol{u}_i &=
+\left( \begin{array}{cccccccc}
+1 & 0 & 0 & 0 & \ldots & 0 & 0 & 0 \\
+-1 & 1 & 0 & 0 & \ldots & 0 & 0 & 0 \\
+0 & -1 & 1 & 0 & \ldots & 0 & 0 & 0 \\
+\vdots & \ddots & \ddots & \ddots & \ddots & \ddots & \ddots & \ddots \\
+0 & 0 & 0 & 0 & \ldots & 0 & -1 & 1 \\
+0 & 0 & 0 & 0 & \ldots & 0 & 0 & -1
+\end{array} \right) \in \mathbb{R}_{(p-1) \times (p-2)} \\
+\boldsymbol{c}_i &=
+\left( \begin{array}{c}
+t^*_{min,i} \\ 0 \\ 0 \\ \vdots \\ 0 \\ -1 \cdot t^*_{max,i}
+\end{array} \right) \in \mathbb{R}_{(p-1) \times 1}
+\end{aligned}
+$$
+
+## Leading incompleteness only
+
+In the case of *leading incompleteness* -- i.e. the underlying processes of interest
+were all observed until their very end but not necessarily starting from their beginning -- warping functions
+can typically be assumed to end on the diagonal, s.t. one assumes
+$\beta_{ip} = t^*_{max,i}$ to let the warping functions end at the last observed
+time point $t^*_{max,i}$. The estimation is then performed for the remaining
+parameter vector
+$$
+\left( \begin{array}{c}
+\beta_{i1} \\ \beta_{i3} \\ \vdots \\ \beta_{i(p-1)}
+\end{array} \right) \in \mathbb{R}_{(p-1) \times 1}
+$$
+
+This results in the following constraint matrices, that allow a mapping from the
+observed domain $[t^*_{min,i},t^*_{max,i}]$ to the domain $[t_{min},t^*_{max,i}]$:
+$$
+\begin{aligned}
+\boldsymbol{u}_i &=
+\left( \begin{array}{cccccccc}
+1 & 0 & 0 & 0 & \ldots & 0 & 0 & 0 \\
+-1 & 1 & 0 & 0 & \ldots & 0 & 0 & 0 \\
+0 & -1 & 1 & 0 & \ldots & 0 & 0 & 0 \\
+\vdots & \ddots & \ddots & \ddots & \ddots & \ddots & \ddots & \ddots \\
+0 & 0 & 0 & 0 & \ldots & 0 & -1 & 1 \\
+0 & 0 & 0 & 0 & \ldots & 0 & 0 & -1
+\end{array} \right) \in \mathbb{R}_{p \times (p-1)} \\
+\boldsymbol{c}_i &=
+\left( \begin{array}{c}
+t_{min} \\ 0 \\ 0 \\ \vdots \\ 0 \\ -1 \cdot t^*_{max,i}
+\end{array} \right) \in \mathbb{R}_{p \times 1}
+\end{aligned}
+$$
+
+## Trailing incompleteness only
+
+In the case of *trailing incompleteness* -- i.e. the underlying processes of interest
+were all observed from the beginning but not necessarily until their very end -- warping functions
+can typically be assumed to start on the diagonal, s.t. one assumes
+$\beta_{i1} = t^*_{min,i}$ to let the warping functions start at the first observed
+time point $t^*_{min,i}$. The estimation is then performed for the remaining
+parameter vector
+$$
+\left( \begin{array}{c}
+\beta_{i2} \\ \beta_{i3} \\ \vdots \\ \beta_{ip}
+\end{array} \right) \in \mathbb{R}_{(p-1) \times 1}
+$$
+
+This results in the following constraint matrices, that allow a mapping from the
+observed domain $[t^*_{min,i},t^*_{max,i}]$ to the domain $[t^*_{min,i},t_{max}]$:
+$$
+\begin{aligned}
+\boldsymbol{u}_i &\text{  identical to the version for leading incompleteness} \\
+\boldsymbol{c}_i &=
+\left( \begin{array}{c}
+t^*_{min,i} \\ 0 \\ 0 \\ \vdots \\ 0 \\ -1 \cdot t_{max}
+\end{array} \right) \in \mathbb{R}_{p \times 1}
+\end{aligned}
+$$
+
+## Leading and trailing incompleteness
+
+In the case of both leading and trailing incompleteness -- i.e. the underlying
+processes of interest were neither necessarily observed from their very beginnings nor to their
+very ends -- warping functions can typically only be assumed to map the
+observed domains $[t^*_{min,i},t^*_{max,i}]$ to the overall domain
+$[t_{min},t_{max}]$.
+
+This results in the following constraint matrices:
+$$
+\begin{aligned}
+\boldsymbol{u}_i &=
+\left( \begin{array}{cccccccc}
+1 & 0 & 0 & 0 & \ldots & 0 & 0 & 0 \\
+-1 & 1 & 0 & 0 & \ldots & 0 & 0 & 0 \\
+0 & -1 & 1 & 0 & \ldots & 0 & 0 & 0 \\
+\vdots & \ddots & \ddots & \ddots & \ddots & \ddots & \ddots & \ddots \\
+0 & 0 & 0 & 0 & \ldots & 0 & -1 & 1 \\
+0 & 0 & 0 & 0 & \ldots & 0 & 0 & -1
+\end{array} \right) \in \mathbb{R}_{(p+1) \times p} \\
+\boldsymbol{c}_i &=
+\left( \begin{array}{c}
+t_{min} \\ 0 \\ 0 \\ \vdots \\ 0 \\ -1 \cdot t_{max}
+\end{array} \right) \in \mathbb{R}_{(p+1) \times 1}
+\end{aligned}
+$$
 
 
 # Help files

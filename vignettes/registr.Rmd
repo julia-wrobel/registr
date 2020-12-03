@@ -454,7 +454,7 @@ following result:
 
 ```{r temp registration without template, fig.width=5}
 reg1 = registr(Y = temp_dat, family = "gaussian", Kh = 4,
-               preserve_domain = FALSE, lambda_endpoint = 0)
+               incompleteness = "trailing", lambda_inc = 0)
 ggplot(reg1$Y, aes(x = index, y = value, col = id)) + 
   geom_line() +
   ggtitle("Registration with overall mean (black) as template function")
@@ -475,7 +475,7 @@ In the following example, the red curve with id 1 is used as template:
 ```{r temp registration with template, fig.width=5}
 Y_template = temp_dat %>% filter(id == 1)
 reg2 = registr(Y = temp_dat, family = "gaussian", Kh = 4, Y_template = Y_template,
-							 preserve_domain = FALSE, lambda_endpoint = 0)
+							 incompleteness = "trailing", lambda_inc = 0)
 ggplot(reg2$Y, aes(x = index, y = value, col = id)) +
 	geom_line() +
 	ggtitle("Registration with red curve as template")

@@ -95,15 +95,15 @@
 #' 
 #' # Force the warping functions to end on the diagonal
 #' registr_object2a = register_fpca(growth_incomplete, npc = 2, family = "gaussian",
-#'                                  preserve_domain = TRUE, max_iterations = 5)
+#'                                  incompleteness = NULL, max_iterations = 5)
 #' ggplot(registr_object2a$Y, aes(x = tstar, y = t_hat, group = id)) +
 #'   geom_line(alpha = 0.2) +
 #'   ggtitle("Estimated warping functions")
 #' 
 #' # Allow the warping functions to not end on the diagonal.
-#' # The higher lambda_endpoint, the more the endpoints are forced towards the diagonal.
+#' # The higher lambda_inc, the more the endpoints are forced towards the diagonal.
 #' registr_object2b = register_fpca(growth_incomplete, npc = 2, family = "gaussian",
-#'                                  preserve_domain = FALSE, lambda_endpoint = 1,
+#'                                  incompleteness = "trailing", lambda_inc = 1,
 #'                                  max_iterations = 5)
 #' ggplot(registr_object2b$Y, aes(x = tstar, y = t_hat, group = id)) +
 #'   geom_line(alpha = 0.2) +
@@ -117,7 +117,7 @@
 #'                               gradient = FALSE, max_iterations = 5)
 #'
 register_fpca = function(Y, Kt = 8, Kh = 4, family = "binomial",
-												 preserve_domain = TRUE, lambda_endpoint = NULL,
+												 incompleteness = NULL, lambda_inc = NULL,
 												 Y_template = NULL,
 												 max_iterations = 10, npc = 1,
 												 fpca_type = "variationalEM", fpca_maxiter = 50,
@@ -143,8 +143,8 @@ register_fpca = function(Y, Kt = 8, Kh = 4, family = "binomial",
 
   # first register values to the overall mean
   registr_step = registr(Y = Y, Kt = Kt, Kh = Kh, family = family,
-  											 preserve_domain = preserve_domain,
-  											 lambda_endpoint = lambda_endpoint,
+  											 incompleteness  = incompleteness,
+  											 lambda_inc      = lambda_inc,
   											 Y_template      = Y_template,
   											 row_obj = rows, cores = cores, ...)
   time_warps[[2]] = registr_step$Y$index
@@ -183,8 +183,8 @@ register_fpca = function(Y, Kt = 8, Kh = 4, family = "binomial",
   	}
   	
   	registr_step = registr(obj = fpca_step, Kt = Kt, Kh = Kh, family = family, 
-  												 preserve_domain = preserve_domain,
-  												 lambda_endpoint = lambda_endpoint,
+  												 incompleteness  = incompleteness,
+  												 lambda_inc      = lambda_inc,
   												 row_obj = rows, beta = registr_step$beta, cores = cores, ...)
   	
   	time_warps[[iter + 2]] = registr_step$Y$index

@@ -19,8 +19,8 @@
 #' @export
 #'
 loss_h_gradient = function(Y, Theta_h, mean_coefs, knots, beta.inner, family = "gaussian",
-                           preserve_domain = TRUE, lambda_endpoint = NULL,
-                           t_min, t_max, t_max_curve, Kt = 8, periodic = FALSE,
+                           incompleteness = NULL, lambda_inc = NULL,
+                           t_min, t_max, t_min_curve, t_max_curve, Kt = 8, periodic = FALSE,
                            warping = "nonparametric"){
   
   if(periodic){
@@ -35,11 +35,15 @@ loss_h_gradient = function(Y, Theta_h, mean_coefs, knots, beta.inner, family = "
   mean_coefs = matrix(mean_coefs, ncol = 1)
   
 	# get the registered t values
-	if (preserve_domain) { # the warping function should end on the diagonal
-	  beta = c(t_min, beta.inner, t_max)
-	} else { # the warping function not necessarily ends on the diagonal
-	  beta = c(t_min, beta.inner)
-	}
+  if (is.null(incompleteness)) { # initial and final parameters are fixed
+  	beta = c(t_min_curve, beta.inner, t_max_curve)
+  } else if (incompleteness == "leading") { # final parameter is fixed
+  	beta = c(beta.inner, t_max_curve)
+  } else if (incompleteness == "trailing") { # initial parameter is fixed
+  	beta = c(t_min_curve, beta.inner)
+  } else if (incompleteness == "full") { # no parameter is fixed
+  	beta = beta.inner
+  }
 	hinv_tstar = c(Theta_h %*% beta) # c() as a slightly faster version of as.vector()
   
 	# evaluate the gradient at the registered t values
@@ -63,20 +67,31 @@ loss_h_gradient = function(Y, Theta_h, mean_coefs, knots, beta.inner, family = "
   }
   
   # derivatives of the penalization term
-  if (preserve_domain || (lambda_endpoint == 0)) { # no penalization
-    pen_term = 0
-  } else { # penalize the deviation of the endpoint from the diagonal
-    theta_h  = Theta_h[D_i,]
-    pen_term = 2 * (hinv_tstar[D_i] - t_max_curve) * theta_h
-    pen_term = lambda_endpoint * pen_term
+  pen_term = 0
+  if (!is.null(incompleteness) && (lambda_inc != 0)) { # penalization
+  	
+    if (incompleteness %in% c("leading","full")) { # penalize the starting point
+    	theta_h_leading  = Theta_h[1,]
+    	pen_term_leading = 2 * (hinv_tstar[1] - t_min_curve) * theta_h_leading
+    	pen_term         = pen_term + lambda_inc * pen_term_leading
+    }
+    if (incompleteness %in% c("trailing","full")) { # penalize the endpoint
+    	theta_h_trailing  = Theta_h[D_i,]
+    	pen_term_trailing = 2 * (hinv_tstar[D_i] - t_max_curve) * theta_h_trailing
+    	pen_term          = pen_term + lambda_inc * pen_term_trailing
+    }
   }
   
   grad = 1/varphi * rowSums(gradient_mat) - pen_term
   
-  if (preserve_domain) { # the warping function should end on the diagonal
+  if (is.null(incompleteness)) { # initial and final parameters are fixed
     grad.inner = grad[-c(1, length(grad))]
-  } else { # the warping function not necessarily ends on the diagonal
+  } else if (incompleteness == "leading") { # final parameter is fixed
+  	grad.inner = grad[-length(grad)]
+  } else if (incompleteness == "trailing") { # initial parameter is fixed
     grad.inner = grad[-1]
+  } else if (incompleteness == "full") { # no parameter is fixed
+  	grad.inner = grad
   }
   
   return(-1 * grad.inner)

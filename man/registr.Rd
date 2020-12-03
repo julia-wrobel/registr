@@ -12,8 +12,8 @@ registr(
   Kh = 4,
   family = "binomial",
   gradient = TRUE,
-  preserve_domain = TRUE,
-  lambda_endpoint = NULL,
+  incompleteness = NULL,
+  lambda_inc = NULL,
   Y_template = NULL,
   beta = NULL,
   t_min = NULL,
@@ -43,15 +43,16 @@ Can be NULL only if Y argument is selected.}
 If \code{FALSE}, calculates gradient numerically. Not available for
 \code{family = "gamma"}.}
 
-\item{preserve_domain}{Indicator if the registration should preserve the
-time domain, leading to warping functions that end on the diagonal.
-Defaults to \code{TRUE}. Can only be set to \code{FALSE} when
-\code{warping = "nonparametric"}.}
+\item{incompleteness}{Optional specification of incompleteness structure.
+One of \code{c("leading","trailing","full")}, specifying that incompleteness
+affects only the initial measurements, only the trailing measurements, or
+both, respectively. Defaults to NULL, i.e. no incompleteness structure.
+Can only be set when \code{warping = "nonparametric"}.}
 
-\item{lambda_endpoint}{Penalization parameter to control the amount of
-deviation of the warping function endpoints from the diagonal. The higher
-this lambda, the more the endpoints are forced towards the diagonal.
-Only used if \code{preserve_domain = FALSE}.}
+\item{lambda_inc}{Penalization parameter to control the amount of
+deviation of the warping function starting points and/or endpoints from the diagonal.
+The higher this lambda, the more the starting points / endpoints are forced towards the diagonal.
+Only used if \code{incompleteness} is not NULL.}
 
 \item{Y_template}{Optional dataframe with the same structure as \code{Y}.
 Only used if \code{obj} is NULL. If \code{Y_template} is NULL,
@@ -105,9 +106,9 @@ You have to either specify \code{obj}, which is a fpca
 object from an earlier step, or \code{Y}, a dataframe in long format with variables 
 \code{id}, \code{index}, and \code{value} to indicate subject IDs, times, and observations, 
 respectively. \cr \cr
-Warping functions by default are forced to end on the diagonal to be
+Warping functions by default are forced to start and end on the diagonal to be
 domain-preserving. This behavior can be changed by setting
-\code{preserve_domain = FALSE} and a reasonable \code{lambda_endpoint} value.
+\code{incompleteness} to some other value than NULL and a reasonable \code{lambda_inc} value.
 For further details see the accompanying vignette. \cr \cr
 By specifying \code{cores > 1} the registration call can be parallelized.
 }
@@ -125,19 +126,19 @@ register_step = registr(obj = NULL, Y = Y, Kt = 6, Kh = 4, family = "binomial",
 data(growth_incomplete)
 library(ggplot2)
 
-# Force the warping functions to end on the diagonal
+# Force the warping functions to start and end on the diagonal to preserve the domain
 register_step2a = registr(obj = NULL, Y = growth_incomplete, Kt = 6, Kh = 4,
                           family = "gaussian", gradient = TRUE,
-                          preserve_domain = TRUE)
+                          incompleteness = NULL)
 ggplot(register_step2a$Y, aes(x = tstar, y = index, group = id)) +
   geom_line(alpha = 0.2) +
   ggtitle("Estimated warping functions")
 	
 # Allow the warping functions to not end on the diagonal.
-# The higher lambda_endpoint, the more the endpoints are forced towards the diagonal.
+# The higher lambda_inc, the more the endpoints are forced towards the diagonal.
 register_step2b = registr(obj = NULL, Y = growth_incomplete, Kt = 6, Kh = 4,
                           family = "gaussian", gradient = TRUE,
-                          preserve_domain = FALSE, lambda_endpoint = 1)
+                          incompleteness = "trailing", lambda_inc = 1)
 ggplot(register_step2b$Y, aes(x = tstar, y = index, group = id)) +
   geom_line(alpha = 0.2) +
   ggtitle("Estimated warping functions")
@@ -149,7 +150,7 @@ Y_template      = growth_incomplete[growth_incomplete$id \%in\% template_ids,]
 register_step2c = registr(obj = NULL, Y = growth_incomplete, Kt = 6, Kh = 4,
                           family = "gaussian", gradient = TRUE,
                           Y_template = Y_template,
-                          preserve_domain = FALSE, lambda_endpoint = 1)
+                          incompleteness = "trailing", lambda_inc = 1)
 
 }
 \author{
