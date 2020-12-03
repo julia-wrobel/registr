@@ -157,7 +157,7 @@ test_that("registr function only accepts Y_template if it has the correct format
 	
 	template_ids1 = "girl18"
 	Y_template1   = Y[Y$id %in% template_ids1,]
-	template_ids2 = "girl36"
+	template_ids2 = "girl12"
 	Y_template2   = Y[Y$id %in% template_ids2,]
 	template_ids3 = c("boy01","boy04","boy29","boy30","boy31","boy34","boy36")
 	Y_template3   = Y[Y$id %in% template_ids3,]
