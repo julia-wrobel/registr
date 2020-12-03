@@ -27,7 +27,7 @@ Registration for exponential family functional data.
 
 * Authors: [Julia Wrobel](http://juliawrobel.com), [Alexander Bauer](https://www.en.stablab.stat.uni-muenchen.de/people/doktoranden/bauer1/index.html)
 * License: [MIT](https://opensource.org/licenses/MIT). See the [LICENSE](LICENSE) file for details
-* Version: 1.1
+* Version: 1.2
 
 ### What it does
 
