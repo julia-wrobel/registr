@@ -27,7 +27,7 @@ bs_deriv = function(x, knots, degree = 3L, Boundary.knots = range(x), derivative
   derivatives = rep(derivative, D)
   Aknots = sort(c(rep(Boundary.knots, order), knots))
   
-  basis = splineDesign(Aknots, x, order, derivs = derivatives)
+  basis = splineDesign(Aknots, x, order, derivs = derivatives, outer.ok = TRUE)
   if (!intercept) 
     basis = basis[, -1L, drop = FALSE]
   

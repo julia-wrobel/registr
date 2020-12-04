@@ -11,10 +11,11 @@ loss_h_gradient(
   knots,
   beta.inner,
   family = "gaussian",
-  preserve_domain = TRUE,
-  lambda_endpoint = NULL,
+  incompleteness = NULL,
+  lambda_inc = NULL,
   t_min,
   t_max,
+  t_min_curve,
   t_max_curve,
   Kt = 8,
   periodic = FALSE,
@@ -34,19 +35,26 @@ loss_h_gradient(
 
 \item{family}{One of \code{c("gaussian","binomial")}. Defaults to \code{"gaussian"}.}
 
-\item{preserve_domain}{Indicator if the registration should preserve the
-time domain, leading to warping functions that end on the diagonal.
-Defaults to \code{TRUE}.}
+\item{incompleteness}{Optional specification of incompleteness structure.
+One of \code{c("leading","trailing","full")}, specifying that incompleteness
+is present only in the initial measurements, only in the trailing measurements, or
+in both, respectively. For details see the accompanying vignette.
+Defaults to NULL, i.e. no incompleteness structure.
+Can only be set when \code{warping = "nonparametric"}.}
 
-\item{lambda_endpoint}{Penalization parameter to control the amount of
-deviation of the warping function endpoints from the diagonal. Only used if
-\code{preserve_domain = FALSE}.}
+\item{lambda_inc}{Penalization parameter to control the amount of
+deviation of the warping function starting points and/or endpoints from the diagonal.
+The higher this lambda, the more the starting points / endpoints are forced towards the diagonal.
+Only used if \code{incompleteness} is not NULL.}
 
-\item{t_min}{minimum value to be evaluated on the time domain.}
+\item{t_min}{minimum and maximum value to be evaluated on the time domain.}
 
-\item{t_max}{maximum value to be evaluated on the time domain.}
+\item{t_max}{minimum and maximum value to be evaluated on the time domain.}
 
-\item{t_max_curve}{maximum value of the observed time domain of the
+\item{t_min_curve}{minimum and maximum value of the observed time domain of the
+(potentially incomplete) curve.}
+
+\item{t_max_curve}{minimum and maximum value of the observed time domain of the
 (potentially incomplete) curve.}
 
 \item{Kt}{Number of B-spline basis functions used to estimate mean functions. Default is 8.}

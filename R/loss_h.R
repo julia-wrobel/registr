@@ -6,16 +6,9 @@
 #' @param knots knot locations for B-spline basis used to estimate mean and FPC basis function.
 #' @param beta.inner spline coefficient vector to be estimated for warping function h.
 #' @param family \code{gaussian} or \code{binomial}.
-#' @param t_min minimum value to be evaluated on the time domain. 
-#' @param t_max maximum value to be evaluated on the time domain. 
-#' @param t_max_curve maximum value of the observed time domain of the
+#' @param t_min,t_max minimum and maximum value to be evaluated on the time domain. 
+#' @param t_min_curve,t_max_curve minimum and maximum value of the observed time domain of the
 #' (potentially incomplete) curve.
-#' @param preserve_domain Indicator if the registration should preserve the
-#' time domain, leading to warping functions that end on the diagonal.
-#' Defaults to \code{TRUE}.
-#' @param lambda_endpoint Penalization parameter to control the amount of
-#' deviation of the warping function endpoints from the diagonal. Only used if
-#' \code{preserve_domain = FALSE}.
 #' @param warping If \code{nonparametric} (default), inverse warping functions are estimated nonparametrically. 
 #' If \code{piecewise_linear2} they follow a piecewise linear function with 2 knots.
 #' @param periodic If \code{TRUE} uses periodic b-spline basis functions. Default is \code{FALSE}.
@@ -23,6 +16,7 @@
 #' @param priors For \code{warping = "piecewise_linear2"} only. Logical indicator of whether to add Normal priors to pull the knots toward the identity line. 
 #' @param prior_sd For \code{warping = "piecewise_linear2"} with \code{priors = TRUE} only. User-specified standard deviation for the Normal priors 
 #' (single value applied to all 4 knot priors).
+#' @inheritParams registr
 #' 
 #' @author Julia Wrobel \email{julia.wrobel@@cuanschutz.edu},
 #' Erin McDonnell \email{eim2117@@cumc.columbia.edu},
@@ -38,7 +32,7 @@
 #' @export
 #'
 loss_h = function(Y, Theta_h, mean_coefs, knots, beta.inner, family, t_min, t_max, 
-									t_max_curve, preserve_domain = TRUE, lambda_endpoint = NULL,
+									t_min_curve, t_max_curve, incompleteness = NULL, lambda_inc = NULL,
 									periodic = FALSE, Kt = 8, warping = "nonparametric", 
 									priors = FALSE, prior_sd = NULL){
 	
@@ -65,10 +59,14 @@ loss_h = function(Y, Theta_h, mean_coefs, knots, beta.inner, family, t_min, t_ma
 	
 	# get the registered t values
 	if (warping == "nonparametric") {
-		if (preserve_domain) { # the warping function should end on the diagonal
-			beta = c(t_min, beta.inner, t_max)
-		} else { # the warping function not necessarily ends on the diagonal
-			beta = c(t_min, beta.inner)
+		if (is.null(incompleteness)) { # initial and final parameters are fixed
+			beta = c(t_min_curve, beta.inner, t_max_curve)
+		} else if (incompleteness == "leading") { # final parameter is fixed
+			beta = c(beta.inner, t_max_curve)
+		} else if (incompleteness == "trailing") { # initial parameter is fixed
+			beta = c(t_min_curve, beta.inner)
+		} else if (incompleteness == "full") { # no parameter is fixed
+			beta = beta.inner
 		}
   	#hinv_tstar = cbind(1, Theta_h) %*% beta
   	hinv_tstar = c(Theta_h %*% beta) # c() as a slightly faster version of as.vector()
@@ -91,11 +89,16 @@ loss_h = function(Y, Theta_h, mean_coefs, knots, beta.inner, family, t_min, t_ma
   g_mu_t = Theta_phi %*% mean_coefs
 
   # penalization term for the endpoint of the warping function
-  if (preserve_domain || (lambda_endpoint == 0)) { # no penalization
-  	pen_term = 0
-  } else { # penalize the deviation of the endpoint from the diagonal
-  	pen_term = (utils::tail(hinv_tstar, 1) - t_max_curve)^2
-  	pen_term = lambda_endpoint * pen_term
+  pen_term = 0
+  if (!is.null(incompleteness) && (lambda_inc != 0)) { # penalization
+  	if (incompleteness %in% c("leading","full")) { # penalize the starting point
+  		pen_term_leading = (hinv_tstar[1] - t_min_curve)^2
+  		pen_term         = pen_term + lambda_inc * pen_term_leading
+  	}
+  	if (incompleteness %in% c("trailing","full")) { # penalize the endpoint
+  		pen_term_trailing = (utils::tail(hinv_tstar, 1) - t_max_curve)^2
+  		pen_term          = pen_term + lambda_inc * pen_term_trailing
+  	}
   }
   
   # Calculate the negative log likelihood

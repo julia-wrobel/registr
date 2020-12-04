@@ -10,9 +10,9 @@
 #' object from an earlier step, or \code{Y}, a dataframe in long format with variables 
 #' \code{id}, \code{index}, and \code{value} to indicate subject IDs, times, and observations, 
 #' respectively. \cr \cr
-#' Warping functions by default are forced to end on the diagonal to be
+#' Warping functions by default are forced to start and end on the diagonal to be
 #' domain-preserving. This behavior can be changed by setting
-#' \code{preserve_domain = FALSE} and a reasonable \code{lambda_endpoint} value.
+#' \code{incompleteness} to some other value than NULL and a reasonable \code{lambda_inc} value.
 #' For further details see the accompanying vignette. \cr \cr
 #' By specifying \code{cores > 1} the registration call can be parallelized.
 #' 
@@ -29,14 +29,16 @@
 #' @param gradient If \code{TRUE}, uses analytic gradient to calculate derivative. 
 #' If \code{FALSE}, calculates gradient numerically. Not available for
 #' \code{family = "gamma"}.
-#' @param preserve_domain Indicator if the registration should preserve the
-#' time domain, leading to warping functions that end on the diagonal.
-#' Defaults to \code{TRUE}. Can only be set to \code{FALSE} when
-#' \code{warping = "nonparametric"}.
-#' @param lambda_endpoint Penalization parameter to control the amount of
-#' deviation of the warping function endpoints from the diagonal. The higher
-#' this lambda, the more the endpoints are forced towards the diagonal.
-#' Only used if \code{preserve_domain = FALSE}.
+#' @param incompleteness Optional specification of incompleteness structure.
+#' One of \code{c("leading","trailing","full")}, specifying that incompleteness
+#' is present only in the initial measurements, only in the trailing measurements, or
+#' in both, respectively. For details see the accompanying vignette.
+#' Defaults to NULL, i.e. no incompleteness structure.
+#' Can only be set when \code{warping = "nonparametric"}.
+#' @param lambda_inc Penalization parameter to control the amount of
+#' deviation of the warping function starting points and/or endpoints from the diagonal.
+#' The higher this lambda, the more the starting points / endpoints are forced towards the diagonal.
+#' Only used if \code{incompleteness} is not NULL.
 #' @param Y_template Optional dataframe with the same structure as \code{Y}.
 #' Only used if \code{obj} is NULL. If \code{Y_template} is NULL,
 #' curves are registered to the overall mean of all curves in \code{Y} as template function.
@@ -86,45 +88,59 @@
 #' data(growth_incomplete)
 #' library(ggplot2)
 #' 
-#' # Force the warping functions to end on the diagonal
+#' # Force the warping functions to start and end on the diagonal to preserve the domain
 #' register_step2a = registr(obj = NULL, Y = growth_incomplete, Kt = 6, Kh = 4,
 #'                           family = "gaussian", gradient = TRUE,
-#'                           preserve_domain = TRUE)
+#'                           incompleteness = NULL)
 #' ggplot(register_step2a$Y, aes(x = tstar, y = index, group = id)) +
 #'   geom_line(alpha = 0.2) +
 #'   ggtitle("Estimated warping functions")
-#' 	
-#' # Allow the warping functions to not end on the diagonal.
-#' # The higher lambda_endpoint, the more the endpoints are forced towards the diagonal.
+#' ggplot(register_step2a$Y, aes(x = index, y = value, group = id)) +
+#'   geom_line(alpha = 0.2) +
+#'   ggtitle("Registered curves")
+#' 
+#' # Allow the warping functions to not start / end on the diagonal.
+#' # The higher lambda_inc, the more the starting points and endpoints are
+#' # forced towards the diagonal.
 #' register_step2b = registr(obj = NULL, Y = growth_incomplete, Kt = 6, Kh = 4,
 #'                           family = "gaussian", gradient = TRUE,
-#'                           preserve_domain = FALSE, lambda_endpoint = 1)
+#'                           incompleteness = "full", lambda_inc = 1)
 #' ggplot(register_step2b$Y, aes(x = tstar, y = index, group = id)) +
 #'   geom_line(alpha = 0.2) +
 #'   ggtitle("Estimated warping functions")
-#' }
+#' ggplot(register_step2b$Y, aes(x = index, y = value, group = id)) +
+#'   geom_line(alpha = 0.2) +
+#'   ggtitle("Registered curves")
 #' 
 #' # Define the template function only over a subset of the curves
-#' template_ids    = c("boy01","boy29","boy30","boy31","boy34","boy36")
+#' # (even though not very reasonable in this example)
+#' template_ids    = c("boy01","boy04","boy29","boy30","boy31","boy34","boy36")
 #' Y_template      = growth_incomplete[growth_incomplete$id %in% template_ids,]
 #' register_step2c = registr(obj = NULL, Y = growth_incomplete, Kt = 6, Kh = 4,
 #'                           family = "gaussian", gradient = TRUE,
 #'                           Y_template = Y_template,
-#'                           preserve_domain = FALSE, lambda_endpoint = 1)
+#'                           incompleteness = "full", lambda_inc = 1)
+#' ggplot(register_step2c$Y, aes(x = index, y = value, group = id)) +
+#'   geom_line(alpha = 0.2) +
+#'   ggtitle("Registered curves")
+#' }
 #' 
 registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gradient = TRUE,
-									 preserve_domain = TRUE, lambda_endpoint = NULL,
+									 incompleteness = NULL, lambda_inc = NULL,
 									 Y_template = NULL,
 									 beta = NULL, t_min = NULL, t_max = NULL, row_obj = NULL,
 									 periodic = FALSE, warping = "nonparametric",
 									 gamma_scales = NULL, cores = 1L, ...){
 	
-	if (!preserve_domain) {
+	if (!is.null(incompleteness)) {
 		if (warping != "nonparametric") {
-			stop("The functionality for 'preserve_domain = FALSE' is only available for 'warping = 'nonparametric''")
+			stop("The functionality for incomplete curves is only available for 'warping = 'nonparametric''")
 		}
-		if ((is.null(lambda_endpoint) || (lambda_endpoint < 0))) {
-			stop("For 'preserve_domain = FALSE' the penalization parameter 'lambda_endpoint' has to be set to some nonnegative value.")
+		if (!(incompleteness %in% c("leading","trailing","full"))) {
+			stop("'incompleteness' must be either 'leading', 'trailing' or 'full'.")
+		}
+		if ((is.null(lambda_inc) || (lambda_inc < 0))) {
+			stop("For incomplete curves the penalization parameter 'lambda_inc' has to be set to some nonnegative value.")
 		}
 	}
 	
@@ -228,7 +244,7 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
 	arg_list = list(obj             = obj,             Y               = Y,
 									Kt              = Kt,              Kh              = Kh,
 									family          = family,          gradient        = gradient,
-									preserve_domain = preserve_domain, lambda_endpoint = lambda_endpoint,
+									incompleteness  = incompleteness,  lambda_inc      = lambda_inc,
 									beta            = beta,            t_min           = t_min,
 									t_max           = t_max,           rows            = rows,
 									periodic        = periodic,        warping         = warping,
@@ -302,8 +318,9 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gr
 #' 
 registr_oneCurve = function(i, arg_list, ...) {
 	
+	t_min_i       = arg_list$Y$tstar[arg_list$rows$first_row[i]]
 	t_max_i       = arg_list$Y$tstar[arg_list$rows$last_row[i]]
-	Y_cropped     = arg_list$Y[arg_list$Y$tstar <= t_max_i,]
+	Y_cropped     = arg_list$Y[arg_list$Y$tstar >= t_min_i & arg_list$Y$tstar <= t_max_i,]
 	tstar_cropped = Y_cropped$tstar
 	rows_i        = which(Y_cropped$id == arg_list$rows$id[i])
 	Y_i           = Y_cropped$value[rows_i]
@@ -331,10 +348,14 @@ registr_oneCurve = function(i, arg_list, ...) {
 																 t_vec   = t_vec_i)
 		
 		if (arg_list$warping == "nonparametric") {
-			if (arg_list$preserve_domain) { # final param is fixed and shouldn't be estimated
+			if (is.null(arg_list$incompleteness)) { # initial and final parameters are fixed
 				beta_i = beta_full_i[-c(1, length(beta_full_i))]
-			} else { # final param should be estimated
+			} else if (arg_list$incompleteness == "leading") { # final parameter is fixed
+				beta_i = beta_full_i[-length(beta_full_i)]
+			} else if (arg_list$incompleteness == "trailing") { # initial parameter is fixed
 				beta_i = beta_full_i[-1]
+			} else if (arg_list$incompleteness == "full") { # no parameter is fixed
+				beta_i = beta_full_i
 			}
 		} else if (arg_list$warping == "piecewise_linear2") {
 			beta_i = beta_full_i
@@ -381,23 +402,27 @@ registr_oneCurve = function(i, arg_list, ...) {
 	if (arg_list$gradient) { gradf = loss_h_gradient } else { gradf = NULL }
 	
 	# optimization constraints
-	if (arg_list$preserve_domain) { # warping functions should all end on the diagonal
+	if (is.null(arg_list$incompleteness)) { # warping functions start and end on the diagonal
 		if (arg_list$warping == "nonparametric") {
-			constrs_i = constraints(arg_list$Kh, arg_list$t_min, t_max_i, warping = arg_list$warping)
-			ui_i      = constrs_i$ui
-			ui_i      = ui_i[-nrow(ui_i), -ncol(ui_i)]
-			ci_i      = constrs_i$ci
-			ci_i      = ci_i[-(length(ci_i) - 1)]
+			const_i = constraints(arg_list$Kh, t_min_i, t_max_i, warping = arg_list$warping)
+			ui_i    = const_i$ui
+			ui_i    = ui_i[-nrow(ui_i), -ncol(ui_i)]
+			ci_i    = const_i$ci
+			ci_i    = ci_i[-(length(ci_i) - 1)]
 		} else if (arg_list$warping == "piecewise_linear2") {
-			constrs_i = constraints(arg_list$Kh - 1, arg_list$t_min, t_max_i, warping = arg_list$warping)
-			ui_i      = constrs_i$ui
-			ci_i      = constrs_i$ci
+			const_i = constraints(arg_list$Kh - 1, arg_list$t_min, t_max_i, warping = arg_list$warping)
+			ui_i    = const_i$ui
+			ci_i    = const_i$ci
 		}
 		
-	} else { # warping functions not necessarily end on the diagonal
-		constrs_i = constraints(arg_list$Kh, arg_list$t_min, arg_list$t_max)
-		ui_i      = constrs_i$ui
-		ci_i      = constrs_i$ci
+	} else { # warping functions not necessarily start and/or end on the diagonal
+		dim_const   = arg_list$Kh + ifelse(arg_list$incompleteness == "full", 1, 0)
+		t_min_const = ifelse(arg_list$incompleteness == "trailing", t_min_i, arg_list$t_min)
+		t_max_const = ifelse(arg_list$incompleteness == "leading",  t_max_i, arg_list$t_max)
+		
+		const_i     = constraints(dim_const, t_min_const, t_max_const)
+		ui_i        = const_i$ui
+		ci_i        = const_i$ci
 	}
 	
 	if (arg_list$family == "gamma") { # add the scale parameter to be optimized as last element of beta_i
@@ -427,8 +452,10 @@ registr_oneCurve = function(i, arg_list, ...) {
 		}
 		
 		beta_i = ensure_proper_beta(beta  = beta_i,
-																t_min = arg_list$t_min,
-																t_max = ifelse(arg_list$preserve_domain, t_max_i, arg_list$t_max))
+																t_min = ifelse(is.null(arg_list$incompleteness) || arg_list$incompleteness == "trailing",
+																							 t_min_i, arg_list$t_min),
+																t_max = ifelse(is.null(arg_list$incompleteness) || arg_list$incompleteness == "leading",
+																							 t_max_i, arg_list$t_max))
 		
 		if (arg_list$family == "gamma") # add scale parameter again as last element
 			beta_i <- c(beta_i, scale)
@@ -445,10 +472,11 @@ registr_oneCurve = function(i, arg_list, ...) {
 													 mean_coefs      = mean_coefs_i, 
 													 knots           = arg_list$global_knots, 
 													 family          = arg_list$family,
-													 preserve_domain = arg_list$preserve_domain,
-													 lambda_endpoint = arg_list$lambda_endpoint,
+													 incompleteness  = arg_list$incompleteness,
+													 lambda_inc      = arg_list$lambda_inc,
 													 t_min           = arg_list$t_min,
 													 t_max           = arg_list$t_max,
+													 t_min_curve     = t_min_i,
 													 t_max_curve     = t_max_i,
 													 periodic        = arg_list$periodic,
 													 Kt              = arg_list$Kt,
@@ -463,10 +491,14 @@ registr_oneCurve = function(i, arg_list, ...) {
 	}
 	
 	if (arg_list$warping == "nonparametric") {
-		if (arg_list$preserve_domain) { # final param is fixed and wasn't estimated
-			beta_full_i = c(arg_list$t_min, beta_new, t_max_i)
-		} else { # final param was estimated
-			beta_full_i = c(arg_list$t_min, beta_new)
+		if (is.null(arg_list$incompleteness)) { # initial and final parameters are fixed
+			beta_full_i = c(t_min_i, beta_new, t_max_i)
+		} else if (arg_list$incompleteness == "leading") { # final parameter is fixed
+			beta_full_i = c(beta_new, t_max_i)
+		} else if (arg_list$incompleteness == "trailing") { # initial parameter is fixed
+			beta_full_i = c(t_min_i, beta_new)
+		} else if (arg_list$incompleteness == "full") { # no parameter is fixed
+			beta_full_i = beta_new
 		}
 		#t_hat = as.vector(cbind(1, Theta_h_i) %*% beta_full_i)
 		t_hat = as.vector(Theta_h_i %*% beta_full_i)
