@@ -186,6 +186,13 @@ ggplot(reg1$Y, aes(x = index, y = id, col = value)) +
 				axis.text.y = element_blank())
 ```
 
+```{r application 1 spaghetti}
+ggplot(reg1$Y, aes(x = index, y = value, group = id)) +
+	geom_line(alpha = 0.3) +
+	xlab("t [registered]") + ylab("Derivative") +
+	ggtitle("Registered curves")
+```
+
 The assumption can be dropped by setting `incompleteness` to some other value than NULL and
 some nonnegative value for the penalization parameter `lambda_inc`.
 The higher `lambda_inc` is chosen, the more all warping functions are forced
@@ -195,7 +202,7 @@ to start/end close to the diagonal.
 
 ```{r application 2}
 reg2 = registr(Y = dat, family = "gaussian",
-							 incompleteness = "full", lambda_inc = 1)
+							 incompleteness = "full", lambda_inc = 0)
 
 ggplot(reg2$Y, aes(x = tstar, y = index, group = id)) + 
 	geom_line(alpha = 0.2) +
@@ -213,11 +220,18 @@ ggplot(reg2$Y, aes(x = index, y = id, col = value)) +
 				axis.text.y = element_blank())
 ```
 
-### Large `lambda_inc`
+```{r application 2 spaghetti}
+ggplot(reg2$Y, aes(x = index, y = value, group = id)) +
+	geom_line(alpha = 0.3) +
+	xlab("t [registered]") + ylab("Derivative") +
+	ggtitle("Registered curves")
+```
+
+### Larger `lambda_inc`
 
 ```{r application 3}
 reg3 = registr(Y = dat, family = "gaussian",
-							 incompleteness = "full", lambda_inc = 10)
+							 incompleteness = "full", lambda_inc = 5)
 
 ggplot(reg3$Y, aes(x = tstar, y = index, group = id)) + 
 	geom_line(alpha = 0.2) +
@@ -235,6 +249,12 @@ ggplot(reg3$Y, aes(x = index, y = id, col = value)) +
 				axis.text.y = element_blank())
 ```
 
+```{r application 3 spaghetti}
+ggplot(reg3$Y, aes(x = index, y = value, group = id)) +
+	geom_line(alpha = 0.3) +
+	xlab("t [registered]") + ylab("Derivative") +
+	ggtitle("Registered curves")
+```
 
 # Constraint matrices for the optimization
 
