@@ -8,7 +8,7 @@ register_fpca(
   Y,
   Kt = 8,
   Kh = 4,
-  family = "binomial",
+  family = "gaussian",
   incompleteness = NULL,
   lambda_inc = NULL,
   Y_template = NULL,
@@ -101,8 +101,8 @@ family \code{gaussian} or \code{binomial}.
 }
 \description{
 Function combines constrained optimization and GFPCA to estimate warping functions for 
-exponential family curves. The implementation covers Gaussian and binomial
-curves. Warping functions are calculated by the function \code{\link{registr}}.
+exponential family curves. See argument \code{family} for which families are
+supported. Warping functions are calculated by the function \code{\link{registr}}.
 The GFPCA step can be performed either using the variational EM-based GFPCA
 approaches of Wrobel et al. (2019) (\code{fpca_type = "variationalEM"}, default)
 or the mixed model-based two-step approach of Gertheiss et al. (2017)
@@ -118,9 +118,12 @@ Requires input data \code{Y} to be a dataframe in long format with variables
 \code{id}, \code{index}, and \code{value} to indicate subject IDs, times, and observations, 
 respectively.
 
-The joint iterations start with a registration step.
+One joint iteration consists of a GFPCA step and a registration step.
+As preprocessing, one initial registration step is performed.
 The template function for this registration step is defined by argument
 \code{Y_template}.
+After convergence or \code{max_iterations} is reached, one final GFPCA step
+is performed.
 }
 \examples{
 library(ggplot2)

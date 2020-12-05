@@ -1,8 +1,8 @@
 #' Register curves using constrained optimization and GFPCA
 #'
 #' Function combines constrained optimization and GFPCA to estimate warping functions for 
-#' exponential family curves. The implementation covers Gaussian and binomial
-#' curves. Warping functions are calculated by the function \code{\link{registr}}.
+#' exponential family curves. See argument \code{family} for which families are
+#' supported. Warping functions are calculated by the function \code{\link{registr}}.
 #' The GFPCA step can be performed either using the variational EM-based GFPCA
 #' approaches of Wrobel et al. (2019) (\code{fpca_type = "variationalEM"}, default)
 #' or the mixed model-based two-step approach of Gertheiss et al. (2017)
@@ -17,9 +17,12 @@
 #' \code{id}, \code{index}, and \code{value} to indicate subject IDs, times, and observations, 
 #' respectively.
 #' 
-#' The joint iterations start with a registration step.
+#' One joint iteration consists of a GFPCA step and a registration step.
+#' As preprocessing, one initial registration step is performed.
 #' The template function for this registration step is defined by argument
 #' \code{Y_template}.
+#' After convergence or \code{max_iterations} is reached, one final GFPCA step
+#' is performed.
 #'
 #' @param family One of \code{c("gaussian","binomial","gamma")}.
 #' For \code{"gamma"}, the \code{fpca_type} is fixed to \code{"two-step"}.
@@ -127,7 +130,7 @@
 #'                               gradient = FALSE, max_iterations = 5)
 #' }
 #'
-register_fpca = function(Y, Kt = 8, Kh = 4, family = "binomial",
+register_fpca = function(Y, Kt = 8, Kh = 4, family = "gaussian",
 												 incompleteness = NULL, lambda_inc = NULL,
 												 Y_template = NULL,
 												 max_iterations = 10, npc = 1,
@@ -154,9 +157,9 @@ register_fpca = function(Y, Kt = 8, Kh = 4, family = "binomial",
 
   # first register values to the overall mean
   registr_step = registr(Y = Y, Kt = Kt, Kh = Kh, family = family,
-  											 incompleteness  = incompleteness,
-  											 lambda_inc      = lambda_inc,
-  											 Y_template      = Y_template,
+  											 incompleteness = incompleteness,
+  											 lambda_inc     = lambda_inc,
+  											 Y_template     = Y_template,
   											 row_obj = rows, cores = cores, ...)
   time_warps[[2]] = registr_step$Y$index
   loss[1] = registr_step$loss
@@ -164,7 +167,7 @@ register_fpca = function(Y, Kt = 8, Kh = 4, family = "binomial",
   iter = 1
   error = rep(NA, max_iterations)
   error[iter] = 100
-  while( iter < max_iterations && error[iter] > 0.01 ){
+  while( iter <= max_iterations && error[iter] > 0.01 ){
   	message("current iteration: ", iter)
   	
   	if (fpca_type == "variationalEM") { # GFPCA after Wrobel et al. (2019)
@@ -194,8 +197,8 @@ register_fpca = function(Y, Kt = 8, Kh = 4, family = "binomial",
   	}
   	
   	registr_step = registr(obj = fpca_step, Kt = Kt, Kh = Kh, family = family, 
-  												 incompleteness  = incompleteness,
-  												 lambda_inc      = lambda_inc,
+  												 incompleteness = incompleteness,
+  												 lambda_inc     = lambda_inc,
   												 row_obj = rows, beta = registr_step$beta, cores = cores, ...)
   	
   	time_warps[[iter + 2]] = registr_step$Y$index

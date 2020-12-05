@@ -10,7 +10,7 @@ registr(
   Y = NULL,
   Kt = 8,
   Kh = 4,
-  family = "binomial",
+  family = "gaussian",
   gradient = TRUE,
   incompleteness = NULL,
   lambda_inc = NULL,
