@@ -125,7 +125,7 @@
 #'   ggtitle("Registered curves")
 #' }
 #' 
-registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "binomial", gradient = TRUE,
+registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "gaussian", gradient = TRUE,
 									 incompleteness = NULL, lambda_inc = NULL,
 									 Y_template = NULL,
 									 beta = NULL, t_min = NULL, t_max = NULL, row_obj = NULL,

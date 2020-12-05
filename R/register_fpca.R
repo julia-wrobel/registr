@@ -127,7 +127,7 @@
 #'                               gradient = FALSE, max_iterations = 5)
 #' }
 #'
-register_fpca = function(Y, Kt = 8, Kh = 4, family = "binomial",
+register_fpca = function(Y, Kt = 8, Kh = 4, family = "gaussian",
 												 incompleteness = NULL, lambda_inc = NULL,
 												 Y_template = NULL,
 												 max_iterations = 10, npc = 1,
