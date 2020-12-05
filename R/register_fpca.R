@@ -157,9 +157,9 @@ register_fpca = function(Y, Kt = 8, Kh = 4, family = "gaussian",
 
   # first register values to the overall mean
   registr_step = registr(Y = Y, Kt = Kt, Kh = Kh, family = family,
-  											 incompleteness  = incompleteness,
-  											 lambda_inc      = lambda_inc,
-  											 Y_template      = Y_template,
+  											 incompleteness = incompleteness,
+  											 lambda_inc     = lambda_inc,
+  											 Y_template     = Y_template,
   											 row_obj = rows, cores = cores, ...)
   time_warps[[2]] = registr_step$Y$index
   loss[1] = registr_step$loss
@@ -197,8 +197,8 @@ register_fpca = function(Y, Kt = 8, Kh = 4, family = "gaussian",
   	}
   	
   	registr_step = registr(obj = fpca_step, Kt = Kt, Kh = Kh, family = family, 
-  												 incompleteness  = incompleteness,
-  												 lambda_inc      = lambda_inc,
+  												 incompleteness = incompleteness,
+  												 lambda_inc     = lambda_inc,
   												 row_obj = rows, beta = registr_step$beta, cores = cores, ...)
   	
   	time_warps[[iter + 2]] = registr_step$Y$index

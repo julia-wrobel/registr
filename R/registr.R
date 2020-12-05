@@ -241,15 +241,15 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "gaussian", gr
   }
 
   ### Calculate warping functions  
-	arg_list = list(obj             = obj,             Y               = Y,
-									Kt              = Kt,              Kh              = Kh,
-									family          = family,          gradient        = gradient,
-									incompleteness  = incompleteness,  lambda_inc      = lambda_inc,
-									beta            = beta,            t_min           = t_min,
-									t_max           = t_max,           rows            = rows,
-									periodic        = periodic,        warping         = warping,
-									global_knots    = global_knots,    mean_coefs      = mean_coefs,
-									gamma_scales    = gamma_scales)
+	arg_list = list(obj            = obj,            Y          = Y,
+									Kt             = Kt,             Kh         = Kh,
+									family         = family,         gradient   = gradient,
+									incompleteness = incompleteness, lambda_inc = lambda_inc,
+									beta           = beta,           t_min      = t_min,
+									t_max          = t_max,          rows       = rows,
+									periodic       = periodic,       warping    = warping,
+									global_knots   = global_knots,   mean_coefs = mean_coefs,
+									gamma_scales   = gamma_scales)
   
   # main function call
   if (cores == 1) { # serial call
@@ -462,25 +462,25 @@ registr_oneCurve = function(i, arg_list, ...) {
 	}
 	
 	# main registration step	
-	beta_optim = constrOptim(theta           = beta_i,
-													 f               = loss_h,
-													 grad            = gradf,
-													 ui              = ui_i,
-													 ci              = ci_i,
-													 Y               = Y_i, 
-													 Theta_h         = Theta_h_i,
-													 mean_coefs      = mean_coefs_i, 
-													 knots           = arg_list$global_knots, 
-													 family          = arg_list$family,
-													 incompleteness  = arg_list$incompleteness,
-													 lambda_inc      = arg_list$lambda_inc,
-													 t_min           = arg_list$t_min,
-													 t_max           = arg_list$t_max,
-													 t_min_curve     = t_min_i,
-													 t_max_curve     = t_max_i,
-													 periodic        = arg_list$periodic,
-													 Kt              = arg_list$Kt,
-													 warping         = arg_list$warping,
+	beta_optim = constrOptim(theta          = beta_i,
+													 f              = loss_h,
+													 grad           = gradf,
+													 ui             = ui_i,
+													 ci             = ci_i,
+													 Y              = Y_i, 
+													 Theta_h        = Theta_h_i,
+													 mean_coefs     = mean_coefs_i, 
+													 knots          = arg_list$global_knots, 
+													 family         = arg_list$family,
+													 incompleteness = arg_list$incompleteness,
+													 lambda_inc     = arg_list$lambda_inc,
+													 t_min          = arg_list$t_min,
+													 t_max          = arg_list$t_max,
+													 t_min_curve    = t_min_i,
+													 t_max_curve    = t_max_i,
+													 periodic       = arg_list$periodic,
+													 Kt             = arg_list$Kt,
+													 warping        = arg_list$warping,
 													 ...)
 	
 	beta_new = beta_optim$par
