@@ -60,8 +60,10 @@ family functional data. The basic methods are described in more detail
 in our [paper](http://juliawrobel.com/Downloads/registration_ef.pdf) and
 were further adapted to (potentially) incomplete curve settings where
 (some) curves are not observed from the very beginning and/or until the
-very end of the common domain. Instructions for installing the software
-and using it to register simulated binary data are provided below.
+very end of the common domain. For details on the incomplete curve
+methodology and how to use it see the corresponding package vignette.
+Instructions for installing the software and using it to register
+simulated binary data are provided below.
 
 ### Installation
 
@@ -126,7 +128,7 @@ function `registration_fpca()`.
 
 ``` r
 binary_registration = register_fpca(Y = registration_data, family = "binomial", 
-                                                                Kt = 6, Kh = 4, npc  = 1)
+                                    Kt = 6, Kh = 4, npc  = 1)
 ## current iteration: 1
 ## BFPCA converged.
 ## current iteration: 2
