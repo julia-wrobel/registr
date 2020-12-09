@@ -21,6 +21,8 @@
 * registr is now able to handle incomplete curves (see new vignette)
 * Added 'two-step GFPCA' as alternative GFPCA approach
 * New plot function for GFPCA results
+* Parallelized the registration call
+* Added user-specified template functions by argument 'Y_template'
 * Added Gamma family
 * Added Alexander Bauer an an author
 
