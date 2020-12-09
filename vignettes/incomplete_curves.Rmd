@@ -56,7 +56,7 @@ Such a data structure is e.g. observed in the presence of drop-out in panel stud
 
 We differentiate three different types of (in)completeness:
 
-1. **no incompleteness**,
+1. **no incompleteness**,  
 where processes where all observed from their very beginning until their very end.
 In this case, it is reasonable to assume that both the starting points and the
 endpoints of the warping functions in the registration process lie on the diagonal

@@ -14,13 +14,13 @@ coverage](https://codecov.io/gh/julia-wrobel/registr/branch/master/graph/badge.s
 [![status](http://joss.theoj.org/papers/9c40c4f0ede1827cc5a9430c625d6494/status.svg)](http://joss.theoj.org/papers/9c40c4f0ede1827cc5a9430c625d6494)
 <!-- badges: end -->
 
-Registration for exponential family functional data.
+Registration for incomplete exponential family functional data.
 
 -   Authors: [Julia Wrobel](http://juliawrobel.com), [Alexander
     Bauer](https://www.en.stablab.stat.uni-muenchen.de/people/doktoranden/bauer1/index.html)
 -   License: [MIT](https://opensource.org/licenses/MIT). See the
     [LICENSE](LICENSE) file for details
--   Version: 1.2
+-   Version: 2.0
 
 ### What it does
 

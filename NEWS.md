@@ -16,6 +16,15 @@
 * Use of periodic b-splines
 * get her to implement gradient for parametric warping stuff
 
+# registr 2.0.0
+
+* registr is now able to handle incomplete curves (see new vignette)
+* Added 'two-step GFPCA' as alternative GFPCA approach
+* New plot function for GFPCA results
+* Added Gamma family
+* Added Alexander Bauer an an author
+
+
 Preparing things below
 
 * mgcv spline choices
