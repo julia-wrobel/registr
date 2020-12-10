@@ -1,24 +1,19 @@
 ---
-title: 'registr 2.0: Incomplete Curve Registration for Exponential Family Functional Data'
-tags:
-  - R
-  - Statistical analysis
-  - Functional data
-  - Partially observed curves
+title: 'registr: Registration for Exponential Family Functional Data'
 authors:
-  - name: Julia Wrobel
-    orcid: 0000-0001-6783-1421
-    affiliation: 1
-  - name: Alexander Bauer
-    orcid: 0000-0003-3495-5131
-    affiliation: 2
-affiliations:
- - name: Columbia University, USA
-   index: 1
- - name: Department of Statistics, LMU Munich, Germany
-   index: 2
-date: 10 December 2020
+- affiliation: 1
+  name: Julia Wrobel
+  orcid: 000-0001-6783-1421
+date: '2018-01-18'
+output: pdf_document
 bibliography: paper.bib
+tags:
+- R
+- Statistical analysis
+- Functional data
+affiliations:
+- index: 1
+  name: Columbia University
 ---
 
 # Summary
@@ -41,15 +36,6 @@ The `registr` package estimates warping functions and other parameters in this m
 
 To enhance computational efficency, key algorithm components are implemented in C++ using the R libraries `Rcpp` and `RcppArmadillo` [@rcpp, @rcppArma]. Interactive visualizations are enabled with the `refund.shiny` package [@refund.shiny, @wrobel2016]. 
 
-# Figures
 
-Figures can be included like this:
-![\label{fig:registration}](figures/1_registration.png)
-and referenced from text using \autoref{fig:registration}.
-![\label{fig:FPCA}](figures/2_FPCA.png)
-
-# Acknowledgements
-
-We thank Fabian Scheipl for valuable contributions.
 
 # References
