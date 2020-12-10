@@ -106,11 +106,11 @@ cov_hall = function(Y, index_evalGrid, Kt = 8, Kc = 8, family = "gaussian",
   
   # divide the numerator by the denominator, dependent on the first derivative
   # of the link function
-  if (family == "gaussian") {
+  if (family == "gaussian") { # identity link
     Zi.cov_sm = Yi.cov_sm # first derivative of identity function = 1
-  } else if (family == "binomial") {
+  } else if (family == "binomial") { # logit link
     Zi.cov_sm = diag(1 / deriv.inv.logit(mu)) %*% Yi.cov_sm %*% diag(1 / deriv.inv.logit(mu))
-  } else if (family == "gamma") {
+  } else if (family %in% c("gamma","poisson")) { # log link
     Zi.cov_sm = diag(mu) %*% Yi.cov_sm %*% diag(mu)
   }
   

@@ -18,7 +18,7 @@
 #' @param response_function Optional response function to be applied before
 #' plotting the curves. Defaults to \code{NULL}, i.e. the identity function if
 #' \code{x$family} is one of \code{c("gaussian","binomial")} or
-#' \code{exp()} if \code{x$family = "gamma"}.
+#' \code{exp()} if \code{x$family} is one of \code{c("gamma","poisson")}.
 #' @param subtitle If TRUE (default) the parameter \code{var_factor}
 #' is displayed in the plot subtitle.
 #' @param xlim,ylim Optional numeric vectors with limits for the x and y axis.
@@ -49,7 +49,7 @@ plot.fpca = function(x, plot_npc = x$npc, var_factor = 2,
   fpc_value = type = value = NULL
   
   if (is.null(response_function)) {
-    if (x$family == "gamma") {
+    if (x$family %in% c("gamma","poisson")) { # log link
       response_function = exp
     } else {
       response_function = function(x) { x }

@@ -23,7 +23,7 @@
 * New plot function for GFPCA results
 * Parallelized the registration call
 * Added user-specified template functions by argument 'Y_template'
-* Added Gamma family
+* Added Gamma and Poisson family
 * Added Alexander Bauer an an author
 
 

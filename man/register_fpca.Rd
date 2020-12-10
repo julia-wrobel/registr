@@ -30,9 +30,9 @@ register_fpca(
 
 \item{Kh}{Number of B-spline basis functions used to estimate warping functions \emph{h}. Default is 4.}
 
-\item{family}{One of \code{c("gaussian","binomial","gamma")}.
-For \code{"gamma"}, the \code{fpca_type} is fixed to \code{"two-step"}.
-Defaults to \code{"gaussian"}.}
+\item{family}{One of \code{c("gaussian","binomial","gamma","poisson")}.
+For \code{"gamma"} and \code{"poisson"}, the \code{fpca_type} is fixed to
+\code{"two-step"}. Defaults to \code{"gaussian"}.}
 
 \item{incompleteness}{Optional specification of incompleteness structure.
 One of \code{c("leading","trailing","full")}, specifying that incompleteness

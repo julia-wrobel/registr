@@ -22,8 +22,10 @@ gfpca_twoStep(
 \arguments{
 \item{Y}{Dataframe. Should have values id, value, index.}
 
-\item{family}{One of \code{c("gaussian","binomial","gamma")}. Defaults to
-\code{"gaussian"}.}
+\item{family}{One of \code{c("gaussian","binomial","gamma","poisson")}.
+Poisson data are rounded before performing
+the GFPCA to ensure integer data, see Details section below.
+Defaults to \code{"gaussian"}.}
 
 \item{npc}{Number of principal components to calculate. Defaults to 1.}
 
@@ -80,13 +82,20 @@ with \code{fpca_gauss} and \code{bfpca}.}
 \description{
 Function for applying FPCA to different exponential family distributions.
 Used in the FPCA step for registering functional data,
-called by \code{\link{register_fpca}} when \code{GFPCA_type = "two-step"}. \cr \cr
+called by \code{\link{register_fpca}} when \code{fpca_type = "two-step"}. \cr \cr
 The method implements the `two-step approach` of Gertheiss et al. (2017)
 and is based on the approach of Hall et al. (2008) to estimate functional
 principal components. \cr \cr
 This function is an adaptation of the implementation of Jan
 Gertheiss for Gertheiss et al. (2017), with focus on higher (RAM) efficiency
 for large data settings.
+}
+\details{
+For \code{family = "poisson"} the values in \code{Y} are rounded before
+performing the GFPCA to ensure integer data. This is done to ensure reasonable
+computation times. Computation times tend to explode when estimating the
+underlying high-dimensional mixed model with continuous Poisson data based
+on the \code{\link{gamm4}} package.
 }
 \examples{
 data(growth_incomplete)

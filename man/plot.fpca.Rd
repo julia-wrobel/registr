@@ -30,7 +30,7 @@ to display their variation in the plots. Defaults to 2, but can be set to
 \item{response_function}{Optional response function to be applied before
 plotting the curves. Defaults to \code{NULL}, i.e. the identity function if
 \code{x$family} is one of \code{c("gaussian","binomial")} or
-\code{exp()} if \code{x$family = "gamma"}.}
+\code{exp()} if \code{x$family} is one of \code{c("gamma","poisson")}.}
 
 \item{subtitle}{If TRUE (default) the parameter \code{var_factor}
 is displayed in the plot subtitle.}

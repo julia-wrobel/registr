@@ -119,6 +119,10 @@ loss_h = function(Y, Theta_h, mean_coefs, knots, beta.inner, family, t_min, t_ma
   			log(scale) * scale * sum(mu_t) -
   			sum(log(gamma(alpha)))
   	)
+  } else if (family == "poisson") {
+  	mu_t = as.vector(exp(g_mu_t))
+  	n    = length(Y)
+  	loss = -1 * sum(Y * log(mu_t) - log(factorial(Y)) - mu_t)
   }
 
   # Add prior distributions on the knot locations as needed
