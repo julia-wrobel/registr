@@ -88,8 +88,11 @@ gfpca_twoStep = function (Y, family = "gaussian", npc = 1, Kt = 8,
                           periodic = FALSE,
                           ...) {
   
-  if (family == "gamma" & any(Y$value <= 0))
+  if (family == "gamma" & any(Y$value <= 0)) {
     stop("family = 'gamma' can only be applied to strictly positive data.")
+  } else if (family == "poisson" & any(Y$value < 0)) {
+    stop("family = 'poisson' can only be applied to nonnegative data.")
+  }
   
   # clean data
   if (is.null(row_obj)) {

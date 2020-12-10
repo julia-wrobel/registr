@@ -152,6 +152,13 @@ test_that("registr function throws an error when family = 'gamma' is applied to 
 							 "family = 'gamma' can only be applied to strictly positive data.")
 })
 
+test_that("registr function throws an error when family = 'poisson' is applied to negative data",{
+	Y = registr::growth_incomplete
+	
+	expect_error(registr(Y = Y, family = "poisson"),
+							 "family = 'poisson' can only be applied to nonnegative data.")
+})
+
 test_that("registr function only accepts Y_template if it has the correct format.",{
 	Y = registr::growth_incomplete
 	
