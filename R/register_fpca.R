@@ -24,9 +24,9 @@
 #' After convergence or \code{max_iterations} is reached, one final GFPCA step
 #' is performed.
 #'
-#' @param family One of \code{c("gaussian","binomial","gamma")}.
-#' For \code{"gamma"}, the \code{fpca_type} is fixed to \code{"two-step"}.
-#' Defaults to \code{"gaussian"}.
+#' @param family One of \code{c("gaussian","binomial","gamma","poisson")}.
+#' For \code{"gamma"} and \code{"poisson"}, the \code{fpca_type} is fixed to
+#' \code{"two-step"}. Defaults to \code{"gaussian"}.
 #' @param Y_template Optional dataframe with the same structure as \code{Y}.
 #' Only used for the initial registration step. If NULL,
 #' curves are registered to the overall mean of all curves in \code{Y} as template function.
@@ -138,11 +138,11 @@ register_fpca = function(Y, Kt = 8, Kh = 4, family = "gaussian",
 												 fpca_seed = 1988, fpca_error_thresh = 0.0001,
 												 fpca_index_relevantDigits = 4L, cores = 1L, ...){
 	
-  if (!(family %in% c("gaussian","binomial","gamma"))) {
-  	stop("Package currently handles only families 'gaussian', 'binomial' and 'gamma'.")
+  if (!(family %in% c("gaussian","binomial","gamma","poisson"))) {
+  	stop("Package currently handles only families 'gaussian', 'binomial', 'gamma' and 'poisson'.")
   }
 	
-	if (family == "gamma" && fpca_type == "variationalEM") {
+	if (family %in% c("gamma","poisson") && fpca_type == "variationalEM") {
 		warning("fpca_type = 'variationalEM' is only available for families 'gaussian' and 'binomial'. Setting fpca_type = 'two-step'.")
 		fpca_type = "two-step"
 	}

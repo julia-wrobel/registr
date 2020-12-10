@@ -2,7 +2,7 @@
 #' 
 #' Function for applying FPCA to different exponential family distributions.
 #' Used in the FPCA step for registering functional data,
-#' called by \code{\link{register_fpca}} when \code{GFPCA_type = "two-step"}. \cr \cr
+#' called by \code{\link{register_fpca}} when \code{fpca_type = "two-step"}. \cr \cr
 #' The method implements the `two-step approach` of Gertheiss et al. (2017)
 #' and is based on the approach of Hall et al. (2008) to estimate functional
 #' principal components. \cr \cr
@@ -10,8 +10,16 @@
 #' Gertheiss for Gertheiss et al. (2017), with focus on higher (RAM) efficiency
 #' for large data settings.
 #' 
-#' @param family One of \code{c("gaussian","binomial","gamma")}. Defaults to
-#' \code{"gaussian"}.
+#' For \code{family = "poisson"} the values in \code{Y} are rounded before
+#' performing the GFPCA to ensure integer data. This is done to ensure reasonable
+#' computation times. Computation times tend to explode when estimating the
+#' underlying high-dimensional mixed model with continuous Poisson data based
+#' on the \code{\link{gamm4}} package.
+#' 
+#' @param family One of \code{c("gaussian","binomial","gamma","poisson")}.
+#' Poisson data are rounded before performing
+#' the GFPCA to ensure integer data, see Details section below.
+#' Defaults to \code{"gaussian"}.
 #' @param index_relevantDigits Positive integer \code{>= 2}, stating the number
 #' of relevant digits to which the index grid should be rounded. Coarsening the
 #' index grid is necessary since otherwise the covariance surface matrix
@@ -80,8 +88,11 @@ gfpca_twoStep = function (Y, family = "gaussian", npc = 1, Kt = 8,
                           periodic = FALSE,
                           ...) {
   
-  if (family == "gamma" & any(Y$value <= 0))
+  if (family == "gamma" & any(Y$value <= 0)) {
     stop("family = 'gamma' can only be applied to strictly positive data.")
+  } else if (family == "poisson" & any(Y$value < 0)) {
+    stop("family = 'poisson' can only be applied to nonnegative data.")
+  }
   
   # clean data
   if (is.null(row_obj)) {
@@ -99,6 +110,10 @@ gfpca_twoStep = function (Y, family = "gaussian", npc = 1, Kt = 8,
   }
   if (!is.null(index_relevantDigits) && index_relevantDigits < 2) {
     stop("'relevant_digits' must be a positive integer >= 2.")
+  }
+  
+  if (family == "poisson") {
+    Y$value = round(Y$value) # ensure integer values
   }
   
   # coarsen the time index to better handle bigger data

@@ -1,23 +1,24 @@
 context("register_fpca")
 
 
-# for all tests implement for both gaussian and binary data
 test_that("code only accepts supported family of distributions", {
-	Y       = simulate_unregistered_curves(seed = 2020)
+	Y = simulate_unregistered_curves(seed = 2020)
 	
 	expect_warning(register_fpca(Y, family = "binomial", max_iterations = 2),
 								 "Convergence not reached. Try increasing max_iterations.")
 	expect_warning(register_fpca(Y, family = "gaussian", max_iterations = 2),
 								 "Convergence not reached. Try increasing max_iterations.")
 								 
-	Y$value = Y$value + 1 # make y values strictly positive for gamma family
+	Y$value = Y$value + 1 # make y values strictly positive for gamma and poisson family
 	expect_warning(register_fpca(Y, family = "gamma", max_iterations = 2, fpca_index_relevantDigits = 2),
 								 "Convergence not reached. Try increasing max_iterations.")
+	expect_warning(register_fpca(Y, family = "poisson", max_iterations = 2, fpca_index_relevantDigits = 2),
+								 "Convergence not reached. Try increasing max_iterations.")
 	
-	expect_error(register_fpca(Y, family = "poisson"),
-							 "Package currently handles only families 'gaussian', 'binomial' and 'gamma'.")
+	expect_error(register_fpca(Y, family = "exponential"),
+							 "Package currently handles only families 'gaussian', 'binomial', 'gamma' and 'poisson'.")
 	expect_error(register_fpca(Y, family = 25),
-							 "Package currently handles only families 'gaussian', 'binomial' and 'gamma'.")
+							 "Package currently handles only families 'gaussian', 'binomial', 'gamma' and 'poisson'.")
 })
 
 test_that("registering binary data throws no errors",{
@@ -44,6 +45,13 @@ test_that("registering gamma data throws no errors",{
 	Y       = simulate_unregistered_curves(seed = 10001)
 	Y$value = Y$value + 1 # make y values strictly positive for gamma family
 	expect_warning(register_fpca(Y, family = "gamma", max_iterations = 2, fpca_index_relevantDigits = 2),
+								 "Convergence not reached. Try increasing max_iterations.")
+})
+
+test_that("registering poisson data throws no errors",{
+	Y       = simulate_unregistered_curves(seed = 10001)
+	Y$value = Y$value + 1 # make y values nonnegative for poisson family
+	expect_warning(register_fpca(Y, family = "poisson", max_iterations = 2, fpca_index_relevantDigits = 2),
 								 "Convergence not reached. Try increasing max_iterations.")
 })
 
@@ -77,16 +85,20 @@ test_that("register_fpca function forces gradient = FALSE in some situations",{
 	expect_warning(register_fpca(Y, family = "binomial", periodic = TRUE, gradient = TRUE, max_iterations = 2), 
 								 "gradient = TRUE is only available for periodic = FALSE. Setting gradient = FALSE.")
 	
-	Y$value = Y$value + 1 # make y values strictly positive for gamma family
+	Y$value = Y$value + 1 # make y values strictly positive for gamma and poisson family
 	expect_warning(register_fpca(Y, family = "gamma", max_iterations = 2, fpca_index_relevantDigits = 2), 
+								 "gradient = TRUE is only available for families 'gaussian' and 'binomial'. Setting gradient = FALSE.")
+	expect_warning(register_fpca(Y, family = "poisson", max_iterations = 2, fpca_index_relevantDigits = 2), 
 								 "gradient = TRUE is only available for families 'gaussian' and 'binomial'. Setting gradient = FALSE.")
 })
 
 test_that("register_fpca function forces fpca_type = 'two-step' for families other than gaussian or binomial",{
 	Y = registr::growth_incomplete
-	Y$value = Y$value + 1 # make y values strictly positive for gamma family
+	Y$value = Y$value + 1 # make y values strictly positive for gamma and poisson family
 	
 	expect_warning(register_fpca(Y, family = "gamma", fpca_type = "variationalEM", max_iterations = 2, fpca_index_relevantDigits = 2),
+								 "fpca_type = 'variationalEM' is only available for families 'gaussian' and 'binomial'. Setting fpca_type = 'two-step'.")
+	expect_warning(register_fpca(Y, family = "poisson", fpca_type = "variationalEM", max_iterations = 2, fpca_index_relevantDigits = 2),
 								 "fpca_type = 'variationalEM' is only available for families 'gaussian' and 'binomial'. Setting fpca_type = 'two-step'.")
 })
 
@@ -209,6 +221,16 @@ test_that("register_fpca for gamma data throws no error",{
 	
 	expect_warning({
 		reg = register_fpca(Y, family = "gamma",fpca_type = "two-step", max_iterations = 2, fpca_index_relevantDigits = 2, gradient = FALSE)
+	}, "Convergence not reached. Try increasing max_iterations.")
+	expect_identical(class(reg), "registration")
+})
+
+test_that("register_fpca for poisson data throws no error",{
+	Y       = registr::growth_incomplete
+	Y$value = Y$value + 1 # make y values nonnegative for poisson family
+	
+	expect_warning({
+		reg = register_fpca(Y, family = "poisson",fpca_type = "two-step", max_iterations = 2, fpca_index_relevantDigits = 2, gradient = FALSE)
 	}, "Convergence not reached. Try increasing max_iterations.")
 	expect_identical(class(reg), "registration")
 })
