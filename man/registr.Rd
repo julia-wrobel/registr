@@ -36,12 +36,12 @@ Can be NULL only if Y argument is selected.}
 
 \item{Kh}{Number of B-spline basis functions used to estimate warping functions \emph{h}. Default is 4.}
 
-\item{family}{One of \code{c("gaussian","binomial","gamma")}. Defaults to
+\item{family}{One of \code{c("gaussian","binomial","gamma","poisson")}. Defaults to
 \code{"gaussian"}.}
 
 \item{gradient}{If \code{TRUE}, uses analytic gradient to calculate derivative. 
-If \code{FALSE}, calculates gradient numerically. Not available for
-\code{family = "gamma"}.}
+If \code{FALSE}, calculates gradient numerically. Not available for families
+\code{"gamma","poisson"}.}
 
 \item{incompleteness}{Optional specification of incompleteness structure.
 One of \code{c("leading","trailing","full")}, specifying that incompleteness

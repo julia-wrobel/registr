@@ -23,11 +23,11 @@ knitr::opts_chunk$set(echo = FALSE,
 
 ```
 
-Registration for exponential family functional data. 
+Registration for incomplete exponential family functional data. 
 
 * Authors: [Julia Wrobel](http://juliawrobel.com), [Alexander Bauer](https://www.en.stablab.stat.uni-muenchen.de/people/doktoranden/bauer1/index.html)
 * License: [MIT](https://opensource.org/licenses/MIT). See the [LICENSE](LICENSE) file for details
-* Version: 1.2
+* Version: 2.0
 
 ### What it does
 
@@ -41,6 +41,7 @@ Often in a functional dataset curves have similar underlying patterns but the ma
 
 This package implements statistical methods for registering exponential family functional data. The basic methods are described in more detail in our [paper](http://juliawrobel.com/Downloads/registration_ef.pdf) and were further adapted to (potentially) incomplete curve settings where (some) curves
 are not observed from the very beginning and/or until the very end of the common domain.
+For details on the incomplete curve methodology and how to use it see the corresponding package vignette.
 Instructions for installing the software and using it to register simulated binary data are provided below.
 
 ### Installation
@@ -133,7 +134,7 @@ Our software registers curves by estimating $t$. For this we use the function `r
 
 ```{r register_data, echo = TRUE, message = TRUE}
 binary_registration = register_fpca(Y = registration_data, family = "binomial", 
-																Kt = 6, Kh = 4, npc  = 1)
+                                    Kt = 6, Kh = 4, npc  = 1)
 ```
 
 The plot below shows unregistered, true registered, and estimated registered binary curves for two subjects after fitting our method.

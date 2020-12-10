@@ -12,7 +12,7 @@
 
 <meta name="author" content="Alexander Bauer" />
 
-<meta name="date" content="2020-12-04" />
+<meta name="date" content="2020-12-09" />
 
 <title>Registering Incomplete Curves</title>
 
@@ -363,7 +363,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <h1 class="title toc-ignore">Registering Incomplete Curves</h1>
 <h4 class="author">Alexander Bauer</h4>
-<h4 class="date">2020-12-04</h4>
+<h4 class="date">2020-12-09</h4>
 
 
 <div id="TOC">
@@ -399,7 +399,8 @@ h3 { /* Header 3 */
 <p>Incomplete curves arise in many applications. Incompleteness refers to functional data where (some) curves were not observed from the very beginning and/or until the very end of the common domain. Such a data structure is e.g. observed in the presence of drop-out in panel studies.</p>
 <p>We differentiate three different types of (in)completeness:</p>
 <ol style="list-style-type: decimal">
-<li><strong>no incompleteness</strong>, where processes where all observed from their very beginning until their very end. In this case, it is reasonable to assume that both the starting points and the endpoints of the warping functions in the registration process lie on the diagonal since the observed process is fully comprised in the observed interval.</li>
+<li><strong>no incompleteness</strong>,<br />
+where processes where all observed from their very beginning until their very end. In this case, it is reasonable to assume that both the starting points and the endpoints of the warping functions in the registration process lie on the diagonal since the observed process is fully comprised in the observed interval.</li>
 <li><strong>leading incompleteness</strong>,<br />
 where processes where not necessarily observed from their very beginning, but until their very end. In this case it is reasonable to assume that the endpoints lie on the diagonal since the observed process is observed until its end. The starting points of the warping functions are able to vary from the diagonal to handle potential time distortions towards the beginning of the observed domains.</li>
 <li><strong>trailing incompleteness</strong>,<br />

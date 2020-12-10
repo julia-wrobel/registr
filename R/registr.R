@@ -24,11 +24,11 @@
 #' @param Y Dataframe. Should have values id, value, index.
 #' @param Kt Number of B-spline basis functions used to estimate mean functions. Default is 8.
 #' @param Kh Number of B-spline basis functions used to estimate warping functions \emph{h}. Default is 4.
-#' @param family One of \code{c("gaussian","binomial","gamma")}. Defaults to
+#' @param family One of \code{c("gaussian","binomial","gamma","poisson")}. Defaults to
 #' \code{"gaussian"}.
 #' @param gradient If \code{TRUE}, uses analytic gradient to calculate derivative. 
-#' If \code{FALSE}, calculates gradient numerically. Not available for
-#' \code{family = "gamma"}.
+#' If \code{FALSE}, calculates gradient numerically. Not available for families
+#' \code{"gamma","poisson"}.
 #' @param incompleteness Optional specification of incompleteness structure.
 #' One of \code{c("leading","trailing","full")}, specifying that incompleteness
 #' is present only in the initial measurements, only in the trailing measurements, or
@@ -148,8 +148,11 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "gaussian", gr
   	Y = obj$Y
   }
 	
-	if (family == "gamma" & any(Y$value <= 0))
+	if (family == "gamma" & any(Y$value <= 0)) {
 		stop("family = 'gamma' can only be applied to strictly positive data.")
+	} else if (family == "poisson" & any(Y$value < 0)) {
+		stop("family = 'poisson' can only be applied to nonnegative data.")
+	}
 	
 	if(is.null(obj)) { 
 		if(warping == "nonparametric"){
@@ -185,7 +188,7 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "gaussian", gr
 		stop("warping argument can only take values of nonparametric or piecewise_linear2")
 	}
 
-	if (gradient & family == "gamma") {
+	if (gradient & !(family %in% c("gaussian","binomial"))) {
 		warning("gradient = TRUE is only available for families 'gaussian' and 'binomial'. Setting gradient = FALSE.")
 		gradient = FALSE
 	} else if (gradient & periodic){

@@ -24,8 +24,10 @@ marginal mean. Defaults to 8.}
 \item{Kc}{Number of marginal P-spline basis functions for smoothing the
 covariance surface. Defaults to 8.}
 
-\item{family}{One of \code{c("gaussian","binomial","gamma")}. Defaults to
-\code{"gaussian"}.}
+\item{family}{One of \code{c("gaussian","binomial","gamma","poisson")}.
+Poisson data are rounded before performing
+the GFPCA to ensure integer data, see Details section below.
+Defaults to \code{"gaussian"}.}
 
 \item{diag_epsilon}{Small constant to which diagonal elements of the
 covariance matrix are set if they are smaller. Defaults to 0.01.}

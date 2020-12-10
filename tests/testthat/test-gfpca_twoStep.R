@@ -115,6 +115,26 @@ test_that("gfpca_twoStep (Gamma) output has correct number of dimensions",{
 	expect_equal(dim(fpca_object$efunctions), c(200, 1))
 })
 
+test_that("gfpca_twoStep (Poisson) output has correct number of dimensions",{
+	Y       = simulate_functional_data(I = 100, D = 200, seed = 2020)$Y
+	Y$value = Y$value + 1 # make data strictly positive for poisson family
+	Kt      = 8
+	fpca_object = gfpca_twoStep(Y, npc = 2, Kt = Kt, family = "poisson",
+															index_relevantDigits = 4)
+	
+	expect_equal(length(fpca_object$t_vec), 200)
+	expect_equal(dim(fpca_object$alpha), c(200, 1))
+	expect_equal(dim(fpca_object$efunctions), c(200, 2))
+	expect_equal(length(fpca_object$evalues), 2)
+	expect_equal(dim(fpca_object$scores), c(length(unique(Y$id)), 2))
+	expect_equal(length(fpca_object$knots), Kt - 4)
+	
+	fpca_object = gfpca_twoStep(Y, npc = 1, Kt = Kt, family = "poisson",
+															index_relevantDigits = 4)
+	expect_equal(dim(fpca_object$efunctions), c(200, 1))
+})
+
+
 test_that("gfpca_twoStep (Gaussian) returns a correct knots vector when periodic = TRUE",{
 	Y = simulate_functional_data(I = 100, D = 200, seed = 2020)$Y
 	Kt = 8
@@ -144,4 +164,11 @@ test_that("gfpca_twoStep (Gamma) throws an error when applied to non-strictly po
 	
 	expect_error(gfpca_twoStep(Y, family = "gamma"),
 							 "family = 'gamma' can only be applied to strictly positive data.")
+})
+
+test_that("gfpca_twoStep (Poisson) throws an error when applied to negative data",{
+	Y = registr::growth_incomplete
+	
+	expect_error(gfpca_twoStep(Y, family = "poisson"),
+							 "family = 'poisson' can only be applied to nonnegative data.")
 })

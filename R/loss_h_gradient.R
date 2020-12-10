@@ -51,14 +51,14 @@ loss_h_gradient = function(Y, Theta_h, mean_coefs, knots, beta.inner, family = "
 	                              knots = knots, intercept = TRUE)[-(1:2),]
 	boundary_knots  = c(t_min, t_max)
   Theta_phi_deriv = bs_deriv(hinv_tstar, knots, Boundary.knots = boundary_knots)
-  if (family == "binomial") {
-  	varphi = 1
-  	b_g_deriv = plogis(Theta_phi %*% mean_coefs)
-  } else if (family == "gaussian") {
+  if (family == "gaussian") {
   	varphi = 1
   	b_g_deriv = Theta_phi %*% mean_coefs
+  } else if (family == "binomial") {
+  	varphi = 1
+  	b_g_deriv = plogis(Theta_phi %*% mean_coefs)
   } else {
-  	stop("Package currently handles only 'binomial' or 'gaussian' families.")
+  	stop("The gradient is currently only available for families 'gaussian' and 'binomial'.")
   }
   
   gradient_mat = matrix(NA, Kh, D_i)
