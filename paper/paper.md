@@ -30,9 +30,7 @@ Compared to classical longitudinal studies and by analyzing the
 observed _curve_ per subject, functional data analysis focuses more
 on the shapes of the (time-dependent) processes.
 E.g., one can analyze the speed of growth of children until adulthood
-in the Berkeley child growth study:
-
-![\label{fig:data}](figures/1_data.png)
+in the Berkeley child growth study (see left pane of Figure \autoref{fig:registration}).
 
 Functional data comprise different modes of variation.
 In the Berkeley study, not only can growth spurts be more or less pronounced
@@ -127,9 +125,9 @@ minimum / maximum.
 In `registr()` and `register_fpca()` the type of incompleteness can be defined
 by argument `incompleteness`.
 When applied to the Berkeley data with simulated full incompleteness,
-our approach leads to a reasonable registration:
+our approach leads to a reasonable registration as shown in Figure \autoref{fig:registration}:
 
-![\label{fig:registration}](figures/2_registration.png)
+![Left pane: Berkeley child growth data with simulated incompleteness; center: curves after registration; right: estimated inverse warping functions.\label{fig:registration}](figures/2_registration.png)
 
 # Acknowledgements
 

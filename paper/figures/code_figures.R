@@ -26,9 +26,9 @@ cowplot::plot_grid(gg_empty, gg, gg_empty, nrow = 1, rel_widths = c(.335,.33,.33
 gg1 <- ggplot(dat, aes(index, value, group = id)) +
 	geom_line(alpha = 0.22, col = "dodgerblue4") +
 	xlab("t* [observed]") + ylab("First derivative") +
-	ggtitle("Observed curves") +
+	# ggtitle("Observed curves") +
 	xlim(c(0,18)) +
-	theme(plot.title       = element_text(hjust = 0.5),
+	theme(plot.title       = element_blank(),
 				panel.grid.minor = element_blank())
 
 
@@ -41,9 +41,9 @@ reg <- register_fpca(Y = dat, npc = 2, max_iterations = 10,
 gg2 <- ggplot(reg$Y, aes(t_hat, value, group = id)) +
 	geom_line(alpha = 0.2, col = "dodgerblue4") +
 	xlab("t [registered]") + ylab("First derivative") +
-	ggtitle("Registered curves") +
+	# ggtitle("Registered curves") +
 	xlim(c(0,18)) +
-	theme(plot.title       = element_text(hjust = 0.5),
+	theme(plot.title       = element_blank(),
 				axis.title.y     = element_blank(),
 				axis.text.y      = element_blank(),
 				axis.ticks.y     = element_blank(),
@@ -53,9 +53,9 @@ gg2 <- ggplot(reg$Y, aes(t_hat, value, group = id)) +
 gg3 <- ggplot(reg$Y, aes(tstar, t_hat, group = id)) +
 	geom_line(alpha = 0.2, col = "dodgerblue4") +
 	xlab("t* [observed]") + ylab("t [registered]") +
-	ggtitle("Estimated inverse warping functions") +
+	# ggtitle("Estimated inverse warping functions") +
 	xlim(c(0,18)) + ylim(c(0,18)) +
-	theme(plot.title       = element_text(hjust = 0.5),
+	theme(plot.title       = element_blank(),
 				panel.grid.minor = element_blank())
 
 cowplot::plot_grid(gg1, gg2, gg3, nrow = 1, rel_widths = c(0.37, 0.3, 0.33)) +
