@@ -17,7 +17,7 @@ affiliations:
    index: 1
  - name: Department of Statistics, LMU Munich, Germany
    index: 2
-date: 10 December 2020
+date: 11 December 2020
 bibliography: paper.bib
 ---
 
@@ -26,29 +26,27 @@ bibliography: paper.bib
 Functional data are observed in many different fields.
 One classic example are longer-term panel studies where a sequence of measurements
 is observed for each subject.
-Functional data can however also be observed over other domains like space.
-Compared to classical longitudinal analyses and by setting the focus to the one
-observed _curve_ per subject, functional data analysis sets the focus
-on the analysis of the observed shapes of the time-dependent processes.
+Compared to classical longitudinal studies and by analyzing the
+observed _curve_ per subject, functional data analysis focuses more
+on the shapes of the (time-dependent) processes.
 E.g., one can analyze the speed of growth of children until adulthood
 in the Berkeley child growth study:
 
 ![\label{fig:data}](figures/1_data.png)
 
-Functional data have different modes of variation that underly them.
-In the mentioned example, not only can growth spurts be more or less pronounced
-regarding the happening growth (i.e., _amplitude variation_), but each spurt
-can also be delayed for some months / years for individual subjects (i.e., _phase variation_).
-Even if focus is mostly on amplitude variation, observed curves often have to be
+Functional data comprise different modes of variation.
+In the Berkeley study, not only can growth spurts be more or less pronounced
+regarding the actual growth (i.e., _amplitude variation_ along the y-axis), but each spurt
+can also be shifted for some months / years for individual subjects (i.e., _phase variation_ along the x-axis).
+Even if focus is on amplitude variation, observed curves often have to be
 preprocessed by a _registration method_ to eliminate phase variation.
 
-Most registration methods can only handle continuous data or data with a Gaussian
-structure. However, functional data are often non-Gaussian or even categorical.
-E.g., each time point can comprise a binary indicator for physical (non-)activity
-of patients (compare @wrobel2019).
-Moreover, most registration approaches rely on completely observed curves where
-the measurement comprises the underlying process from its very start to its very
-end.
+Most registration methods can only handle continuous data or data with a gaussian
+structure. However, functional data are often non-gaussian or even categorical.
+E.g., each time point can comprise a binary indicator for physical (in)activity
+of patients [@wrobel2019].
+Moreover, most registration approaches are only applicable to completely observed curves that
+comprise the underlying process from its very start to its very end.
 
 # Exponential Family-based Registration
 
@@ -56,7 +54,7 @@ The `registr` package is based on the methods outlined in @wrobel2019.
 Registration is performed using a likelihood-based approach and estimates
 _inverse warping functions_ $h_i^{-1}: t_i^* \mapsto t$ that map the observed
 time domain $t_i^*$ of subject $i$ to the common time domain $t$.
-The overall model results to
+The overall model is
 
 $$
 \begin{aligned}
@@ -67,55 +65,51 @@ $$
 
 with $Y_i\left(t_i^*\right)$ and $Y_i\left(h_i^{-1}(t_i^*)\right)$ the unregistered and registered curves, respectively,
 and $\mu_i(t)$ the subject-specific means.
-The latter are estimated with regard to a lower-dimensional representation based on
-a population-level mean $\alpha(t)$ and a linear combination of population-level basis functions $\psi(t)$
-and subject-specific scores $c_i$, based on a known link function $g$.
-The lower-dimensional representation is estimated using a likelihood-based
-approach for Generalized Functional Principal Component Analysis (GFPCA).
+The latter are expressed through a lower-dimensional representation based on
+a population-level mean $\alpha(t)$ and a linear combination of population-level basis functions $\psi_k(t)$
+and subject-specific scores $\boldsymbol{c}_i$, given some link function $g(\cdot)$.
+We estimate this representation using a likelihood-based
+approach for generalized functional principal component analysis (GFPCA).
 
 The overall model is estimated with function `register_fpca()`, which iterates 
 between the estimation of warping
 functions for the registration step (implemented in function `registr()`)
-and GFPCA estimation (functions `fpca_gauss()` or `bfpca()` for Gaussian or binomial data, respectively).
-The latter GFPCA functions are partly implemented in C++ using R libraries `Rcpp` and `RcppArmadillo` [@rcpp, @rcppArma]
+and GFPCA estimation (functions `fpca_gauss()` or `bfpca()` for gaussian or binomial data, respectively).
+The GFPCA functions are partly implemented in C++ using R packages `Rcpp` and `RcppArmadillo` [@rcpp; @rcppArma]
 to enhance computational efficiency.
-The package also includes an implementation of the _two-step GFPCA approach_
+The package also includes an implementation of the _two-step GFPCA_ approach
 of @gertheiss2017 to also handle further exponential family distributions.
-The respective implementation is based on the existing `gfpca` package of @goldsmith2016.
+The respective implementation is based on the `gfpca` package of @goldsmith2016.
 
-The registration and GFPCA approaches in the `registr` package are implemented
-for gaussian, binomial, gamma and poisson data.
-When performing a registration the template function (i.e. the reference curve
-to which all curves are mapped) can be flexibly defined by the user,
-using the argument `Y_template` in `registr()` and `register_fpca()`.
-The results can be interactively visualized with the ``refund.shiny` package [@refund.shiny, @wrobel2016]. 
+Various exponential family distributions are supported both for the registration and GFPCA approaches.
+For the registration step, the template function (to which all curves are mapped)
+can be flexibly defined by the user with the argument `Y_template` in `registr()` and `register_fpca()`.
+Final results can be interactively visualized with the `refund.shiny` package [@refund.shiny; @wrobel2016]. 
 
 # Incomplete Curve Registration
 
-The `registr` package extends the approach of @wrobel2019 to also handle
-incomplete curves where the underlying process of interest was not observed
-from its very beginning (i.e., _leading incompleteness_), until its very end
+We extend the approach of @wrobel2019 to
+incomplete curves where the underlying process was either not observed
+from its very beginning (i.e., _leading incompleteness_) or until its very end
 (_trailing incompleteness_), or both (_full incompleteness_).
 
-It often is a quite strict assumption in incomplete data
-settings that all warping functions start and/or end on the diagonal, i.e. that the individual,
-observed part of the whole time domain is not (to some extent) distorted.
-Therefore, the `registr` package gives the additional option to estimate
-warping functions without the constraint that their starting point and/or endpoint
-lies on the diagonal.
+Given that for complete curves the underlying process is fully comprised in the observed
+interval, it is reasonable to assume that both the starting points and the
+endpoints of the warping functions lie on the diagonal line (i.e., resemble an identity map) to preserve the overall interval.
+For incomplete curves, warping functions are estimated without this
+starting point and / or endpoint constraint.
 
-On the other hand, if we fully remove the constraint for the starting points / endpoints
-to lie on the diagonal, this can lead to very extreme and unrealistic distortions
-of the time domain. This problem is further accompanied by the fact that
-the assessment of some given warping to be realistic or unrealistic can heavily
-vary between different applications.
-As of this reason, our method includes a penalization parameter $\lambda$ that
-has to be set manually to specify which kinds of distortions are deemed realistic
-in the application at hand.
+However, fully removing these constraints can lead to extreme distortions
+of the time domain.
+We include a penalization parameter $\lambda$ that controls how strongly
+the starting points / endpoints can differ from the diagonal line.
+In practical settings, $\lambda$ has to be set manually to specify which kinds of
+warpings are deemed unrealistic and should be prevented.
+The choice of $\lambda$ should be based on subject knowledge by comparing
+the registration results given different $\lambda$ values.
 
-Mathematically speaking, we add a penalization term to the likelihood $\ell(i)$ 
-for curve $i$. For a setting with **full incompleteness** (i.e., where both the starting
-point and endpoint are free to vary from the diagonal) this results in
+Mathematically speaking, we add a penalization term to the log likelihood $\ell(i)$ [see @wrobel2019]
+for curve $i$. For a setting with full incompleteness this results in
 
 $$
 \begin{aligned}
@@ -130,20 +124,15 @@ where $t^*_{min,i},t^*_{max,i}$ are the minimum / maximum of the observed time d
 $\hat{h}^{-1}_i(t^*_{min,i}), \hat{h}^{-1}_i(t^*_{max,i})$ the inverse warping function evaluated at this
 minimum / maximum.
 
-The higher the penalization parameter $\lambda$, the more the starting point and endpoint
-of the warping function are forced towards an identity warp, i.e. the diagonal line.
-Given a specific application, $\lambda$ should be chosen s.t.
-unrealistic distortions of the time domain are prevented.
-To do so, the user has to run the registration approach multiple times with
-different $\lambda$'s to find an optimal value.
-
-The results of our registration approach applied to the growth curve data
-are shown in Figure \autoref{fig:registration}.
+In `registr()` and `register_fpca()` the type of incompleteness can be defined
+by argument `incompleteness`.
+When applied to the Berkeley data with simulated full incompleteness,
+our approach leads to a reasonable registration:
 
 ![\label{fig:registration}](figures/2_registration.png)
 
 # Acknowledgements
 
-We thank Fabian Scheipl for valuable methodological contributions.
+We thank Fabian Scheipl and Helmut Küchenhoff for valuable methodological contributions.
 
 # References
