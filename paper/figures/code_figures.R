@@ -2,7 +2,7 @@
 library(registr)
 library(dplyr)
 library(ggplot2)
-theme_set(theme_minimal(base_size = 12))
+theme_set(theme_minimal(base_size = 16))
 library(cowplot)
 
 
