@@ -49,8 +49,7 @@ comprise the underlying process from its very start to its very end.
 
 The `registr` package is based on the methods outlined in @wrobel2019.
 Registration is performed using a likelihood-based approach and estimates
-_inverse warping functions_  
-$h_i^{-1}: t_i^* \mapsto t$ that map the observed
+_inverse warping functions_ ${h_i^{-1}: t_i^* \mapsto t}$ that map the observed
 time domain $t_i^*$ for subject $i$ to the common time domain $t$.
 The overall model is
 
