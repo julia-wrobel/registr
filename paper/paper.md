@@ -121,6 +121,7 @@ the registration results given different $\lambda$ values.
 
 In `registr()` and `register_fpca()` the type of incompleteness can be defined
 by argument `incompleteness`.
+Further details are given in the package vignette _incomplete_curves_.
 When applied to the Berkeley data with simulated full incompleteness,
 our approach leads to a reasonable registration as shown in \autoref{fig:registration}.
 
