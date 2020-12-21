@@ -55,7 +55,7 @@ The overall model is
 
 $$
 \begin{aligned}
-E\left[Y_i\left(h_i^{-1}(t_i^*)\right) | c_i, h_i^{-1} \right] &= \mu_i(t), \\
+E\left[Y_i\left(h_i^{-1}(t_i^*)\right) | h_i^{-1}, \alpha(t), \boldsymbol{c}_i, \boldsymbol{\psi}(t) \right] &= \mu_i(t), \\
 g\left[\mu_i(t)\right] &= \alpha(t) + \sum_{k = 1}^K c_{ik}\psi_k(t),
 \end{aligned}
 $$
@@ -67,7 +67,7 @@ The subject-specific means $\mu_i(t)$ are expressed through a low-rank represent
 a population-level mean $\alpha(t)$ and a linear combination of population-level basis functions $\psi_k(t)$
 and subject-specific scores $\boldsymbol{c}_i$, composed with a fixed link function $g(\cdot)$.
 We estimate this representation using a likelihood-based
-approach for generalized functional principal component analysis (GFPCA).
+approach for generalized functional principal component analysis [GFPCA, @gertheiss2017].
 
 The overall model is estimated with function `register_fpca()`, which iterates 
 between the estimation of warping
