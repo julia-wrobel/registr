@@ -67,7 +67,7 @@ The subject-specific means $\mu_i(t)$ are expressed through a low-rank represent
 a population-level mean $\alpha(t)$ and a linear combination of population-level basis functions $\psi_k(t)$
 and subject-specific scores $\boldsymbol{c}_i$, composed with a fixed link function $g(\cdot)$.
 We estimate this representation using a likelihood-based
-approach for generalized functional principal component analysis [GFPCA, @gertheiss2017].
+approach for generalized functional principal component analysis (GFPCA).
 
 The overall model is estimated with function `register_fpca()`, which iterates 
 between the estimation of warping
