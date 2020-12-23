@@ -24,7 +24,7 @@ bibliography: paper.bib
 # Introduction
 
 Functional data are observed in many different fields.
-One classic example are longer-term panel studies where a sequence of measurements
+Typical examples are longer-term panel studies where a sequence of measurements
 is observed for each subject.
 Compared to classical longitudinal studies, functional data analysis focuses
 more on the shapes of the (time-dependent) processes by analyzing the observed
