@@ -62,9 +62,10 @@ cov_hall = function(Y, index_evalGrid, Kt = 8, Kc = 8, family = "gaussian",
   Y_miss = matrix(NA, nrow = I, ncol = D)
   
   # estimate the marginal mean mu(t) of the LGP X(t) (before applying the response function)
-  out = mgcv::gam(value ~ s(index, bs = "ps", k = Kt),
-                  family = family_mgcv, data = Y)
-  mu  = as.vector(mgcv::predict.gam(out, newdata = data.frame(index = index_evalGrid)))
+  model_mean = mgcv::gam(value ~ s(index, bs = "ps", k = Kt),
+                         family = family_mgcv, data = Y)
+  mu         = as.vector(mgcv::predict.gam(model_mean, type = "link",
+                                           newdata = data.frame(index = index_evalGrid)))
   
   # fill the Y_miss measurement matrix
   for (i in 1:I) {
@@ -94,11 +95,8 @@ cov_hall = function(Y, index_evalGrid, Kt = 8, Kc = 8, family = "gaussian",
   Yi_2mom_sm = (Yi_2mom_sm + t(Yi_2mom_sm)) / 2 # ensure symmetry
   
   # estimate the marginal mean alpha(t) of g(X(t))
-  Y_miss_mean = colMeans(Y_miss, na.rm = TRUE)
-  Y.mean_sm = as.vector(mgcv::predict.gam(
-    mgcv::gam(Y_miss_mean ~ s(grid, bs = "ps", k = Kt), method = "REML"),
-    newdata = data.frame(grid = index_evalGrid)
-  ))
+  Y.mean_sm = as.vector(mgcv::predict.gam(model_mean, type = "response",
+                                          newdata = data.frame(index = index_evalGrid)))
   
   ## estimate tau(s,t) as final estimate for the covariance surface
   # calculate the numerator
