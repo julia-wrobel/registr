@@ -106,7 +106,7 @@ $$
 \begin{aligned}
 \ell_{\text{pen}}(i) &= \ell(i) - \lambda \cdot \text{pen}(i), \\
 \text{with} \ \ \ 
-\text{pen}(i) &= \left( \left[\hat{h}_i^{-1}(t_{max,i}^*) - \hat{h}_i^{-1}(t_{min,i}^*)\right] - \left[t_{max,i}^* - t_{min,i}^*\right] \right)^2,
+\text{pen}(i) &= \left( [\hat{h}_i^{-1}(t_{max,i}^*) - \hat{h}_i^{-1}(t_{min,i}^*)] - [t_{max,i}^* - t_{min,i}^*] \right)^2,
 \end{aligned}
 $$
 
