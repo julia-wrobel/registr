@@ -91,14 +91,15 @@ loss_h = function(Y, Theta_h, mean_coefs, knots, beta.inner, family, t_min, t_ma
   # penalization term for the endpoint of the warping function
   pen_term = 0
   if (!is.null(incompleteness) && (lambda_inc != 0)) { # penalization
-  	if (incompleteness %in% c("leading","full")) { # penalize the starting point
-  		pen_term_leading = (hinv_tstar[1] - t_min_curve)^2
-  		pen_term         = pen_term + lambda_inc * pen_term_leading
+  	if (incompleteness == "leading") { # penalize the starting point only
+  		pen_term_raw = (hinv_tstar[1] - t_min_curve)^2
+  	} else if (incompleteness == "trailing") { # penalize the endpoint only
+  		pen_term_raw = (utils::tail(hinv_tstar, 1) - t_max_curve)^2
+  	} else if (incompleteness == "full") { # penalize overall dilation
+  		pen_term_raw = ((utils::tail(hinv_tstar, 1) - hinv_tstar[1]) -
+  											(t_max_curve - t_min_curve))^2
   	}
-  	if (incompleteness %in% c("trailing","full")) { # penalize the endpoint
-  		pen_term_trailing = (utils::tail(hinv_tstar, 1) - t_max_curve)^2
-  		pen_term          = pen_term + lambda_inc * pen_term_trailing
-  	}
+  	pen_term = lambda_inc * pen_term_raw
   }
   
   # Calculate the negative log likelihood

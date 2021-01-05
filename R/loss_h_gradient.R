@@ -70,16 +70,19 @@ loss_h_gradient = function(Y, Theta_h, mean_coefs, knots, beta.inner, family = "
   pen_term = 0
   if (!is.null(incompleteness) && (lambda_inc != 0)) { # penalization
   	
-    if (incompleteness %in% c("leading","full")) { # penalize the starting point
+    if (incompleteness == "leading") { # penalize the starting point only
     	theta_h_leading  = Theta_h[1,]
-    	pen_term_leading = 2 * (hinv_tstar[1] - t_min_curve) * theta_h_leading
-    	pen_term         = pen_term + lambda_inc * pen_term_leading
-    }
-    if (incompleteness %in% c("trailing","full")) { # penalize the endpoint
+    	pen_term_raw     = 2 * (hinv_tstar[1] - t_min_curve) * theta_h_leading
+    } else if (incompleteness == "trailing") { # penalize the endpoint only
     	theta_h_trailing  = Theta_h[D_i,]
-    	pen_term_trailing = 2 * (hinv_tstar[D_i] - t_max_curve) * theta_h_trailing
-    	pen_term          = pen_term + lambda_inc * pen_term_trailing
+    	pen_term_raw      = 2 * (hinv_tstar[D_i] - t_max_curve) * theta_h_trailing
+    } else if (incompleteness == "full") { # penalize overall dilation
+    	theta_h_leading  = Theta_h[1,]
+    	theta_h_trailing = Theta_h[D_i,]
+    	pen_term_raw     = 2 * ((hinv_tstar[D_i] - hinv_tstar[1]) - (t_max_curve - t_min_curve)) *
+    		(theta_h_trailing - theta_h_leading)
     }
+  	pen_term = lambda_inc * pen_term_raw
   }
   
   grad = 1/varphi * rowSums(gradient_mat) - pen_term

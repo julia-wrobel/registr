@@ -119,12 +119,12 @@ test_that("registr function with incompleteness != NULL and lambda_inc = 0: warp
 	expect_lte(round(max(reg3$Y$index), 5), expected = t_max)
 })
 
-test_that("registr function with incompleteness = 'full': higher lambda_inc values lead to starting points and endpoints closer to the diagonal",{
+test_that("registr function with incompleteness = 'leading': higher lambda_inc values lead to starting points closer to the diagonal",{
 	Y = registr::growth_incomplete
 	reg1 = registr(Y = Y, family = "gaussian",
-								 incompleteness = "full", lambda_inc = 1)
+								 incompleteness = "leading", lambda_inc = 1)
 	reg2 = registr(Y = Y, family = "gaussian",
-								 incompleteness = "full", lambda_inc = 10)
+								 incompleteness = "leading", lambda_inc = 10)
 	
 	# compare the MSE values of the warping function starting points to the diagonal
 	t_min_observed_1   = tapply(X = reg1$Y$tstar, INDEX = reg1$Y$id, FUN = min)
@@ -134,6 +134,14 @@ test_that("registr function with incompleteness = 'full': higher lambda_inc valu
 	MSE_min1 = sum((t_min_registered_1 - t_min_observed_1)^2)
 	MSE_min2 = sum((t_min_registered_2 - t_min_observed_2)^2)
 	expect_gt(MSE_min1, expected = MSE_min2)
+})
+
+test_that("registr function with incompleteness = 'trailing': higher lambda_inc values lead to endpoints closer to the diagonal",{
+	Y = registr::growth_incomplete
+	reg1 = registr(Y = Y, family = "gaussian",
+								 incompleteness = "trailing", lambda_inc = 1)
+	reg2 = registr(Y = Y, family = "gaussian",
+								 incompleteness = "trailing", lambda_inc = 10)
 	
 	# compare the MSE values of the warping function endpoints to the diagonal
 	t_max_observed_1   = tapply(X = reg1$Y$tstar, INDEX = reg1$Y$id, FUN = max)
