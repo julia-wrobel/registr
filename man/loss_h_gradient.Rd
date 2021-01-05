@@ -43,8 +43,9 @@ Defaults to NULL, i.e. no incompleteness structure.
 Can only be set when \code{warping = "nonparametric"}.}
 
 \item{lambda_inc}{Penalization parameter to control the amount of
-deviation of the warping function starting points and/or endpoints from the diagonal.
-The higher this lambda, the more the starting points / endpoints are forced towards the diagonal.
+overall dilation of the domain.
+The higher this lambda, the more the registered domains are forced to have the
+same length as the observed domains.
 Only used if \code{incompleteness} is not NULL.}
 
 \item{t_min}{minimum and maximum value to be evaluated on the time domain.}

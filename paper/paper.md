@@ -104,16 +104,19 @@ for curve $i$. For a setting with full incompleteness this results in
 
 $$
 \begin{aligned}
-\ell_{pen}(i) &= \ell(i) - \lambda \cdot pen(i), \\
+\ell_{\text{pen}}(i) &= \ell(i) - \lambda \cdot \text{pen}(i), \\
 \text{with} \ \ \ 
-pen(i) &= \left( \hat{h}^{-1}_i(t^*_{min,i}) - t^*_{min,i} \right)^2 +
-\left( \hat{h}^{-1}_i(t^*_{max,i}) - t^*_{max,i} \right)^2,
+\text{pen}(i) &= \left( \left[\hat{h}_i^{-1}(t_{max,i}^*) - \hat{h}_i^{-1}(t_{min,i}^*)\right] - \left[t_{max,i}^* - t_{min,i}^*\right] \right)^2,
 \end{aligned}
 $$
 
 where $t^*_{min,i},t^*_{max,i}$ are the minimum / maximum of the observed time domain of curve $i$ and
 $\hat{h}^{-1}_i(t^*_{min,i}), \hat{h}^{-1}_i(t^*_{max,i})$ the inverse warping function evaluated at this
 minimum / maximum.
+For leading incompleteness with $h_i^{-1}(t_{max,i}^*) = t_{max,i}^* \forall i$ this simplifies to
+$\text{pen}(i) = \left(\hat{h}_i^{-1}(t_{min,i}^*) - t_{min,i}^*\right)^2$, and for trailing incompleteness with
+$h_i^{-1}(t_{min,i}^*) = t_{min,i}^* \forall i$ to
+$\text{pen}(i) = \left(\hat{h}_i^{-1}(t_{max,i}^*) - t_{max,i}^*\right)^2$.
 In practical settings, $\lambda$ has to be set manually to specify which kinds of
 warpings are deemed unrealistic and should be prevented.
 The choice of $\lambda$ should be based on subject knowledge by comparing

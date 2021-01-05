@@ -144,18 +144,20 @@ for curve $i$. For a setting with **full incompleteness** (i.e., where both the 
 point and endpoint are free to vary from the diagonal) this results in
 $$
 \begin{aligned}
-\ell_{pen}(i) &= \ell(i) - \lambda \cdot pen(i), \\
+\ell_{\text{pen}}(i) &= \ell(i) - \lambda \cdot \text{pen}(i), \\
 \text{with} \ \ \ 
-pen(i) &= \left( \hat{h}^{-1}_i(t^*_{min,i}) - t^*_{min,i} \right)^2 +
-\left( \hat{h}^{-1}_i(t^*_{max,i}) - t^*_{max,i} \right)^2,
+\text{pen}(i) &= \left( \left[\hat{h}_i^{-1}(t_{max,i}^*) - \hat{h}_i^{-1}(t_{min,i}^*)\right] - \left[t_{max,i}^* - t_{min,i}^*\right] \right)^2,
 \end{aligned}
 $$
 where $t^*_{min,i},t^*_{max,i}$ are the minimum / maximum of the observed time domain of curve $i$ and
 $\hat{h}^{-1}_i(t^*_{min,i}), \hat{h}^{-1}_i(t^*_{max,i})$ the inverse warping function evaluated at this
-minimum / maximum.
+minimum / maximum. For leading incompleteness with $h_i^{-1}(t_{max,i}^*) = t_{max,i}^* \forall i$ this simplifies to
+$\text{pen}(i) = \left(\hat{h}_i^{-1}(t_{min,i}^*) - t_{min,i}^*\right)^2$, and for trailing incompleteness with
+$h_i^{-1}(t_{min,i}^*) = t_{min,i}^* \forall i$ to
+$\text{pen}(i) = \left(\hat{h}_i^{-1}(t_{max,i}^*) - t_{max,i}^*\right)^2$.
 
-The higher the penalization parameter $\lambda$, the more the starting point and endpoint
-of the warping function are forced towards an identity warp, i.e. the diagonal line.
+The higher the penalization parameter $\lambda$, the more the length of the registered domain
+is forced towards the length of the observed domain.
 Given a specific application, $\lambda$ should be chosen s.t.
 unrealistic distortions of the time domain are prevented.
 To do so, the user has to run the registration approach multiple times with
