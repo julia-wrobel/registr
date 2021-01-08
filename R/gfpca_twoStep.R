@@ -20,8 +20,8 @@
 #' Poisson data are rounded before performing
 #' the GFPCA to ensure integer data, see Details section below.
 #' Defaults to \code{"gaussian"}.
-#' @param index_relevantDigits Positive integer \code{>= 2}, stating the number
-#' of relevant digits to which the index grid should be rounded. Coarsening the
+#' @param index_significantDigits Positive integer \code{>= 2}, stating the number
+#' of significant digits to which the index grid should be rounded. Coarsening the
 #' index grid is necessary since otherwise the covariance surface matrix
 #' explodes in size in the presence of too many unique index values (which is
 #' always the case after some registration step). Defaults to 4. Set to
@@ -40,7 +40,7 @@
 #' 
 #' @return An object of class \code{fpca} containing:
 #' \item{t_vec}{Time vector over which the mean \code{mu} was evaluated.
-#' The resolution is can be specified by setting \code{index_relevantDigits}.}
+#' The resolution is can be specified by setting \code{index_significantDigits}.}
 #' \item{knots}{Cutpoints for B-spline basis used to rebuild \code{alpha}.}
 #' \item{efunctions}{\eqn{D \times npc} matrix of estimated FPC basis functions.}
 #' \item{evalues}{Estimated variance of the FPC scores.}
@@ -83,7 +83,7 @@
 #' 
 gfpca_twoStep = function (Y, family = "gaussian", npc = 1, Kt = 8,
                           t_min = NULL, t_max = NULL,
-                          row_obj = NULL, index_relevantDigits = 4L,
+                          row_obj = NULL, index_significantDigits = 4L,
                           estimation_accuracy = "high", start_params = NULL,
                           periodic = FALSE,
                           ...) {
@@ -108,8 +108,8 @@ gfpca_twoStep = function (Y, family = "gaussian", npc = 1, Kt = 8,
   if (Kt < 3) {
     stop("Kt must be greater than or equal to 3.")
   }
-  if (!is.null(index_relevantDigits) && index_relevantDigits < 2) {
-    stop("'relevant_digits' must be a positive integer >= 2.")
+  if (!is.null(index_significantDigits) && index_significantDigits < 2) {
+    stop("'significant_digits' must be a positive integer >= 2.")
   }
   
   if (family == "poisson") {
@@ -118,8 +118,8 @@ gfpca_twoStep = function (Y, family = "gaussian", npc = 1, Kt = 8,
   
   # coarsen the time index to better handle bigger data
   time_orig = Y$index
-  if (!is.null(index_relevantDigits)) {
-    Y$index   = coarsen_index(Y$index, index_relevantDigits)
+  if (!is.null(index_significantDigits)) {
+    Y$index   = coarsen_index(Y$index, index_significantDigits)
   }
   
   time = Y$index

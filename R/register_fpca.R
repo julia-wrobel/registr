@@ -45,8 +45,8 @@
 #' @param fpca_error_thresh Only used if \code{fpca_type = "variationalEM"}.
 #' Number to pass to the \code{error_thresh} argument of `bfpca()` or
 #' `fpca_gauss()`. Defaults to 0.0001.
-#' @param fpca_index_relevantDigits Only used if \code{fpca_type = "two-step"}.
-#' Positive integer \code{>= 2}, stating the number of relevant digits to which
+#' @param fpca_index_significantDigits Only used if \code{fpca_type = "two-step"}.
+#' Positive integer \code{>= 2}, stating the number of significant digits to which
 #' the index grid should be rounded in the GFPCA step. Coarsening the index grid
 #' is necessary since otherwise the covariance surface matrix explodes in size
 #' in the presence of too many unique index values (which is the case after some
@@ -83,7 +83,7 @@
 #' # estimation based on Gertheiss et al. (2017)
 #' reg2 = register_fpca(Y, npc = 2, family = "binomial",
 #'                      fpca_type = "two-step", max_iterations = 5,
-#'                      fpca_index_relevantDigits = 4)
+#'                      fpca_index_significantDigits = 4)
 #' 
 #' ggplot(reg$Y, aes(x = tstar, y = t_hat, group = id)) +
 #'   geom_line(alpha = 0.2) + ggtitle("Estimated warping functions")
@@ -136,7 +136,7 @@ register_fpca = function(Y, Kt = 8, Kh = 4, family = "gaussian",
 												 max_iterations = 10, npc = 1,
 												 fpca_type = "variationalEM", fpca_maxiter = 50,
 												 fpca_seed = 1988, fpca_error_thresh = 0.0001,
-												 fpca_index_relevantDigits = 4L, cores = 1L, ...){
+												 fpca_index_significantDigits = 4L, cores = 1L, ...){
 	
   if (!(family %in% c("gaussian","binomial","gamma","poisson"))) {
   	stop("Package currently handles only families 'gaussian', 'binomial', 'gamma' and 'poisson'.")
@@ -191,9 +191,9 @@ register_fpca = function(Y, Kt = 8, Kh = 4, family = "gaussian",
   		
   		fpca_step = gfpca_twoStep(registr_step$Y, family = family, npc = npc,
   															Kt = Kt, row_obj = rows,
-  															index_relevantDigits = fpca_index_relevantDigits,
-  															estimation_accuracy  = estimation_accuracy,
-  															start_params         = gamm4_startParams)
+  															index_significantDigits = fpca_index_significantDigits,
+  															estimation_accuracy     = estimation_accuracy,
+  															start_params            = gamm4_startParams)
   	}
   	
   	registr_step = registr(obj = fpca_step, Kt = Kt, Kh = Kh, family = family, 
@@ -228,9 +228,9 @@ register_fpca = function(Y, Kt = 8, Kh = 4, family = "gaussian",
   } else if (fpca_type == "two-step") { # Two-step GFPCA after Gertheiss et al. (2017)
   	fpca_step = gfpca_twoStep(registr_step$Y, family = family, npc = npc,
   														Kt = Kt, row_obj = rows,
-  														index_relevantDigits = fpca_index_relevantDigits,
-  														estimation_accuracy  = "high",
-  														start_params         = fpca_step$gamm4_theta)
+  														index_significantDigits = fpca_index_significantDigits,
+  														estimation_accuracy     = "high",
+  														start_params            = fpca_step$gamm4_theta)
   }
   
   Y$tstar = time_warps[[1]]

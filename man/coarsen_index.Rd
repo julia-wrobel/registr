@@ -4,19 +4,19 @@
 \alias{coarsen_index}
 \title{Coarsen an index vector to a given resolution}
 \usage{
-coarsen_index(index, relevant_digits)
+coarsen_index(index, significant_digits)
 }
 \arguments{
 \item{index}{Numeric vector of index values.}
 
-\item{relevant_digits}{Positive integer value.}
+\item{significant_digits}{Positive integer value.}
 }
 \value{
 Numeric vector of rounded index values.
 }
 \description{
 Reduce the resolution of a numeric vector by specifying the number of
-\code{relevant_digits} to which the numbers should be rounded. \cr \cr
+\code{significant_digits} to which the numbers should be rounded. \cr \cr
 Internal function used to coarsen the index vector before estimating the
 two-step GFPCA with \code{\link{gfpca_twoStep}}.
 }
