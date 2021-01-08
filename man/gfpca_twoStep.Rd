@@ -12,7 +12,7 @@ gfpca_twoStep(
   t_min = NULL,
   t_max = NULL,
   row_obj = NULL,
-  index_relevantDigits = 4L,
+  index_significantDigits = 4L,
   estimation_accuracy = "high",
   start_params = NULL,
   periodic = FALSE,
@@ -38,8 +38,8 @@ Defaults to \code{"gaussian"}.}
 \item{row_obj}{If NULL, the function cleans the data and calculates row indices. 
 Keep this NULL if you are using standalone \code{register} function.}
 
-\item{index_relevantDigits}{Positive integer \code{>= 2}, stating the number
-of relevant digits to which the index grid should be rounded. Coarsening the
+\item{index_significantDigits}{Positive integer \code{>= 2}, stating the number
+of significant digits to which the index grid should be rounded. Coarsening the
 index grid is necessary since otherwise the covariance surface matrix
 explodes in size in the presence of too many unique index values (which is
 always the case after some registration step). Defaults to 4. Set to
@@ -61,7 +61,7 @@ results of the two-step GFPCA.}
 \value{
 An object of class \code{fpca} containing:
 \item{t_vec}{Time vector over which the mean \code{mu} was evaluated.
-The resolution is can be specified by setting \code{index_relevantDigits}.}
+The resolution is can be specified by setting \code{index_significantDigits}.}
 \item{knots}{Cutpoints for B-spline basis used to rebuild \code{alpha}.}
 \item{efunctions}{\eqn{D \times npc} matrix of estimated FPC basis functions.}
 \item{evalues}{Estimated variance of the FPC scores.}

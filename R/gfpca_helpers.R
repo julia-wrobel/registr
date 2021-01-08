@@ -1,12 +1,12 @@
 #' Coarsen an index vector to a given resolution
 #' 
 #' Reduce the resolution of a numeric vector by specifying the number of
-#' \code{relevant_digits} to which the numbers should be rounded. \cr \cr
+#' \code{significant_digits} to which the numbers should be rounded. \cr \cr
 #' Internal function used to coarsen the index vector before estimating the
 #' two-step GFPCA with \code{\link{gfpca_twoStep}}.
 #' 
 #' @param index Numeric vector of index values.
-#' @param relevant_digits Positive integer value.
+#' @param significant_digits Positive integer value.
 #' 
 #' @return Numeric vector of rounded index values.
 #' 
@@ -21,10 +21,10 @@
 #' registr:::coarsen_index(index_vector2, 1)
 #' registr:::coarsen_index(index_vector2, 3)
 #' 
-coarsen_index = function(index, relevant_digits) {
+coarsen_index = function(index, significant_digits) {
 	
-	if (relevant_digits < 1) {
-		stop("'relevant_digits' must be a positive integer.")
+	if (significant_digits < 1) {
+		stop("'significant_digits' must be a positive integer.")
 	}
 	
 	# remove potential signs
@@ -37,7 +37,7 @@ coarsen_index = function(index, relevant_digits) {
 		digits_preDecimal = 0
 	
 	index_abs_scaled         = index_abs / 10^(digits_preDecimal - 1)
-	index_abs_scaled_rounded = round(index_abs_scaled, relevant_digits - 1)
+	index_abs_scaled_rounded = round(index_abs_scaled, significant_digits - 1)
 	index_abs_rounded        = index_abs_scaled_rounded * 10^(digits_preDecimal - 1)
 	
 	# add the signs again
