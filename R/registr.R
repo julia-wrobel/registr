@@ -65,7 +65,8 @@
 #' @param ... additional arguments passed to or from other functions
 #' 
 #' @return An object of class \code{fpca} containing:
-#' \item{Y}{The observed data. The variable index is the new estimated time domain.}
+#' \item{Y}{The observed data. The variables \code{index} and \code{index_scaled}
+#' contain the new estimated time domain.}
 #' \item{loss}{Value of the loss function after registraton.}
 #' \item{beta}{Matrix of B-spline basis coefficients used to construct subject-specific warping functions.}
 #' 
@@ -280,8 +281,9 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "gaussian", gr
   t_hat         = unlist(sapply(results_list, function(x) as.vector(x$t_hat), simplify = FALSE))
   loss_subjects = unlist(sapply(results_list, function(x) as.vector(x$loss),  simplify = FALSE))
   
-  Y$index = t_hat
-	Y$tstar = tstar
+  Y$index        = t_hat
+  Y$index_scaled = t_hat / t_max
+	Y$tstar        = tstar
 	
 	res = list(Y    = Y,
 						 loss = sum(loss_subjects),
