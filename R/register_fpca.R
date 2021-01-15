@@ -167,7 +167,7 @@ register_fpca = function(Y, Kt = 8, Kh = 4, family = "gaussian",
   iter = 1
   delta_warpings       = rep(NA, max_iterations)
   delta_warpings[iter] = 0.1
-  while (iter <= max_iterations && delta_warpings[iter] > 0.0001) {
+  while (iter <= max_iterations && delta_warpings[iter] > 0.00001) {
   	message("current iteration: ", iter)
   	
   	if (fpca_type == "variationalEM") { # GFPCA after Wrobel et al. (2019)
