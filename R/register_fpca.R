@@ -161,13 +161,13 @@ register_fpca = function(Y, Kt = 8, Kh = 4, family = "gaussian",
   											 lambda_inc     = lambda_inc,
   											 Y_template     = Y_template,
   											 row_obj = rows, cores = cores, ...)
-  time_warps[[2]] = registr_step$Y$index
+  time_warps[[2]] = registr_step$Y$index_scaled
   loss[1] = registr_step$loss
   
   iter = 1
-  error = rep(NA, max_iterations)
-  error[iter] = 100
-  while( iter <= max_iterations && error[iter] > 0.01 ){
+  delta_warpings       = rep(NA, max_iterations)
+  delta_warpings[iter] = 0.1
+  while (iter <= max_iterations && delta_warpings[iter] > 0.0001) {
   	message("current iteration: ", iter)
   	
   	if (fpca_type == "variationalEM") { # GFPCA after Wrobel et al. (2019)
@@ -201,11 +201,11 @@ register_fpca = function(Y, Kt = 8, Kh = 4, family = "gaussian",
   												 lambda_inc     = lambda_inc,
   												 row_obj = rows, beta = registr_step$beta, cores = cores, ...)
   	
-  	time_warps[[iter + 2]] = registr_step$Y$index
-  	loss[iter + 1] = registr_step$loss
+  	time_warps[[iter + 2]] = registr_step$Y$index_scaled
+  	loss[iter + 1]         = registr_step$loss
   	
-  	## calculate error
-  	error[iter + 1] = sum((time_warps[[iter + 2]]-time_warps[[iter + 1]])^2) 
+  	## calculate how much the warping functions changed since the last iteration
+  	delta_warpings[iter + 1] = mean((time_warps[[iter + 2]] - time_warps[[iter + 1]])^2) 
   	iter = iter + 1
   }
   

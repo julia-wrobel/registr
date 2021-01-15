@@ -91,7 +91,8 @@ no parallelized call.}
 }
 \value{
 An object of class \code{fpca} containing:
-\item{Y}{The observed data. The variable index is the new estimated time domain.}
+\item{Y}{The observed data. The variables \code{index} and \code{index_scaled}
+contain the new estimated time domain.}
 \item{loss}{Value of the loss function after registraton.}
 \item{beta}{Matrix of B-spline basis coefficients used to construct subject-specific warping functions.}
 }
