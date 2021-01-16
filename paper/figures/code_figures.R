@@ -34,8 +34,8 @@ gg1 <- ggplot(dat, aes(index, value, group = id)) +
 
 
 # run the joint approach --------------------------------------------------
-reg <- register_fpca(Y = dat, npc = 2, max_iterations = 10,
-										 incompleteness = "full", lambda_inc = 0.45)
+reg <- register_fpca(Y = dat, npc = 2, max_iterations = 100,
+										 incompleteness = "full", lambda_inc = 0.1)
 
 # registered curves
 gg2 <- ggplot(reg$Y, aes(t_hat, value, group = id)) +

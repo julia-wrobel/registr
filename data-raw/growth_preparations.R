@@ -44,12 +44,15 @@ dat_deriv = dplyr::bind_rows(deriv_list) %>%
 index_raw = unique(dat_deriv$index)
 ids       = unique(dat_deriv$id)
 
-# for each curve, draw a random starting time point in the first half of the domain
-index_start = index_raw[index_raw < (max(index_raw) / 2)]
+# for each curve, draw a random starting time point in the first third of the domain
+index_start = index_raw[index_raw < max(index_raw) / 3]
 set.seed(2020)
 startpoints = sample(index_start,
 										 size    = length(ids),
 										 replace = TRUE)
+# do not shorten id "girl12" to keep one complete curve as template
+startpoints[match("girl12", ids)] <- min(index_raw)
+
 growth_incomplete = dat_deriv
 for (i in 1:length(ids)) {
 	cut_rows = which(growth_incomplete$id == ids[i] & growth_incomplete$index < startpoints[i])
@@ -61,11 +64,14 @@ for (i in 1:length(ids)) {
 
 # simulate trailing incompleteness ----------------------------------------
 # for each curve, draw a random end time point in the second half of the domain
-index_end = index_raw[index_raw > (max(index_raw) / 2)]
+index_end = index_raw[index_raw > max(index_raw) / 2]
 set.seed(2020)
 endpoints = sample(index_end,
 									 size    = length(ids),
 									 replace = TRUE)
+# do not shorten id "girl12" to keep one complete curve as template
+endpoints[match("girl12", ids)] <- max(index_raw)
+
 for (i in 1:length(ids)) {
 	cut_rows = which(growth_incomplete$id == ids[i] & growth_incomplete$index > endpoints[i])
 	if (length(cut_rows) > 0)

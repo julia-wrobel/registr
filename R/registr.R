@@ -116,7 +116,7 @@
 #' 
 #' # Define the template function only over a subset of the curves
 #' # (even though not very reasonable in this example)
-#' template_ids    = c("boy01","boy04","boy29","boy30","boy31","boy34","boy36")
+#' template_ids    = c("girl12","girl13","girl14")
 #' Y_template      = growth_incomplete[growth_incomplete$id %in% template_ids,]
 #' register_step2c = registr(obj = NULL, Y = growth_incomplete, Kt = 6, Kh = 4,
 #'                           family = "gaussian", gradient = TRUE,

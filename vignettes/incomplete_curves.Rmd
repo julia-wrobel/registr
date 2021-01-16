@@ -103,8 +103,7 @@ ggplot(dat, aes(x = index, y = value, group = id)) +
 ```
 
 
-```{r Berkeley data 2, fig.height = 4}
-# lasagna plot
+```{r Berkeley data 2 lasagna, fig.height = 5.5}
 ggplot(dat, aes(x = index, y = id, col = value)) + 
 	geom_line(lwd = 2.5) +
 	scale_color_continuous("Derivative", high = "midnightblue", low = "lightskyblue1") +
@@ -130,8 +129,8 @@ Therefore, the `registr` package gives the additional option to estimate
 warping functions without the constraint that their starting point and/or endpoint
 lies on the diagonal.
 
-On the other hand, if we fully remove the constraint for the starting points / endpoints
-to lie on the diagonal, this can lead to very extreme and unrealistic distortions
+On the other hand, if we fully remove such constraints, this can result in
+very extreme and unrealistic distortions
 of the time domain. This problem is further accompanied by the fact that
 the assessment of some given warping to be realistic or unrealistic can heavily
 vary between different applications.
@@ -178,7 +177,7 @@ ggplot(reg1$Y, aes(x = tstar, y = index, group = id)) +
 	ggtitle("Estimated warping functions")
 ```
 
-```{r application 1 lasagna, fig.height = 4}
+```{r application 1 lasagna, fig.height = 5.5}
 ggplot(reg1$Y, aes(x = index, y = id, col = value)) + 
 	geom_line(lwd = 2.5) +
 	scale_color_continuous("Derivative", high = "midnightblue", low = "lightskyblue1") +
@@ -197,8 +196,8 @@ ggplot(reg1$Y, aes(x = index, y = value, group = id)) +
 
 The assumption can be dropped by setting `incompleteness` to some other value than NULL and
 some nonnegative value for the penalization parameter `lambda_inc`.
-The higher `lambda_inc` is chosen, the more all warping functions are forced
-to start/end close to the diagonal.
+The higher `lambda_inc` is chosen, the more the registered domains are forced to have the
+same length as the observed domains.
 
 ### Small `lambda_inc`
 
@@ -212,7 +211,7 @@ ggplot(reg2$Y, aes(x = tstar, y = index, group = id)) +
 	ggtitle("Estimated warping functions")
 ```
 
-```{r application 2 lasagna, fig.height = 4}
+```{r application 2 lasagna, fig.height = 5.5}
 ggplot(reg2$Y, aes(x = index, y = id, col = value)) + 
 	geom_line(lwd = 2.5) +
 	scale_color_continuous("Derivative", high = "midnightblue", low = "lightskyblue1") +
@@ -241,7 +240,7 @@ ggplot(reg3$Y, aes(x = tstar, y = index, group = id)) +
 	ggtitle("Estimated warping functions")
 ```
 
-```{r application 3 lasagna, fig.height = 4}
+```{r application 3 lasagna, fig.height = 5.5}
 ggplot(reg3$Y, aes(x = index, y = id, col = value)) + 
 	geom_line(lwd = 2.5) +
 	scale_color_continuous("Derivative", high = "midnightblue", low = "lightskyblue1") +
