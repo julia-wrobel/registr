@@ -185,7 +185,7 @@ test_that("register_fpca with incompleteness != NULL and lambda_inc = 0: warping
 	expect_lte(round(max(reg3$Y$t_hat), 5), expected = t_max)
 })
 
-test_that("register_fpca with incompleteness = 'full': higher lambda_inc values lead to starting points and endpoints closer to the diagonal",{
+test_that("register_fpca with incompleteness = 'full': higher lambda_inc values lead to registered domain lengths closer to the observed domain lengths",{
 	Y = registr::growth_incomplete
 	expect_warning({
 		reg1 = register_fpca(Y = Y, family = "gaussian",
@@ -196,23 +196,13 @@ test_that("register_fpca with incompleteness = 'full': higher lambda_inc values 
 												 incompleteness = "full", lambda_inc = 10, max_iterations = 1)
 	}, "Convergence not reached. Try increasing max_iterations.")
 	
-	# compare the MSE values of the warping function starting points to the diagonal
-	t_min_observed_1   = tapply(X = reg1$Y$tstar, INDEX = reg1$Y$id, FUN = min)
-	t_min_registered_1 = tapply(X = reg1$Y$t_hat, INDEX = reg1$Y$id, FUN = min)
-	t_min_observed_2   = tapply(X = reg2$Y$tstar, INDEX = reg2$Y$id, FUN = min)
-	t_min_registered_2 = tapply(X = reg2$Y$t_hat, INDEX = reg2$Y$id, FUN = min)
-	MSE_min1 = sum((t_min_registered_1 - t_min_observed_1)^2)
-	MSE_min2 = sum((t_min_registered_2 - t_min_observed_2)^2)
-	expect_gt(MSE_min1, expected = MSE_min2)
-
-	# compare the MSE values of the warping function endpoints to the diagonal
-	t_max_observed_1   = tapply(X = reg1$Y$tstar, INDEX = reg1$Y$id, FUN = max)
-	t_max_registered_1 = tapply(X = reg1$Y$t_hat, INDEX = reg1$Y$id, FUN = max)
-	t_max_observed_2   = tapply(X = reg2$Y$tstar, INDEX = reg2$Y$id, FUN = max)
-	t_max_registered_2 = tapply(X = reg2$Y$t_hat, INDEX = reg2$Y$id, FUN = max)
-	MSE_max1 = sum((t_max_registered_1 - t_max_observed_1)^2)
-	MSE_max2 = sum((t_max_registered_2 - t_max_observed_2)^2)
-	expect_gt(MSE_max1, expected = MSE_max2)
+	# compare the average squared difference between registered and observed domain lengths
+	lengths_obs  = Y      %>% group_by(id) %>% summarize(length = diff(range(index))) %>% pull(length)
+	lengths_reg1 = reg1$Y %>% group_by(id) %>% summarize(length = diff(range(t_hat))) %>% pull(length)
+	lengths_reg2 = reg2$Y %>% group_by(id) %>% summarize(length = diff(range(t_hat))) %>% pull(length)
+	MSE_reg1     = mean((lengths_reg1 - lengths_obs)^2) 
+	MSE_reg2     = mean((lengths_reg2 - lengths_obs)^2) 
+	expect_gt(MSE_reg1, expected = MSE_reg2)
 })
 
 test_that("register_fpca for gamma data throws no error",{
@@ -242,7 +232,7 @@ test_that("register_fpca only accepts Y_template if it has the correct format.",
 	Y_template1   = Y[Y$id %in% template_ids1,]
 	template_ids2 = "girl12"
 	Y_template2   = Y[Y$id %in% template_ids2,]
-	template_ids3 = c("boy01","boy04","boy29","boy30","boy31","boy34","boy36")
+	template_ids3 = c("girl12","boy01","boy04")
 	Y_template3   = Y[Y$id %in% template_ids3,]
 	
 	expect_error(register_fpca(Y = Y, family = "gaussian", Y_template = Y_template1$value),
