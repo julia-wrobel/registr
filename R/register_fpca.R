@@ -14,8 +14,8 @@
 #' By specifying \code{cores > 1} the registration call can be parallelized.
 #' 
 #' Requires input data \code{Y} to be a dataframe in long format with variables 
-#' \code{id}, \code{index}, and \code{value} to indicate subject IDs, times, and observations, 
-#' respectively.
+#' \code{id}, \code{index}, and \code{value} to indicate subject IDs, 
+#' observation times on the domain, and observations, respectively.
 #' 
 #' One joint iteration consists of a GFPCA step and a registration step.
 #' As preprocessing, one initial registration step is performed.
@@ -61,15 +61,35 @@
 #' @export
 #' 
 #' @return An object of class \code{registration} containing:
-#' \item{fpca_obj}{List of items from FPCA step.}
 #' \item{Y}{The observed data plus variables \code{t_star} and \code{t_hat} which are the
 #' unregistered grid and registered grid, respectively.}
-#' \item{time_warps}{List of time values for each iteration of the algorithm. 
-#' \code{time_warps[1]} is the original (observed) time
-#' and \code{time_warps[n]} provides time values for the nth iteration.}
-#' \item{loss}{Loss for each iteration of the algorithm, calculated in the registration step using an 
-#' exponential family likelihood with natural parameter from the FPCA step.}
-#' @return family \code{gaussian} or \code{binomial}.
+#' \item{fpca_obj}{List of items from FPCA step.}
+#' \item{family}{Used exponential family.}
+#' \item{index_warped}{List of the (warped) index values for each iteration.
+#' Has \code{'convergence$iterations + 2'} elements since the first two elements
+#' contain the original (observed) index and the warped index values from the
+#' preprocessing registration step (see Details), respectively.}
+#' \item{beta}{Matrix of B-spline basis coefficients used to construct the
+#' subject-specific warping functions. From the last performed registration step.}
+#' \item{convergence}{List with information on the convergence of the joint
+#' approach. Containing the following elements: \cr \cr
+#' \emph{converged} \cr
+#' Indicator if the joint algorithm converged or if not
+#' (i.e., \code{max_iterations} was reached) \cr \cr
+#' \emph{iterations} \cr
+#' Number of joint iterations that were performed. \cr \cr
+#' \emph{delta_index} \cr
+#' Vector of mean squared differences between the (warped) index values
+#' (scaled to [0,1] based on the size of the observed domain)
+#' in the current and the previous iteration.
+#' Convergence is reached if this measure drops below 0.00001. \cr \cr
+#' \emph{registration_loss} \cr
+#' Vector of the loss in each iteration of the algorithm.
+#' Calculated in the registration step using the exponential family
+#' likelihood with natural parameter from the FPCA step.
+#' Has \code{'iterations + 1'} elements since the first element contains the
+#' loss of the preprocessing registration step (see Details).
+#' }
 #'  
 #' @examples
 #' library(ggplot2)
@@ -147,13 +167,14 @@ register_fpca = function(Y, Kt = 8, Kh = 4, family = "gaussian",
 		fpca_type = "two-step"
 	}
 		
-  data = data_clean(Y)
-  Y = data$Y
-  rows = data$Y_rows
+  data    = data_clean(Y)
+  Y       = data$Y
+  Y$tstar = Y$index
+  rows    = data$Y_rows
   
-  time_warps = list(NA, max_iterations + 2)
-  time_warps[[1]] = Y$index
-  loss = rep(NA, max_iterations + 1)
+  index_warped      = list(NA, max_iterations + 2)
+  index_warped[[1]] = Y$index_scaled
+  reg_loss          = rep(NA, max_iterations + 1)
 
   # first register values to the overall mean
   registr_step = registr(Y = Y, Kt = Kt, Kh = Kh, family = family,
@@ -161,13 +182,17 @@ register_fpca = function(Y, Kt = 8, Kh = 4, family = "gaussian",
   											 lambda_inc     = lambda_inc,
   											 Y_template     = Y_template,
   											 row_obj = rows, cores = cores, ...)
-  time_warps[[2]] = registr_step$Y$index_scaled
-  loss[1] = registr_step$loss
+  index_warped[[2]] = registr_step$Y$index_scaled
+  reg_loss[1]       = registr_step$loss
   
-  iter = 1
-  delta_warpings       = rep(NA, max_iterations)
-  delta_warpings[iter] = 0.1
-  while (iter <= max_iterations && delta_warpings[iter] > 0.00001) {
+  iter        = 0
+  delta_index = rep(NA, max_iterations)
+  convergence_threshold = 0.00001
+  
+  while (iter == 0 ||
+  			 (iter < max_iterations && delta_index[iter] > convergence_threshold)) {
+  	
+  	iter = iter + 1
   	message("current iteration: ", iter)
   	
   	if (fpca_type == "variationalEM") { # GFPCA after Wrobel et al. (2019)
@@ -201,13 +226,14 @@ register_fpca = function(Y, Kt = 8, Kh = 4, family = "gaussian",
   												 lambda_inc     = lambda_inc,
   												 row_obj = rows, beta = registr_step$beta, cores = cores, ...)
   	
-  	time_warps[[iter + 2]] = registr_step$Y$index_scaled
-  	loss[iter + 1]         = registr_step$loss
+  	index_warped[[iter + 2]] = registr_step$Y$index_scaled
+  	reg_loss[iter + 1]       = registr_step$loss
   	
-  	## calculate how much the warping functions changed since the last iteration
-  	delta_warpings[iter + 1] = mean((time_warps[[iter + 2]] - time_warps[[iter + 1]])^2) 
-  	iter = iter + 1
-  }
+  	# calculate how much the warping functions changed since the last iteration
+  	delta_index[iter] = mean((index_warped[[iter + 2]] - index_warped[[iter + 1]])^2) 
+  } # END while loop
+  
+  converged = (delta_index[iter] <= convergence_threshold)
   
   if(iter < max_iterations){
   	message("Registration converged.")
@@ -233,14 +259,20 @@ register_fpca = function(Y, Kt = 8, Kh = 4, family = "gaussian",
   														start_params            = fpca_step$gamm4_theta)
   }
   
-  Y$tstar = time_warps[[1]]
   Y$t_hat = registr_step$Y$index
   
-  beta = as.data.frame(t(registr_step$beta))
+  beta    = as.data.frame(t(registr_step$beta))
   beta$id = unique(Y$id)
   
-	ret = list(fpca_obj = fpca_step, Y = Y, time_warps = time_warps[!is.na(time_warps)],
-						 loss = loss[!is.na(loss)], family = family, beta = beta)
-	class(ret) = "registration"
+  ret = list(Y            = Y,
+  					 fpca_obj     = fpca_step,
+  					 family       = family,
+  					 index_warped = index_warped[!is.na(index_warped)],
+  					 beta         = beta,
+  					 convergence  = list(converged         = converged,
+  					 									   iterations        = iter,
+  					 									   delta_index       = delta_index[!is.na(delta_index)],
+  					 									   registration_loss = reg_loss[!is.na(reg_loss)]))
+  class(ret) = "registration"
   return(ret)
 }

@@ -89,16 +89,35 @@ no parallelized call.}
 }
 \value{
 An object of class \code{registration} containing:
-\item{fpca_obj}{List of items from FPCA step.}
 \item{Y}{The observed data plus variables \code{t_star} and \code{t_hat} which are the
 unregistered grid and registered grid, respectively.}
-\item{time_warps}{List of time values for each iteration of the algorithm. 
-\code{time_warps[1]} is the original (observed) time
-and \code{time_warps[n]} provides time values for the nth iteration.}
-\item{loss}{Loss for each iteration of the algorithm, calculated in the registration step using an 
-exponential family likelihood with natural parameter from the FPCA step.}
-
-family \code{gaussian} or \code{binomial}.
+\item{fpca_obj}{List of items from FPCA step.}
+\item{family}{Used exponential family.}
+\item{index_warped}{List of the (warped) index values for each iteration.
+Has \code{'convergence$iterations + 2'} elements since the first two elements
+contain the original (observed) index and the warped index values from the
+preprocessing registration step (see Details), respectively.}
+\item{beta}{Matrix of B-spline basis coefficients used to construct the
+subject-specific warping functions. From the last performed registration step.}
+\item{convergence}{List with information on the convergence of the joint
+approach. Containing the following elements: \cr \cr
+\emph{converged} \cr
+Indicator if the joint algorithm converged or if not
+(i.e., \code{max_iterations} was reached) \cr \cr
+\emph{iterations} \cr
+Number of joint iterations that were performed. \cr \cr
+\emph{delta_index} \cr
+Vector of mean squared differences between the (warped) index values
+(scaled to [0,1] based on the size of the observed domain)
+in the current and the previous iteration.
+Convergence is reached if this measure drops below 0.00001. \cr \cr
+\emph{registration_loss} \cr
+Vector of the loss in each iteration of the algorithm.
+Calculated in the registration step using the exponential family
+likelihood with natural parameter from the FPCA step.
+Has \code{'iterations + 1'} elements since the first element contains the
+loss of the preprocessing registration step (see Details).
+}
 }
 \description{
 Function combines constrained optimization and GFPCA to estimate warping functions for 
@@ -116,8 +135,8 @@ By specifying \code{cores > 1} the registration call can be parallelized.
 }
 \details{
 Requires input data \code{Y} to be a dataframe in long format with variables 
-\code{id}, \code{index}, and \code{value} to indicate subject IDs, times, and observations, 
-respectively.
+\code{id}, \code{index}, and \code{value} to indicate subject IDs, 
+observation times on the domain, and observations, respectively.
 
 One joint iteration consists of a GFPCA step and a registration step.
 As preprocessing, one initial registration step is performed.
