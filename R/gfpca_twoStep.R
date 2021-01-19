@@ -44,8 +44,8 @@
 #' \item{knots}{Cutpoints for B-spline basis used to rebuild \code{alpha}.}
 #' \item{efunctions}{\eqn{D \times npc} matrix of estimated FPC basis functions.}
 #' \item{evalues}{Estimated variance of the FPC scores.}
-#' \item{evalues_sum}{Sum of all eigenvalues, before restricting the \code{evalues}
-#' vector to the first \code{npc} elements.}
+#' \item{evalues_sum}{Sum of all (nonnegative) eigenvalues, before restricting
+#' the \code{evalues} vector to the first \code{npc} elements.}
 #' \item{npc}{number of FPCs.}
 #' \item{scores}{\eqn{I \times npc} matrix of estimated FPC scores.}
 #' \item{alpha}{Estimated population-level mean.}
@@ -172,7 +172,7 @@ gfpca_twoStep = function (Y, family = "gaussian", npc = 1, Kt = 8,
   
   # remove negative eigenvalues
   if (any(fit.lambda[1:npc] < 0)) {
-    warning("The first 'npc' eigenvalues contained negative eigenvalues. These were removed.")
+    warning("The first 'npc' eigenvalues contained negative eigenvalues. These dimensions were removed from the output.")
     wp         = which(fit.lambda > 0)
     fit.lambda = fit.lambda[wp]
     fit.phi    = fit.phi[,wp]
