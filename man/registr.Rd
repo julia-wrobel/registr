@@ -94,7 +94,13 @@ An object of class \code{fpca} containing:
 \item{Y}{The observed data. The variables \code{index} and \code{index_scaled}
 contain the new estimated time domain.}
 \item{loss}{Value of the loss function after registraton.}
-\item{beta}{Matrix of B-spline basis coefficients used to construct subject-specific warping functions.}
+\item{hinv_innerKnots}{List of inner knots for setting up the spline bases
+for the inverse warping functions. Only contains \code{NULL} values for
+\code{Kh <= 4}.}
+\item{hinv_beta}{Matrix of B-spline basis coefficients used to construct
+subject-specific inverse warping functions. See examples on how to
+reconstruct a warping function based on \code{hinv_innerKnots} and
+\code{hinv_beta}.}
 }
 \description{
 Software for registering functional data from the exponential family of distributions.
@@ -139,6 +145,19 @@ ggplot(register_step2a$Y, aes(x = tstar, y = index, group = id)) +
 ggplot(register_step2a$Y, aes(x = index, y = value, group = id)) +
   geom_line(alpha = 0.2) +
   ggtitle("Registered curves")
+  
+# Example for how to recreate an estimated inverse warping function given
+# the output of registr(). Focus on id "boy01".
+id         = "boy01"
+index_obsRange_i = range(growth_incomplete$index[growth_incomplete$id == id])
+index      = seq(min(index_obsRange_i), max(index_obsRange_i), length.out = 100)
+# (note that 'index' must contain both the observed min and max in index_obsRange_i)
+Theta_h_i  = splines::bs(index, knots = register_step2a$hinv_innerKnots[[id]], intercept = TRUE)
+index_reg  = as.vector(Theta_h_i \%*\% register_step2a$hinv_beta[,id])
+warp_dat_i = data.frame(index_observed   = index,
+                        index_registered = index_reg)
+ggplot(warp_dat_i, aes(x = index_observed, y = index_registered)) + geom_line() + 
+  ggtitle("Extracted warping function for id 'boy01'")
 
 # Allow the warping functions to not start / end on the diagonal.
 # The higher lambda_inc, the more the starting points and endpoints are

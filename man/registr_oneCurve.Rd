@@ -16,7 +16,10 @@ step.}
 }
 \value{
 An list containing:
-\item{beta_new}{Estimated parameter vector of the warping function.}
+\item{hinv_innerKnots}{Inner knots for setting up the spline basis
+for the inverse warping function.}
+\item{hinv_beta}{Estimated B-spline basis coefficients used to construct
+subject-specific inverse warping functions.}
 \item{t_hat}{Vector of registered time domain.}
 \item{loss}{Loss of the optimal solution.}
 }

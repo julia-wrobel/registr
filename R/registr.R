@@ -68,7 +68,13 @@
 #' \item{Y}{The observed data. The variables \code{index} and \code{index_scaled}
 #' contain the new estimated time domain.}
 #' \item{loss}{Value of the loss function after registraton.}
-#' \item{beta}{Matrix of B-spline basis coefficients used to construct subject-specific warping functions.}
+#' \item{hinv_innerKnots}{List of inner knots for setting up the spline bases
+#' for the inverse warping functions. Only contains \code{NULL} values for
+#' \code{Kh <= 4}.}
+#' \item{hinv_beta}{Matrix of B-spline basis coefficients used to construct
+#' subject-specific inverse warping functions. See examples on how to
+#' reconstruct a warping function based on \code{hinv_innerKnots} and
+#' \code{hinv_beta}.}
 #' 
 #' @author Julia Wrobel \email{julia.wrobel@@cuanschutz.edu},
 #' Erin McDonnell \email{eim2117@@cumc.columbia.edu},
@@ -100,6 +106,19 @@
 #' ggplot(register_step2a$Y, aes(x = index, y = value, group = id)) +
 #'   geom_line(alpha = 0.2) +
 #'   ggtitle("Registered curves")
+#'   
+#' # Example for how to recreate an estimated inverse warping function given
+#' # the output of registr(). Focus on id "boy01".
+#' id         = "boy01"
+#' index_obsRange_i = range(growth_incomplete$index[growth_incomplete$id == id])
+#' index      = seq(min(index_obsRange_i), max(index_obsRange_i), length.out = 100)
+#' # (note that 'index' must contain both the observed min and max in index_obsRange_i)
+#' Theta_h_i  = splines::bs(index, knots = register_step2a$hinv_innerKnots[[id]], intercept = TRUE)
+#' index_reg  = as.vector(Theta_h_i %*% register_step2a$hinv_beta[,id])
+#' warp_dat_i = data.frame(index_observed   = index,
+#'                         index_registered = index_reg)
+#' ggplot(warp_dat_i, aes(x = index_observed, y = index_registered)) + geom_line() + 
+#'   ggtitle("Extracted warping function for id 'boy01'")
 #' 
 #' # Allow the warping functions to not start / end on the diagonal.
 #' # The higher lambda_inc, the more the starting points and endpoints are
@@ -246,14 +265,14 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "gaussian", gr
   }
 
   ### Calculate warping functions  
-	arg_list = list(obj            = obj,            Y          = Y,
-									Kt             = Kt,             Kh         = Kh,
-									family         = family,         gradient   = gradient,
-									incompleteness = incompleteness, lambda_inc = lambda_inc,
-									beta           = beta,           t_min      = t_min,
-									t_max          = t_max,          rows       = rows,
-									periodic       = periodic,       warping    = warping,
-									global_knots   = global_knots,   mean_coefs = mean_coefs,
+	arg_list = list(obj            = obj,            Y            = Y,
+									Kt             = Kt,             Kh           = Kh,
+									family         = family,         gradient     = gradient,
+									incompleteness = incompleteness, lambda_inc   = lambda_inc,
+									beta           = beta,           t_min        = t_min,
+									t_max          = t_max,          rows         = rows,
+									periodic       = periodic,       warping      = warping,
+									global_knots   = global_knots,   mean_coefs   = mean_coefs,
 									gamma_scales   = gamma_scales)
   
   # main function call
@@ -277,17 +296,21 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "gaussian", gr
   }
   
   # gather the results
-  beta_new      = sapply(results_list, function(x) x$beta_new)
-  t_hat         = unlist(sapply(results_list, function(x) as.vector(x$t_hat), simplify = FALSE))
-  loss_subjects = unlist(sapply(results_list, function(x) as.vector(x$loss),  simplify = FALSE))
+	hinv_innerKnots        = lapply(results_list, function(x) x$hinv_innerKnots)
+	names(hinv_innerKnots) = rows$id
+  hinv_beta              = sapply(results_list, function(x) x$hinv_beta)
+  colnames(hinv_beta)    = rows$id
+  t_hat                  = unlist(sapply(results_list, function(x) as.vector(x$t_hat), simplify = FALSE))
+  loss_subjects          = unlist(sapply(results_list, function(x) as.vector(x$loss),  simplify = FALSE))
   
   Y$index        = t_hat
   Y$index_scaled = t_hat / t_max
 	Y$tstar        = tstar
 	
-	res = list(Y    = Y,
-						 loss = sum(loss_subjects),
-						 beta = beta_new)
+	res = list(Y               = Y,
+						 loss            = sum(loss_subjects),
+						 hinv_innerKnots = hinv_innerKnots,
+						 hinv_beta       = hinv_beta)
 	if (family == "gamma") {
 		gamma_scales    = unlist(sapply(results_list, function(x) as.vector(x$gamma_scale),  simplify = FALSE))
 		res$gamma_scales = gamma_scales
@@ -310,7 +333,10 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "gaussian", gr
 #' @param ... additional arguments passed to or from other functions
 #' 
 #' @return An list containing:
-#' \item{beta_new}{Estimated parameter vector of the warping function.}
+#' \item{hinv_innerKnots}{Inner knots for setting up the spline basis
+#' for the inverse warping function.}
+#' \item{hinv_beta}{Estimated B-spline basis coefficients used to construct
+#' subject-specific inverse warping functions.}
 #' \item{t_hat}{Vector of registered time domain.}
 #' \item{loss}{Loss of the optimal solution.}
 #' 
@@ -333,17 +359,18 @@ registr_oneCurve = function(i, arg_list, ...) {
 	D_i           = length(Y_i)
 	
 	# spline basis on the curve-specific time interval.
-	# Pre-calculate the knots similarly to splines::bs to make the final splines::bs call faster.
-	tstar_bs_i      = c(tstar_cropped[rows_i], range(tstar_cropped))
+	# Pre-calculate the knots (for setting up the curve-specific Theta_h spline
+	# bases in registr_oneCurve) similarly to splines::bs to make the final splines::bs call faster.
 	degree          = 3 # cubic splines
 	n_innerKnots    = arg_list$Kh - (1 + degree)
 	if (n_innerKnots <= 0) {
-		inner_knots = NULL
+		hinv_innerKnots_i = NULL
 	} else if (n_innerKnots > 0) {
 		p_quantiles = seq.int(from = 0, to = 1, length.out = n_innerKnots + 2)[-c(1,n_innerKnots + 2)]
-		inner_knots = quantile(tstar_cropped, probs = p_quantiles)
+		hinv_innerKnots_i = quantile(tstar_cropped, probs = p_quantiles)
 	}
-	Theta_h_cropped = splines::bs(tstar_bs_i, df = NULL, knots = inner_knots, intercept = TRUE)
+	tstar_bs_i      = c(tstar_cropped[rows_i], range(tstar_cropped))
+	Theta_h_cropped = splines::bs(tstar_bs_i, knots = hinv_innerKnots_i, intercept = TRUE)
 	Theta_h_i       = Theta_h_cropped[1:length(rows_i),]
 	
 	# start parameters
@@ -353,24 +380,26 @@ registr_oneCurve = function(i, arg_list, ...) {
 																 K       = Theta_h_i,
 																 t_vec   = t_vec_i)
 		
-		if (arg_list$warping == "nonparametric") {
-			if (is.null(arg_list$incompleteness)) { # initial and final parameters are fixed
-				beta_i = beta_full_i[-c(1, length(beta_full_i))]
-			} else if (arg_list$incompleteness == "leading") { # final parameter is fixed
-				beta_i = beta_full_i[-length(beta_full_i)]
-			} else if (arg_list$incompleteness == "trailing") { # initial parameter is fixed
-				beta_i = beta_full_i[-1]
-			} else if (arg_list$incompleteness == "full") { # no parameter is fixed
-				beta_i = beta_full_i
-			}
-		} else if (arg_list$warping == "piecewise_linear2") {
+	} else { # use the last estimates (from the joint approach) as start parameters
+		beta_full_i = arg_list$beta[, i]
+	}
+	# account the beta vector for potential incompleteness constraints
+	if (arg_list$warping == "nonparametric") {
+		if (is.null(arg_list$incompleteness)) { # initial and final parameters are fixed
+			beta_i = beta_full_i[-c(1, length(beta_full_i))]
+		} else if (arg_list$incompleteness == "leading") { # final parameter is fixed
+			beta_i = beta_full_i[-length(beta_full_i)]
+		} else if (arg_list$incompleteness == "trailing") { # initial parameter is fixed
+			beta_i = beta_full_i[-1]
+		} else if (arg_list$incompleteness == "full") { # no parameter is fixed
 			beta_i = beta_full_i
 		}
-		
-	} else { # use the last estimates (from the joint approach) as start parameters
-		beta_i = arg_list$beta[, i]
+	} else if (arg_list$warping == "piecewise_linear2") {
+		beta_i = beta_full_i
 	}
 	
+	
+		
 	if (is.null(arg_list$obj)) { # template function = mean of all curves
 		mean_coefs_i = arg_list$mean_coefs
 		
@@ -464,7 +493,7 @@ registr_oneCurve = function(i, arg_list, ...) {
 																							 t_max_i, arg_list$t_max))
 		
 		if (arg_list$family == "gamma") # add scale parameter again as last element
-			beta_i <- c(beta_i, scale)
+			beta_i = c(beta_i, scale)
 	}
 	
 	# main registration step	
@@ -489,34 +518,37 @@ registr_oneCurve = function(i, arg_list, ...) {
 													 warping        = arg_list$warping,
 													 ...)
 	
-	beta_new = beta_optim$par
+	beta_inner = beta_optim$par
 	
 	if (arg_list$family == "gamma") {
-		scale    = tail(beta_new, 1)
-		beta_new = beta_new[1:(length(beta_new)-1)]
+		scale      = tail(beta_inner, 1)
+		beta_inner = beta_inner[1:(length(beta_inner)-1)]
 	}
 	
 	if (arg_list$warping == "nonparametric") {
+		# create full beta vector
 		if (is.null(arg_list$incompleteness)) { # initial and final parameters are fixed
-			beta_full_i = c(t_min_i, beta_new, t_max_i)
+			beta_full_i = c(t_min_i, beta_inner, t_max_i)
 		} else if (arg_list$incompleteness == "leading") { # final parameter is fixed
-			beta_full_i = c(beta_new, t_max_i)
+			beta_full_i = c(beta_inner, t_max_i)
 		} else if (arg_list$incompleteness == "trailing") { # initial parameter is fixed
-			beta_full_i = c(t_min_i, beta_new)
+			beta_full_i = c(t_min_i, beta_inner)
 		} else if (arg_list$incompleteness == "full") { # no parameter is fixed
-			beta_full_i = beta_new
+			beta_full_i = beta_inner
 		}
 		#t_hat = as.vector(cbind(1, Theta_h_i) %*% beta_full_i)
 		t_hat = as.vector(Theta_h_i %*% beta_full_i)
 		
 	} else if (arg_list$warping == "piecewise_linear2") {
-		t_hat = piecewise_linear2_hinv(grid = seq(0, t_max_i, length.out = D_i),
-																	 knot_locations = beta_new)
+		beta_full_i = beta_inner
+		t_hat       = piecewise_linear2_hinv(grid = seq(0, t_max_i, length.out = D_i),
+																				 knot_locations = beta_inner)
 	}
 	
-	res = list(beta_new = beta_new,
-						 t_hat    = t_hat,
-						 loss     = beta_optim$value)
+	res = list(hinv_innerKnots = hinv_innerKnots_i,
+						 hinv_beta       = beta_full_i,
+						 t_hat           = t_hat,
+						 loss            = beta_optim$value)
 	if (arg_list$family == "gamma")
 		res$gamma_scale = scale
 	

@@ -8,7 +8,8 @@ test_that("registr function returns items of expected length", {
 	Y = simulate_functional_data(I = I)$Y
 	registr_object = registr(Y = Y, family = "binomial", Kt = Kt, Kh = Kh)
 	
-	expect_equal(dim(registr_object$beta), c(Kh-2, I))
+	expect_equal(length(registr_object$hinv_innerKnots), I)
+	expect_equal(dim(registr_object$hinv_beta), c(Kh, I))
 	
 	Y$value = Y$latent_mean
 	expect_error(registr(Y = Y, family = "gaussian", Kt = Kt, Kh = Kh), NA)

@@ -65,8 +65,8 @@ The resolution is can be specified by setting \code{index_significantDigits}.}
 \item{knots}{Cutpoints for B-spline basis used to rebuild \code{alpha}.}
 \item{efunctions}{\eqn{D \times npc} matrix of estimated FPC basis functions.}
 \item{evalues}{Estimated variance of the FPC scores.}
-\item{evalues_sum}{Sum of all eigenvalues, before restricting the \code{evalues}
-vector to the first \code{npc} elements.}
+\item{evalues_sum}{Sum of all (nonnegative) eigenvalues, before restricting
+the \code{evalues} vector to the first \code{npc} elements.}
 \item{npc}{number of FPCs.}
 \item{scores}{\eqn{I \times npc} matrix of estimated FPC scores.}
 \item{alpha}{Estimated population-level mean.}
