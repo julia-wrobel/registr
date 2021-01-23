@@ -97,8 +97,12 @@ unregistered grid and registered grid, respectively.}
 Has \code{'convergence$iterations + 2'} elements since the first two elements
 contain the original (observed) index and the warped index values from the
 preprocessing registration step (see Details), respectively.}
-\item{beta}{Matrix of B-spline basis coefficients used to construct the
-subject-specific warping functions. From the last performed registration step.}
+\item{hinv_innerKnots}{List of inner knots for setting up the spline bases
+for the inverse warping functions. Only contains \code{NULL} values for
+\code{Kh <= 4}.}
+\item{hinv_beta}{Matrix of B-spline basis coefficients used to construct the
+subject-specific inverse warping functions. From the last performed
+registration step. For details see \code{?registr}.}
 \item{convergence}{List with information on the convergence of the joint
 approach. Containing the following elements: \cr \cr
 \emph{converged} \cr
@@ -168,7 +172,8 @@ plot(reg$fpca_obj, response_function = function(x) { 1 / (1 + exp(-x)) })
 \donttest{ 
 # example using accelerometer data from nhanes 2003-2004 study
 data(nhanes)
-reg_nhanes = register_fpca(nhanes, npc = 2, family = "binomial", max_iterations = 5)
+nhanes_short = nhanes[nhanes$id \%in\% unique(nhanes$id)[1:5],]
+reg_nhanes   = register_fpca(nhanes_short, npc = 2, family = "binomial", max_iterations = 5)
 
 
 ### incomplete Gaussian curves
@@ -201,7 +206,7 @@ ggplot(reg2b$Y, aes(x = t_hat, y = value, group = id)) +
 Y             = simulate_unregistered_curves(I = 20, D = 100)
 Y$value       = exp(Y$latent_mean)
 registr_gamma = register_fpca(Y, npc = 2, family = "gamma", fpca_type = "two-step",
-                              gradient = FALSE, max_iterations = 5)
+                              gradient = FALSE, max_iterations = 3)
 }
 
 }

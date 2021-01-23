@@ -69,8 +69,12 @@
 #' Has \code{'convergence$iterations + 2'} elements since the first two elements
 #' contain the original (observed) index and the warped index values from the
 #' preprocessing registration step (see Details), respectively.}
-#' \item{beta}{Matrix of B-spline basis coefficients used to construct the
-#' subject-specific warping functions. From the last performed registration step.}
+#' \item{hinv_innerKnots}{List of inner knots for setting up the spline bases
+#' for the inverse warping functions. Only contains \code{NULL} values for
+#' \code{Kh <= 4}.}
+#' \item{hinv_beta}{Matrix of B-spline basis coefficients used to construct the
+#' subject-specific inverse warping functions. From the last performed
+#' registration step. For details see \code{?registr}.}
 #' \item{convergence}{List with information on the convergence of the joint
 #' approach. Containing the following elements: \cr \cr
 #' \emph{converged} \cr
@@ -114,7 +118,8 @@
 #' \donttest{ 
 #' # example using accelerometer data from nhanes 2003-2004 study
 #' data(nhanes)
-#' reg_nhanes = register_fpca(nhanes, npc = 2, family = "binomial", max_iterations = 5)
+#' nhanes_short = nhanes[nhanes$id %in% unique(nhanes$id)[1:5],]
+#' reg_nhanes   = register_fpca(nhanes_short, npc = 2, family = "binomial", max_iterations = 5)
 #' 
 #' 
 #' ### incomplete Gaussian curves
@@ -147,7 +152,7 @@
 #' Y             = simulate_unregistered_curves(I = 20, D = 100)
 #' Y$value       = exp(Y$latent_mean)
 #' registr_gamma = register_fpca(Y, npc = 2, family = "gamma", fpca_type = "two-step",
-#'                               gradient = FALSE, max_iterations = 5)
+#'                               gradient = FALSE, max_iterations = 3)
 #' }
 #'
 register_fpca = function(Y, Kt = 8, Kh = 4, family = "gaussian",
@@ -224,7 +229,9 @@ register_fpca = function(Y, Kt = 8, Kh = 4, family = "gaussian",
   	registr_step = registr(obj = fpca_step, Kt = Kt, Kh = Kh, family = family, 
   												 incompleteness = incompleteness,
   												 lambda_inc     = lambda_inc,
-  												 row_obj = rows, beta = registr_step$beta, cores = cores, ...)
+  												 row_obj        = rows,
+  												 beta           = registr_step$hinv_beta,
+  												 cores          = cores, ...)
   	
   	index_warped[[iter + 2]] = registr_step$Y$index_scaled
   	reg_loss[iter + 1]       = registr_step$loss
@@ -261,18 +268,16 @@ register_fpca = function(Y, Kt = 8, Kh = 4, family = "gaussian",
   
   Y$t_hat = registr_step$Y$index
   
-  beta    = as.data.frame(t(registr_step$beta))
-  beta$id = unique(Y$id)
-  
-  ret = list(Y            = Y,
-  					 fpca_obj     = fpca_step,
-  					 family       = family,
-  					 index_warped = index_warped[!is.na(index_warped)],
-  					 beta         = beta,
-  					 convergence  = list(converged         = converged,
-  					 									   iterations        = iter,
-  					 									   delta_index       = delta_index[!is.na(delta_index)],
-  					 									   registration_loss = reg_loss[!is.na(reg_loss)]))
+  ret = list(Y               = Y,
+  					 fpca_obj        = fpca_step,
+  					 family          = family,
+  					 index_warped    = index_warped[!is.na(index_warped)],
+  					 hinv_innerKnots = registr_step$hinv_innerKnots,
+  					 hinv_beta       = registr_step$hinv_beta,
+  					 convergence     = list(converged        = converged,
+  					 											 iterations        = iter,
+  					 											 delta_index       = delta_index[!is.na(delta_index)],
+  					 											 registration_loss = reg_loss[!is.na(reg_loss)]))
   class(ret) = "registration"
   return(ret)
 }

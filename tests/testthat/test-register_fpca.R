@@ -122,20 +122,26 @@ test_that("register_fpca function with priors on the piecewise_linear2 warping f
 	Y = data$Y
 	
 	expect_error(register_fpca(Y = Y, family = "binomial", warping = "piecewise_linear2", 
-														 gradient = FALSE, priors = TRUE, prior_sd = NULL),
+														 gradient = FALSE, priors = TRUE, prior_sd = NULL,
+														 max_iterations = 1),
 							 "priors = TRUE but no prior_sd supplied.")
 
 	expect_warning(register_fpca(Y = Y, family = "binomial", warping = "piecewise_linear2", 
-															 gradient = FALSE, priors = FALSE, prior_sd = 1),
+															 gradient = FALSE, priors = FALSE, prior_sd = 1,
+															 max_iterations = 1),
 								 "prior_sd supplied but priors = FALSE. No priors included.")
 	
-	test1 = register_fpca(Y = Y, family = "binomial", warping = "piecewise_linear2",
-												gradient = FALSE, priors = TRUE, prior_sd = 1)
-	test2 = register_fpca(Y = Y, family = "binomial", warping = "piecewise_linear2",
-												gradient = FALSE, priors = TRUE, prior_sd = 0.1)
+	expect_warning({test1 = register_fpca(Y = Y, family = "binomial", warping = "piecewise_linear2",
+																				gradient = FALSE, priors = TRUE, prior_sd = 1,
+																				max_iterations = 1)},
+								 "Convergence not reached. Try increasing max_iterations.")
+	expect_warning({test2 = register_fpca(Y = Y, family = "binomial", warping = "piecewise_linear2",
+																				gradient = FALSE, priors = TRUE, prior_sd = 0.1,
+																				max_iterations = 1)},
+								 "Convergence not reached. Try increasing max_iterations.")
 
-	expect_true(all(colMeans(abs(test2$beta[,c(1:2)] - 0.25)) < colMeans(abs(test1$beta[,c(1:2)] - 0.25))))
-	expect_true(all(colMeans(abs(test2$beta[,c(3:4)] - 0.75)) < colMeans(abs(test1$beta[,c(3:4)] - 0.75))))
+	expect_true(all(rowMeans(abs(test2$hinv_beta[c(1:2),] - 0.25)) < rowMeans(abs(test1$hinv_beta[c(1:2),] - 0.25))))
+	expect_true(all(rowMeans(abs(test2$hinv_beta[c(3:4),] - 0.75)) < rowMeans(abs(test1$hinv_beta[c(3:4),] - 0.75))))
 })
 
 test_that("register_fpca for binary data with parametric warping functions and/or periodic basis functions throws no errors",{
