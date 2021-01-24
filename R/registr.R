@@ -412,7 +412,7 @@ registr_oneCurve = function(i, arg_list, ...) {
 			# In this case, the FPCA is not based on the spline basis 'mean_basis'.
 			# Accordingly, smooth over the GFPCA representation of the i'th function
 			# using 'mean_basis'.
-			mean_dat_i = arg_list$obj$Yhat[arg_list$obj$Yhat$id == i,]
+			mean_dat_i = arg_list$obj$Yhat[arg_list$obj$Yhat$id == arg_list$rows$id[i],]
 
 			if (arg_list$periodic) {
 				mean_basis = pbs::pbs(c(arg_list$t_min, arg_list$t_max, mean_dat_i$index),
