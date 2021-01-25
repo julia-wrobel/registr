@@ -64,7 +64,7 @@
 #' no parallelized call.
 #' @param ... additional arguments passed to or from other functions
 #' 
-#' @return An object of class \code{fpca} containing:
+#' @return An list containing:
 #' \item{Y}{The observed data. The variables \code{index} and \code{index_scaled}
 #' contain the new estimated time domain.}
 #' \item{loss}{Value of the loss function after registraton.}
