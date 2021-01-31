@@ -268,10 +268,10 @@ register_fpca = function(Y, Kt = 8, Kh = 4, family = "gaussian",
   														start_params            = fpca_step$gamm4_theta)
   	
   	# restrict the Yhat element to the individual registered domains
-  	t_max_warped_i = sapply(rows$id, function(x) { max(Y$index[Y$id == x], na.rm = TRUE) })
+  	t_max_warped_i = sapply(rows$id, function(x) { max(registr_step$Y$index[registr_step$Y$id == x], na.rm = TRUE) })
   	fpca_step$Yhat = fpca_step$Yhat %>%
   		group_by(id) %>%
-  		filter(index <= t_max_warped_i[match(id[1], rows$id)]) %>%
+  		filter(index <= (t_max_warped_i[match(id[1], rows$id)] + 10^(-fpca_index_significantDigits))) %>%
   		ungroup()
   }
   
