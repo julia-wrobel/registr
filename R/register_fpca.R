@@ -111,6 +111,7 @@
 #'                      fpca_index_significantDigits = 4)
 #' 
 #' if (requireNamespace("ggplot2", quietly = TRUE)) {
+#'   library(ggplot2)
 #'   
 #'   ggplot(reg$Y, aes(x = tstar, y = t_hat, group = id)) +
 #'     geom_line(alpha = 0.2) + ggtitle("Estimated warping functions")
@@ -169,7 +170,9 @@ register_fpca = function(Y, Kt = 8, Kh = 4, family = "gaussian",
 												 max_iterations = 10, npc = 1,
 												 fpca_type = "variationalEM", fpca_maxiter = 50,
 												 fpca_seed = 1988, fpca_error_thresh = 0.0001,
-												 fpca_index_significantDigits = 4L, cores = 1L, ...){
+												 fpca_index_significantDigits = 4L, cores = 1L, 
+												 verbose = TRUE, 
+												 ...){
 	
   index = NULL
   rm(list="index")
@@ -192,11 +195,16 @@ register_fpca = function(Y, Kt = 8, Kh = 4, family = "gaussian",
   reg_loss          = rep(NA, max_iterations + 1)
 
   # first register values to the overall mean
+  if (verbose) {
+    message("Running registr step")
+  }
   registr_step = registr(Y = Y, Kt = Kt, Kh = Kh, family = family,
   											 incompleteness = incompleteness,
   											 lambda_inc     = lambda_inc,
   											 Y_template     = Y_template,
-  											 row_obj = rows, cores = cores, ...)
+  											 row_obj = rows, cores = cores,
+  											 verbose = verbose > 1,
+  											 ...)
   index_warped[[2]] = registr_step$Y$index_scaled
   reg_loss[1]       = registr_step$loss
   
@@ -208,8 +216,12 @@ register_fpca = function(Y, Kt = 8, Kh = 4, family = "gaussian",
   			 (iter < max_iterations && delta_index[iter] > convergence_threshold)) {
   	
   	iter = iter + 1
-  	message("current iteration: ", iter)
-  	
+  	if (verbose) {
+  	  message("current iteration: ", iter)
+  	}
+  	if (verbose) {
+  	  message("FPCA Step")
+  	}  	
   	if (fpca_type == "variationalEM") { # GFPCA after Wrobel et al. (2019)
   		if (family == "binomial") {
   			fpca_step = bfpca(registr_step$Y, npc = npc, Kt = Kt, row_obj = rows, seed = fpca_seed, maxiter = fpca_maxiter, 
@@ -235,7 +247,9 @@ register_fpca = function(Y, Kt = 8, Kh = 4, family = "gaussian",
   															estimation_accuracy     = estimation_accuracy,
   															start_params            = gamm4_startParams)
   	}
-  	
+  	if (verbose) {
+  	  message("Registr Step")
+  	}  	
   	registr_step = registr(obj = fpca_step, Kt = Kt, Kh = Kh, family = family, 
   												 incompleteness = incompleteness,
   												 lambda_inc     = lambda_inc,
@@ -253,11 +267,16 @@ register_fpca = function(Y, Kt = 8, Kh = 4, family = "gaussian",
   converged = (delta_index[iter] <= convergence_threshold)
   
   if(iter < max_iterations){
-  	message("Registration converged.")
+  	if (verbose) {
+  	  message("Registration converged.")
+  	}
   } else{
   	warning("Convergence not reached. Try increasing max_iterations.")
   }
 
+  if (verbose) {
+    message("Final FPCA Step")
+  }  	
   # final fpca step
   if (fpca_type == "variationalEM") { # GFPCA after Wrobel et al. (2019)
   	if (family == "binomial") {
@@ -278,8 +297,8 @@ register_fpca = function(Y, Kt = 8, Kh = 4, family = "gaussian",
   	# restrict the Yhat element to the individual registered domains
   	t_max_warped_i = sapply(rows$id, function(x) { max(registr_step$Y$index[registr_step$Y$id == x], na.rm = TRUE) })
   	fpca_step$Yhat = fpca_step$Yhat %>%
-  		group_by(id) %>%
-  		filter(index <= (t_max_warped_i[match(id[1], rows$id)] + 10^(-fpca_index_significantDigits))) %>%
+  		dplyr::group_by(id) %>%
+  	  dplyr::filter(index <= (t_max_warped_i[match(id[1], rows$id)] + 10^(-fpca_index_significantDigits))) %>%
   		ungroup()
   }
   

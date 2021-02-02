@@ -23,6 +23,7 @@ registr(
   warping = "nonparametric",
   gamma_scales = NULL,
   cores = 1L,
+  verbose = TRUE,
   ...
 )
 }
@@ -87,6 +88,8 @@ call is parallelized by using \code{parallel::mclapply} (for Unix-based
 systems) or \code{parallel::parLapply} (for Windows). Defaults to 1,
 no parallelized call.}
 
+\item{verbose}{print diagnostic messages.}
+
 \item{...}{additional arguments passed to or from other functions}
 }
 \value{
@@ -139,6 +142,8 @@ register_step2a = registr(obj = NULL, Y = growth_incomplete, Kt = 6, Kh = 4,
                           family = "gaussian", gradient = TRUE,
                           incompleteness = NULL)
 if (requireNamespace("ggplot2", quietly = TRUE)) {
+  library(ggplot2)
+
   ggplot(register_step2a$Y, aes(x = tstar, y = index, group = id)) +
     geom_line(alpha = 0.2) +
     ggtitle("Estimated warping functions")

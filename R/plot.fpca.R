@@ -38,6 +38,7 @@
 #' fpca_obj = fpca_gauss(Y = growth_incomplete, npc = 2)
 #' if (requireNamespace("ggplot2", quietly = TRUE) &&
 #' requireNamespace("cowplot", quietly = TRUE)) {
+#' library(ggplot2)
 #' plot(fpca_obj)
 #' }
 #' 

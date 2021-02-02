@@ -4,7 +4,7 @@
 \alias{registr_oneCurve}
 \title{Internal function to register one curve}
 \usage{
-registr_oneCurve(i, arg_list, ...)
+registr_oneCurve(i, arg_list, ..., verbose = TRUE)
 }
 \arguments{
 \item{i}{Numeric index of the curve under focus.}
@@ -13,6 +13,8 @@ registr_oneCurve(i, arg_list, ...)
 step.}
 
 \item{...}{additional arguments passed to or from other functions}
+
+\item{verbose}{print diagnostic messages}
 }
 \value{
 An list containing:

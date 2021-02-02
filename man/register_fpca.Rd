@@ -20,6 +20,7 @@ register_fpca(
   fpca_error_thresh = 1e-04,
   fpca_index_significantDigits = 4L,
   cores = 1L,
+  verbose = TRUE,
   ...
 )
 }
@@ -83,6 +84,8 @@ registration step). Defaults to 4. Set to \code{NULL} to prevent rounding.}
 call is parallelized by using \code{parallel::mclapply} (for Unix-based
 systems) or \code{parallel::parLapply} (for Windows). Defaults to 1,
 no parallelized call.}
+
+\item{verbose}{print diagnostic messages.}
 
 \item{...}{Additional arguments passed to registr and to the gfpca functions
 (if \code{fpca_type = "variationalEM"}).}
@@ -163,6 +166,7 @@ reg2 = register_fpca(Y, npc = 2, family = "binomial",
                      fpca_index_significantDigits = 4)
 
 if (requireNamespace("ggplot2", quietly = TRUE)) {
+  library(ggplot2)
   
   ggplot(reg$Y, aes(x = tstar, y = t_hat, group = id)) +
     geom_line(alpha = 0.2) + ggtitle("Estimated warping functions")

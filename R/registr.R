@@ -62,6 +62,7 @@
 #' call is parallelized by using \code{parallel::mclapply} (for Unix-based
 #' systems) or \code{parallel::parLapply} (for Windows). Defaults to 1,
 #' no parallelized call.
+#' @param verbose print diagnostic messages.
 #' @param ... additional arguments passed to or from other functions
 #' 
 #' @return An list containing:
@@ -100,6 +101,8 @@
 #'                           family = "gaussian", gradient = TRUE,
 #'                           incompleteness = NULL)
 #' if (requireNamespace("ggplot2", quietly = TRUE)) {
+#'   library(ggplot2)
+#' 
 #'   ggplot(register_step2a$Y, aes(x = tstar, y = index, group = id)) +
 #'     geom_line(alpha = 0.2) +
 #'     ggtitle("Estimated warping functions")
@@ -159,7 +162,9 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "gaussian", gr
                    Y_template = NULL,
                    beta = NULL, t_min = NULL, t_max = NULL, row_obj = NULL,
                    periodic = FALSE, warping = "nonparametric",
-                   gamma_scales = NULL, cores = 1L, ...){
+                   gamma_scales = NULL, cores = 1L, 
+                   verbose = TRUE, 
+                   ...){
   
   if (!is.null(incompleteness)) {
     if (warping != "nonparametric") {
@@ -287,15 +292,18 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "gaussian", gr
   
   # main function call
   if (cores == 1) { # serial call
-    if (requireNamespace("pbapply", quietly = TRUE)) {
-      results_list = pbapply::pblapply(1:I, registr_oneCurve, arg_list, ...)
+    if (requireNamespace("pbapply", quietly = TRUE) && verbose) {
+      results_list = pbapply::pblapply(1:I, registr_oneCurve, arg_list, ...,
+                                       verbose = verbose > 1)
     } else {
-      results_list = lapply(1:I, registr_oneCurve, arg_list, ...)
+      results_list = lapply(1:I, registr_oneCurve, arg_list, ...,
+                            verbose = verbose > 1)
     }
     
   } else if (.Platform$OS.type == "unix") { # parallelized call on Unix-based systems
     results_list = parallel::mclapply(1:I, registr_oneCurve, arg_list, ...,
-                                      mc.cores = cores)
+                                      mc.cores = cores,
+                                      verbose = verbose > 1)
     
   } else { # parallelized call on Windows
     local_cluster = parallel::makePSOCKcluster(rep("localhost", cores)) # set up cluster
@@ -304,7 +312,8 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "gaussian", gr
     parallel::clusterEvalQ(cl = local_cluster, c(library(registr), library(stats)))
     
     results_list = parallel::parLapply(cl  = local_cluster, X = 1:I,
-                                       fun = registr_oneCurve, arg_list, ...)
+                                       fun = registr_oneCurve, arg_list, ...,
+                                       verbose = verbose > 1)
     
     parallel::stopCluster(cl = local_cluster) # close cluster
   }
@@ -344,6 +353,7 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "gaussian", gr
 #' @param i Numeric index of the curve under focus.
 #' @param arg_list Named list of all arguments necessary for the registration
 #' step.
+#' @param verbose print diagnostic messages
 #' @param ... additional arguments passed to or from other functions
 #' 
 #' @return An list containing:
@@ -362,7 +372,7 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "gaussian", gr
 #' @importFrom splines bs
 #' @importFrom stats constrOptim Gamma
 #' 
-registr_oneCurve = function(i, arg_list, ...) {
+registr_oneCurve = function(i, arg_list, ..., verbose = TRUE) {
   
   t_min_i       = arg_list$Y$tstar[arg_list$rows$first_row[i]]
   t_max_i       = arg_list$Y$tstar[arg_list$rows$last_row[i]]
@@ -382,6 +392,9 @@ registr_oneCurve = function(i, arg_list, ...) {
   } else if (n_innerKnots > 0) {
     p_quantiles = seq.int(from = 0, to = 1, length.out = n_innerKnots + 2)[-c(1,n_innerKnots + 2)]
     hinv_innerKnots_i = quantile(tstar_cropped, probs = p_quantiles)
+  }
+  if (verbose) {
+    message("Getting Spline Basis")
   }
   tstar_bs_i      = c(tstar_cropped[rows_i], range(tstar_cropped))
   Theta_h_cropped = splines::bs(tstar_bs_i, knots = hinv_innerKnots_i, intercept = TRUE)
@@ -413,7 +426,9 @@ registr_oneCurve = function(i, arg_list, ...) {
   }
   
   
-  
+  if (verbose) {
+    message("Getting mean coefficients")
+  }
   if (is.null(arg_list$obj)) { # template function = mean of all curves
     mean_coefs_i = arg_list$mean_coefs
     
@@ -510,6 +525,9 @@ registr_oneCurve = function(i, arg_list, ...) {
       beta_i = c(beta_i, scale)
   }
   
+  if (verbose) {
+    message("Running Optimization")
+  }
   # main registration step	
   beta_optim = constrOptim(theta          = beta_i,
                            f              = loss_h,
