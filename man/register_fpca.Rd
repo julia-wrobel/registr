@@ -150,7 +150,6 @@ After convergence or \code{max_iterations} is reached, one final GFPCA step
 is performed.
 }
 \examples{
-library(ggplot2)
 
 ### complete binomial curves
 Y = simulate_unregistered_curves(I = 20, D = 200)
@@ -163,10 +162,13 @@ reg2 = register_fpca(Y, npc = 2, family = "binomial",
                      fpca_type = "two-step", max_iterations = 5,
                      fpca_index_significantDigits = 4)
 
-ggplot(reg$Y, aes(x = tstar, y = t_hat, group = id)) +
-  geom_line(alpha = 0.2) + ggtitle("Estimated warping functions")
-
-plot(reg$fpca_obj, response_function = function(x) { 1 / (1 + exp(-x)) })
+if (requireNamespace("ggplot2", quietly = TRUE)) {
+  
+  ggplot(reg$Y, aes(x = tstar, y = t_hat, group = id)) +
+    geom_line(alpha = 0.2) + ggtitle("Estimated warping functions")
+  
+  plot(reg$fpca_obj, response_function = function(x) { 1 / (1 + exp(-x)) })
+}
 
 
 \donttest{ 
@@ -182,25 +184,29 @@ data(growth_incomplete)
 # Force the warping functions to start and end on the diagonal
 reg2a = register_fpca(growth_incomplete, npc = 2, family = "gaussian",
                       incompleteness = NULL, max_iterations = 5)
-ggplot(reg2a$Y, aes(x = tstar, y = t_hat, group = id)) +
-  geom_line(alpha = 0.2) +
-  ggtitle("Estimated warping functions")
-ggplot(reg2a$Y, aes(x = t_hat, y = value, group = id)) +
-  geom_line(alpha = 0.2) +
-  ggtitle("Registered curves")
-
+if (requireNamespace("ggplot2", quietly = TRUE)) {
+  
+  ggplot(reg2a$Y, aes(x = tstar, y = t_hat, group = id)) +
+    geom_line(alpha = 0.2) +
+    ggtitle("Estimated warping functions")
+  ggplot(reg2a$Y, aes(x = t_hat, y = value, group = id)) +
+    geom_line(alpha = 0.2) +
+    ggtitle("Registered curves")
+}
 # Allow the warping functions to not start / end on the diagonal.
 # The higher lambda_inc, the more the starting points and endpoints are forced
 # towards the diagonal.
 reg2b = register_fpca(growth_incomplete, npc = 2, family = "gaussian",
                       incompleteness = "full", lambda_inc = 0.1,
                       max_iterations = 5)
-ggplot(reg2b$Y, aes(x = tstar, y = t_hat, group = id)) +
-  geom_line(alpha = 0.2) +
-  ggtitle("Estimated warping functions")
-ggplot(reg2b$Y, aes(x = t_hat, y = value, group = id)) +
-  geom_line(alpha = 0.2) +
-  ggtitle("Registered curves")
+if (requireNamespace("ggplot2", quietly = TRUE)) {
+  ggplot(reg2b$Y, aes(x = tstar, y = t_hat, group = id)) +
+    geom_line(alpha = 0.2) +
+    ggtitle("Estimated warping functions")
+  ggplot(reg2b$Y, aes(x = t_hat, y = value, group = id)) +
+    geom_line(alpha = 0.2) +
+    ggtitle("Registered curves")
+}
 
 ### complete Gamma curves
 Y             = simulate_unregistered_curves(I = 20, D = 100)

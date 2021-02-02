@@ -19,7 +19,6 @@ Description: A method for performing joint registration and functional principal
 Depends:
     R (>= 3.2)
 Imports:
-    ggplot2,
     tidyr,
     magrittr,
     dplyr,
@@ -29,7 +28,6 @@ Imports:
     parallel,
     MASS,
     utils,
-    cowplot,
     gamm4,
     lme4,
     mgcv
@@ -38,8 +36,12 @@ Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.1.1
 LinkingTo: Rcpp, RcppArmadillo
-Suggests: testthat,
+Suggests: 
+    testthat,
     knitr,
-    rmarkdown
+    rmarkdown,
+    cowplot,
+    ggplot2,
+    pbapply
 SystemRequirements: GNU make
 VignetteBuilder: knitr

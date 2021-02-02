@@ -133,18 +133,19 @@ register_step = registr(obj = NULL, Y = Y, Kt = 6, Kh = 4, family = "binomial",
 \donttest{
 ### incomplete Gaussian curves
 data(growth_incomplete)
-library(ggplot2)
 
 # Force the warping functions to start and end on the diagonal to preserve the domain
 register_step2a = registr(obj = NULL, Y = growth_incomplete, Kt = 6, Kh = 4,
                           family = "gaussian", gradient = TRUE,
                           incompleteness = NULL)
-ggplot(register_step2a$Y, aes(x = tstar, y = index, group = id)) +
-  geom_line(alpha = 0.2) +
-  ggtitle("Estimated warping functions")
-ggplot(register_step2a$Y, aes(x = index, y = value, group = id)) +
-  geom_line(alpha = 0.2) +
-  ggtitle("Registered curves")
+if (requireNamespace("ggplot2", quietly = TRUE)) {
+  ggplot(register_step2a$Y, aes(x = tstar, y = index, group = id)) +
+    geom_line(alpha = 0.2) +
+    ggtitle("Estimated warping functions")
+  ggplot(register_step2a$Y, aes(x = index, y = value, group = id)) +
+    geom_line(alpha = 0.2) +
+    ggtitle("Registered curves")
+}
   
 # Example for how to recreate an estimated inverse warping function given
 # the output of registr(). Focus on id "boy01".
@@ -156,8 +157,10 @@ Theta_h_i  = splines::bs(index, knots = register_step2a$hinv_innerKnots[[id]], i
 index_reg  = as.vector(Theta_h_i \%*\% register_step2a$hinv_beta[,id])
 warp_dat_i = data.frame(index_observed   = index,
                         index_registered = index_reg)
-ggplot(warp_dat_i, aes(x = index_observed, y = index_registered)) + geom_line() + 
-  ggtitle("Extracted warping function for id 'boy01'")
+if (requireNamespace("ggplot2", quietly = TRUE)) {
+  ggplot(warp_dat_i, aes(x = index_observed, y = index_registered)) + geom_line() +
+    ggtitle("Extracted warping function for id 'boy01'")
+}
 
 # Allow the warping functions to not start / end on the diagonal.
 # The higher lambda_inc, the more the starting points and endpoints are
@@ -165,12 +168,14 @@ ggplot(warp_dat_i, aes(x = index_observed, y = index_registered)) + geom_line() 
 register_step2b = registr(obj = NULL, Y = growth_incomplete, Kt = 6, Kh = 4,
                           family = "gaussian", gradient = TRUE,
                           incompleteness = "full", lambda_inc = 1)
-ggplot(register_step2b$Y, aes(x = tstar, y = index, group = id)) +
-  geom_line(alpha = 0.2) +
-  ggtitle("Estimated warping functions")
-ggplot(register_step2b$Y, aes(x = index, y = value, group = id)) +
-  geom_line(alpha = 0.2) +
-  ggtitle("Registered curves")
+if (requireNamespace("ggplot2", quietly = TRUE)) {
+  ggplot(register_step2b$Y, aes(x = tstar, y = index, group = id)) +
+    geom_line(alpha = 0.2) +
+    ggtitle("Estimated warping functions")
+  ggplot(register_step2b$Y, aes(x = index, y = value, group = id)) +
+    geom_line(alpha = 0.2) +
+    ggtitle("Registered curves")
+}
 
 # Define the template function only over a subset of the curves
 # (even though not very reasonable in this example)
@@ -180,9 +185,12 @@ register_step2c = registr(obj = NULL, Y = growth_incomplete, Kt = 6, Kh = 4,
                           family = "gaussian", gradient = TRUE,
                           Y_template = Y_template,
                           incompleteness = "full", lambda_inc = 1)
-ggplot(register_step2c$Y, aes(x = index, y = value, group = id)) +
-  geom_line(alpha = 0.2) +
-  ggtitle("Registered curves")
+if (requireNamespace("ggplot2", quietly = TRUE)) {
+  ggplot(register_step2c$Y, aes(x = index, y = value, group = id)) +
+    geom_line(alpha = 0.2) +
+    ggtitle("Registered curves")
+}
+
 }
 
 }
