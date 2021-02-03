@@ -292,6 +292,19 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "gaussian", gr
   
   # main function call
   if (cores == 1) { # serial call
+    if (FALSE) {
+      ids = Y$id
+      arg_list$Y = NULL
+      arg_list$rows = NULL
+      Y = split(Y, ids)
+      results_list = pbapply::pblapply(Y, function(r) {
+        args = arg_list
+        args$Y = r
+        args$verbose = verbose > 1
+        do.call(registr_oneCurve, args = args)
+      })
+      Y = unsplit(Y, ids)
+    }
     if (requireNamespace("pbapply", quietly = TRUE) && verbose) {
       results_list = pbapply::pblapply(1:I, registr_oneCurve, arg_list, ...,
                                        verbose = verbose > 1)
