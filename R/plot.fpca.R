@@ -46,7 +46,8 @@ plot.fpca = function(x, plot_npc = x$npc, var_factor = 2,
                      response_function = NULL,
                      subtitle = TRUE, xlim = NULL, ylim = NULL,
                      xlab = "t [registered]", ylab = "y", ...) {
-  
+  id = NULL
+  rm(list="id")
   if (!requireNamespace("ggplot2", quietly = TRUE) || 
       !requireNamespace("cowplot", quietly = TRUE)) {
     stop("ggplot2 and cowplot are required for plot.fpca function")
@@ -85,9 +86,9 @@ plot.fpca = function(x, plot_npc = x$npc, var_factor = 2,
     # dataset with mean +/- <var_factor>*FPC
     plot_dat = fpc_dat %>%
       dplyr::filter(id == i) %>%
-      arrange(t) %>%
+      dplyr::arrange(t) %>%
       dplyr::left_join(mean_dat, by = "t") %>%
-      mutate(mean_plusFPC  = response_function(mean + var_factor*fpc_value),
+      dplyr::mutate(mean_plusFPC  = response_function(mean + var_factor*fpc_value),
              mean_minusFPC = response_function(mean - var_factor*fpc_value))
     plot_dat = data.frame(id    = unique(plot_dat$id),
                           t     = rep(plot_dat$t, times = 3),
@@ -99,7 +100,7 @@ plot.fpca = function(x, plot_npc = x$npc, var_factor = 2,
                                        paste0("mean - ",var_factor,"*FPC")), 
                                      each = nrow(plot_dat)),
                           stringsAsFactors = FALSE) %>%
-      mutate(type = factor(type, levels = c("mean curve",
+      dplyr::mutate(type = factor(type, levels = c("mean curve",
                                             paste0("mean + ",var_factor,"*FPC"),
                                             paste0("mean - ",var_factor,"*FPC"))))
   })

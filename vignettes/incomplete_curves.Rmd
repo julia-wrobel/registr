@@ -43,8 +43,11 @@ regard to incomplete curves.
 
 ```{r load_libraries, echo = FALSE}
 library(registr)
-library(ggplot2)
-theme_set(theme_minimal() + theme(plot.title = element_text(hjust = 0.5)))
+have_ggplot2 = requireNamespace("ggplot2", quietly = TRUE)
+if (have_ggplot2) {
+  library(ggplot2)
+  theme_set(theme_minimal() + theme(plot.title = element_text(hjust = 0.5)))
+}
 ```
 
 # Introduction
@@ -95,22 +98,26 @@ dat$id = factor(dat$id, levels = ids[order(sapply(ids, function(curve_id) {
 	max(dat$index[dat$id == curve_id])
 }))])
 
-# spaghetti plot
-ggplot(dat, aes(x = index, y = value, group = id)) +
-	geom_line(alpha = 0.2) +
-	xlab("t* [observed]") + ylab("Derivative") +
-	ggtitle("First derivative of growth curves")
+if (have_ggplot2) {
+  # spaghetti plot
+  ggplot(dat, aes(x = index, y = value, group = id)) +
+    geom_line(alpha = 0.2) +
+    xlab("t* [observed]") + ylab("Derivative") +
+    ggtitle("First derivative of growth curves")
+}
 ```
 
 
 ```{r Berkeley data 2 lasagna, fig.height = 5.5}
-ggplot(dat, aes(x = index, y = id, col = value)) + 
-	geom_line(lwd = 2.5) +
-	scale_color_continuous("Derivative", high = "midnightblue", low = "lightskyblue1") +
-  xlab("t* [observed]") + ylab("curve") +
-  ggtitle("First derivative of growth curves") +
-	theme(panel.grid  = element_blank(),
-				axis.text.y = element_blank())
+if (have_ggplot2) {
+  ggplot(dat, aes(x = index, y = id, col = value)) + 
+    geom_line(lwd = 2.5) +
+    scale_color_continuous("Derivative", high = "midnightblue", low = "lightskyblue1") +
+    xlab("t* [observed]") + ylab("curve") +
+    ggtitle("First derivative of growth curves") +
+    theme(panel.grid  = element_blank(),
+          axis.text.y = element_blank())
+}
 ```
 
 
@@ -171,27 +178,33 @@ By default, both functions `register_fpca` and `registr` include the argument
 ```{r application 1}
 reg1 = registr(Y = dat, family = "gaussian")
 
-ggplot(reg1$Y, aes(x = tstar, y = index, group = id)) + 
-	geom_line(alpha = 0.2) +
-	xlab("t* [observed]") + ylab("t [registered]") +
-	ggtitle("Estimated warping functions")
+if (have_ggplot2) {
+  ggplot(reg1$Y, aes(x = tstar, y = index, group = id)) + 
+    geom_line(alpha = 0.2) +
+    xlab("t* [observed]") + ylab("t [registered]") +
+    ggtitle("Estimated warping functions")
+}
 ```
 
 ```{r application 1 lasagna, fig.height = 5.5}
-ggplot(reg1$Y, aes(x = index, y = id, col = value)) + 
-	geom_line(lwd = 2.5) +
-	scale_color_continuous("Derivative", high = "midnightblue", low = "lightskyblue1") +
-  xlab("t [registered]") + ylab("curve") +
-  ggtitle("Registered curves") +
-	theme(panel.grid  = element_blank(),
-				axis.text.y = element_blank())
+if (have_ggplot2) {
+  ggplot(reg1$Y, aes(x = index, y = id, col = value)) + 
+    geom_line(lwd = 2.5) +
+    scale_color_continuous("Derivative", high = "midnightblue", low = "lightskyblue1") +
+    xlab("t [registered]") + ylab("curve") +
+    ggtitle("Registered curves") +
+    theme(panel.grid  = element_blank(),
+          axis.text.y = element_blank())
+}
 ```
 
 ```{r application 1 spaghetti}
-ggplot(reg1$Y, aes(x = index, y = value, group = id)) +
-	geom_line(alpha = 0.3) +
-	xlab("t [registered]") + ylab("Derivative") +
-	ggtitle("Registered curves")
+if (have_ggplot2) {
+  ggplot(reg1$Y, aes(x = index, y = value, group = id)) +
+    geom_line(alpha = 0.3) +
+    xlab("t [registered]") + ylab("Derivative") +
+    ggtitle("Registered curves")
+}
 ```
 
 The assumption can be dropped by setting `incompleteness` to some other value than NULL and
@@ -205,27 +218,33 @@ same length as the observed domains.
 reg2 = registr(Y = dat, family = "gaussian",
 							 incompleteness = "full", lambda_inc = 0)
 
-ggplot(reg2$Y, aes(x = tstar, y = index, group = id)) + 
-	geom_line(alpha = 0.2) +
-	xlab("t* [observed]") + ylab("t [registered]") +
-	ggtitle("Estimated warping functions")
+if (have_ggplot2) {
+  ggplot(reg2$Y, aes(x = tstar, y = index, group = id)) + 
+    geom_line(alpha = 0.2) +
+    xlab("t* [observed]") + ylab("t [registered]") +
+    ggtitle("Estimated warping functions")
+}
 ```
 
 ```{r application 2 lasagna, fig.height = 5.5}
-ggplot(reg2$Y, aes(x = index, y = id, col = value)) + 
-	geom_line(lwd = 2.5) +
-	scale_color_continuous("Derivative", high = "midnightblue", low = "lightskyblue1") +
-  xlab("t [registered]") + ylab("curve") +
-  ggtitle("Registered curves") +
-	theme(panel.grid  = element_blank(),
-				axis.text.y = element_blank())
+if (have_ggplot2) {
+  ggplot(reg2$Y, aes(x = index, y = id, col = value)) + 
+    geom_line(lwd = 2.5) +
+    scale_color_continuous("Derivative", high = "midnightblue", low = "lightskyblue1") +
+    xlab("t [registered]") + ylab("curve") +
+    ggtitle("Registered curves") +
+    theme(panel.grid  = element_blank(),
+          axis.text.y = element_blank())
+}
 ```
 
 ```{r application 2 spaghetti}
-ggplot(reg2$Y, aes(x = index, y = value, group = id)) +
-	geom_line(alpha = 0.3) +
-	xlab("t [registered]") + ylab("Derivative") +
-	ggtitle("Registered curves")
+if (have_ggplot2) {
+  ggplot(reg2$Y, aes(x = index, y = value, group = id)) +
+    geom_line(alpha = 0.3) +
+    xlab("t [registered]") + ylab("Derivative") +
+    ggtitle("Registered curves")
+}
 ```
 
 ### Larger `lambda_inc`
@@ -234,27 +253,33 @@ ggplot(reg2$Y, aes(x = index, y = value, group = id)) +
 reg3 = registr(Y = dat, family = "gaussian",
 							 incompleteness = "full", lambda_inc = 5)
 
-ggplot(reg3$Y, aes(x = tstar, y = index, group = id)) + 
-	geom_line(alpha = 0.2) +
-	xlab("t* [observed]") + ylab("t [registered]") +
-	ggtitle("Estimated warping functions")
+if (have_ggplot2) {
+  ggplot(reg3$Y, aes(x = tstar, y = index, group = id)) + 
+    geom_line(alpha = 0.2) +
+    xlab("t* [observed]") + ylab("t [registered]") +
+    ggtitle("Estimated warping functions")
+}
 ```
 
 ```{r application 3 lasagna, fig.height = 5.5}
-ggplot(reg3$Y, aes(x = index, y = id, col = value)) + 
-	geom_line(lwd = 2.5) +
-	scale_color_continuous("Derivative", high = "midnightblue", low = "lightskyblue1") +
-  xlab("t [registered]") + ylab("curve") +
-  ggtitle("Registered curves") +
-	theme(panel.grid  = element_blank(),
-				axis.text.y = element_blank())
+if (have_ggplot2) {
+  ggplot(reg3$Y, aes(x = index, y = id, col = value)) + 
+    geom_line(lwd = 2.5) +
+    scale_color_continuous("Derivative", high = "midnightblue", low = "lightskyblue1") +
+    xlab("t [registered]") + ylab("curve") +
+    ggtitle("Registered curves") +
+    theme(panel.grid  = element_blank(),
+          axis.text.y = element_blank())
+}
 ```
 
 ```{r application 3 spaghetti}
-ggplot(reg3$Y, aes(x = index, y = value, group = id)) +
-	geom_line(alpha = 0.3) +
-	xlab("t [registered]") + ylab("Derivative") +
-	ggtitle("Registered curves")
+if (have_ggplot2) {
+  ggplot(reg3$Y, aes(x = index, y = value, group = id)) +
+    geom_line(alpha = 0.3) +
+    xlab("t [registered]") + ylab("Derivative") +
+    ggtitle("Registered curves")
+}
 ```
 
 # Constraint matrices for the optimization

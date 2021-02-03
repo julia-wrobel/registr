@@ -50,9 +50,12 @@ found in the separate vignette `"incomplete_curves"`.
 
 ```{r load_libraries, echo = FALSE}
 library(registr)
-library(ggplot2)
 library(dplyr)
-theme_set(theme_bw())
+have_ggplot2 = requireNamespace("ggplot2", quietly = TRUE)
+if (have_ggplot2)  {
+  library(ggplot2)
+  theme_set(theme_bw())
+}
 ```
 
 
@@ -118,7 +121,7 @@ The resulting object,`registration_data`, is a data frame with variables `id`, `
 
 The variables `index` and `t` are both time grids. Evaluated on the grid `index` the data is unregistered, and on the grid `t` the data is registered. Registered and unregistered curves are plotted below.
 
-```{r plot_sim2, echo = FALSE, fig.show='hold'}
+```{r plot_sim2, echo = FALSE, fig.show='hold', eval = have_ggplot2}
 
 registration_data %>%
 	ggplot(aes(index, plogis(latent_mean), group = id)) + theme_bw() + 
@@ -155,22 +158,25 @@ pc_df = data.frame(pop_mean = fpca_data$alpha,
 									 index = seq(0, 1, length.out = 200),
 									 id = 1)
 
-ggplot(Y, aes(index, latent_mean, group = id)) + theme_bw() +
-	geom_line(alpha = 0.25) + geom_line(data = pc_df, aes(y = pop_mean), color = "red") 
-
-ggplot(pc_df, aes(index, psi1)) + theme_bw() + geom_line(color = "blue") 
-ggplot(pc_df, aes(index, psi2)) + theme_bw() + geom_line(color = "blue") 
-
+if (have_ggplot2) {
+  ggplot(Y, aes(index, latent_mean, group = id)) + theme_bw() +
+    geom_line(alpha = 0.25) + geom_line(data = pc_df, aes(y = pop_mean), color = "red") 
+  
+  ggplot(pc_df, aes(index, psi1)) + theme_bw() + geom_line(color = "blue") 
+  ggplot(pc_df, aes(index, psi2)) + theme_bw() + geom_line(color = "blue") 
+}
 ```
 
 The left panel of the figure above shows the latent means for each subject, along with the population-level mean,  $\alpha(t)$, in red. The middle and right panels show the first and second principal components, $\psi_1(t)$ and $\psi_2(t)$, respectively. Using the $logit^{-1}(\cdot)$ function we can convert the subject-specific means to probabilities; these probabilities are used to generate the binary values. Binary values and latent probability curve for one subject in the dataset is shown below.
 
 ```{r plot2_sim1, echo = FALSE}
-Y %>%
-	filter(id == 7) %>%
-	ggplot(aes(index, value)) + theme_bw() +
-	geom_point(alpha = 0.75, size = 0.25) + geom_line(aes(y = plogis(latent_mean))) +
-	labs(y = "Pr(Y = 1)")
+if (have_ggplot2) {
+  Y %>%
+    filter(id == 7) %>%
+    ggplot(aes(index, value)) + theme_bw() +
+    geom_point(alpha = 0.75, size = 0.25) + geom_line(aes(y = plogis(latent_mean))) +
+    labs(y = "Pr(Y = 1)")
+}
 ```
 
 We can alter the score variance for the principal components using the arguments `lambda1` and `lambda2`. The default setting is for all subjects to have the same number of time points. However, by specifying `vary_D = TRUE`, we can generate data with uneven grid lengths for each subject.
@@ -185,35 +191,36 @@ The type of GFPCA is specified by the argument `fpca_type`, either calling the v
 To register binary data use the following code:
 
 ```{r register_binary, message = FALSE}
-registr_bin = register_fpca(Y = registration_data, family = "binomial", Kt = 8, Kh = 4, npc = 1)
+registr_bin = register_fpca(Y = registration_data, family = "binomial", Kt = 8, Kh = 4, npc = 1, verbose = 2)
 ```
 
 The argument `Y` specifies the input dataset; this code uses the simulated `registration_data`. `Kt` and `Kh` specify number of B-spline basis functions for the subject-specific means and warping functions, respectively, and `npc` indicates the number of functional principal components to use.
 
 ```{r plot_reg_bin, echo = FALSE, fig.show='hold', fig.width=2}
 Y = registr_bin$Y
-
-ggplot(Y, aes(tstar, plogis(latent_mean), group = id)) + theme_bw() + 
-	geom_line(alpha = 0.25) + labs(y = "Pr(Y = 1)")
-
-ggplot(Y, aes(t, plogis(latent_mean), group = id)) + theme_bw() + 
-	geom_line(alpha = 0.25) + labs(y = "Pr(Y = 1)")
-
-ggplot(Y, aes(t_hat, plogis(latent_mean), group = id)) + theme_bw() + 
-	geom_line(alpha = 0.25) + labs(y = "Pr(Y = 1)")
+if (have_ggplot2) {
+  ggplot(Y, aes(tstar, plogis(latent_mean), group = id)) + theme_bw() + 
+    geom_line(alpha = 0.25) + labs(y = "Pr(Y = 1)")
+  
+  ggplot(Y, aes(t, plogis(latent_mean), group = id)) + theme_bw() + 
+    geom_line(alpha = 0.25) + labs(y = "Pr(Y = 1)")
+  
+  ggplot(Y, aes(t_hat, plogis(latent_mean), group = id)) + theme_bw() + 
+    geom_line(alpha = 0.25) + labs(y = "Pr(Y = 1)")
+}
 
 ```
 
 Underlying probabilities of the binary data are plotted above. At left probabilities on unregistered domain $t^*$, center are probabilities on true registered domain $t$, and at right are probabilities on estimated registered domain $\widehat{t}$. After registration the underlying probabilities are aligned -- though it is important to note that the algorithm registers based on the underlying binary observations, not the true probabilities.
 
 ```{r plot_reg_bin_warp, echo = FALSE, fig.show='hold'}
-
-ggplot(Y, aes(tstar, t, group = id)) + theme_bw() + 
-	geom_line(alpha = 0.25)
-
-ggplot(Y, aes(tstar, t_hat, group = id)) + theme_bw() + 
-	geom_line(alpha = 0.25)
-
+if (have_ggplot2) {
+  ggplot(Y, aes(tstar, t, group = id)) + theme_bw() + 
+    geom_line(alpha = 0.25)
+  
+  ggplot(Y, aes(tstar, t_hat, group = id)) + theme_bw() + 
+    geom_line(alpha = 0.25)
+}
 ```
 
 The true and estimated warping functions are plotted above. 
@@ -249,19 +256,19 @@ The argument `print.iter = TRUE` prints the error after each iteration. The true
 
 ```{r plot_bfpca, echo = FALSE, fig.show='hold', fig.width=2}
 pc_df = pc_df %>%
-	mutate(psi1_est = bfpca_object$efunctions[,1],
-	psi2_est = bfpca_object$efunctions[,2],
-	alpha_est = bfpca_object$alpha %>% as.vector())
-
-ggplot(pc_df, aes(index, pop_mean)) + theme_bw() + geom_line(color = "blue") +
-	geom_line(aes(y = alpha_est), linetype = 2, color = "red")
-
-ggplot(pc_df, aes(index, psi1)) + theme_bw() + geom_line(color = "blue") +
-	geom_line(aes(y = psi2_est), linetype = 2, color = "red")
-
-ggplot(pc_df, aes(index, psi2)) + theme_bw() + geom_line(color = "blue") +
-	geom_line(aes(y = psi1_est), linetype = 2, color = "red")
-
+  mutate(psi1_est = bfpca_object$efunctions[,1],
+         psi2_est = bfpca_object$efunctions[,2],
+         alpha_est = bfpca_object$alpha %>% as.vector())
+if (have_ggplot2) {
+  ggplot(pc_df, aes(index, pop_mean)) + theme_bw() + geom_line(color = "blue") +
+    geom_line(aes(y = alpha_est), linetype = 2, color = "red")
+  
+  ggplot(pc_df, aes(index, psi1)) + theme_bw() + geom_line(color = "blue") +
+    geom_line(aes(y = psi2_est), linetype = 2, color = "red")
+  
+  ggplot(pc_df, aes(index, psi2)) + theme_bw() + geom_line(color = "blue") +
+    geom_line(aes(y = psi1_est), linetype = 2, color = "red")
+}
 ```
 
 The algorithm runs quickly and does a good job recovering the true FPCs. Note that while the truth and estimation are not perfectly aligned, this is to be expected -- the data used to estimate these functions are binary observations that are generated for the truth with some variability, so results are not expected to perfectly align. One would expect results to get better with increasing number of time points per subject.
@@ -271,7 +278,9 @@ In `registr`, the estimated FPCs can be easily visualized using the internal fun
 `plot` function on an object of class `fpca`.
 
 ```{r plot.fpca, fig.show='hold', fig.width=6}
-registr:::plot.fpca(bfpca_object)
+if (have_ggplot2 && requireNamespace("cowplot", quietly = TRUE)) {
+  registr:::plot.fpca(bfpca_object)
+}
 ```
 
 ## Generalized FPCA using `gfpca_twoStep()`
@@ -347,14 +356,16 @@ registr_parametric = register_fpca(Y = registration_data, family = "binomial",
 
 This argument works for all families. Note that the `gradient` option is currently unavailable for parametric inverse warping functions. Below are the resulting inverse warping functions from both the `nonparametric` (left) and `piecewise_linear2` (right) specifications. The slopes of the 3 line segments that make up one's parametric function can provide some interpretation about how that particular subject's data was warped to align with the population mean.
 
-```{r register_parametric_plots, echo = FALSE, fig.show='hold'}
-ggplot(registr_gauss$Y, aes(x = tstar, y = t_hat, group = id)) +
-	geom_line() + 
-	labs(title = "warping = nonparametric")
-
-ggplot(registr_parametric$Y, aes(x = tstar, y = t_hat, group = id)) +
-	geom_line() + 
-	labs(title = "warping = piecewise_linear2")
+```{r register_parametric_plots, echo = FALSE, fig.show='hold', eval = have_ggplot2}
+if (have_ggplot2) {
+  ggplot(registr_gauss$Y, aes(x = tstar, y = t_hat, group = id)) +
+    geom_line() + 
+    labs(title = "warping = nonparametric")
+  
+  ggplot(registr_parametric$Y, aes(x = tstar, y = t_hat, group = id)) +
+    geom_line() + 
+    labs(title = "warping = piecewise_linear2")
+}
 ```
 
 Beyond interpretability, another advantage of parametric inverse warping functions is the ability to specify prior information about how they should look. The `register_fpca()` function can include normally-distributed priors which pull warping functions toward the identity line. Specifically, the priors pull the knot coordinates toward (0.25, 0.25) and (0.75, 0.75). 
@@ -375,13 +386,15 @@ registr_par_priors2 = register_fpca(Y = registration_data, family = "binomial",
 																		warping = "piecewise_linear2",
                                     priors = TRUE, prior_sd = 0.01)
 
-ggplot(registr_par_priors$Y, aes(x = tstar, y = t_hat, group = id)) +
-	geom_line() + 
-	labs(title = "sd for all priors = 0.1")
-
-ggplot(registr_par_priors2$Y, aes(x = tstar, y = t_hat, group = id)) +
-	geom_line() + 
-	labs(title = "sd for all priors = 0.01")
+if (have_ggplot2) {
+  ggplot(registr_par_priors$Y, aes(x = tstar, y = t_hat, group = id)) +
+    geom_line() + 
+    labs(title = "sd for all priors = 0.1")
+  
+  ggplot(registr_par_priors2$Y, aes(x = tstar, y = t_hat, group = id)) +
+    geom_line() + 
+    labs(title = "sd for all priors = 0.01")
+}
 ```
 
 The ability to specify priors is currently only available for binary curve registration, not Gaussian. 
@@ -405,36 +418,37 @@ The resulting population mean and principal component from registering the conti
 registr_non_periodic = register_fpca(Y = registration_data, family = "binomial", 
                                  Kt = 8, Kh = 4, npc = 1, gradient = FALSE,
                                  periodic = FALSE)
-
-tibble(mu = registr_non_periodic$fpca_obj$mu) %>%
-	mutate(time = row_number()) %>%
-	ggplot(aes(x = time, y = mu)) + 
-	theme_bw() + 
-	geom_line() + 
-	labs(y = "mu (non-periodic)")
-
-tibble(psi1 = registr_non_periodic$fpca_obj$efunctions[,1]) %>%
-	mutate(time = row_number()) %>%
-	ggplot(aes(x = time, y = psi1)) + 
-	theme_bw() + 
-	geom_line() + 
-	labs(y = "psi1 (non-periodic)")
-
-tibble(mu = registr_periodic$fpca_obj$mu) %>%
-	mutate(time = row_number()) %>%
-	ggplot(aes(x = time, y = mu)) + 
-	theme_bw() + 
-	geom_line() + 
-	geom_hline(yintercept = registr_periodic$fpca_obj$mu[1], lty = "dotted") + 
-	labs(y = "mu (periodic)")
-
-tibble(psi1 = registr_periodic$fpca_obj$efunctions[,1]) %>%
-	mutate(time = row_number()) %>%
-	ggplot(aes(x = time, y = psi1)) + 
-	theme_bw() + 
-	geom_line() + 
-	geom_hline(yintercept = registr_periodic$fpca_obj$efunctions[1,1], lty = "dotted") + 
-	labs(y = "psi1 (periodic)")
+if (have_ggplot2) {
+  tibble(mu = registr_non_periodic$fpca_obj$mu) %>%
+    mutate(time = row_number()) %>%
+    ggplot(aes(x = time, y = mu)) + 
+    theme_bw() + 
+    geom_line() + 
+    labs(y = "mu (non-periodic)")
+  
+  tibble(psi1 = registr_non_periodic$fpca_obj$efunctions[,1]) %>%
+    mutate(time = row_number()) %>%
+    ggplot(aes(x = time, y = psi1)) + 
+    theme_bw() + 
+    geom_line() + 
+    labs(y = "psi1 (non-periodic)")
+  
+  tibble(mu = registr_periodic$fpca_obj$mu) %>%
+    mutate(time = row_number()) %>%
+    ggplot(aes(x = time, y = mu)) + 
+    theme_bw() + 
+    geom_line() + 
+    geom_hline(yintercept = registr_periodic$fpca_obj$mu[1], lty = "dotted") + 
+    labs(y = "mu (periodic)")
+  
+  tibble(psi1 = registr_periodic$fpca_obj$efunctions[,1]) %>%
+    mutate(time = row_number()) %>%
+    ggplot(aes(x = time, y = psi1)) + 
+    theme_bw() + 
+    geom_line() + 
+    geom_hline(yintercept = registr_periodic$fpca_obj$efunctions[1,1], lty = "dotted") + 
+    labs(y = "psi1 (periodic)")
+}
 ```
 
 
@@ -455,14 +469,16 @@ curve shapes well.
 ```{r template data sim, echo=F, fig.width=5}
 t = seq(0, 1, length.out = 100)
 temp_dat = data.frame(index = rep(t, times = 3),
-											value = c(dnorm(t, mean = 0.5, sd = 0.15),
-																dnorm(t, mean = 0.65, sd = 0.185),
-																dnorm(t, mean = 0.7, sd = 0.18)),
-											id    = factor(rep(1:3, each = length(t))))
-ggplot(temp_dat, aes(x = index, y = value)) + 
-	geom_line(aes(col = id)) +
-	geom_smooth(se = FALSE, col = "black") +
-	ggtitle("Simulated data with mean curve in black")
+                      value = c(dnorm(t, mean = 0.5, sd = 0.15),
+                                dnorm(t, mean = 0.65, sd = 0.185),
+                                dnorm(t, mean = 0.7, sd = 0.18)),
+                      id    = factor(rep(1:3, each = length(t))))
+if (have_ggplot2) {
+  ggplot(temp_dat, aes(x = index, y = value)) + 
+    geom_line(aes(col = id)) +
+    geom_smooth(se = FALSE, col = "black") +
+    ggtitle("Simulated data with mean curve in black")
+}
 ```
 
 Performing the registration with this mean curve as template would lead to the
@@ -471,9 +487,11 @@ following result:
 ```{r temp registration without template, fig.width=5}
 reg1 = registr(Y = temp_dat, family = "gaussian", Kh = 4,
                incompleteness = "trailing", lambda_inc = 0)
-ggplot(reg1$Y, aes(x = index, y = value, col = id)) + 
-  geom_line() +
-  ggtitle("Registration with overall mean (black) as template function")
+if (have_ggplot2) {
+  ggplot(reg1$Y, aes(x = index, y = value, col = id)) + 
+    geom_line() +
+    ggtitle("Registration with overall mean (black) as template function")
+}
 ```
 
 Alternatively, the template function can be manually defined using one of the
@@ -491,10 +509,12 @@ In the following example, the red curve with id 1 is used as template:
 ```{r temp registration with template, fig.width=5}
 Y_template = temp_dat %>% filter(id == 1)
 reg2 = registr(Y = temp_dat, family = "gaussian", Kh = 4, Y_template = Y_template,
-							 incompleteness = "trailing", lambda_inc = 0)
-ggplot(reg2$Y, aes(x = index, y = value, col = id)) +
-	geom_line() +
-	ggtitle("Registration with red curve as template")
+               incompleteness = "trailing", lambda_inc = 0)
+if (have_ggplot2) {
+  ggplot(reg2$Y, aes(x = index, y = value, col = id)) +
+    geom_line() +
+    ggtitle("Registration with red curve as template")
+}
 ```
 
 

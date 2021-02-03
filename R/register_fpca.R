@@ -255,7 +255,9 @@ register_fpca = function(Y, Kt = 8, Kh = 4, family = "gaussian",
   												 lambda_inc     = lambda_inc,
   												 row_obj        = rows,
   												 beta           = registr_step$hinv_beta,
-  												 cores          = cores, ...)
+  												 cores          = cores,
+  												 verbose = verbose > 1,
+  												 ...)
   	
   	index_warped[[iter + 2]] = registr_step$Y$index_scaled
   	reg_loss[iter + 1]       = registr_step$loss

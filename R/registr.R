@@ -246,6 +246,9 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "gaussian", gr
   } else { # template function = mean of all curves
     
     if (!is.null(Y_template)) {
+      if (verbose) {
+        message("Registr: Extracting Y_template")
+      }
       if (!all(c("id", "index", "value") %in% names(Y_template))) {
         stop("Y_template must have variables 'id', 'index', and 'value'.")
       } else if (!identical(range(Y_template$index), range(Y$index))) {
@@ -257,6 +260,9 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "gaussian", gr
       mean_dat = Y
     }
     
+    if (verbose) {
+      message("Registr: Getting Knots and basis functions")
+    }
     if (periodic) {
       # if periodic, then we want more global knots, because the resulting object from pbs 
       # only has (knots+intercept) columns.
@@ -296,44 +302,70 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "gaussian", gr
   arg_list$Y = NULL
   arg_list$rows = NULL
   Y = split(Y, ids)
+  if (!is.null(beta)) {
+    beta_list = apply(beta, 2, list)
+    beta_list = lapply(beta_list, unlist)
+    Y = mapply(function(y, b) {
+      attr(y, "beta") = b
+      y
+    }, Y, beta_list, SIMPLIFY = FALSE)
+    rm(beta_list)
+  }
+  if (!is.null(mean_coefs)) {
+    if (is.matrix(mean_coefs)) {
+      mc_list = apply(mean_coefs, 2, list)
+      mc_list = lapply(mc_list, unlist)
+    } else {
+      mc_list = lapply(1:length(Y), function(blah) {
+        mean_coefs
+      })
+    }
+    Y = mapply(function(y, b) {
+      attr(y, "mean_coefs") = b
+      y
+    }, Y, mc_list, SIMPLIFY = FALSE)
+    rm(mc_list)
+  }  
   args = arg_list
+  rm(arg_list)
+  if (verbose) {
+    message("Registr: Running individual curves")
+  }
+  run_one_curve = function(r) {
+    args$Y = r
+    args$beta = attr(r, "beta")
+    args$mean_coefs = attr(r, "mean_coefs")
+    args$verbose = verbose > 1
+    do.call(registr_oneCurve, args = args)
+  }
   if (cores == 1) { # serial call
     if (requireNamespace("pbapply", quietly = TRUE) && verbose) {
-      results_list = pbapply::pblapply(Y, function(r) {
-        args$Y = r
-        args$verbose = verbose > 1
-        do.call(registr_oneCurve, args = args)
-      })
+      results_list = pbapply::pblapply(Y, run_one_curve)
     } else {
-      results_list = lapply(Y, function(r) {
-        args$Y = r
-        args$verbose = verbose > 1
-        do.call(registr_oneCurve, args = args)
-      })
+      results_list = lapply(Y, run_one_curve)
     }
     
   } else if (.Platform$OS.type == "unix") { # parallelized call on Unix-based systems
-    results_list = parallel::mclapply(Y, function(r) {
-      args$Y = r
-      args$verbose = verbose > 1
-      do.call(registr_oneCurve, args = args)
-    }, mc.cores = cores)
+    results_list = parallel::mclapply(Y, run_one_curve, mc.cores = cores)
     
   } else { # parallelized call on Windows
     local_cluster = parallel::makePSOCKcluster(rep("localhost", cores)) # set up cluster
     # export functions and packages to the cluster
-    parallel::clusterExport(cl = local_cluster, c("arg_list"), envir=environment())
+    parallel::clusterExport(cl = local_cluster, c("args"), envir=environment())
     parallel::clusterEvalQ(cl = local_cluster, c(library(registr), library(stats)))
     
     results_list = parallel::parLapply(
       cl  = local_cluster,
-      X = Y, fun = function(r) {
-      args$Y = r
-      args$verbose = verbose > 1
-      do.call(registr_oneCurve, args = args)
-    })    
+      X = Y, fun = run_one_curve)    
     
     parallel::stopCluster(cl = local_cluster) # close cluster
+  }
+  if (!is.null(beta)) {
+    Y = lapply(Y, function(x) {
+      attr(x, "beta") = NULL
+      attr(x, "mean_coefs") = NULL
+      x
+    })
   }
   Y = dplyr::bind_rows(Y)
   rm(ids)
@@ -415,7 +447,7 @@ registr_oneCurve = function(
   #! needs to change
   tstar_cropped = Y$tstar
   rm(Y)
-  D_i           = length(Y_i)
+  D_i           = nrow(Y_i)
   
   # spline basis on the curve-specific time interval.
   # Pre-calculate the knots (for setting up the curve-specific Theta_h spline
@@ -553,7 +585,9 @@ registr_oneCurve = function(
       scale = tail(beta_i, 1)
       beta_i = beta_i[1:(length(beta_i) - 1)]
     }
-    
+    if (verbose) {
+      message("Ensuring Proper Beta")
+    }
     beta_i = ensure_proper_beta(beta  = beta_i,
                                 t_min = ifelse(is.null(incompleteness) || incompleteness == "trailing",
                                                t_min_i, t_min),
