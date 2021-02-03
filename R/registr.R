@@ -403,6 +403,10 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "gaussian", gr
 #' registration of one curve.
 #' 
 #' @inheritParams registr
+#' @param global_knots knots for the basis/splines, passed to [pbs::pbs()] 
+#' or [stats::bs()]
+#' @param mean_coefs Mean coefficients for the mean of all curves or 
+#' GFPCA based.  May extract from `obj` object
 #' 
 #' @return An list containing:
 #' \item{hinv_innerKnots}{Inner knots for setting up the spline basis

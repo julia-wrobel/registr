@@ -72,6 +72,12 @@ If \code{piecewise_linear2} they follow a piecewise linear function with 2 knots
 Vector with one entry for each subject, containing the current estimate for the scale parameter of its
 gamma distribution. Default is NULL, which sets the starting value for the scale parameter to 1.5.}
 
+\item{global_knots}{knots for the basis/splines, passed to [pbs::pbs()] 
+or [stats::bs()]}
+
+\item{mean_coefs}{Mean coefficients for the mean of all curves or 
+GFPCA based.  May extract from `obj` object}
+
 \item{...}{additional arguments passed to or from other functions}
 
 \item{verbose}{print diagnostic messages.}
