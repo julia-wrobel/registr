@@ -288,35 +288,36 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "gaussian", gr
                   t_max          = t_max,          rows         = rows,
                   periodic       = periodic,       warping      = warping,
                   global_knots   = global_knots,   mean_coefs   = mean_coefs,
-                  gamma_scales   = gamma_scales)
+                  gamma_scales   = gamma_scales,
+                  ...)
   
   # main function call
+  ids = Y$id
+  arg_list$Y = NULL
+  arg_list$rows = NULL
+  Y = split(Y, ids)
+  args = arg_list
   if (cores == 1) { # serial call
-    if (FALSE) {
-      ids = Y$id
-      arg_list$Y = NULL
-      arg_list$rows = NULL
-      Y = split(Y, ids)
+    if (requireNamespace("pbapply", quietly = TRUE) && verbose) {
       results_list = pbapply::pblapply(Y, function(r) {
-        args = arg_list
         args$Y = r
         args$verbose = verbose > 1
         do.call(registr_oneCurve, args = args)
       })
-      Y = unsplit(Y, ids)
-    }
-    if (requireNamespace("pbapply", quietly = TRUE) && verbose) {
-      results_list = pbapply::pblapply(1:I, registr_oneCurve, arg_list, ...,
-                                       verbose = verbose > 1)
     } else {
-      results_list = lapply(1:I, registr_oneCurve, arg_list, ...,
-                            verbose = verbose > 1)
+      results_list = lapply(Y, function(r) {
+        args$Y = r
+        args$verbose = verbose > 1
+        do.call(registr_oneCurve, args = args)
+      })
     }
     
   } else if (.Platform$OS.type == "unix") { # parallelized call on Unix-based systems
-    results_list = parallel::mclapply(1:I, registr_oneCurve, arg_list, ...,
-                                      mc.cores = cores,
-                                      verbose = verbose > 1)
+    results_list = parallel::mclapply(Y, function(r) {
+      args$Y = r
+      args$verbose = verbose > 1
+      do.call(registr_oneCurve, args = args)
+    }, mc.cores = cores)
     
   } else { # parallelized call on Windows
     local_cluster = parallel::makePSOCKcluster(rep("localhost", cores)) # set up cluster
@@ -324,12 +325,18 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "gaussian", gr
     parallel::clusterExport(cl = local_cluster, c("arg_list"), envir=environment())
     parallel::clusterEvalQ(cl = local_cluster, c(library(registr), library(stats)))
     
-    results_list = parallel::parLapply(cl  = local_cluster, X = 1:I,
-                                       fun = registr_oneCurve, arg_list, ...,
-                                       verbose = verbose > 1)
+    results_list = parallel::parLapply(
+      cl  = local_cluster,
+      X = Y, fun = function(r) {
+      args$Y = r
+      args$verbose = verbose > 1
+      do.call(registr_oneCurve, args = args)
+    })    
     
     parallel::stopCluster(cl = local_cluster) # close cluster
   }
+  Y = dplyr::bind_rows(Y)
+  rm(ids)
   
   # gather the results
   hinv_innerKnots        = lapply(results_list, function(x) x$hinv_innerKnots)
@@ -363,11 +370,7 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "gaussian", gr
 #' It performs the main optimization step with \code{constrOptim} for the
 #' registration of one curve.
 #' 
-#' @param i Numeric index of the curve under focus.
-#' @param arg_list Named list of all arguments necessary for the registration
-#' step.
-#' @param verbose print diagnostic messages
-#' @param ... additional arguments passed to or from other functions
+#' @inheritParams registr
 #' 
 #' @return An list containing:
 #' \item{hinv_innerKnots}{Inner knots for setting up the spline basis
@@ -428,13 +431,13 @@ registr_oneCurve = function(
   if (verbose) {
     message("Getting Spline Basis")
   }
-  tstar_bs_i      = c(Y$tstar, range(tstar_cropped))
+  tstar_bs_i      = c(Y_i$tstar, range(tstar_cropped))
   Theta_h_i       = splines::bs(tstar_bs_i, knots = hinv_innerKnots_i, intercept = TRUE)
-  Theta_h_i       = Theta_h_i[1:nrow(Y),]
+  Theta_h_i       = Theta_h_i[1:nrow(Y_i),]
   
   # start parameters
   if (is.null(beta)) { # newly initialize start parameters
-    t_vec_i     = Y$tstar
+    t_vec_i     = Y_i$tstar
     beta_full_i = initial_params(warping = warping,
                                  K       = Theta_h_i,
                                  t_vec   = t_vec_i)
@@ -473,7 +476,7 @@ registr_oneCurve = function(
       # In this case, the FPCA is not based on the spline basis 'mean_basis'.
       # Accordingly, smooth over the GFPCA representation of the i'th function
       # using 'mean_basis'.
-      mean_dat_i = obj$Yhat[obj$Yhat$id == Y$id[1],]
+      mean_dat_i = obj$Yhat[obj$Yhat$id == Y_i$id[1],]
       
       if (periodic) {
         mean_basis = pbs::pbs(c(t_min, t_max, mean_dat_i$index),
@@ -570,7 +573,7 @@ registr_oneCurve = function(
                            grad           = gradf,
                            ui             = ui_i,
                            ci             = ci_i,
-                           Y              = Y_i, 
+                           Y              = Y_i$value, 
                            Theta_h        = Theta_h_i,
                            mean_coefs     = mean_coefs_i, 
                            knots          = global_knots, 
