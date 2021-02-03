@@ -385,21 +385,40 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "gaussian", gr
 #' @importFrom splines bs
 #' @importFrom stats constrOptim Gamma
 #' 
-registr_oneCurve = function(i, arg_list, ..., verbose = TRUE) {
+registr_oneCurve = function(
+  obj = NULL,
+  Y = NULL, 
+  Kt = 8, 
+  Kh = 4, 
+  family = "gaussian",
+  gradient = TRUE,
+  incompleteness = NULL, 
+  lambda_inc = NULL,
+  beta = NULL, 
+  t_min = NULL, 
+  t_max = NULL,
+  periodic = FALSE, 
+  warping = "nonparametric",
+  gamma_scales = NULL,
+  global_knots = NULL,
+  mean_coefs = NULL,
+  ...,
+  verbose = TRUE) {
   
-  t_min_i       = arg_list$Y$tstar[arg_list$rows$first_row[i]]
-  t_max_i       = arg_list$Y$tstar[arg_list$rows$last_row[i]]
-  Y_cropped     = arg_list$Y[arg_list$Y$tstar >= t_min_i & arg_list$Y$tstar <= t_max_i,]
-  tstar_cropped = Y_cropped$tstar
-  rows_i        = which(Y_cropped$id == arg_list$rows$id[i])
-  Y_i           = Y_cropped$value[rows_i]
+  t_range_i     = range(Y$tstar)
+  t_min_i       = t_range_i[1]
+  t_max_i       = t_range_i[2]
+  Y_i           = Y
+  #! needs to change
+  tstar_cropped = Y$tstar
+  rm(Y)
   D_i           = length(Y_i)
   
   # spline basis on the curve-specific time interval.
   # Pre-calculate the knots (for setting up the curve-specific Theta_h spline
   # bases in registr_oneCurve) similarly to splines::bs to make the final splines::bs call faster.
   degree          = 3 # cubic splines
-  n_innerKnots    = arg_list$Kh - (1 + degree)
+  n_innerKnots    = Kh - (1 + degree)
   if (n_innerKnots <= 0) {
     hinv_innerKnots_i = NULL
   } else if (n_innerKnots > 0) {
@@ -409,32 +428,32 @@ registr_oneCurve = function(i, arg_list, ..., verbose = TRUE) {
   if (verbose) {
     message("Getting Spline Basis")
   }
-  tstar_bs_i      = c(tstar_cropped[rows_i], range(tstar_cropped))
-  Theta_h_cropped = splines::bs(tstar_bs_i, knots = hinv_innerKnots_i, intercept = TRUE)
-  Theta_h_i       = Theta_h_cropped[1:length(rows_i),]
+  tstar_bs_i      = c(Y$tstar, range(tstar_cropped))
+  Theta_h_i       = splines::bs(tstar_bs_i, knots = hinv_innerKnots_i, intercept = TRUE)
+  Theta_h_i       = Theta_h_i[1:nrow(Y),]
   
   # start parameters
-  if (is.null(arg_list$beta)) { # newly initialize start parameters
-    t_vec_i     = Y_cropped$tstar[rows_i]
-    beta_full_i = initial_params(warping = arg_list$warping,
+  if (is.null(beta)) { # newly initialize start parameters
+    t_vec_i     = Y$tstar
+    beta_full_i = initial_params(warping = warping,
                                  K       = Theta_h_i,
                                  t_vec   = t_vec_i)
     
   } else { # use the last estimates (from the joint approach) as start parameters
-    beta_full_i = arg_list$beta[, i]
+    beta_full_i = beta
   }
   # account the beta vector for potential incompleteness constraints
-  if (arg_list$warping == "nonparametric") {
-    if (is.null(arg_list$incompleteness)) { # initial and final parameters are fixed
+  if (warping == "nonparametric") {
+    if (is.null(incompleteness)) { # initial and final parameters are fixed
       beta_i = beta_full_i[-c(1, length(beta_full_i))]
-    } else if (arg_list$incompleteness == "leading") { # final parameter is fixed
+    } else if (incompleteness == "leading") { # final parameter is fixed
       beta_i = beta_full_i[-length(beta_full_i)]
-    } else if (arg_list$incompleteness == "trailing") { # initial parameter is fixed
+    } else if (incompleteness == "trailing") { # initial parameter is fixed
       beta_i = beta_full_i[-1]
-    } else if (arg_list$incompleteness == "full") { # no parameter is fixed
+    } else if (incompleteness == "full") { # no parameter is fixed
       beta_i = beta_full_i
     }
-  } else if (arg_list$warping == "piecewise_linear2") {
+  } else if (warping == "piecewise_linear2") {
     beta_i = beta_full_i
   }
   
@@ -442,29 +461,29 @@ registr_oneCurve = function(i, arg_list, ..., verbose = TRUE) {
   if (verbose) {
     message("Getting mean coefficients")
   }
-  if (is.null(arg_list$obj)) { # template function = mean of all curves
-    mean_coefs_i = arg_list$mean_coefs
+  if (is.null(obj)) { # template function = mean of all curves
+    mean_coefs_i = mean_coefs
     
   } else { # template function = current GFPCA representation
     
-    if (all(!is.na(arg_list$mean_coefs))) { # GFPCA based on fpca_gauss or bfpca
+    if (all(!is.na(mean_coefs))) { # GFPCA based on fpca_gauss or bfpca
       # In this case, the FPCA is explicitly based on the spline basis 'mean_basis'
-      mean_coefs_i = arg_list$mean_coefs[, i]
+      mean_coefs_i = mean_coefs
     } else { # GFPCA based on gfpca_twoStep
       # In this case, the FPCA is not based on the spline basis 'mean_basis'.
       # Accordingly, smooth over the GFPCA representation of the i'th function
       # using 'mean_basis'.
-      mean_dat_i = arg_list$obj$Yhat[arg_list$obj$Yhat$id == arg_list$rows$id[i],]
+      mean_dat_i = obj$Yhat[obj$Yhat$id == Y$id[1],]
       
-      if (arg_list$periodic) {
-        mean_basis = pbs::pbs(c(arg_list$t_min, arg_list$t_max, mean_dat_i$index),
-                              knots = arg_list$global_knots, intercept = TRUE)[-(1:2),]
+      if (periodic) {
+        mean_basis = pbs::pbs(c(t_min, t_max, mean_dat_i$index),
+                              knots = global_knots, intercept = TRUE)[-(1:2),]
       } else {
-        mean_basis = splines::bs(c(arg_list$t_min, arg_list$t_max, mean_dat_i$index),
-                                 knots = arg_list$global_knots, intercept = TRUE)[-(1:2),]
+        mean_basis = splines::bs(c(t_min, t_max, mean_dat_i$index),
+                                 knots = global_knots, intercept = TRUE)[-(1:2),]
       } 
       
-      if (arg_list$family == "gamma") {
+      if (family == "gamma") {
         mean_family      = stats::Gamma(link = "log")
         mean_dat_i$value = exp(mean_dat_i$value)
         # set very small positive values to some lowest threshold to prevent numerical problems
@@ -476,37 +495,41 @@ registr_oneCurve = function(i, arg_list, ..., verbose = TRUE) {
     }
   }
   
-  if (arg_list$gradient) { gradf = loss_h_gradient } else { gradf = NULL }
+  if (gradient) { 
+    gradf = loss_h_gradient 
+  } else { 
+    gradf = NULL 
+  }
   
   # optimization constraints
-  if (is.null(arg_list$incompleteness)) { # warping functions start and end on the diagonal
-    if (arg_list$warping == "nonparametric") {
-      const_i = constraints(arg_list$Kh, t_min_i, t_max_i, warping = arg_list$warping)
+  if (is.null(incompleteness)) { # warping functions start and end on the diagonal
+    if (warping == "nonparametric") {
+      const_i = constraints(Kh, t_min_i, t_max_i, warping = warping)
       ui_i    = const_i$ui
       ui_i    = ui_i[-nrow(ui_i), -ncol(ui_i)]
       ci_i    = const_i$ci
       ci_i    = ci_i[-(length(ci_i) - 1)]
-    } else if (arg_list$warping == "piecewise_linear2") {
-      const_i = constraints(arg_list$Kh - 1, arg_list$t_min, t_max_i, warping = arg_list$warping)
+    } else if (warping == "piecewise_linear2") {
+      const_i = constraints(Kh - 1, t_min, t_max_i, warping = warping)
       ui_i    = const_i$ui
       ci_i    = const_i$ci
     }
     
   } else { # warping functions not necessarily start and/or end on the diagonal
-    dim_const   = arg_list$Kh + ifelse(arg_list$incompleteness == "full", 1, 0)
-    t_min_const = ifelse(arg_list$incompleteness == "trailing", t_min_i, arg_list$t_min)
-    t_max_const = ifelse(arg_list$incompleteness == "leading",  t_max_i, arg_list$t_max)
+    dim_const   = Kh + ifelse(incompleteness == "full", 1, 0)
+    t_min_const = ifelse(incompleteness == "trailing", t_min_i, t_min)
+    t_max_const = ifelse(incompleteness == "leading",  t_max_i, t_max)
     
     const_i     = constraints(dim_const, t_min_const, t_max_const)
     ui_i        = const_i$ui
     ci_i        = const_i$ci
   }
   
-  if (arg_list$family == "gamma") { # add the scale parameter to be optimized as last element of beta_i
+  if (family == "gamma") { # add the scale parameter to be optimized as last element of beta_i
     ui_i   = cbind(ui_i, 0)
     ui_i   = rbind(ui_i, c(rep(0, ncol(ui_i) - 1), 1))
     ci_i   = append(ci_i, 0)
-    scale  = ifelse(!is.null(arg_list$gamma_scales[i]), arg_list$gamma_scales[i], 1.5)
+    scale  = ifelse(!is.null(gamma_scales), gamma_scales, 1.5)
     beta_i = append(beta_i, scale)
   }
   
@@ -521,20 +544,20 @@ registr_oneCurve = function(i, arg_list, ..., verbose = TRUE) {
   # values slightly outside the possible domain, or to slightly nonmonotone beta
   # values that don't fulfill the constraints.
   # Correct these slight inconsistencies to ensure proper beta values.
-  if (arg_list$warping != "piecewise_linear2") {
+  if (warping != "piecewise_linear2") {
     
-    if (arg_list$family == "gamma") { # remove scale parameter as last element
+    if (family == "gamma") { # remove scale parameter as last element
       scale = tail(beta_i, 1)
       beta_i = beta_i[1:(length(beta_i) - 1)]
     }
     
     beta_i = ensure_proper_beta(beta  = beta_i,
-                                t_min = ifelse(is.null(arg_list$incompleteness) || arg_list$incompleteness == "trailing",
-                                               t_min_i, arg_list$t_min),
-                                t_max = ifelse(is.null(arg_list$incompleteness) || arg_list$incompleteness == "leading",
-                                               t_max_i, arg_list$t_max))
+                                t_min = ifelse(is.null(incompleteness) || incompleteness == "trailing",
+                                               t_min_i, t_min),
+                                t_max = ifelse(is.null(incompleteness) || incompleteness == "leading",
+                                               t_max_i, t_max))
     
-    if (arg_list$family == "gamma") # add scale parameter again as last element
+    if (family == "gamma") # add scale parameter again as last element
       beta_i = c(beta_i, scale)
   }
   
@@ -550,41 +573,41 @@ registr_oneCurve = function(i, arg_list, ..., verbose = TRUE) {
                            Y              = Y_i, 
                            Theta_h        = Theta_h_i,
                            mean_coefs     = mean_coefs_i, 
-                           knots          = arg_list$global_knots, 
-                           family         = arg_list$family,
-                           incompleteness = arg_list$incompleteness,
-                           lambda_inc     = arg_list$lambda_inc,
-                           t_min          = arg_list$t_min,
-                           t_max          = arg_list$t_max,
+                           knots          = global_knots, 
+                           family         = family,
+                           incompleteness = incompleteness,
+                           lambda_inc     = lambda_inc,
+                           t_min          = t_min,
+                           t_max          = t_max,
                            t_min_curve    = t_min_i,
                            t_max_curve    = t_max_i,
-                           periodic       = arg_list$periodic,
-                           Kt             = arg_list$Kt,
-                           warping        = arg_list$warping,
+                           periodic       = periodic,
+                           Kt             = Kt,
+                           warping        = warping,
                            ...)
   
   beta_inner = beta_optim$par
   
-  if (arg_list$family == "gamma") {
+  if (family == "gamma") {
     scale      = tail(beta_inner, 1)
     beta_inner = beta_inner[1:(length(beta_inner)-1)]
   }
   
-  if (arg_list$warping == "nonparametric") {
+  if (warping == "nonparametric") {
     # create full beta vector
-    if (is.null(arg_list$incompleteness)) { # initial and final parameters are fixed
+    if (is.null(incompleteness)) { # initial and final parameters are fixed
       beta_full_i = c(t_min_i, beta_inner, t_max_i)
-    } else if (arg_list$incompleteness == "leading") { # final parameter is fixed
+    } else if (incompleteness == "leading") { # final parameter is fixed
       beta_full_i = c(beta_inner, t_max_i)
-    } else if (arg_list$incompleteness == "trailing") { # initial parameter is fixed
+    } else if (incompleteness == "trailing") { # initial parameter is fixed
       beta_full_i = c(t_min_i, beta_inner)
-    } else if (arg_list$incompleteness == "full") { # no parameter is fixed
+    } else if (incompleteness == "full") { # no parameter is fixed
       beta_full_i = beta_inner
     }
     #t_hat = as.vector(cbind(1, Theta_h_i) %*% beta_full_i)
     t_hat = as.vector(Theta_h_i %*% beta_full_i)
     
-  } else if (arg_list$warping == "piecewise_linear2") {
+  } else if (warping == "piecewise_linear2") {
     beta_full_i = beta_inner
     t_hat       = piecewise_linear2_hinv(grid = seq(0, t_max_i, length.out = D_i),
                                          knot_locations = beta_inner)
@@ -594,7 +617,7 @@ registr_oneCurve = function(i, arg_list, ..., verbose = TRUE) {
              hinv_beta       = beta_full_i,
              t_hat           = t_hat,
              loss            = beta_optim$value)
-  if (arg_list$family == "gamma")
+  if (family == "gamma")
     res$gamma_scale = scale
   
   return(res)
