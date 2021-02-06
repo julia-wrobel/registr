@@ -61,10 +61,13 @@ loss_h_gradient = function(Y, Theta_h, mean_coefs, knots, beta.inner, family = "
   	stop("The gradient is currently only available for families 'gaussian' and 'binomial'.")
   }
   
-  gradient_mat = matrix(NA, Kh, D_i)
-  for(j in 1:D_i){
-  	gradient_mat[, j] = (Y - b_g_deriv)[j] * (Theta_phi_deriv %*% mean_coefs)[j] * Theta_h[j,]
-  }
+  # gradient_mat = matrix(NA, Kh, D_i)
+  # for(j in 1:D_i){
+  # 	gradient_mat[, j] = (Y - b_g_deriv)[j] * (Theta_phi_deriv %*% mean_coefs)[j] * Theta_h[j,]
+  # }
+  gradient_mat = c((Y - b_g_deriv) * (Theta_phi_deriv %*% mean_coefs)) * Theta_h
+  grad = colSums(gradient_mat)
+  
   
   # derivatives of the penalization term
   pen_term = 0
@@ -85,7 +88,7 @@ loss_h_gradient = function(Y, Theta_h, mean_coefs, knots, beta.inner, family = "
   	pen_term = lambda_inc * pen_term_raw
   }
   
-  grad = 1/varphi * rowSums(gradient_mat) - pen_term
+  grad = 1/varphi * grad - pen_term
   
   if (is.null(incompleteness)) { # initial and final parameters are fixed
     grad.inner = grad[-c(1, length(grad))]

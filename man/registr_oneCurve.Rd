@@ -22,7 +22,8 @@ registr_oneCurve(
   global_knots = NULL,
   mean_coefs = NULL,
   ...,
-  verbose = TRUE
+  verbose = TRUE,
+  just_return_list = FALSE
 )
 }
 \arguments{
@@ -81,6 +82,8 @@ GFPCA based.  May extract from `obj` object}
 \item{...}{additional arguments passed to or from other functions}
 
 \item{verbose}{print diagnostic messages.}
+
+\item{just_return_list}{Do not use.  For developers only}
 }
 \value{
 An list containing:

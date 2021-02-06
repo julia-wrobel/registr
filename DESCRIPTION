@@ -42,6 +42,7 @@ Suggests:
     rmarkdown,
     cowplot,
     ggplot2,
-    pbapply
+    pbapply,
+    fastglm
 SystemRequirements: GNU make
 VignetteBuilder: knitr

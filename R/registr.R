@@ -281,7 +281,17 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "gaussian", gr
     } else {
       mean_family = family
     }
-    mean_coefs = coef(glm(mean_dat$value ~ 0 + mean_basis, family = mean_family))
+    if (verbose) {
+      message("Registr: Running GLM")
+    }    
+    if (requireNamespace("fastglm", quietly = TRUE)) {
+      mean_coefs = fastglm::fastglm(
+        x = mean_basis, y = mean_dat$value,
+        family = mean_family)
+      mean_coefs = coef(mean_coefs)
+    } else {
+      mean_coefs = coef(glm(mean_dat$value ~ 0 + mean_basis, family = mean_family))
+    }
     rm(mean_basis)
   }
   
@@ -331,6 +341,7 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "gaussian", gr
   if (verbose) {
     message("Registr: Running individual curves")
   }
+  args$Y = NULL
   run_one_curve = function(r) {
     args$Y = r
     args$beta = attr(r, "beta")
@@ -387,7 +398,8 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "gaussian", gr
              hinv_innerKnots = hinv_innerKnots,
              hinv_beta       = hinv_beta)
   if (family == "gamma") {
-    gamma_scales    = unlist(sapply(results_list, function(x) as.vector(x$gamma_scale),  simplify = FALSE))
+    gamma_scales    = unlist(sapply(results_list, function(x) 
+      as.vector(x$gamma_scale),  simplify = FALSE))
     res$gamma_scales = gamma_scales
   }
   
@@ -407,6 +419,7 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "gaussian", gr
 #' or [stats::bs()]
 #' @param mean_coefs Mean coefficients for the mean of all curves or 
 #' GFPCA based.  May extract from `obj` object
+#' @param just_return_list Do not use.  For developers only
 #' 
 #' @return An list containing:
 #' \item{hinv_innerKnots}{Inner knots for setting up the spline basis
@@ -442,7 +455,8 @@ registr_oneCurve = function(
   global_knots = NULL,
   mean_coefs = NULL,
   ...,
-  verbose = TRUE) {
+  verbose = TRUE,
+  just_return_list = FALSE) {
   
   t_range_i     = range(Y$tstar)
   t_min_i       = t_range_i[1]
@@ -576,7 +590,9 @@ registr_oneCurve = function(
   # workaround: sometimes constrOptim states that the starting values are not
   # inside the feasible region. This is only a numerical error, so let's simply
   # substract a minor value from ci
-  # (source: https://stackoverflow.com/questions/50472525/constroptim-in-r-init-val-is-not-in-the-interior-of-the-feasible-region-error)
+  # (source: 
+  # https://stackoverflow.com/questions/50472525/constroptim-in-r-init-val-is-not-in-the-interior-of-the-feasible-region-error
+  # )
   ci_i = ci_i - 1e-6
   
   # when an analytic gradient is used, constrOptim sometimes leads to beta
@@ -605,27 +621,31 @@ registr_oneCurve = function(
   if (verbose) {
     message("Running Optimization")
   }
+  out_args = list(theta          = beta_i,
+                  f              = loss_h,
+                  grad           = gradf,
+                  ui             = ui_i,
+                  ci             = ci_i,
+                  Y              = Y_i$value, 
+                  Theta_h        = Theta_h_i,
+                  mean_coefs     = mean_coefs_i, 
+                  knots          = global_knots, 
+                  family         = family,
+                  incompleteness = incompleteness,
+                  lambda_inc     = lambda_inc,
+                  t_min          = t_min,
+                  t_max          = t_max,
+                  t_min_curve    = t_min_i,
+                  t_max_curve    = t_max_i,
+                  periodic       = periodic,
+                  Kt             = Kt,
+                  warping        = warping,
+                  ...)
+  if (just_return_list) {
+    return(out_args)
+  }
   # main registration step	
-  beta_optim = constrOptim(theta          = beta_i,
-                           f              = loss_h,
-                           grad           = gradf,
-                           ui             = ui_i,
-                           ci             = ci_i,
-                           Y              = Y_i$value, 
-                           Theta_h        = Theta_h_i,
-                           mean_coefs     = mean_coefs_i, 
-                           knots          = global_knots, 
-                           family         = family,
-                           incompleteness = incompleteness,
-                           lambda_inc     = lambda_inc,
-                           t_min          = t_min,
-                           t_max          = t_max,
-                           t_min_curve    = t_min_i,
-                           t_max_curve    = t_max_i,
-                           periodic       = periodic,
-                           Kt             = Kt,
-                           warping        = warping,
-                           ...)
+  beta_optim = do.call(constrOptim, args = out_args)
   
   beta_inner = beta_optim$par
   

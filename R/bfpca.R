@@ -94,7 +94,13 @@ bfpca = function(Y, npc = 1, Kt = 8, maxiter = 50, t_min = NULL, t_max = NULL,
   set.seed(seed)
   
   xi          = matrix(rnorm(dim(Y)[1]), ncol = 1) * 0.5
-  alpha_coefs = matrix(coef(glm(Y$value ~ 0 + Theta_phi, family = "binomial")), Kt, 1)
+  if (requireNamespace("fastglm", quietly = TRUE)) {
+    glm_obj = fastglm::fastglm(y = Y$value, x = Theta_phi, family = "binomial")
+  } else {
+    glm_obj = glm(Y$value ~ 0 + Theta_phi, family = "binomial")
+  }
+  alpha_coefs = coef(glm_obj)
+  alpha_coefs = matrix(alpha_coefs, Kt, 1)
   
   psi_coefs = matrix(rnorm(Kt * npc), Kt, npc) * 0.5
   
