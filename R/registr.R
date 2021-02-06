@@ -294,9 +294,9 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "gaussian", gr
       }       
       uids = unique(mean_dat$id)
       avg_rows_per_id = nrows_basis / length(uids)
-      rm(uids)
       size = round(10000000 / avg_rows_per_id)
       ids = sample(uids, size = size, replace = FALSE)
+      rm(uids)
       subsampling_index = which(mean_dat$id %in% ids)
       rm(ids)
       mean_dat = mean_dat[subsampling_index, ]
