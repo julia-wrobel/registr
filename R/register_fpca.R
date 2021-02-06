@@ -185,6 +185,9 @@ register_fpca = function(Y, Kt = 8, Kh = 4, family = "gaussian",
 		fpca_type = "two-step"
 	}
 		
+  if (verbose > 0) {
+    message("Running data_clean")
+  }
   data    = data_clean(Y)
   Y       = data$Y
   Y$tstar = Y$index
