@@ -283,9 +283,6 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "gaussian", gr
     } else {
       mean_family = family
     }
-    if (verbose) {
-      message("Registr: Running GLM")
-    }   
     nrows_basis = nrow(mean_basis)
     # if greater than 10M, subsample
     if (nrows_basis > 10000000 && subsample) {
@@ -303,6 +300,9 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "gaussian", gr
       mean_basis = mean_basis[subsampling_index, ]
       rm(subsampling_index)
     }
+    if (verbose) {
+      message("Registr: Running GLM")
+    }   
     if (requireNamespace("fastglm", quietly = TRUE)) {
       mean_coefs = fastglm::fastglm(
         x = mean_basis, y = mean_dat$value,
