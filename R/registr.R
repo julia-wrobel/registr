@@ -290,7 +290,8 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "gaussian", gr
         family = mean_family)
       mean_coefs = coef(mean_coefs)
     } else {
-      mean_coefs = coef(glm(mean_dat$value ~ 0 + mean_basis, family = mean_family))
+      mean_coefs = coef(glm(mean_dat$value ~ 0 + mean_basis, family = mean_family,
+                            glm.control = list(trace = verbose > 0)))
     }
     rm(mean_basis)
   }

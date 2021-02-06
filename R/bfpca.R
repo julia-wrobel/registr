@@ -46,7 +46,8 @@
 #'
 bfpca = function(Y, npc = 1, Kt = 8, maxiter = 50, t_min = NULL, t_max = NULL, 
                  print.iter = FALSE, row_obj= NULL,
-                 seed = 1988, periodic = FALSE, error_thresh = 0.0001, ...){
+                 seed = 1988, periodic = FALSE, error_thresh = 0.0001,
+                 verbose = TRUE, ...){
   
   curr_iter = 1
   error     = rep(NA, maxiter)
@@ -97,7 +98,8 @@ bfpca = function(Y, npc = 1, Kt = 8, maxiter = 50, t_min = NULL, t_max = NULL,
   if (requireNamespace("fastglm", quietly = TRUE)) {
     glm_obj = fastglm::fastglm(y = Y$value, x = Theta_phi, family = "binomial")
   } else {
-    glm_obj = glm(Y$value ~ 0 + Theta_phi, family = "binomial")
+    glm_obj = glm(Y$value ~ 0 + Theta_phi, family = "binomial",
+                  glm.control = list(trace = verbose > 0))
   }
   alpha_coefs = coef(glm_obj)
   alpha_coefs = matrix(alpha_coefs, Kt, 1)

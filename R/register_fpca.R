@@ -225,10 +225,10 @@ register_fpca = function(Y, Kt = 8, Kh = 4, family = "gaussian",
   	if (fpca_type == "variationalEM") { # GFPCA after Wrobel et al. (2019)
   		if (family == "binomial") {
   			fpca_step = bfpca(registr_step$Y, npc = npc, Kt = Kt, row_obj = rows, seed = fpca_seed, maxiter = fpca_maxiter, 
-  												error_thresh = fpca_error_thresh, ...)
+  												error_thresh = fpca_error_thresh, verbose = verbose > 1, ...)
   		} else if (family == "gaussian") {
   			fpca_step = fpca_gauss(registr_step$Y, npc = npc, Kt = Kt, row_obj = rows, seed = fpca_seed, maxiter = fpca_maxiter,
-  														 error_thresh = fpca_error_thresh, ...)
+  														 error_thresh = fpca_error_thresh,  verbose = verbose > 1, ...)
   		}
   		
   	} else if (fpca_type == "two-step") { # Two-step GFPCA after Gertheiss et al. (2017)
