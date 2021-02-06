@@ -64,6 +64,8 @@
 #' no parallelized call.
 #' @param verbose print diagnostic messages.
 #' @param ... additional arguments passed to or from other functions
+#' @param subsample if the number of rows of the data is greater than 
+#' 10 million rows, the `id` values are subsampled to get the mean coefficients.
 #' 
 #' @return An list containing:
 #' \item{Y}{The observed data. The variables \code{index} and \code{index_scaled}
@@ -162,8 +164,8 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "gaussian", gr
                    Y_template = NULL,
                    beta = NULL, t_min = NULL, t_max = NULL, row_obj = NULL,
                    periodic = FALSE, warping = "nonparametric",
-                   gamma_scales = NULL, cores = 1L, 
-                   verbose = TRUE, 
+                   gamma_scales = NULL, cores = 1L,  subsample = TRUE,
+                   verbose = TRUE,
                    ...){
   
   if (!is.null(incompleteness)) {
@@ -283,7 +285,24 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "gaussian", gr
     }
     if (verbose) {
       message("Registr: Running GLM")
-    }    
+    }   
+    nrows_basis = nrow(mean_basis)
+    # if greater than 10M, subsample
+    if (nrows_basis > 10000000 && subsample) {
+      if (verbose) {
+        message("Registr: Running Sub-sampling")
+      }       
+      uids = unique(mean_dat$id)
+      avg_rows_per_id = nrows_basis / length(uids)
+      rm(uids)
+      size = round(10000000 / avg_rows_per_id)
+      ids = sample(uids, size = size, replace = FALSE)
+      subsampling_index = which(mean_dat$id %in% ids)
+      rm(ids)
+      mean_dat = mean_dat[subsampling_index, ]
+      mean_basis = mean_basis[subsampling_index, ]
+      rm(subsampling_index)
+    }
     if (requireNamespace("fastglm", quietly = TRUE)) {
       mean_coefs = fastglm::fastglm(
         x = mean_basis, y = mean_dat$value,
@@ -294,6 +313,7 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "gaussian", gr
                             glm.control = list(trace = verbose > 0)))
     }
     rm(mean_basis)
+    rm(mean_dat)
   }
   
   ### Calculate warping functions  

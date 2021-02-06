@@ -23,6 +23,7 @@ registr(
   warping = "nonparametric",
   gamma_scales = NULL,
   cores = 1L,
+  subsample = TRUE,
   verbose = TRUE,
   ...
 )
@@ -87,6 +88,9 @@ gamma distribution. Default is NULL, which sets the starting value for the scale
 call is parallelized by using \code{parallel::mclapply} (for Unix-based
 systems) or \code{parallel::parLapply} (for Windows). Defaults to 1,
 no parallelized call.}
+
+\item{subsample}{if the number of rows of the data is greater than 
+10 million rows, the `id` values are subsampled to get the mean coefficients.}
 
 \item{verbose}{print diagnostic messages.}
 
