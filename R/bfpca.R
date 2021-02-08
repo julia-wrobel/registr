@@ -47,7 +47,8 @@
 bfpca = function(Y, npc = 1, Kt = 8, maxiter = 50, t_min = NULL, t_max = NULL, 
                  print.iter = FALSE, row_obj= NULL,
                  seed = 1988, periodic = FALSE, error_thresh = 0.0001,
-                 verbose = TRUE, ...){
+                 verbose = TRUE, subsample=TRUE,
+                 ...){
   
   curr_iter = 1
   error     = rep(NA, maxiter)
@@ -95,12 +96,35 @@ bfpca = function(Y, npc = 1, Kt = 8, maxiter = 50, t_min = NULL, t_max = NULL,
   set.seed(seed)
   
   xi          = matrix(rnorm(dim(Y)[1]), ncol = 1) * 0.5
-  if (requireNamespace("fastglm", quietly = TRUE)) {
-    glm_obj = fastglm::fastglm(y = Y$value, x = Theta_phi, family = "binomial")
+  
+  nrows_basis = nrow(Theta_phi)
+  if (subsample) {
+    if (verbose) {
+      message("bfpca: Running Sub-sampling")
+    }       
+    uids = unique(Y$id)
+    avg_rows_per_id = nrows_basis / length(uids)
+    size = round(1000000 / avg_rows_per_id)
+    ids = sample(uids, size = size, replace = FALSE)
+    rm(uids)
+    subsampling_index = which(Y$id %in% ids)
+    rm(ids)
   } else {
-    glm_obj = glm(Y$value ~ 0 + Theta_phi, family = "binomial",
+    subsampling_index = 1:nrows_basis
+  }
+  if (verbose) {
+    message("bfpca: running GLM")
+  }    
+  if (requireNamespace("fastglm", quietly = TRUE)) {
+    glm_obj = fastglm::fastglm(y = Y$value[subsampling_index], x = Theta_phi[subsampling_index,], family = "binomial", method=2)
+  } else {
+    glm_obj = glm(Y$value[subsampling_index] ~ 0 + Theta_phi[subsampling_index,], family = "binomial",
                   glm.control = list(trace = verbose > 0))
   }
+  rm(subsampling_index)
+  if (verbose) {
+    message("bfpca: GLM finished")
+  }    
   alpha_coefs = coef(glm_obj)
   alpha_coefs = matrix(alpha_coefs, Kt, 1)
   

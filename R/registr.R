@@ -306,7 +306,7 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "gaussian", gr
     if (requireNamespace("fastglm", quietly = TRUE)) {
       mean_coefs = fastglm::fastglm(
         x = mean_basis, y = mean_dat$value,
-        family = mean_family)
+        family = mean_family, method=2)
       mean_coefs = coef(mean_coefs)
     } else {
       mean_coefs = coef(glm(mean_dat$value ~ 0 + mean_basis, family = mean_family,
