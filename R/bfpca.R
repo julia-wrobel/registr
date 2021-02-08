@@ -45,7 +45,7 @@
 #' plot(bfpca_object)
 #'
 bfpca = function(Y, npc = 1, Kt = 8, maxiter = 50, t_min = NULL, t_max = NULL, 
-                 print.iter = FALSE, row_obj= NULL,
+                 print.iter = TRUE, row_obj= NULL,
                  seed = 1988, periodic = FALSE, error_thresh = 0.0001,
                  verbose = TRUE, subsample=TRUE,
                  ...){
