@@ -1,3 +1,172 @@
+registr_helper = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "gaussian", gradient = TRUE,
+                          incompleteness = NULL, lambda_inc = NULL,
+                          Y_template = NULL,
+                          beta = NULL, t_min = NULL, t_max = NULL, row_obj = NULL,
+                          periodic = FALSE, warping = "nonparametric",
+                          gamma_scales = NULL, cores = 1L,  subsample = TRUE,
+                          verbose = TRUE,
+                          ...){ 
+  if (!is.null(incompleteness)) {
+    if (warping != "nonparametric") {
+      stop("The functionality for incomplete curves is only available for 'warping = 'nonparametric''")
+    }
+    if (!(incompleteness %in% c("leading","trailing","full"))) {
+      stop("'incompleteness' must be either 'leading', 'trailing' or 'full'.")
+    }
+    if ((is.null(lambda_inc) || (lambda_inc < 0))) {
+      stop("For incomplete curves the penalization parameter 'lambda_inc' has to be set to some nonnegative value.")
+    }
+  }
+  
+  if (is.null(Y)) { 
+    Y = obj$Y
+  }
+  
+  if (family == "gamma" & any(Y$value <= 0)) {
+    stop("family = 'gamma' can only be applied to strictly positive data.")
+  } else if (family == "poisson" & any(Y$value < 0)) {
+    stop("family = 'poisson' can only be applied to nonnegative data.")
+  }
+  
+  if(is.null(obj)) { 
+    if(warping == "nonparametric"){
+      Y$tstar = Y$index
+      
+    } else if(warping == "piecewise_linear2"){
+      # scale time to 0, 1 for parametric warping
+      if(is.null(Y$index_scaled)){
+        stop("For warping = piecewise_linear2, need an index_scaled variable that ranges from 0 to 1.")
+      }
+      Y$tstar = Y$index_scaled
+    }
+  }
+  
+  if (is.null(row_obj)) {
+    data = data_clean(Y)
+    Y    = data$Y
+    rows = data$Y_rows
+    I    = data$I
+  } else{
+    rows = row_obj
+    I    = nrow(rows)
+  }
+  
+  if (Kh < 4) {
+    stop("Kh must be greater than or equal to 4.")
+  }
+  if (Kt < 4) {
+    stop("Kt must be greater than or equal to 4.")
+  }
+  
+  if(!(warping %in% c("nonparametric", "piecewise_linear2"))){
+    stop("warping argument can only take values of nonparametric or piecewise_linear2")
+  }
+  
+  if (gradient & !(family %in% c("gaussian","binomial"))) {
+    warning("gradient = TRUE is only available for families 'gaussian' and 'binomial'. Setting gradient = FALSE.")
+    gradient = FALSE
+  } else if (gradient & periodic){
+    warning("gradient = TRUE is only available for periodic = FALSE. Setting gradient = FALSE.")
+    gradient = FALSE
+  } else if (gradient & warping != "nonparametric"){
+    warning("gradient = TRUE is only available for warping = nonparametric. Setting gradient = FALSE.")
+    gradient = FALSE
+  }
+  
+  if (is.null(t_min)) { t_min = min(Y$tstar) }
+  if (is.null(t_max)) { t_max = max(Y$tstar) }
+  stopifnot(!is.na(t_min),
+            !is.na(t_max))
+  
+  if (!is.null(obj)) { # template function = GFPCA representation
+    global_knots = obj$knots
+    mean_coefs   = obj$subject_coefs
+    
+  } else { # template function = mean of all curves
+    
+    if (!is.null(Y_template)) {
+      if (verbose) {
+        message("Registr: Extracting Y_template")
+      }
+      if (!all(c("id", "index", "value") %in% names(Y_template))) {
+        stop("Y_template must have variables 'id', 'index', and 'value'.")
+      } else if (!identical(range(Y_template$index), range(Y$index))) {
+        stop("The range of 'index' must be equal for Y_template and Y.")
+      }
+      Y_template$tstar = Y_template$index
+      mean_dat         = Y_template
+    } else {
+      mean_dat = Y
+    }
+    
+    if (verbose) {
+      message("Registr: Getting Knots and basis functions")
+    }
+    if (periodic) {
+      # if periodic, then we want more global knots, because the resulting object from pbs 
+      # only has (knots+intercept) columns.
+      global_knots = quantile(mean_dat$tstar, probs = seq(0, 1, length = Kt+1))[-c(1, Kt+1)]
+      mean_basis   = pbs(c(t_min, t_max, mean_dat$tstar), knots = global_knots, intercept = TRUE)[-(1:2),]
+      
+    } else {
+      # if not periodic, then we want fewer global knots, because the resulting object from bs
+      # has (knots+degree+intercept) columns, and degree is set to 3 by default.
+      global_knots = quantile(mean_dat$tstar, probs = seq(0, 1, length = Kt - 2))[-c(1, Kt - 2)]
+      mean_basis   =  bs(c(t_min, t_max, mean_dat$tstar), knots = global_knots, intercept = TRUE)[-(1:2),]
+    } 
+    
+    if (family == "gamma") {
+      mean_family = stats::Gamma(link = "log")
+    } else {
+      mean_family = family
+    }
+    nrows_basis = nrow(mean_basis)
+    # if greater than 10M, subsample
+    if (nrows_basis > 10000000 && subsample) {
+      if (verbose) {
+        message("Registr: Running Sub-sampling")
+      }       
+      uids = unique(mean_dat$id)
+      avg_rows_per_id = nrows_basis / length(uids)
+      size = round(10000000 / avg_rows_per_id)
+      ids = sample(uids, size = size, replace = FALSE)
+      rm(uids)
+      subsampling_index = which(mean_dat$id %in% ids)
+      rm(ids)
+      mean_dat = mean_dat[subsampling_index, ]
+      mean_basis = mean_basis[subsampling_index, ]
+      rm(subsampling_index)
+    }
+    if (verbose) {
+      message("Registr: Running GLM")
+    }   
+    if (requireNamespace("fastglm", quietly = TRUE)) {
+      mean_coefs = fastglm::fastglm(
+        x = mean_basis, y = mean_dat$value,
+        family = mean_family, method=2)
+      mean_coefs = coef(mean_coefs)
+    } else {
+      mean_coefs = coef(glm(mean_dat$value ~ 0 + mean_basis, family = mean_family,
+                            glm.control = list(trace = verbose > 0)))
+    }
+    rm(mean_basis)
+    rm(mean_dat)
+  }
+  
+  ### Calculate warping functions  
+  arg_list = list(obj            = obj,            Y            = Y,
+                  Kt             = Kt,             Kh           = Kh,
+                  family         = family,         gradient     = gradient,
+                  incompleteness = incompleteness, lambda_inc   = lambda_inc,
+                  beta           = beta,           t_min        = t_min,
+                  t_max          = t_max,          rows         = rows,
+                  periodic       = periodic,       warping      = warping,
+                  global_knots   = global_knots,   mean_coefs   = mean_coefs,
+                  gamma_scales   = gamma_scales,
+                  ...)
+  return(arg_list)
+}
+
 #' Register (in)complete curves from exponential family
 #' 
 #' Function used in the registration step of an FPCA-based approach for 
@@ -168,165 +337,37 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "gaussian", gr
                    verbose = TRUE,
                    ...){
   
-  if (!is.null(incompleteness)) {
-    if (warping != "nonparametric") {
-      stop("The functionality for incomplete curves is only available for 'warping = 'nonparametric''")
-    }
-    if (!(incompleteness %in% c("leading","trailing","full"))) {
-      stop("'incompleteness' must be either 'leading', 'trailing' or 'full'.")
-    }
-    if ((is.null(lambda_inc) || (lambda_inc < 0))) {
-      stop("For incomplete curves the penalization parameter 'lambda_inc' has to be set to some nonnegative value.")
-    }
-  }
   
-  if (is.null(Y)) { 
-    Y = obj$Y
-  }
+  arg_list = registr_helper(
+    obj = obj, 
+    Y = Y, 
+    Kt = Kt, 
+    Kh = Kh, 
+    family = family, 
+    gradient = gradient,
+    incompleteness = incompleteness, 
+    lambda_inc = lambda_inc,
+    Y_template = Y_template,
+    beta = beta, 
+    t_min = t_min,
+    t_max = t_max, 
+    row_obj = row_obj,
+    periodic = periodic, 
+    warping = warping,
+    gamma_scales = gamma_scales, 
+    cores = cores,  
+    subsample = subsample,
+    verbose = verbose,
+    ...)
   
-  if (family == "gamma" & any(Y$value <= 0)) {
-    stop("family = 'gamma' can only be applied to strictly positive data.")
-  } else if (family == "poisson" & any(Y$value < 0)) {
-    stop("family = 'poisson' can only be applied to nonnegative data.")
-  }
-  
-  if(is.null(obj)) { 
-    if(warping == "nonparametric"){
-      Y$tstar = Y$index
-      
-    } else if(warping == "piecewise_linear2"){
-      # scale time to 0, 1 for parametric warping
-      if(is.null(Y$index_scaled)){
-        stop("For warping = piecewise_linear2, need an index_scaled variable that ranges from 0 to 1.")
-      }
-      Y$tstar = Y$index_scaled
-    }
-  }
-  
-  if (is.null(row_obj)) {
-    data = data_clean(Y)
-    Y    = data$Y
-    rows = data$Y_rows
-    I    = data$I
-  } else{
-    rows = row_obj
-    I    = nrow(rows)
-  }
-  
-  if (Kh < 4) {
-    stop("Kh must be greater than or equal to 4.")
-  }
-  if (Kt < 4) {
-    stop("Kt must be greater than or equal to 4.")
-  }
-  
-  if(!(warping %in% c("nonparametric", "piecewise_linear2"))){
-    stop("warping argument can only take values of nonparametric or piecewise_linear2")
-  }
-  
-  if (gradient & !(family %in% c("gaussian","binomial"))) {
-    warning("gradient = TRUE is only available for families 'gaussian' and 'binomial'. Setting gradient = FALSE.")
-    gradient = FALSE
-  } else if (gradient & periodic){
-    warning("gradient = TRUE is only available for periodic = FALSE. Setting gradient = FALSE.")
-    gradient = FALSE
-  } else if (gradient & warping != "nonparametric"){
-    warning("gradient = TRUE is only available for warping = nonparametric. Setting gradient = FALSE.")
-    gradient = FALSE
-  }
-  
+  mean_coefs = arg_list$mean_coefs
+  Y = arg_list$Y
+  rows = arg_list$rows
+  beta = arg_list$beta
   tstar = Y$tstar
-  if (is.null(t_min)) { t_min = min(tstar) }
-  if (is.null(t_max)) { t_max = max(tstar) }
-  stopifnot(!is.na(t_min),
-            !is.na(t_max))
-  
-  if (!is.null(obj)) { # template function = GFPCA representation
-    global_knots = obj$knots
-    mean_coefs   = obj$subject_coefs
-    
-  } else { # template function = mean of all curves
-    
-    if (!is.null(Y_template)) {
-      if (verbose) {
-        message("Registr: Extracting Y_template")
-      }
-      if (!all(c("id", "index", "value") %in% names(Y_template))) {
-        stop("Y_template must have variables 'id', 'index', and 'value'.")
-      } else if (!identical(range(Y_template$index), range(Y$index))) {
-        stop("The range of 'index' must be equal for Y_template and Y.")
-      }
-      Y_template$tstar = Y_template$index
-      mean_dat         = Y_template
-    } else {
-      mean_dat = Y
-    }
-    
-    if (verbose) {
-      message("Registr: Getting Knots and basis functions")
-    }
-    if (periodic) {
-      # if periodic, then we want more global knots, because the resulting object from pbs 
-      # only has (knots+intercept) columns.
-      global_knots = quantile(mean_dat$tstar, probs = seq(0, 1, length = Kt+1))[-c(1, Kt+1)]
-      mean_basis   = pbs(c(t_min, t_max, mean_dat$tstar), knots = global_knots, intercept = TRUE)[-(1:2),]
-      
-    } else {
-      # if not periodic, then we want fewer global knots, because the resulting object from bs
-      # has (knots+degree+intercept) columns, and degree is set to 3 by default.
-      global_knots = quantile(mean_dat$tstar, probs = seq(0, 1, length = Kt - 2))[-c(1, Kt - 2)]
-      mean_basis   =  bs(c(t_min, t_max, mean_dat$tstar), knots = global_knots, intercept = TRUE)[-(1:2),]
-    } 
-    
-    if (family == "gamma") {
-      mean_family = stats::Gamma(link = "log")
-    } else {
-      mean_family = family
-    }
-    nrows_basis = nrow(mean_basis)
-    # if greater than 10M, subsample
-    if (nrows_basis > 10000000 && subsample) {
-      if (verbose) {
-        message("Registr: Running Sub-sampling")
-      }       
-      uids = unique(mean_dat$id)
-      avg_rows_per_id = nrows_basis / length(uids)
-      size = round(10000000 / avg_rows_per_id)
-      ids = sample(uids, size = size, replace = FALSE)
-      rm(uids)
-      subsampling_index = which(mean_dat$id %in% ids)
-      rm(ids)
-      mean_dat = mean_dat[subsampling_index, ]
-      mean_basis = mean_basis[subsampling_index, ]
-      rm(subsampling_index)
-    }
-    if (verbose) {
-      message("Registr: Running GLM")
-    }   
-    if (requireNamespace("fastglm", quietly = TRUE)) {
-      mean_coefs = fastglm::fastglm(
-        x = mean_basis, y = mean_dat$value,
-        family = mean_family, method=2)
-      mean_coefs = coef(mean_coefs)
-    } else {
-      mean_coefs = coef(glm(mean_dat$value ~ 0 + mean_basis, family = mean_family,
-                            glm.control = list(trace = verbose > 0)))
-    }
-    rm(mean_basis)
-    rm(mean_dat)
-  }
-  
-  ### Calculate warping functions  
-  arg_list = list(obj            = obj,            Y            = Y,
-                  Kt             = Kt,             Kh           = Kh,
-                  family         = family,         gradient     = gradient,
-                  incompleteness = incompleteness, lambda_inc   = lambda_inc,
-                  beta           = beta,           t_min        = t_min,
-                  t_max          = t_max,          rows         = rows,
-                  periodic       = periodic,       warping      = warping,
-                  global_knots   = global_knots,   mean_coefs   = mean_coefs,
-                  gamma_scales   = gamma_scales,
-                  ...)
+  family = arg_list$family
+  t_min = arg_list$t_min
+  t_max = arg_list$t_max
   
   # main function call
   ids = Y$id
@@ -363,6 +404,7 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "gaussian", gr
     message("Registr: Running individual curves")
   }
   args$Y = NULL
+  
   run_one_curve = function(r) {
     args$Y = r
     args$beta = attr(r, "beta")
@@ -401,7 +443,14 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "gaussian", gr
   }
   Y = dplyr::bind_rows(Y)
   rm(ids)
+  res = gather_results_list(results_list, Y, rows, t_max, family)
   
+  return(res) 
+} 
+
+gather_results_list = function(results_list, Y, rows, t_max, family) {
+  
+  tstar = Y$tstar
   # gather the results
   hinv_innerKnots        = lapply(results_list, function(x) x$hinv_innerKnots)
   names(hinv_innerKnots) = rows$id
@@ -423,10 +472,8 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "gaussian", gr
       as.vector(x$gamma_scale),  simplify = FALSE))
     res$gamma_scales = gamma_scales
   }
-  
-  return(res) 
-} 
-
+  return(res)
+}
 
 
 #' Internal function to register one curve

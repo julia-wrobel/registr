@@ -11,12 +11,13 @@ bfpca(
   maxiter = 50,
   t_min = NULL,
   t_max = NULL,
-  print.iter = FALSE,
+  print.iter = TRUE,
   row_obj = NULL,
   seed = 1988,
   periodic = FALSE,
   error_thresh = 1e-04,
   verbose = TRUE,
+  subsample = TRUE,
   ...
 )
 }
