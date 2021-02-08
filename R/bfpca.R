@@ -103,11 +103,16 @@ bfpca = function(Y, npc = 1, Kt = 8, maxiter = 50, t_min = NULL, t_max = NULL,
       message("bfpca: Running Sub-sampling")
     }       
     uids = unique(Y$id)
-    avg_rows_per_id = nrows_basis / length(uids)
+    nids = length(uids)
+    avg_rows_per_id = nrows_basis / nids
     size = round(1000000 / avg_rows_per_id)
-    ids = sample(uids, size = size, replace = FALSE)
-    rm(uids)
-    subsampling_index = which(Y$id %in% ids)
+    if(nids > size){
+      ids = sample(uids, size = size, replace = FALSE)
+    } else {
+      ids = uids  
+    } 
+    subsampling_index = which(Y$id %in% ids)      
+    rm(uids,nids)
     rm(ids)
   } else {
     subsampling_index = 1:nrows_basis
