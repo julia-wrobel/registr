@@ -154,7 +154,7 @@ registr_helper = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "gaussi
   }
   
   ### Calculate warping functions  
-  arg_list = list(obj            = obj,            Y            = Y,
+  args = list(obj            = obj,            Y            = Y,
                   Kt             = Kt,             Kh           = Kh,
                   family         = family,         gradient     = gradient,
                   incompleteness = incompleteness, lambda_inc   = lambda_inc,
@@ -164,7 +164,37 @@ registr_helper = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "gaussi
                   global_knots   = global_knots,   mean_coefs   = mean_coefs,
                   gamma_scales   = gamma_scales,
                   ...)
-  return(arg_list)
+
+  # main function call
+  ids = Y$id
+  Y = split(Y, ids)
+  if (!is.null(beta)) {
+    beta_list = apply(beta, 2, list)
+    beta_list = lapply(beta_list, unlist)
+    Y = mapply(function(y, b) {
+      attr(y, "beta") = b
+      y
+    }, Y, beta_list, SIMPLIFY = FALSE)
+    rm(beta_list)
+  }
+  if (!is.null(mean_coefs)) {
+    if (is.matrix(mean_coefs)) {
+      mc_list = apply(mean_coefs, 2, list)
+      mc_list = lapply(mc_list, unlist)
+    } else {
+      mc_list = lapply(1:length(Y), function(blah) {
+        mean_coefs
+      })
+    }
+    Y = mapply(function(y, b) {
+      attr(y, "mean_coefs") = b
+      y
+    }, Y, mc_list, SIMPLIFY = FALSE)
+    rm(mc_list)
+  }  
+  args$Y = Y
+  
+  return(args)
 }
 
 #' Register (in)complete curves from exponential family
@@ -369,40 +399,6 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "gaussian", gr
   t_min = arg_list$t_min
   t_max = arg_list$t_max
   
-  # main function call
-  ids = Y$id
-  arg_list$Y = NULL
-  arg_list$rows = NULL
-  Y = split(Y, ids)
-  if (!is.null(beta)) {
-    beta_list = apply(beta, 2, list)
-    beta_list = lapply(beta_list, unlist)
-    Y = mapply(function(y, b) {
-      attr(y, "beta") = b
-      y
-    }, Y, beta_list, SIMPLIFY = FALSE)
-    rm(beta_list)
-  }
-  if (!is.null(mean_coefs)) {
-    if (is.matrix(mean_coefs)) {
-      mc_list = apply(mean_coefs, 2, list)
-      mc_list = lapply(mc_list, unlist)
-    } else {
-      mc_list = lapply(1:length(Y), function(blah) {
-        mean_coefs
-      })
-    }
-    Y = mapply(function(y, b) {
-      attr(y, "mean_coefs") = b
-      y
-    }, Y, mc_list, SIMPLIFY = FALSE)
-    rm(mc_list)
-  }  
-  args = arg_list
-  rm(arg_list)
-  if (verbose) {
-    message("Registr: Running individual curves")
-  }
   args$Y = NULL
   
   run_one_curve = function(r) {
@@ -442,7 +438,6 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "gaussian", gr
     })
   }
   Y = dplyr::bind_rows(Y)
-  rm(ids)
   res = gather_results_list(results_list, Y, rows, t_max, family)
   
   return(res) 
