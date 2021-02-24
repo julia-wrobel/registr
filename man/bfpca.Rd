@@ -47,6 +47,9 @@ Keep this NULL if you are using standalone \code{register} function.}
 
 \item{verbose}{print diagnostic messages.}
 
+\item{subsample}{if the number of rows of the data is greater than 
+10 million rows, the `id` values are subsampled to get the mean coefficients.}
+
 \item{...}{Additional arguments passed to or from other functions}
 }
 \value{

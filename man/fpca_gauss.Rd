@@ -16,6 +16,7 @@ fpca_gauss(
   seed = 1988,
   periodic = FALSE,
   error_thresh = 1e-04,
+  subsample = TRUE,
   verbose = TRUE,
   ...
 )
@@ -43,6 +44,9 @@ Keep this NULL if you are using standalone \code{register} function.}
 \item{periodic}{If TRUE, uses periodic b-spline basis functions. Default is FALSE.}
 
 \item{error_thresh}{Error threshold to end iterations. Defaults to 0.0001.}
+
+\item{subsample}{if the number of rows of the data is greater than 
+10 million rows, the `id` values are subsampled to get the mean coefficients.}
 
 \item{verbose}{print diagnostic messages.}
 
