@@ -98,7 +98,7 @@ bfpca = function(Y, npc = 1, Kt = 8, maxiter = 50, t_min = NULL, t_max = NULL,
   xi          = matrix(rnorm(dim(Y)[1]), ncol = 1) * 0.5
   
   nrows_basis = nrow(Theta_phi)
-  if (subsample) {
+  if (subsample && nrows_basis > 1000000) {
     if (verbose) {
       message("bfpca: Running Sub-sampling")
     }       
@@ -124,7 +124,7 @@ bfpca = function(Y, npc = 1, Kt = 8, maxiter = 50, t_min = NULL, t_max = NULL,
     glm_obj = fastglm::fastglm(y = Y$value[subsampling_index], x = Theta_phi[subsampling_index,], family = "binomial", method=2)
   } else {
     glm_obj = glm(Y$value[subsampling_index] ~ 0 + Theta_phi[subsampling_index,], family = "binomial",
-                  glm.control = list(trace = verbose > 0))
+                  control = list(trace = verbose > 0))
   }
   rm(subsampling_index)
   if (verbose) {

@@ -147,7 +147,7 @@ registr_helper = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "gaussi
       mean_coefs = coef(mean_coefs)
     } else {
       mean_coefs = coef(glm(mean_dat$value ~ 0 + mean_basis, family = mean_family,
-                            glm.control = list(trace = verbose > 0)))
+                            control = list(trace = verbose > 0)))
     }
     rm(mean_basis)
     rm(mean_dat)

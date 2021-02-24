@@ -193,7 +193,7 @@ register_fpca = function(Y, Kt = 8, Kh = 4, family = "gaussian",
   Y$tstar = Y$index
   rows    = data$Y_rows
   
-  index_warped      = list(NA, max_iterations + 2)
+  index_warped      = vector(mode = "list", length = max_iterations + 2)
   index_warped[[1]] = Y$index_scaled
   reg_loss          = rep(NA, max_iterations + 1)
 
