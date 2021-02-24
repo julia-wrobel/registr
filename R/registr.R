@@ -368,7 +368,7 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "gaussian", gr
                    ...){
   
   
-  arg_list = registr_helper(
+  args = registr_helper(
     obj = obj, 
     Y = Y, 
     Kt = Kt, 
@@ -390,14 +390,15 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "gaussian", gr
     verbose = verbose,
     ...)
   
-  mean_coefs = arg_list$mean_coefs
-  Y = arg_list$Y
-  rows = arg_list$rows
-  beta = arg_list$beta
+  mean_coefs = args$mean_coefs
+  Y = args$Y
+  rows = args$rows
+  args$rows = NULL
+  beta = args$beta
   tstar = Y$tstar
-  family = arg_list$family
-  t_min = arg_list$t_min
-  t_max = arg_list$t_max
+  family = args$family
+  t_min = args$t_min
+  t_max = args$t_max
   
   args$Y = NULL
   
