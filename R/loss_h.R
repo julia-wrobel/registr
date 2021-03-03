@@ -1,6 +1,8 @@
 #' Loss function for registration step optimization
 #'
 #' @param Y vector of observed points.
+#' @param index Vector of index values on which \code{Y} and \code{Theta_h}
+#' were evaluated.
 #' @param Theta_h B-spline basis for inverse warping functions.
 #' @param mean_coefs spline coefficient vector for mean curve.
 #' @param knots knot locations for B-spline basis used to estimate mean and FPC basis function.
@@ -31,7 +33,7 @@
 #' @importFrom utils tail
 #' @export
 #'
-loss_h = function(Y, Theta_h, mean_coefs, knots, beta.inner, family, t_min, t_max, 
+loss_h = function(Y, index, Theta_h, mean_coefs, knots, beta.inner, family, t_min, t_max, 
 									t_min_curve, t_max_curve, incompleteness = NULL, lambda_inc = NULL,
 									periodic = FALSE, Kt = 8, warping = "nonparametric", 
 									priors = FALSE, prior_sd = NULL){
@@ -91,6 +93,10 @@ loss_h = function(Y, Theta_h, mean_coefs, knots, beta.inner, family, t_min, t_ma
   # penalization term for the endpoint of the warping function
   pen_term = 0
   if (!is.null(incompleteness) && (lambda_inc != 0)) { # penalization
+  	
+  	# x <- tidyfun::tfd(hinv_tstar, arg = index)
+  	# pen_term_raw <- tidyfun::tf_integrate(abs(tidyfun::tf_derive(x) - 1))^2
+  	
   	if (incompleteness == "leading") { # penalize the starting point only
   		pen_term_raw = (hinv_tstar[1] - t_min_curve)^2
   	} else if (incompleteness == "trailing") { # penalize the endpoint only
@@ -136,7 +142,7 @@ loss_h = function(Y, Theta_h, mean_coefs, knots, beta.inner, family, t_min, t_ma
 	}
   
   # compute the penalized log-likelihood
-  loss_pen = loss + pen_term
+  loss_pen = loss + length(Y) * pen_term 
   
   return(loss_pen)
 }

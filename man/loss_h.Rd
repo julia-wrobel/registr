@@ -6,6 +6,7 @@
 \usage{
 loss_h(
   Y,
+  index,
   Theta_h,
   mean_coefs,
   knots,
@@ -26,6 +27,9 @@ loss_h(
 }
 \arguments{
 \item{Y}{vector of observed points.}
+
+\item{index}{Vector of index values on which \code{Y} and \code{Theta_h}
+were evaluated.}
 
 \item{Theta_h}{B-spline basis for inverse warping functions.}
 

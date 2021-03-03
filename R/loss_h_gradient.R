@@ -18,7 +18,7 @@
 #' 
 #' @export
 #'
-loss_h_gradient = function(Y, Theta_h, mean_coefs, knots, beta.inner, family = "gaussian",
+loss_h_gradient = function(Y, index, Theta_h, mean_coefs, knots, beta.inner, family = "gaussian",
                            incompleteness = NULL, lambda_inc = NULL,
                            t_min, t_max, t_min_curve, t_max_curve, Kt = 8, periodic = FALSE,
                            warping = "nonparametric"){
@@ -85,7 +85,7 @@ loss_h_gradient = function(Y, Theta_h, mean_coefs, knots, beta.inner, family = "
   	pen_term = lambda_inc * pen_term_raw
   }
   
-  grad = 1/varphi * rowSums(gradient_mat) - pen_term
+  grad = 1/varphi * rowSums(gradient_mat) - length(Y) * pen_term
   
   if (is.null(incompleteness)) { # initial and final parameters are fixed
     grad.inner = grad[-c(1, length(grad))]

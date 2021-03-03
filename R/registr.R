@@ -503,6 +503,7 @@ registr_oneCurve = function(i, arg_list, ...) {
 													 ui             = ui_i,
 													 ci             = ci_i,
 													 Y              = Y_i, 
+													 index          = tstar_cropped[rows_i],
 													 Theta_h        = Theta_h_i,
 													 mean_coefs     = mean_coefs_i, 
 													 knots          = arg_list$global_knots, 
