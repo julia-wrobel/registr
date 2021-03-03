@@ -94,17 +94,19 @@ loss_h = function(Y, index, Theta_h, mean_coefs, knots, beta.inner, family, t_mi
   pen_term = 0
   if (!is.null(incompleteness) && (lambda_inc != 0)) { # penalization
   	
-  	# x <- tidyfun::tfd(hinv_tstar, arg = index)
-  	# pen_term_raw <- tidyfun::tf_integrate(abs(tidyfun::tf_derive(x) - 1))^2
-  	
-  	if (incompleteness == "leading") { # penalize the starting point only
-  		pen_term_raw = (hinv_tstar[1] - t_min_curve)^2
-  	} else if (incompleteness == "trailing") { # penalize the endpoint only
-  		pen_term_raw = (utils::tail(hinv_tstar, 1) - t_max_curve)^2
-  	} else if (incompleteness == "full") { # penalize overall dilation
-  		pen_term_raw = ((utils::tail(hinv_tstar, 1) - hinv_tstar[1]) -
-  											(t_max_curve - t_min_curve))^2
-  	}
+  	### NEW penalty
+  	x <- tidyfun::tfd(hinv_tstar, arg = index)
+  	pen_term_raw <- tidyfun::tf_integrate(abs(tidyfun::tf_derive(x) - 1))^2
+  	### OLD penalty
+  	# if (incompleteness == "leading") { # penalize the starting point only
+  	# 	pen_term_raw = (hinv_tstar[1] - t_min_curve)^2
+  	# } else if (incompleteness == "trailing") { # penalize the endpoint only
+  	# 	pen_term_raw = (utils::tail(hinv_tstar, 1) - t_max_curve)^2
+  	# } else if (incompleteness == "full") { # penalize overall dilation
+  	# 	pen_term_raw = ((utils::tail(hinv_tstar, 1) - hinv_tstar[1]) -
+  	# 										(t_max_curve - t_min_curve))^2
+  	# }
+  	### END OLD penalty
   	pen_term = lambda_inc * pen_term_raw
   }
   
