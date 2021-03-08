@@ -7,7 +7,8 @@ Authors@R: c(
     comment = c(ORCID = "0000-0001-6783-1421")),
     person("Alexander", "Bauer", role = "aut", email = "alexander.bauer@stat.uni-muenchen.de"),
     person("Jeff", "Goldsmith", role = "aut", email = "jeff.goldsmith@columbia.edu"),
-    person("Erin", "McDonnell", role = "aut", email = "eim2117@cumc.columbia.edu")
+    person("Erin", "McDonnell", role = "aut", email = "eim2117@cumc.columbia.edu"),
+    person("Fabian", "Scheipl", role = "ctb", email = "fabian.scheipl@lmu.de")
     )
 Description: A method for performing joint registration and functional principal
     component analysis for curves (functional data) that are generated from exponential family distributions. This 
@@ -32,7 +33,9 @@ Imports:
     cowplot,
     gamm4,
     lme4,
-    mgcv
+    mgcv,
+    purrr,
+    Matrix
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
