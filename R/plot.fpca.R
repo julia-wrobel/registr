@@ -25,6 +25,8 @@
 #' @param xlab,ylab Optional titles for the x and y axis.
 #' @param ... Additional arguments passed to \code{\link[ggplot2]{theme}}.
 #' 
+#' @import ggplot2
+#' @importFrom cowplot plot_grid
 #' @importFrom dplyr bind_rows
 #' @export
 #' 
@@ -36,22 +38,13 @@
 #' data(growth_incomplete)
 #' 
 #' fpca_obj = fpca_gauss(Y = growth_incomplete, npc = 2)
-#' if (requireNamespace("ggplot2", quietly = TRUE) &&
-#' requireNamespace("cowplot", quietly = TRUE)) {
-#' library(ggplot2)
 #' plot(fpca_obj)
-#' }
 #' 
 plot.fpca = function(x, plot_npc = x$npc, var_factor = 2,
                      response_function = NULL,
                      subtitle = TRUE, xlim = NULL, ylim = NULL,
                      xlab = "t [registered]", ylab = "y", ...) {
-  id = NULL
-  rm(list="id")
-  if (!requireNamespace("ggplot2", quietly = TRUE) || 
-      !requireNamespace("cowplot", quietly = TRUE)) {
-    stop("ggplot2 and cowplot are required for plot.fpca function")
-  }
+  
   # some NULL variable definitions to appease CRAN package checks regarding the use of ggplot2
   fpc_value = type = value = NULL
   
@@ -85,10 +78,10 @@ plot.fpca = function(x, plot_npc = x$npc, var_factor = 2,
   plotDat_list = lapply(1:plot_npc, function(i) {
     # dataset with mean +/- <var_factor>*FPC
     plot_dat = fpc_dat %>%
-      dplyr::filter(id == i) %>%
-      dplyr::arrange(t) %>%
+      filter(id == i) %>%
+      arrange(t) %>%
       dplyr::left_join(mean_dat, by = "t") %>%
-      dplyr::mutate(mean_plusFPC  = response_function(mean + var_factor*fpc_value),
+      mutate(mean_plusFPC  = response_function(mean + var_factor*fpc_value),
              mean_minusFPC = response_function(mean - var_factor*fpc_value))
     plot_dat = data.frame(id    = unique(plot_dat$id),
                           t     = rep(plot_dat$t, times = 3),
@@ -100,19 +93,15 @@ plot.fpca = function(x, plot_npc = x$npc, var_factor = 2,
                                        paste0("mean - ",var_factor,"*FPC")), 
                                      each = nrow(plot_dat)),
                           stringsAsFactors = FALSE) %>%
-      dplyr::mutate(type = factor(type, levels = c("mean curve",
+      mutate(type = factor(type, levels = c("mean curve",
                                             paste0("mean + ",var_factor,"*FPC"),
-                                            paste0("mean - ",var_factor,"*FPC"))))
+                                              paste0("mean - ",var_factor,"*FPC"))))
   })
   
   if (is.null(xlim))
-    xlim = dplyr::bind_rows(plotDat_list) %>% 
-    dplyr::pull(t) %>% 
-    range()
+    xlim = dplyr::bind_rows(plotDat_list) %>% pull(t) %>% range()
   if (is.null(ylim))
-    ylim = dplyr::bind_rows(plotDat_list) %>% 
-    dplyr::pull(value) %>% 
-    range()
+    ylim = dplyr::bind_rows(plotDat_list) %>% pull(value) %>% range()
   
   # create list with one plot per FPC
   plot_list = lapply(1:plot_npc, function(i) {
@@ -126,23 +115,19 @@ plot.fpca = function(x, plot_npc = x$npc, var_factor = 2,
     symbolMinus_dat = symbol_dat %>% filter(type == paste0("mean - ",var_factor,"*FPC"))
     
     # plot
-    
-    ggplot2::ggplot(mapping = ggplot2::aes(x = t, y = value, col = type, lty = type)) +
-      ggplot2::geom_line(data = plotDat_list[[i]]) +
-      ggplot2::scale_color_manual(values = c("black", "gray70", "gray60")) +
-      ggplot2::scale_linetype_manual(values = c(1, 2, 3)) +
-      ggplot2::geom_text(data = symbolPlus_dat,  label = "+", size = 7, col = "gray40") +
-      ggplot2::geom_text(data = symbolMinus_dat, label = "-", size = 7, col = "gray40") +
-      ggplot2::xlim(xlim) + 
-      ggplot2::ylim(ylim) + 
-      ggplot2::xlab(xlab) + 
-      ggplot2::ylab(ylab) +
-      ggplot2::ggtitle(paste0("FPC ", i, ifelse(!is.null(x$evalues_sum), ev_info[i], ""),
-                              ifelse(subtitle, paste0("\n(mean +/- ",var_factor,"*FPC)"), ""))) +
-      ggplot2::theme(legend.position  = "none",
-                     panel.grid.minor = ggplot2::element_blank(),
-                     plot.title       = ggplot2::element_text(hjust = 0.5),
-                     ...)
+    ggplot(mapping = aes(x = t, y = value, col = type, lty = type)) +
+      geom_line(data = plotDat_list[[i]]) +
+      scale_color_manual(values = c("black", "gray70", "gray60")) +
+      scale_linetype_manual(values = c(1, 2, 3)) +
+      geom_text(data = symbolPlus_dat,  label = "+", size = 7, col = "gray40") +
+      geom_text(data = symbolMinus_dat, label = "-", size = 7, col = "gray40") +
+      xlim(xlim) + ylim(ylim) + xlab(xlab) + ylab(ylab) +
+      ggtitle(paste0("FPC ", i, ifelse(!is.null(x$evalues_sum), ev_info[i], ""),
+                     ifelse(subtitle, paste0("\n(mean +/- ",var_factor,"*FPC)"), ""))) +
+      theme(legend.position  = "none",
+            panel.grid.minor = element_blank(),
+            plot.title       = element_text(hjust = 0.5),
+            ...)
   })
   
   # plot grid
