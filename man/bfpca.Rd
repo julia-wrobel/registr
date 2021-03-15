@@ -11,11 +11,13 @@ bfpca(
   maxiter = 50,
   t_min = NULL,
   t_max = NULL,
-  print.iter = FALSE,
+  print.iter = TRUE,
   row_obj = NULL,
   seed = 1988,
   periodic = FALSE,
   error_thresh = 1e-04,
+  verbose = TRUE,
+  subsample = TRUE,
   ...
 )
 }
@@ -42,6 +44,11 @@ Keep this NULL if you are using standalone \code{register} function.}
 \item{periodic}{If TRUE, uses periodic b-spline basis functions. Default is FALSE.}
 
 \item{error_thresh}{Error threshold to end iterations. Defaults to 0.0001.}
+
+\item{verbose}{print diagnostic messages.}
+
+\item{subsample}{if the number of rows of the data is greater than 
+10 million rows, the `id` values are subsampled to get the mean coefficients.}
 
 \item{...}{Additional arguments passed to or from other functions}
 }

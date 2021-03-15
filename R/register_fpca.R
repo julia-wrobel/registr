@@ -98,7 +98,6 @@
 #' }
 #'  
 #' @examples
-#' library(ggplot2)
 #' 
 #' ### complete binomial curves
 #' Y = simulate_unregistered_curves(I = 20, D = 200)
@@ -111,10 +110,14 @@
 #'                      fpca_type = "two-step", max_iterations = 5,
 #'                      fpca_index_significantDigits = 4)
 #' 
-#' ggplot(reg$Y, aes(x = tstar, y = t_hat, group = id)) +
-#'   geom_line(alpha = 0.2) + ggtitle("Estimated warping functions")
-#' 
-#' plot(reg$fpca_obj, response_function = function(x) { 1 / (1 + exp(-x)) })
+#' if (requireNamespace("ggplot2", quietly = TRUE)) {
+#'   library(ggplot2)
+#'   
+#'   ggplot(reg$Y, aes(x = tstar, y = t_hat, group = id)) +
+#'     geom_line(alpha = 0.2) + ggtitle("Estimated warping functions")
+#'   
+#'   plot(reg$fpca_obj, response_function = function(x) { 1 / (1 + exp(-x)) })
+#' }
 #' 
 #' 
 #' \donttest{ 
@@ -130,25 +133,29 @@
 #' # Force the warping functions to start and end on the diagonal
 #' reg2a = register_fpca(growth_incomplete, npc = 2, family = "gaussian",
 #'                       incompleteness = NULL, max_iterations = 5)
-#' ggplot(reg2a$Y, aes(x = tstar, y = t_hat, group = id)) +
-#'   geom_line(alpha = 0.2) +
-#'   ggtitle("Estimated warping functions")
-#' ggplot(reg2a$Y, aes(x = t_hat, y = value, group = id)) +
-#'   geom_line(alpha = 0.2) +
-#'   ggtitle("Registered curves")
-#' 
+#' if (requireNamespace("ggplot2", quietly = TRUE)) {
+#'   
+#'   ggplot(reg2a$Y, aes(x = tstar, y = t_hat, group = id)) +
+#'     geom_line(alpha = 0.2) +
+#'     ggtitle("Estimated warping functions")
+#'   ggplot(reg2a$Y, aes(x = t_hat, y = value, group = id)) +
+#'     geom_line(alpha = 0.2) +
+#'     ggtitle("Registered curves")
+#' }
 #' # Allow the warping functions to not start / end on the diagonal.
 #' # The higher lambda_inc, the more the starting points and endpoints are forced
 #' # towards the diagonal.
 #' reg2b = register_fpca(growth_incomplete, npc = 2, family = "gaussian",
 #'                       incompleteness = "full", lambda_inc = 0.1,
 #'                       max_iterations = 5)
-#' ggplot(reg2b$Y, aes(x = tstar, y = t_hat, group = id)) +
-#'   geom_line(alpha = 0.2) +
-#'   ggtitle("Estimated warping functions")
-#' ggplot(reg2b$Y, aes(x = t_hat, y = value, group = id)) +
-#'   geom_line(alpha = 0.2) +
-#'   ggtitle("Registered curves")
+#' if (requireNamespace("ggplot2", quietly = TRUE)) {
+#'   ggplot(reg2b$Y, aes(x = tstar, y = t_hat, group = id)) +
+#'     geom_line(alpha = 0.2) +
+#'     ggtitle("Estimated warping functions")
+#'   ggplot(reg2b$Y, aes(x = t_hat, y = value, group = id)) +
+#'     geom_line(alpha = 0.2) +
+#'     ggtitle("Registered curves")
+#' }
 #' 
 #' ### complete Gamma curves
 #' Y             = simulate_unregistered_curves(I = 20, D = 100)
@@ -163,8 +170,12 @@ register_fpca = function(Y, Kt = 8, Kh = 4, family = "gaussian",
 												 max_iterations = 10, npc = 1,
 												 fpca_type = "variationalEM", fpca_maxiter = 50,
 												 fpca_seed = 1988, fpca_error_thresh = 0.0001,
-												 fpca_index_significantDigits = 4L, cores = 1L, ...){
+												 fpca_index_significantDigits = 4L, cores = 1L, 
+												 verbose = TRUE, 
+												 ...){
 	
+  index = NULL
+  rm(list="index")
   if (!(family %in% c("gaussian","binomial","gamma","poisson"))) {
   	stop("Package currently handles only families 'gaussian', 'binomial', 'gamma' and 'poisson'.")
   }
@@ -174,21 +185,29 @@ register_fpca = function(Y, Kt = 8, Kh = 4, family = "gaussian",
 		fpca_type = "two-step"
 	}
 		
+  if (verbose > 0) {
+    message("Running data_clean")
+  }
   data    = data_clean(Y)
   Y       = data$Y
   Y$tstar = Y$index
   rows    = data$Y_rows
   
-  index_warped      = list(NA, max_iterations + 2)
+  index_warped      = vector(mode = "list", length = max_iterations + 2)
   index_warped[[1]] = Y$index_scaled
   reg_loss          = rep(NA, max_iterations + 1)
 
   # first register values to the overall mean
+  if (verbose) {
+    message("Running registr step")
+  }
   registr_step = registr(Y = Y, Kt = Kt, Kh = Kh, family = family,
   											 incompleteness = incompleteness,
   											 lambda_inc     = lambda_inc,
   											 Y_template     = Y_template,
-  											 row_obj = rows, cores = cores, ...)
+  											 row_obj = rows, cores = cores,
+  											 verbose = verbose > 1,
+  											 ...)
   index_warped[[2]] = registr_step$Y$index_scaled
   reg_loss[1]       = registr_step$loss
   
@@ -200,15 +219,19 @@ register_fpca = function(Y, Kt = 8, Kh = 4, family = "gaussian",
   			 (iter < max_iterations && delta_index[iter] > convergence_threshold)) {
   	
   	iter = iter + 1
-  	message("current iteration: ", iter)
-  	
+  	if (verbose) {
+  	  message("current iteration: ", iter)
+  	}
+  	if (verbose) {
+  	  message("FPCA Step")
+  	}  	
   	if (fpca_type == "variationalEM") { # GFPCA after Wrobel et al. (2019)
   		if (family == "binomial") {
   			fpca_step = bfpca(registr_step$Y, npc = npc, Kt = Kt, row_obj = rows, seed = fpca_seed, maxiter = fpca_maxiter, 
-  												error_thresh = fpca_error_thresh, ...)
+  												error_thresh = fpca_error_thresh, verbose = verbose > 1, ...)
   		} else if (family == "gaussian") {
   			fpca_step = fpca_gauss(registr_step$Y, npc = npc, Kt = Kt, row_obj = rows, seed = fpca_seed, maxiter = fpca_maxiter,
-  														 error_thresh = fpca_error_thresh, ...)
+  														 error_thresh = fpca_error_thresh,  verbose = verbose > 1, ...)
   		}
   		
   	} else if (fpca_type == "two-step") { # Two-step GFPCA after Gertheiss et al. (2017)
@@ -227,13 +250,17 @@ register_fpca = function(Y, Kt = 8, Kh = 4, family = "gaussian",
   															estimation_accuracy     = estimation_accuracy,
   															start_params            = gamm4_startParams)
   	}
-  	
+  	if (verbose) {
+  	  message("Registr Step")
+  	}  	
   	registr_step = registr(obj = fpca_step, Kt = Kt, Kh = Kh, family = family, 
   												 incompleteness = incompleteness,
   												 lambda_inc     = lambda_inc,
   												 row_obj        = rows,
   												 beta           = registr_step$hinv_beta,
-  												 cores          = cores, ...)
+  												 cores          = cores,
+  												 verbose = verbose > 1,
+  												 ...)
   	
   	index_warped[[iter + 2]] = registr_step$Y$index_scaled
   	reg_loss[iter + 1]       = registr_step$loss
@@ -245,11 +272,16 @@ register_fpca = function(Y, Kt = 8, Kh = 4, family = "gaussian",
   converged = (delta_index[iter] <= convergence_threshold)
   
   if(iter < max_iterations){
-  	message("Registration converged.")
+  	if (verbose) {
+  	  message("Registration converged.")
+  	}
   } else{
   	warning("Convergence not reached. Try increasing max_iterations.")
   }
 
+  if (verbose) {
+    message("Final FPCA Step")
+  }  	
   # final fpca step
   if (fpca_type == "variationalEM") { # GFPCA after Wrobel et al. (2019)
   	if (family == "binomial") {
@@ -270,8 +302,8 @@ register_fpca = function(Y, Kt = 8, Kh = 4, family = "gaussian",
   	# restrict the Yhat element to the individual registered domains
   	t_max_warped_i = sapply(rows$id, function(x) { max(registr_step$Y$index[registr_step$Y$id == x], na.rm = TRUE) })
   	fpca_step$Yhat = fpca_step$Yhat %>%
-  		group_by(id) %>%
-  		filter(index <= (t_max_warped_i[match(id[1], rows$id)] + 10^(-fpca_index_significantDigits))) %>%
+  		dplyr::group_by(id) %>%
+  	  dplyr::filter(index <= (t_max_warped_i[match(id[1], rows$id)] + 10^(-fpca_index_significantDigits))) %>%
   		ungroup()
   }
   

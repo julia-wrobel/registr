@@ -2,7 +2,9 @@ context("plot.fpca")
 
 test_that("plot.fpca returns a cowplot object with classes 'gg' and 'ggplot' for all FPCA functions",{
 	
-	# Gaussian FPCA
+  testthat::skip_if_not_installed("ggplot2")
+  testthat::skip_if_not_installed("cowplot")
+  # Gaussian FPCA
 	data(growth_incomplete)
 	fpca_obj1a = fpca_gauss(Y = growth_incomplete)
 	fpca_obj1b = gfpca_twoStep(Y = growth_incomplete, npc = 2, family = "gaussian")

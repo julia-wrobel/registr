@@ -4,15 +4,86 @@
 \alias{registr_oneCurve}
 \title{Internal function to register one curve}
 \usage{
-registr_oneCurve(i, arg_list, ...)
+registr_oneCurve(
+  obj = NULL,
+  Y = NULL,
+  Kt = 8,
+  Kh = 4,
+  family = "gaussian",
+  gradient = TRUE,
+  incompleteness = NULL,
+  lambda_inc = NULL,
+  beta = NULL,
+  t_min = NULL,
+  t_max = NULL,
+  periodic = FALSE,
+  warping = "nonparametric",
+  gamma_scales = NULL,
+  global_knots = NULL,
+  mean_coefs = NULL,
+  ...,
+  verbose = TRUE,
+  just_return_list = FALSE
+)
 }
 \arguments{
-\item{i}{Numeric index of the curve under focus.}
+\item{obj}{Current estimate of FPC object. 
+Can be NULL only if Y argument is selected.}
 
-\item{arg_list}{Named list of all arguments necessary for the registration
-step.}
+\item{Y}{Dataframe. Should have values id, value, index.}
+
+\item{Kt}{Number of B-spline basis functions used to estimate mean functions. Default is 8.}
+
+\item{Kh}{Number of B-spline basis functions used to estimate warping functions \emph{h}. Default is 4.}
+
+\item{family}{One of \code{c("gaussian","binomial","gamma","poisson")}. Defaults to
+\code{"gaussian"}.}
+
+\item{gradient}{If \code{TRUE}, uses analytic gradient to calculate derivative. 
+If \code{FALSE}, calculates gradient numerically. Not available for families
+\code{"gamma","poisson"}.}
+
+\item{incompleteness}{Optional specification of incompleteness structure.
+One of \code{c("leading","trailing","full")}, specifying that incompleteness
+is present only in the initial measurements, only in the trailing measurements, or
+in both, respectively. For details see the accompanying vignette.
+Defaults to NULL, i.e. no incompleteness structure.
+Can only be set when \code{warping = "nonparametric"}.}
+
+\item{lambda_inc}{Penalization parameter to control the amount of
+overall dilation of the domain.
+The higher this lambda, the more the registered domains are forced to have the
+same length as the observed domains.
+Only used if \code{incompleteness} is not NULL.}
+
+\item{beta}{Current estimates for beta for each subject. Default is NULL.}
+
+\item{t_min}{Minimum value to be evaluated on the time domain.
+if `NULL`, taken to be minimum observed value.}
+
+\item{t_max}{Maximum value to be evaluated on the time domain. 
+if `NULL`, taken to be maximum observed value.}
+
+\item{periodic}{If \code{TRUE}, uses periodic b-spline basis functions. Default is \code{FALSE}.}
+
+\item{warping}{If \code{nonparametric} (default), inverse warping functions are estimated nonparametrically. 
+If \code{piecewise_linear2} they follow a piecewise linear function with 2 knots.}
+
+\item{gamma_scales}{Only used for \code{family = "gamma"}.
+Vector with one entry for each subject, containing the current estimate for the scale parameter of its
+gamma distribution. Default is NULL, which sets the starting value for the scale parameter to 1.5.}
+
+\item{global_knots}{knots for the basis/splines, passed to [pbs::pbs()] 
+or [stats::bs()]}
+
+\item{mean_coefs}{Mean coefficients for the mean of all curves or 
+GFPCA based.  May extract from `obj` object}
 
 \item{...}{additional arguments passed to or from other functions}
+
+\item{verbose}{print diagnostic messages.}
+
+\item{just_return_list}{Do not use.  For developers only}
 }
 \value{
 An list containing:
