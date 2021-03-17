@@ -10,3 +10,4 @@ src/*.so
 src/*.o
 src/*.o.tmp
 *.DS_Store
+.Rproj.user

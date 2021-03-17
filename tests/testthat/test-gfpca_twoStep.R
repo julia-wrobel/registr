@@ -101,18 +101,18 @@ test_that("gfpca_twoStep (Gamma) output has correct number of dimensions",{
 	Y$value = Y$value + 1 # make data strictly positive for gamma family
 	Kt      = 8
 	fpca_object = gfpca_twoStep(Y, npc = 2, Kt = Kt, family = "gamma",
-															index_significantDigits = 4)
+															index_significantDigits = 2)
 	
-	expect_equal(length(fpca_object$t_vec), 200)
-	expect_equal(dim(fpca_object$alpha), c(200, 1))
-	expect_equal(dim(fpca_object$efunctions), c(200, 2))
+	expect_equal(length(fpca_object$t_vec), 11)
+	expect_equal(dim(fpca_object$alpha), c(11, 1))
+	expect_equal(dim(fpca_object$efunctions), c(11, 2))
 	expect_equal(length(fpca_object$evalues), 2)
 	expect_equal(dim(fpca_object$scores), c(length(unique(Y$id)), 2))
 	expect_equal(length(fpca_object$knots), Kt - 4)
 	
 	fpca_object = gfpca_twoStep(Y, npc = 1, Kt = Kt, family = "gamma",
-															index_significantDigits = 4)
-	expect_equal(dim(fpca_object$efunctions), c(200, 1))
+															index_significantDigits = 2)
+	expect_equal(dim(fpca_object$efunctions), c(11, 1))
 })
 
 test_that("gfpca_twoStep (Poisson) output has correct number of dimensions",{
