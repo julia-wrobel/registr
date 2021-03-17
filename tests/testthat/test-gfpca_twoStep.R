@@ -120,25 +120,25 @@ test_that("gfpca_twoStep (Poisson) output has correct number of dimensions",{
 	Y$value = Y$value + 1 # make data strictly positive for poisson family
 	Kt      = 8
 	fpca_object = gfpca_twoStep(Y, npc = 2, Kt = Kt, family = "poisson",
-															index_significantDigits = 4)
+															index_significantDigits = 2)
 	
-	expect_equal(length(fpca_object$t_vec), 200)
-	expect_equal(dim(fpca_object$alpha), c(200, 1))
-	expect_equal(dim(fpca_object$efunctions), c(200, 2))
+	expect_equal(length(fpca_object$t_vec), 11)
+	expect_equal(dim(fpca_object$alpha), c(11, 1))
+	expect_equal(dim(fpca_object$efunctions), c(11, 2))
 	expect_equal(length(fpca_object$evalues), 2)
 	expect_equal(dim(fpca_object$scores), c(length(unique(Y$id)), 2))
 	expect_equal(length(fpca_object$knots), Kt - 4)
 	
 	fpca_object = gfpca_twoStep(Y, npc = 1, Kt = Kt, family = "poisson",
-															index_significantDigits = 4)
-	expect_equal(dim(fpca_object$efunctions), c(200, 1))
+															index_significantDigits = 2)
+	expect_equal(dim(fpca_object$efunctions), c(11, 1))
 })
 
 
 test_that("gfpca_twoStep (Gaussian) returns a correct knots vector when periodic = TRUE",{
 	Y = simulate_functional_data(I = 100, D = 200, seed = 2020)$Y
 	Kt = 8
-	fpca_object = gfpca_twoStep(Y, npc = 2, Kt = Kt, periodic = TRUE)
+	fpca_object = gfpca_twoStep(Y, npc = 2, Kt = Kt, periodic = TRUE, index_significantDigits = 2)
 	
 	expect_equal(length(fpca_object$knots), Kt - 1)
 })
@@ -171,4 +171,18 @@ test_that("gfpca_twoStep (Poisson) throws an error when applied to negative data
 	
 	expect_error(gfpca_twoStep(Y, family = "poisson"),
 							 "family = 'poisson' can only be applied to nonnegative data.")
+})
+
+test_that("crossprods_regular and crossprods_irregular work as expected",{
+  data(growth_incomplete)
+  
+  dat = growth_incomplete %>% mutate(centered = value - mean(value))
+  
+  cp1 = crossprods_regular(dat)
+  cp2 = crossprods_irregular(dat)
+  
+  expect_equal(ncol(cp1), 4)
+  expect_equal(ncol(cp2), 4)
+  expect_true(all(!is.na(cp1$cross)))
+  expect_true(all(!is.na(cp2$cross)))
 })
