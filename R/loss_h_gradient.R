@@ -88,7 +88,7 @@ loss_h_gradient = function(Y, Theta_h, mean_coefs, knots, beta.inner, family = "
   	pen_term = lambda_inc * pen_term_raw
   }
   
-  grad = 1/varphi * grad - pen_term
+  grad = 1/varphi * grad - length(Y) * pen_term
   
   if (is.null(incompleteness)) { # initial and final parameters are fixed
     grad.inner = grad[-c(1, length(grad))]

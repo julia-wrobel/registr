@@ -136,7 +136,7 @@ loss_h = function(Y, Theta_h, mean_coefs, knots, beta.inner, family, t_min, t_ma
 	}
   
   # compute the penalized log-likelihood
-  loss_pen = loss + pen_term
+  loss_pen = loss + length(Y) * pen_term
   
   return(loss_pen)
 }

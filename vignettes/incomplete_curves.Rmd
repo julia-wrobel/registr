@@ -150,7 +150,7 @@ for curve $i$. For a setting with **full incompleteness** (i.e., where both the 
 point and endpoint are free to vary from the diagonal) this results in
 $$
 \begin{aligned}
-\ell_{\text{pen}}(i) &= \ell(i) - \lambda \cdot \text{pen}(i), \\
+\ell_{\text{pen}}(i) &= \ell(i) - \lambda \cdot n_i \cdot \text{pen}(i), \\
 \text{with} \ \ \ 
 \text{pen}(i) &= \left( \left[\hat{h}_i^{-1}(t_{max,i}^*) - \hat{h}_i^{-1}(t_{min,i}^*)\right] - \left[t_{max,i}^* - t_{min,i}^*\right] \right)^2,
 \end{aligned}
@@ -161,6 +161,9 @@ minimum / maximum. For leading incompleteness with $h_i^{-1}(t_{max,i}^*) = t_{m
 $\text{pen}(i) = \left(\hat{h}_i^{-1}(t_{min,i}^*) - t_{min,i}^*\right)^2$, and for trailing incompleteness with
 $h_i^{-1}(t_{min,i}^*) = t_{min,i}^* \forall i$ to
 $\text{pen}(i) = \left(\hat{h}_i^{-1}(t_{max,i}^*) - t_{max,i}^*\right)^2$.
+The penalization term is scaled by the number of measurements $n_i$ of curve $i$
+to ensure a similar impact of the penalization for curves with different numbers
+of measurements.
 
 The higher the penalization parameter $\lambda$, the more the length of the registered domain
 is forced towards the length of the observed domain.
