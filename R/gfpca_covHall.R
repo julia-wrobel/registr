@@ -68,27 +68,27 @@ cov_hall = function(Y, index_evalGrid, Kt = 25, Kc = 8, family = "gaussian",
     family_mgcv = family
   }
   
-  this_gam <- if (nrow(Y) > 1e5) {
+  this_gam = if (nrow(Y) > 1e5) {
     function(...) mgcv::bam(..., discrete = length(index_evalGrid))
   } else mgcv::gam
   # estimate the marginal mean mu(t) of the LGP X(t) (before applying the response function)
-  model_mean =this_gam(value ~ s(index, bs = "ps", k = Kt), family = family_mgcv, data = Y)
+  model_mean = this_gam(value ~ s(index, bs = "ps", k = Kt), family = family_mgcv, data = Y)
   
   # create crossproducts of centered data
   Y$centered = Y$value - predict(model_mean, type = "response")
   # not at all sure about this cutoff here...
-  Y_crossprods <- if (dplyr::n_distinct(Y$index) > .5 * nrow(Y)) {
+  Y_crossprods = if (dplyr::n_distinct(Y$index) > .5 * nrow(Y)) {
     crossprods_irregular(Y)
   } else {
     crossprods_regular(Y)
   }
 
   # smooth the covariance surface
-  that_gam <- if (nrow(Y_crossprods) > 1e5) {
+  that_gam = if (nrow(Y_crossprods) > 1e5) {
     function(...) mgcv::bam(..., discrete = length(index_evalGrid))
   } else mgcv::gam
   model_smoothed = that_gam(cross ~ te(i1, i2, k = Kc, bs = "ps"), 
-    data =  Y_crossprods)
+    data = Y_crossprods)
   Yi_2mom_sm     = matrix(
     predict(model_smoothed,
       newdata = data.frame(i1 = rep(index_evalGrid, each  = length(index_evalGrid)),
@@ -119,13 +119,13 @@ cov_hall = function(Y, index_evalGrid, Kt = 25, Kc = 8, family = "gaussian",
   diag(Zi.cov_sm) = ifelse(ddd < diag_epsilon, diag_epsilon, ddd)
   
   if (make_pd) {
-    Zi.cov_sm <- as.matrix(Matrix::nearPD(Zi.cov_sm, do2eigen = TRUE)$mat)
+    Zi.cov_sm = as.matrix(Matrix::nearPD(Zi.cov_sm, do2eigen = TRUE)$mat)
   }  
   Zi.cov_sm
 }
 
 # this is faster for highly irregular grids (index values are mostly unique)
-crossprods_irregular <- function(Y) {
+crossprods_irregular = function(Y) {
   Y_crossprods = select(Y, .data$id, .data$index, .data$centered) %>% 
     nest(data = c(.data$index, .data$centered)) %>% 
     mutate(crossprods = map(.data$data, ~ {
@@ -140,7 +140,7 @@ crossprods_irregular <- function(Y) {
 }
 
 # this is faster for mostly regular grids (index values are mostly *not* unique)
-crossprods_regular <- function(Y) {
+crossprods_regular = function(Y) {
   ids  = as.character(unique(Y$id))
   grid = sort(unique(Y$index))
   D    = length(grid)
