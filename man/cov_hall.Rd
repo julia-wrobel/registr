@@ -7,10 +7,11 @@
 cov_hall(
   Y,
   index_evalGrid,
-  Kt = 8,
+  Kt = 25,
   Kc = 8,
   family = "gaussian",
-  diag_epsilon = 0.01
+  diag_epsilon = 0.01,
+  make_pd = TRUE
 )
 }
 \arguments{
@@ -19,7 +20,7 @@ cov_hall(
 \item{index_evalGrid}{Grid for the evaluation of the covariance structure.}
 
 \item{Kt}{Number of P-spline basis functions for the estimation of the
-marginal mean. Defaults to 8.}
+marginal mean. Defaults to 25.}
 
 \item{Kc}{Number of marginal P-spline basis functions for smoothing the
 covariance surface. Defaults to 8.}
@@ -31,6 +32,9 @@ Defaults to \code{"gaussian"}.}
 
 \item{diag_epsilon}{Small constant to which diagonal elements of the
 covariance matrix are set if they are smaller. Defaults to 0.01.}
+
+\item{make_pd}{ensure positive (semi-)definiteness of returned latent 
+covariance via [Matrix::near_PD()]?}
 }
 \value{
 Covariance matrix with dimension \code{time_evalGrid x time_evalGrid}.
@@ -42,6 +46,15 @@ two-step GFPCA approach implemented in \code{\link{gfpca_twoStep}}. \cr \cr
 This function is an adaptation of the implementation of Jan
 Gertheiss and Ana-Maria Staicu for Gertheiss et al. (2017), with focus on
 higher (RAM) efficiency for large data settings.
+}
+\details{
+The implementation deviates from the algorithm described in Hall (2008) in
+one crucial step -- we compute the crossproducts of \emph{centered}
+observations and smooth the surface of these crossproducts directly instead
+of computing and smoothing the surface of crossproducts of uncentered
+observations and subsequently subtracting the (crossproducts of the) mean
+function. The former seems to yield smoother eigenfunctions and 
+fewer non-positive-definite covariance estimates.
 }
 \examples{
 data(growth_incomplete)
@@ -61,6 +74,6 @@ modeling sparse exponential-family functional response curves.
 \emph{Computational statistics & data analysis}, 105, 46--52.
 }
 \author{
-Alexander Bauer \email{alexander.bauer@stat.uni-muenchen.de},
-based on work of Jan Gertheiss and Ana-Maria Staicu
+Alexander Bauer \email{alexander.bauer@stat.uni-muenchen.de} and 
+Fabian Scheipl, based on work of Jan Gertheiss and Ana-Maria Staicu
 }

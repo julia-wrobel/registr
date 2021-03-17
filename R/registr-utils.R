@@ -36,7 +36,7 @@ initial_params = function(warping = "nonparametric", K, t_vec){
 #' \code{knot1_x} and \code{knot1_y} control the x and y locations of the second
 #' knot. The designation (inverse) is intended to communicate that these 
 #' functions take data from the unregistered space to the registered space, 
-#' consistent with #' functional data literature on registration.
+#' consistent with functional data literature on registration.
 #' 
 #' @param grid grid of values over which to evaluate the function.
 #' @param knot_locations controls the x and y locations of the two knots.

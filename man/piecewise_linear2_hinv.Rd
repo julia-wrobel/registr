@@ -18,7 +18,7 @@ control the x and y locations of the first knot, and the parameters
 \code{knot1_x} and \code{knot1_y} control the x and y locations of the second
 knot. The designation (inverse) is intended to communicate that these 
 functions take data from the unregistered space to the registered space, 
-consistent with #' functional data literature on registration.
+consistent with functional data literature on registration.
 }
 \author{
 Erin McDonnell \email{eim2117@cumc.columbia.edu}
