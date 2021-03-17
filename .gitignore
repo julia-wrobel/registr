@@ -1,6 +1,6 @@
 *icloud
-.Rproj
-.Rproj.user
+*.Rproj
+*.Rproj.user
 .Rhistory
 .RData
 inst/doc
