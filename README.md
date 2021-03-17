@@ -9,7 +9,7 @@
 [![](http://cranlogs.r-pkg.org/badges/grand-total/registr?color=green)](https://cran.r-project.org/package=registr)
 [![](https://travis-ci.org/julia-wrobel/registr.svg?branch=master)](https://travis-ci.org/julia-wrobel/registr)
 [![AppVeyor build
-status](https://ci.appveyor.com/api/projects/status/github/muschellij2/registr?branch=master&svg=true)](https://ci.appveyor.com/project/muschellij2/registr)
+status](https://ci.appveyor.com/api/projects/status/github/julia-wrobel/registr?branch=master&svg=true)](https://ci.appveyor.com/project/julia-wrobel/registr)
 [![Codecov test
 coverage](https://codecov.io/gh/julia-wrobel/registr/branch/master/graph/badge.svg)](https://codecov.io/gh/julia-wrobel/registr/coverage.svg?branch=master)
 [![status](http://joss.theoj.org/papers/9c40c4f0ede1827cc5a9430c625d6494/status.svg)](http://joss.theoj.org/papers/9c40c4f0ede1827cc5a9430c625d6494)
@@ -18,15 +18,15 @@ coverage](https://codecov.io/gh/julia-wrobel/registr/branch/master/graph/badge.s
 
 Registration for incomplete exponential family functional data.
 
-  - Authors: [Julia Wrobel](http://juliawrobel.com), [Alexander
+-   Authors: [Julia Wrobel](http://juliawrobel.com), [Alexander
     Bauer](https://www.en.stablab.stat.uni-muenchen.de/people/doktoranden/bauer1/index.html)
-  - License: [MIT](https://opensource.org/licenses/MIT). See the
+-   License: [MIT](https://opensource.org/licenses/MIT). See the
     [LICENSE](LICENSE) file for details
-  - Version: 2.0
+-   Version: 2.0
 
 ### What it does
 
------
+------------------------------------------------------------------------
 
 Functional data analysis is a set of tools for understanding patterns
 and variability in data where the basic unit of observation is a curve
@@ -69,7 +69,7 @@ simulated binary data are provided below.
 
 ### Installation
 
------
+------------------------------------------------------------------------
 
 To install from `CRAN`, please use:
 
@@ -95,16 +95,16 @@ vignette(package = "registr")
 
 ### How to use it
 
------
+------------------------------------------------------------------------
 
 This example registers simulated binary data. More details on the use of
 the package can be found in the vignettes mentioned above.
 
 The code below uses `registr::simulate_unregistered_curves()` to
 simulate curves for 100 subjects with 200 timepoints each, observed over
-domain \((0, 1)\). All curves have similar structure but the location of
-the peak is shifted. On the observed domain \(t^*\) the curves are
-unregistered (misaligned). On the domain \(t\) the curves are registered
+domain (0, 1). All curves have similar structure but the location of the
+peak is shifted. On the observed domain *t*<sup>\*</sup> the curves are
+unregistered (misaligned). On the domain *t* the curves are registered
 (aligned).
 
 ``` r
@@ -125,16 +125,12 @@ binary curves for two subjects are shown below.
 
 <img src="README_files/figure-gfm/plot_2subjs-1.png" style="display: block; margin: auto;" />
 
-Our software registers curves by estimating \(t\). For this we use the
+Our software registers curves by estimating *t*. For this we use the
 function `registration_fpca()`.
 
 ``` r
 binary_registration = register_fpca(Y = registration_data, family = "binomial", 
-                                    Kt = 6, Kh = 4, npc  = 1)
-## current iteration: 1
-## BFPCA converged.
-## Registration converged.
-## BFPCA converged.
+                                    Kt = 6, Kh = 4, npc  = 1, verbose = FALSE)
 ```
 
 The plot below shows unregistered, true registered, and estimated
@@ -144,7 +140,7 @@ registered binary curves for two subjects after fitting our method.
 
 ### Citation
 
-If you like our software, please cite it in your work\! To cite the
+If you like our software, please cite it in your work! To cite the
 latest `CRAN` version of the package with `BibTeX`, use
 
     @Manual{,
@@ -167,7 +163,7 @@ To cite the Journal of Open Source Software paper, use
 
 ### Contributions
 
------
+------------------------------------------------------------------------
 
 If you find small bugs, larger issues, or have suggestions, please file
 them using the [issue
