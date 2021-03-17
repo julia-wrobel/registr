@@ -17,5 +17,4 @@ matrix:
 
 # the following was added as of this error:
 # https://stackoverflow.com/questions/62956526/checking-r-code-with-travis-ci-gives-error-the-command-grep-q-r-warning
-script:
-  ! grep -R "WARNING" "${RCHECK_DIR}/00check.log"
+script: ! grep -R "WARNING" "${RCHECK_DIR}/00check.log"
