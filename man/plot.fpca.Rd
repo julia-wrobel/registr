@@ -6,7 +6,7 @@
 \usage{
 \method{plot}{fpca}(
   x,
-  plot_npc = x$npc,
+  plot_FPCs = 1:x$npc,
   var_factor = 2,
   response_function = NULL,
   subtitle = TRUE,
@@ -20,8 +20,8 @@
 \arguments{
 \item{x}{Object of class \code{"fpca"}.}
 
-\item{plot_npc}{Optional number of the main FPCs to be plotted. Defaults to
-all FPCs contained in \code{x}.}
+\item{plot_FPCs}{Optional index vector of the FPCs to be plotted.
+Defaults to all FPCs contained in \code{x}.}
 
 \item{var_factor}{Numeric factor with which the FPC's are multiplied
 to display their variation in the plots. Defaults to 2, but can be set to
@@ -42,7 +42,9 @@ is displayed in the plot subtitle.}
 \item{...}{Additional arguments passed to \code{\link[ggplot2]{theme}}.}
 }
 \value{
-Grid of \code{ggplot} plots, created with \code{cowplot::plot_grid}.
+@return If multiple FPCs are plotted, returns a grid of \code{ggplot}
+plots, created with \code{cowplot::plot_grid}. If only one FPC is plotted,
+returns a single \code{ggplot} plot.
 }
 \description{
 S3 plot method for class \code{fpca}.

@@ -10,8 +10,8 @@
 #' only the case for FPCA objects created with \code{\link{gfpca_twoStep}}.
 #' 
 #' @param x Object of class \code{"fpca"}.
-#' @param plot_npc Optional number of the main FPCs to be plotted. Defaults to
-#' all FPCs contained in \code{x}.
+#' @param plot_FPCs Optional index vector of the FPCs to be plotted.
+#' Defaults to all FPCs contained in \code{x}.
 #' @param var_factor Numeric factor with which the FPC's are multiplied
 #' to display their variation in the plots. Defaults to 2, but can be set to
 #' 2 times the standard deviation of the obtained FPC scores.
@@ -28,7 +28,9 @@
 #' @importFrom dplyr bind_rows
 #' @export
 #' 
-#' @return Grid of \code{ggplot} plots, created with \code{cowplot::plot_grid}.
+#' @return @return If multiple FPCs are plotted, returns a grid of \code{ggplot}
+#' plots, created with \code{cowplot::plot_grid}. If only one FPC is plotted,
+#' returns a single \code{ggplot} plot.
 #' 
 #' @author Alexander Bauer \email{alexander.bauer@@stat.uni-muenchen.de}
 #' 
@@ -42,7 +44,7 @@
 #' plot(fpca_obj)
 #' }
 #' 
-plot.fpca = function(x, plot_npc = x$npc, var_factor = 2,
+plot.fpca = function(x, plot_FPCs = 1:x$npc, var_factor = 2,
                      response_function = NULL,
                      subtitle = TRUE, xlim = NULL, ylim = NULL,
                      xlab = "t [registered]", ylab = "y", ...) {
@@ -82,7 +84,7 @@ plot.fpca = function(x, plot_npc = x$npc, var_factor = 2,
   }
   
   # create a list with one ggplot object per principal components
-  plotDat_list = lapply(1:plot_npc, function(i) {
+  plotDat_list = lapply(plot_FPCs, function(i) {
     # dataset with mean +/- <var_factor>*FPC
     plot_dat = fpc_dat %>%
       dplyr::filter(id == i) %>%
@@ -115,20 +117,22 @@ plot.fpca = function(x, plot_npc = x$npc, var_factor = 2,
     range()
   
   # create list with one plot per FPC
-  plot_list = lapply(1:plot_npc, function(i) {
+  plot_list = lapply(plot_FPCs, function(i) {
+    
+    fpc_index <- match(i, plot_FPCs)
     
     # plot '+' and '-' symbols along the curves
     n_symbols = 4 # only plot the symbols this many times along each line
-    t_symbols = unique(plotDat_list[[i]]$t)[round(seq(1, length(unique(plotDat_list[[i]]$t)), 
-                                                      length.out = n_symbols))]
-    symbol_dat      = plotDat_list[[i]] %>% filter(t %in% t_symbols)
+    t_symbols = unique(plotDat_list[[fpc_index]]$t)[round(seq(1, length(unique(plotDat_list[[fpc_index]]$t)), 
+                                                              length.out = n_symbols))]
+    symbol_dat      = plotDat_list[[fpc_index]] %>% filter(t %in% t_symbols)
     symbolPlus_dat  = symbol_dat %>% filter(type == paste0("mean + ",var_factor,"*FPC"))
     symbolMinus_dat = symbol_dat %>% filter(type == paste0("mean - ",var_factor,"*FPC"))
     
     # plot
     
     ggplot2::ggplot(mapping = ggplot2::aes(x = t, y = value, col = type, lty = type)) +
-      ggplot2::geom_line(data = plotDat_list[[i]]) +
+      ggplot2::geom_line(data = plotDat_list[[fpc_index]]) +
       ggplot2::scale_color_manual(values = c("black", "gray70", "gray60")) +
       ggplot2::scale_linetype_manual(values = c(1, 2, 3)) +
       ggplot2::geom_text(data = symbolPlus_dat,  label = "+", size = 7, col = "gray40") +
@@ -146,5 +150,9 @@ plot.fpca = function(x, plot_npc = x$npc, var_factor = 2,
   })
   
   # plot grid
-  cowplot::plot_grid(plotlist = plot_list, align = T)
+  if (length(plot_list) > 1) { # multiple FPCs are plotted
+    cowplot::plot_grid(plotlist = plot_list, align = T)
+  } else { # only one FPC is plotted
+    plot_list[[1]]
+  }
 }
