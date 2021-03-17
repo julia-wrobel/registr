@@ -18,6 +18,9 @@
 #' @param periodic If TRUE, uses periodic b-spline basis functions. Default is FALSE.
 #' @param error_thresh Error threshold to end iterations. Defaults to 0.0001.
 #' @param ... Additional arguments passed to or from other functions
+#' @param verbose print diagnostic messages.
+#' @param subsample if the number of rows of the data is greater than 
+#' 10 million rows, the `id` values are subsampled to get the mean coefficients.
 #' 
 #' @author Julia Wrobel \email{julia.wrobel@@cuanschutz.edu},
 #' Jeff Goldsmith \email{ajg2202@@cumc.columbia.edu}
@@ -54,7 +57,8 @@
 #' 
 fpca_gauss = function(Y, npc = 1, Kt = 8, maxiter = 20, t_min = NULL, t_max = NULL, 
 											print.iter = FALSE, row_obj= NULL, seed = 1988, periodic = FALSE, 
-											error_thresh = 0.0001, ...){
+											error_thresh = 0.0001, subsample = TRUE, verbose = TRUE, 
+											...){
 	
 	curr_iter = 1
 	error     = rep(NA, maxiter)
@@ -96,7 +100,44 @@ fpca_gauss = function(Y, npc = 1, Kt = 8, maxiter = 20, t_min = NULL, t_max = NU
 	## initialize all parameters
 	set.seed(seed)
 	psi_coefs   = matrix(rnorm(Kt * npc), Kt, npc) * 0.5
-	alpha_coefs = matrix(coef(glm(Y$value ~ 0 + Theta_phi, family = "gaussian")), Kt, 1)
+
+	nrows_basis = nrow(Theta_phi)
+	if (subsample && nrows_basis > 1000000) {
+	  if (verbose) {
+	    message("fpca_gauss: Running Sub-sampling")
+	  }       
+	  uids = unique(Y$id)
+	  nids = length(uids)
+	  avg_rows_per_id = nrows_basis / nids
+	  size = round(1000000 / avg_rows_per_id)
+	  if(nids > size){
+	    ids = sample(uids, size = size, replace = FALSE)
+	  } else {
+	    ids = uids  
+	  } 
+	  subsampling_index = which(Y$id %in% ids)      
+	  rm(uids,nids)
+	  rm(ids)
+	} else {
+	  subsampling_index = 1:nrows_basis
+	}
+	if (verbose) {
+	  message("fpca_gauss: running GLM")
+	}    
+	if (requireNamespace("fastglm", quietly = TRUE)) {
+	  glm_obj = fastglm::fastglm(y = Y$value[subsampling_index], x = Theta_phi[subsampling_index,], 
+	                             family = "gaussian", method=2)
+	} else {
+	  glm_obj = glm(Y$value[subsampling_index] ~ 0 + Theta_phi[subsampling_index,], family = "gaussian",
+	                control = list(trace = verbose > 0))
+	}
+	rm(subsampling_index)
+	if (verbose) {
+	  message("fpca_gauss: GLM finished")
+	}    
+	alpha_coefs = coef(glm_obj)
+	alpha_coefs = matrix(alpha_coefs, Kt, 1)
+	
   sigma2      = 1
   
   temp_alpha_coefs = alpha_coefs
