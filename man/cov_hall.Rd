@@ -33,8 +33,9 @@ Defaults to \code{"gaussian"}.}
 \item{diag_epsilon}{Small constant to which diagonal elements of the
 covariance matrix are set if they are smaller. Defaults to 0.01.}
 
-\item{make_pd}{ensure positive (semi-)definiteness of returned latent 
-covariance via [Matrix::near_PD()]?}
+\item{make_pd}{Indicator if positive (semi-)definiteness of the returned
+latent covariance should be ensured via \code{Matrix::near_PD()}. Defaults to
+TRUE.}
 }
 \value{
 Covariance matrix with dimension \code{time_evalGrid x time_evalGrid}.

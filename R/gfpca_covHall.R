@@ -22,8 +22,9 @@
 #' covariance surface. Defaults to 8.
 #' @param diag_epsilon Small constant to which diagonal elements of the
 #' covariance matrix are set if they are smaller. Defaults to 0.01.
-#' @param make_pd ensure positive (semi-)definiteness of returned latent 
-#' covariance via [Matrix::near_PD()]?
+#' @param make_pd Indicator if positive (semi-)definiteness of the returned
+#' latent covariance should be ensured via \code{Matrix::near_PD()}. Defaults to
+#' TRUE.
 #' @inheritParams gfpca_twoStep
 #' 
 #' @return Covariance matrix with dimension \code{time_evalGrid x time_evalGrid}.
@@ -124,7 +125,15 @@ cov_hall = function(Y, index_evalGrid, Kt = 25, Kc = 8, family = "gaussian",
   Zi.cov_sm
 }
 
-# this is faster for highly irregular grids (index values are mostly unique)
+
+#' Crossproduct computation for highly irregular grids
+#' 
+#' Compute the crossproduct in a fast way for highly irregular grids
+#' (index values are mostly unique).
+#' Only used internally in \code{cov_hall()}.
+#' 
+#' @param Y Dataframe with the centered observations.
+#' Should have values id, centered, index.
 crossprods_irregular = function(Y) {
   Y_crossprods = select(Y, .data$id, .data$index, .data$centered) %>% 
     nest(data = c(.data$index, .data$centered)) %>% 
@@ -139,7 +148,14 @@ crossprods_irregular = function(Y) {
     filter(.data$i1 != .data$i2)
 }
 
-# this is faster for mostly regular grids (index values are mostly *not* unique)
+
+#' Crossproduct computation for mostly regular grids
+#' 
+#' Compute the crossproduct in a fast way for mostly regular grids
+#' (index values are mostly *not* unique).
+#' Only used internally in \code{cov_hall()}.
+#' 
+#' @inheritParams crossprods_irregular
 crossprods_regular = function(Y) {
   ids  = as.character(unique(Y$id))
   grid = sort(unique(Y$index))
