@@ -10,8 +10,8 @@
 #' only the case for FPCA objects created with \code{\link{gfpca_twoStep}}.
 #' 
 #' @param x Object of class \code{"fpca"}.
-#' @param plot_npc Optional number of the main FPCs to be plotted. Defaults to
-#' all FPCs contained in \code{x}.
+#' @param plot_FPCs Optional index vector of the FPCs to be plotted.
+#' Defaults to all FPCs contained in \code{x}.
 #' @param var_factor Numeric factor with which the FPC's are multiplied
 #' to display their variation in the plots. Defaults to 2, but can be set to
 #' 2 times the standard deviation of the obtained FPC scores.
@@ -25,12 +25,12 @@
 #' @param xlab,ylab Optional titles for the x and y axis.
 #' @param ... Additional arguments passed to \code{\link[ggplot2]{theme}}.
 #' 
-#' @import ggplot2
-#' @importFrom cowplot plot_grid
 #' @importFrom dplyr bind_rows
 #' @export
 #' 
-#' @return Grid of \code{ggplot} plots, created with \code{cowplot::plot_grid}.
+#' @return @return If multiple FPCs are plotted, returns a grid of \code{ggplot}
+#' plots, created with \code{cowplot::plot_grid}. If only one FPC is plotted,
+#' returns a single \code{ggplot} plot.
 #' 
 #' @author Alexander Bauer \email{alexander.bauer@@stat.uni-muenchen.de}
 #' 
@@ -38,13 +38,22 @@
 #' data(growth_incomplete)
 #' 
 #' fpca_obj = fpca_gauss(Y = growth_incomplete, npc = 2)
+#' if (requireNamespace("ggplot2", quietly = TRUE) &&
+#' requireNamespace("cowplot", quietly = TRUE)) {
+#' library(ggplot2)
 #' plot(fpca_obj)
+#' }
 #' 
-plot.fpca = function(x, plot_npc = x$npc, var_factor = 2,
+plot.fpca = function(x, plot_FPCs = 1:x$npc, var_factor = 2,
                      response_function = NULL,
                      subtitle = TRUE, xlim = NULL, ylim = NULL,
                      xlab = "t [registered]", ylab = "y", ...) {
-  
+  id = NULL
+  rm(list="id")
+  if (!requireNamespace("ggplot2", quietly = TRUE) || 
+      !requireNamespace("cowplot", quietly = TRUE)) {
+    stop("ggplot2 and cowplot are required for plot.fpca function")
+  }
   # some NULL variable definitions to appease CRAN package checks regarding the use of ggplot2
   fpc_value = type = value = NULL
   
@@ -75,13 +84,13 @@ plot.fpca = function(x, plot_npc = x$npc, var_factor = 2,
   }
   
   # create a list with one ggplot object per principal components
-  plotDat_list = lapply(1:plot_npc, function(i) {
+  plotDat_list = lapply(plot_FPCs, function(i) {
     # dataset with mean +/- <var_factor>*FPC
     plot_dat = fpc_dat %>%
-      filter(id == i) %>%
-      arrange(t) %>%
+      dplyr::filter(id == i) %>%
+      dplyr::arrange(t) %>%
       dplyr::left_join(mean_dat, by = "t") %>%
-      mutate(mean_plusFPC  = response_function(mean + var_factor*fpc_value),
+      dplyr::mutate(mean_plusFPC  = response_function(mean + var_factor*fpc_value),
              mean_minusFPC = response_function(mean - var_factor*fpc_value))
     plot_dat = data.frame(id    = unique(plot_dat$id),
                           t     = rep(plot_dat$t, times = 3),
@@ -93,43 +102,57 @@ plot.fpca = function(x, plot_npc = x$npc, var_factor = 2,
                                        paste0("mean - ",var_factor,"*FPC")), 
                                      each = nrow(plot_dat)),
                           stringsAsFactors = FALSE) %>%
-      mutate(type = factor(type, levels = c("mean curve",
+      dplyr::mutate(type = factor(type, levels = c("mean curve",
                                             paste0("mean + ",var_factor,"*FPC"),
-                                              paste0("mean - ",var_factor,"*FPC"))))
+                                            paste0("mean - ",var_factor,"*FPC"))))
   })
   
   if (is.null(xlim))
-    xlim = dplyr::bind_rows(plotDat_list) %>% pull(t) %>% range()
+    xlim = dplyr::bind_rows(plotDat_list) %>% 
+    dplyr::pull(t) %>% 
+    range()
   if (is.null(ylim))
-    ylim = dplyr::bind_rows(plotDat_list) %>% pull(value) %>% range()
+    ylim = dplyr::bind_rows(plotDat_list) %>% 
+    dplyr::pull(value) %>% 
+    range()
   
   # create list with one plot per FPC
-  plot_list = lapply(1:plot_npc, function(i) {
+  plot_list = lapply(plot_FPCs, function(i) {
+    
+    fpc_index <- match(i, plot_FPCs)
     
     # plot '+' and '-' symbols along the curves
     n_symbols = 4 # only plot the symbols this many times along each line
-    t_symbols = unique(plotDat_list[[i]]$t)[round(seq(1, length(unique(plotDat_list[[i]]$t)), 
-                                                      length.out = n_symbols))]
-    symbol_dat      = plotDat_list[[i]] %>% filter(t %in% t_symbols)
+    t_symbols = unique(plotDat_list[[fpc_index]]$t)[round(seq(1, length(unique(plotDat_list[[fpc_index]]$t)), 
+                                                              length.out = n_symbols))]
+    symbol_dat      = plotDat_list[[fpc_index]] %>% filter(t %in% t_symbols)
     symbolPlus_dat  = symbol_dat %>% filter(type == paste0("mean + ",var_factor,"*FPC"))
     symbolMinus_dat = symbol_dat %>% filter(type == paste0("mean - ",var_factor,"*FPC"))
     
     # plot
-    ggplot(mapping = aes(x = t, y = value, col = type, lty = type)) +
-      geom_line(data = plotDat_list[[i]]) +
-      scale_color_manual(values = c("black", "gray70", "gray60")) +
-      scale_linetype_manual(values = c(1, 2, 3)) +
-      geom_text(data = symbolPlus_dat,  label = "+", size = 7, col = "gray40") +
-      geom_text(data = symbolMinus_dat, label = "-", size = 7, col = "gray40") +
-      xlim(xlim) + ylim(ylim) + xlab(xlab) + ylab(ylab) +
-      ggtitle(paste0("FPC ", i, ifelse(!is.null(x$evalues_sum), ev_info[i], ""),
-                     ifelse(subtitle, paste0("\n(mean +/- ",var_factor,"*FPC)"), ""))) +
-      theme(legend.position  = "none",
-            panel.grid.minor = element_blank(),
-            plot.title       = element_text(hjust = 0.5),
-            ...)
+    
+    ggplot2::ggplot(mapping = ggplot2::aes(x = t, y = value, col = type, lty = type)) +
+      ggplot2::geom_line(data = plotDat_list[[fpc_index]]) +
+      ggplot2::scale_color_manual(values = c("black", "gray70", "gray60")) +
+      ggplot2::scale_linetype_manual(values = c(1, 2, 3)) +
+      ggplot2::geom_text(data = symbolPlus_dat,  label = "+", size = 7, col = "gray40") +
+      ggplot2::geom_text(data = symbolMinus_dat, label = "-", size = 7, col = "gray40") +
+      ggplot2::xlim(xlim) + 
+      ggplot2::ylim(ylim) + 
+      ggplot2::xlab(xlab) + 
+      ggplot2::ylab(ylab) +
+      ggplot2::ggtitle(paste0("FPC ", i, ifelse(!is.null(x$evalues_sum), ev_info[i], ""),
+                              ifelse(subtitle, paste0("\n(mean +/- ",var_factor,"*FPC)"), ""))) +
+      ggplot2::theme(legend.position  = "none",
+                     panel.grid.minor = ggplot2::element_blank(),
+                     plot.title       = ggplot2::element_text(hjust = 0.5),
+                     ...)
   })
   
   # plot grid
-  cowplot::plot_grid(plotlist = plot_list, align = T)
+  if (length(plot_list) > 1) { # multiple FPCs are plotted
+    cowplot::plot_grid(plotlist = plot_list, align = T)
+  } else { # only one FPC is plotted
+    plot_list[[1]]
+  }
 }

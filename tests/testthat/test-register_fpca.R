@@ -8,9 +8,11 @@ test_that("code only accepts supported family of distributions", {
 	register_fpca(Y, family = "gaussian", max_iterations = 5)
 								 
 	Y$value = Y$value + 1 # make y values strictly positive for gamma and poisson family
-	expect_warning(register_fpca(Y, family = "gamma", max_iterations = 2, fpca_index_significantDigits = 2),
+	expect_warning(register_fpca(Y, family = "gamma", fpca_type = "two-step", gradient = FALSE,
+	                             max_iterations = 1, fpca_index_significantDigits = 2),
 								 "Convergence not reached. Try increasing max_iterations.")
-	expect_warning(register_fpca(Y, family = "poisson", max_iterations = 2, fpca_index_significantDigits = 2),
+	expect_warning(register_fpca(Y, family = "poisson", fpca_type = "two-step", gradient = FALSE,
+	                             max_iterations = 1, fpca_index_significantDigits = 2),
 								 "Convergence not reached. Try increasing max_iterations.")
 	
 	expect_error(register_fpca(Y, family = "exponential"),
@@ -22,7 +24,9 @@ test_that("code only accepts supported family of distributions", {
 test_that("registering binary data throws no errors",{
 	Y = simulate_unregistered_curves(seed = 10001)
 	register_fpca(Y, family = "binomial", fpca_type = "variationalEM", max_iterations = 2)
-	register_fpca(Y, family = "binomial", fpca_type = "two-step", max_iterations = 2)
+	expect_warning(register_fpca(Y, family = "binomial", fpca_type = "two-step",
+	                             max_iterations = 1, fpca_index_significantDigits = 2),
+	               "Convergence not reached. Try increasing max_iterations.")
 	
 	dat = Y$index
 	expect_error(register_fpca(dat, family = "binomial"), 
@@ -39,21 +43,25 @@ test_that("registering gaussian data throws no errors",{
 test_that("registering gamma data throws no errors",{
 	Y       = simulate_unregistered_curves(seed = 10001)
 	Y$value = Y$value + 1 # make y values strictly positive for gamma family
-	expect_warning(register_fpca(Y, family = "gamma", max_iterations = 2, fpca_index_significantDigits = 2),
+	expect_warning(register_fpca(Y, family = "gamma", fpca_type = "two-step", gradient = FALSE,
+	                             max_iterations = 1, fpca_index_significantDigits = 2),
 								 "Convergence not reached. Try increasing max_iterations.")
 })
 
 test_that("registering poisson data throws no errors",{
 	Y       = simulate_unregistered_curves(seed = 10001)
 	Y$value = Y$value + 1 # make y values nonnegative for poisson family
-	expect_warning(register_fpca(Y, family = "poisson", max_iterations = 2, fpca_index_significantDigits = 2),
+	expect_warning(register_fpca(Y, family = "poisson", fpca_type = "two-step", gradient = FALSE,
+	                             max_iterations = 1, fpca_index_significantDigits = 2),
 								 "Convergence not reached. Try increasing max_iterations.")
 })
 
 test_that("register_fpca output is a list with non-null items and class registration",{
 	Y = simulate_unregistered_curves(seed = 1001)
 	registr_object1 = register_fpca(Y, family = "binomial", fpca_type = "variationalEM", max_iterations = 2)
-	registr_object2 = register_fpca(Y, family = "binomial", fpca_type = "two-step", max_iterations = 2)
+	expect_warning({
+	  registr_object2 = register_fpca(Y, family = "binomial", fpca_type = "two-step", max_iterations = 1, fpca_index_significantDigits = 2)
+	}, "Convergence not reached. Try increasing max_iterations.")
 	
 	expect_equal(class(registr_object1), "registration")
 	expect_equal(class(registr_object2), "registration")
@@ -71,15 +79,15 @@ test_that("register_fpca function forces gradient = FALSE in some situations",{
 	data    = data_clean(Y)
 	Y       = data$Y
 	
-	expect_warning(register_fpca(Y, family = "binomial", warping = "piecewise_linear2", gradient = TRUE, max_iterations = 2), 
+	expect_warning(register_fpca(Y, family = "binomial", warping = "piecewise_linear2", gradient = TRUE, max_iterations = 1), 
 								 "gradient = TRUE is only available for warping = nonparametric. Setting gradient = FALSE.")
-	expect_warning(register_fpca(Y, family = "binomial", periodic = TRUE, gradient = TRUE, max_iterations = 2), 
+	expect_warning(register_fpca(Y, family = "binomial", periodic = TRUE, gradient = TRUE, max_iterations = 1), 
 								 "gradient = TRUE is only available for periodic = FALSE. Setting gradient = FALSE.")
 	
 	Y$value = Y$value + 1 # make y values strictly positive for gamma and poisson family
-	expect_warning(register_fpca(Y, family = "gamma", max_iterations = 2, fpca_index_significantDigits = 2), 
+	expect_warning(register_fpca(Y, family = "gamma", fpca_type = "two-step", gradient = TRUE, max_iterations = 1, fpca_index_significantDigits = 2), 
 								 "gradient = TRUE is only available for families 'gaussian' and 'binomial'. Setting gradient = FALSE.")
-	expect_warning(register_fpca(Y, family = "poisson", max_iterations = 2, fpca_index_significantDigits = 2), 
+	expect_warning(register_fpca(Y, family = "poisson", fpca_type = "two-step", gradient = TRUE, max_iterations = 1, fpca_index_significantDigits = 2), 
 								 "gradient = TRUE is only available for families 'gaussian' and 'binomial'. Setting gradient = FALSE.")
 })
 
@@ -87,9 +95,11 @@ test_that("register_fpca function forces fpca_type = 'two-step' for families oth
 	Y = registr::growth_incomplete
 	Y$value = Y$value + 1 # make y values strictly positive for gamma and poisson family
 	
-	expect_warning(register_fpca(Y, family = "gamma", fpca_type = "variationalEM", max_iterations = 2, fpca_index_significantDigits = 2),
+	expect_warning(register_fpca(Y, family = "gamma", fpca_type = "variationalEM", gradient = FALSE,
+	                             max_iterations = 1, fpca_index_significantDigits = 2),
 								 "fpca_type = 'variationalEM' is only available for families 'gaussian' and 'binomial'. Setting fpca_type = 'two-step'.")
-	expect_warning(register_fpca(Y, family = "poisson", fpca_type = "variationalEM", max_iterations = 2, fpca_index_significantDigits = 2),
+	expect_warning(register_fpca(Y, family = "poisson", fpca_type = "variationalEM", gradient = FALSE,
+	                             max_iterations = 1, fpca_index_significantDigits = 2),
 								 "fpca_type = 'variationalEM' is only available for families 'gaussian' and 'binomial'. Setting fpca_type = 'two-step'.")
 })
 
@@ -140,9 +150,18 @@ test_that("register_fpca for binary data with parametric warping functions and/o
 	data = data_clean(Y)
 	Y = data$Y
 	
-	expect_error(register_fpca(Y, family = "binomial", periodic = TRUE,  warping = "nonparametric",     gradient = FALSE), NA)
-	expect_error(register_fpca(Y, family = "binomial", periodic = FALSE, warping = "piecewise_linear2", gradient = FALSE), NA)
-	expect_error(register_fpca(Y, family = "binomial", periodic = TRUE,  warping = "piecewise_linear2", gradient = FALSE), NA)
+	expect_error({
+	  expect_warning({
+	    register_fpca(Y, family = "binomial", periodic = TRUE,  warping = "nonparametric",     gradient = FALSE, max_iterations = 1)
+	  }, "Convergence not reached. Try increasing max_iterations.")}, NA)
+	expect_error({
+	  expect_warning({
+	    expect_error(register_fpca(Y, family = "binomial", periodic = FALSE, warping = "piecewise_linear2", gradient = FALSE, max_iterations = 1), NA)
+	  }, "Convergence not reached. Try increasing max_iterations.")}, NA)
+	expect_error({
+	  expect_warning({
+	    expect_error(register_fpca(Y, family = "binomial", periodic = TRUE,  warping = "piecewise_linear2", gradient = FALSE, max_iterations = 1), NA)
+	  }, "Convergence not reached. Try increasing max_iterations.")}, NA)
 })
 
 test_that("register_fpca with incompleteness = NULL leads to starting points and endpoints on the diagonal",{
@@ -207,7 +226,7 @@ test_that("register_fpca for gamma data throws no error",{
 	Y$value = Y$value + 1 # make y values strictly positive for gamma family
 	
 	expect_warning({
-		reg = register_fpca(Y, family = "gamma",fpca_type = "two-step", max_iterations = 2, fpca_index_significantDigits = 2, gradient = FALSE)
+		reg = register_fpca(Y, family = "gamma",fpca_type = "two-step", max_iterations = 1, fpca_index_significantDigits = 2, gradient = FALSE)
 	}, "Convergence not reached. Try increasing max_iterations.")
 	expect_identical(class(reg), "registration")
 })
@@ -217,7 +236,7 @@ test_that("register_fpca for poisson data throws no error",{
 	Y$value = Y$value + 1 # make y values nonnegative for poisson family
 	
 	expect_warning({
-		reg = register_fpca(Y, family = "poisson",fpca_type = "two-step", max_iterations = 2, fpca_index_significantDigits = 2, gradient = FALSE)
+		reg = register_fpca(Y, family = "poisson",fpca_type = "two-step", max_iterations = 1, fpca_index_significantDigits = 2, gradient = FALSE)
 	}, "Convergence not reached. Try increasing max_iterations.")
 	expect_identical(class(reg), "registration")
 })

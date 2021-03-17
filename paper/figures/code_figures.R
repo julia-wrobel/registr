@@ -35,7 +35,7 @@ gg1 <- ggplot(dat, aes(index, value, group = id)) +
 
 # run the joint approach --------------------------------------------------
 reg <- register_fpca(Y = dat, npc = 2, max_iterations = 100,
-										 incompleteness = "full", lambda_inc = 0.1)
+										 incompleteness = "full", lambda_inc = 0.01)
 
 # registered curves
 gg2 <- ggplot(reg$Y, aes(t_hat, value, group = id)) +
@@ -63,7 +63,7 @@ cowplot::plot_grid(gg1, gg2, gg3, nrow = 1, rel_widths = c(0.37, 0.3, 0.33)) +
 
 # estimated FPCs
 # (with added space to both sides, s.t. it renders nicely in markdown)
-ggf      <- plot(reg$fpca_obj, plot_npc = 2, ylab = "First derivative")
+ggf      <- plot(reg$fpca_obj, plot_FPCs = 2, ylab = "First derivative")
 gg_empty <- ggplot()
 cowplot::plot_grid(gg_empty, ggf, gg_empty, nrow = 1, rel_widths = c(.165,.67,.165)) +
 	ggsave("3_FPCA.png", width = 12, height = 3)

@@ -1,5 +1,6 @@
 *icloud
-.Rproj.user
+*.Rproj
+*.Rproj.user
 .Rhistory
 .RData
 inst/doc
@@ -9,3 +10,4 @@ src/*.so
 src/*.o
 src/*.o.tmp
 *.DS_Store
+.Rproj.user
