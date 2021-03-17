@@ -406,7 +406,7 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "gaussian", gr
     args$Y = r
     args$beta = attr(r, "beta")
     args$mean_coefs = attr(r, "mean_coefs")
-    args$verbose = verbose > 1
+    args$verbose = verbose
     do.call(registr_oneCurve, args = args)
   }
   if (cores == 1) { # serial call
