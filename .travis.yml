@@ -4,14 +4,20 @@ language: R
 sudo: false
 cache: packages
 
+env:
+ global:
+   - _R_CHECK_FORCE_SUGGESTS_: false
+
 r_packages:
   - covr
 
+# increase the timeout of travis to 30 minutes, s.t. it doesn't produce an error when
+# covr::codecov() takes longer than 10 minutes (the default timeout)
+# Source: https://docs.travis-ci.com/user/common-build-problems/#build-times-out-because-no-output-was-received
 after_success:
-  - Rscript -e 'covr::codecov()'
+  - travis_wait 30 Rscript -e 'covr::codecov()'
 
 matrix:
   include:
   - r: devel
   - r: release
-

@@ -206,7 +206,7 @@ register_fpca = function(Y, Kt = 8, Kh = 4, family = "gaussian",
   											 lambda_inc     = lambda_inc,
   											 Y_template     = Y_template,
   											 row_obj = rows, cores = cores,
-  											 verbose = verbose > 1,
+  											 verbose = verbose,
   											 ...)
   index_warped[[2]] = registr_step$Y$index_scaled
   reg_loss[1]       = registr_step$loss
@@ -228,10 +228,10 @@ register_fpca = function(Y, Kt = 8, Kh = 4, family = "gaussian",
   	if (fpca_type == "variationalEM") { # GFPCA after Wrobel et al. (2019)
   		if (family == "binomial") {
   			fpca_step = bfpca(registr_step$Y, npc = npc, Kt = Kt, row_obj = rows, seed = fpca_seed, maxiter = fpca_maxiter, 
-  												error_thresh = fpca_error_thresh, verbose = verbose > 1, ...)
+  												error_thresh = fpca_error_thresh, verbose = verbose, ...)
   		} else if (family == "gaussian") {
   			fpca_step = fpca_gauss(registr_step$Y, npc = npc, Kt = Kt, row_obj = rows, seed = fpca_seed, maxiter = fpca_maxiter,
-  														 error_thresh = fpca_error_thresh,  verbose = verbose > 1, ...)
+  														 error_thresh = fpca_error_thresh,  verbose = verbose, ...)
   		}
   		
   	} else if (fpca_type == "two-step") { # Two-step GFPCA after Gertheiss et al. (2017)
@@ -259,7 +259,7 @@ register_fpca = function(Y, Kt = 8, Kh = 4, family = "gaussian",
   												 row_obj        = rows,
   												 beta           = registr_step$hinv_beta,
   												 cores          = cores,
-  												 verbose = verbose > 1,
+  												 verbose        = verbose,
   												 ...)
   	
   	index_warped[[iter + 2]] = registr_step$Y$index_scaled
@@ -286,10 +286,10 @@ register_fpca = function(Y, Kt = 8, Kh = 4, family = "gaussian",
   if (fpca_type == "variationalEM") { # GFPCA after Wrobel et al. (2019)
   	if (family == "binomial") {
   		fpca_step = bfpca(registr_step$Y, npc = npc, Kt = Kt, row_obj = rows, seed = fpca_seed, maxiter = fpca_maxiter, 
-  											error_thresh = fpca_error_thresh, ...)
+  											error_thresh = fpca_error_thresh, verbose = verbose, ...)
   	} else if (family == "gaussian") {
   		fpca_step = fpca_gauss(registr_step$Y, npc = npc, Kt = Kt, row_obj = rows, seed = fpca_seed, maxiter = fpca_maxiter, 
-  													 error_thresh = fpca_error_thresh, ...)
+  													 error_thresh = fpca_error_thresh, verbose = verbose, ...)
   	}
   	
   } else if (fpca_type == "two-step") { # Two-step GFPCA after Gertheiss et al. (2017)
