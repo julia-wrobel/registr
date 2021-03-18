@@ -4,6 +4,11 @@ language: R
 sudo: false
 cache: packages
 
+# increase the timeout of travis to 30 minutes, s.t. it doesn't produce an error when
+# the tests or covr::codecov() take longer than 10 minutes (the default timeout)
+# Source: https://docs.travis-ci.com/user/common-build-problems/#build-times-out-because-no-output-was-received
+install: travis_wait 30 mvn install
+
 env:
  global:
    - _R_CHECK_FORCE_SUGGESTS_: false
