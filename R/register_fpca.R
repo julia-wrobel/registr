@@ -171,7 +171,7 @@ register_fpca = function(Y, Kt = 8, Kh = 4, family = "gaussian",
 												 fpca_type = "variationalEM", fpca_maxiter = 50,
 												 fpca_seed = 1988, fpca_error_thresh = 0.0001,
 												 fpca_index_significantDigits = 4L, cores = 1L, 
-												 verbose = TRUE, 
+												 verbose = FALSE, 
 												 ...){
 	
   index = NULL

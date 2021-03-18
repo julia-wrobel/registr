@@ -16,7 +16,7 @@ bfpca(
   seed = 1988,
   periodic = FALSE,
   error_thresh = 1e-04,
-  verbose = TRUE,
+  verbose = FALSE,
   subsample = TRUE,
   ...
 )
@@ -45,7 +45,7 @@ Keep this NULL if you are using standalone \code{register} function.}
 
 \item{error_thresh}{Error threshold to end iterations. Defaults to 0.0001.}
 
-\item{verbose}{print diagnostic messages.}
+\item{verbose}{If TRUE, prints diagnostic messages. Defaults to FALSE.}
 
 \item{subsample}{if the number of rows of the data is greater than 
 10 million rows, the `id` values are subsampled to get the mean coefficients.}

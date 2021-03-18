@@ -20,7 +20,7 @@ register_fpca(
   fpca_error_thresh = 1e-04,
   fpca_index_significantDigits = 4L,
   cores = 1L,
-  verbose = TRUE,
+  verbose = FALSE,
   ...
 )
 }
@@ -85,7 +85,7 @@ call is parallelized by using \code{parallel::mclapply} (for Unix-based
 systems) or \code{parallel::parLapply} (for Windows). Defaults to 1,
 no parallelized call.}
 
-\item{verbose}{print diagnostic messages.}
+\item{verbose}{If \code{TRUE}, prints diagnostic messages. Defaults to \code{FALSE}}
 
 \item{...}{Additional arguments passed to registr and to the gfpca functions
 (if \code{fpca_type = "variationalEM"}).}
