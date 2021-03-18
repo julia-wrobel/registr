@@ -4,7 +4,7 @@ registr_helper = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "gaussi
                           beta = NULL, t_min = NULL, t_max = NULL, row_obj = NULL,
                           periodic = FALSE, warping = "nonparametric",
                           gamma_scales = NULL, cores = 1L,  subsample = TRUE,
-                          verbose = TRUE,
+                          verbose = FALSE,
                           ...){ 
   if (!is.null(incompleteness)) {
     if (warping != "nonparametric") {
@@ -261,7 +261,7 @@ registr_helper = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "gaussi
 #' call is parallelized by using \code{parallel::mclapply} (for Unix-based
 #' systems) or \code{parallel::parLapply} (for Windows). Defaults to 1,
 #' no parallelized call.
-#' @param verbose print diagnostic messages.
+#' @param verbose If \code{TRUE}, prints diagnostic messages. Defaults to \code{FALSE}
 #' @param ... additional arguments passed to or from other functions
 #' @param subsample if the number of rows of the data is greater than 
 #' 10 million rows, the `id` values are subsampled to get the mean coefficients.
@@ -364,7 +364,7 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "gaussian", gr
                    beta = NULL, t_min = NULL, t_max = NULL, row_obj = NULL,
                    periodic = FALSE, warping = "nonparametric",
                    gamma_scales = NULL, cores = 1L,  subsample = TRUE,
-                   verbose = TRUE,
+                   verbose = FALSE,
                    ...){
   
   
@@ -519,7 +519,7 @@ registr_oneCurve = function(
   global_knots = NULL,
   mean_coefs = NULL,
   ...,
-  verbose = TRUE,
+  verbose = FALSE,
   just_return_list = FALSE) {
   
   t_range_i     = range(Y$tstar)

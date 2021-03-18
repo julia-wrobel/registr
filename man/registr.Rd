@@ -24,7 +24,7 @@ registr(
   gamma_scales = NULL,
   cores = 1L,
   subsample = TRUE,
-  verbose = TRUE,
+  verbose = FALSE,
   ...
 )
 }
@@ -92,7 +92,7 @@ no parallelized call.}
 \item{subsample}{if the number of rows of the data is greater than 
 10 million rows, the `id` values are subsampled to get the mean coefficients.}
 
-\item{verbose}{print diagnostic messages.}
+\item{verbose}{If \code{TRUE}, prints diagnostic messages. Defaults to \code{FALSE}}
 
 \item{...}{additional arguments passed to or from other functions}
 }
