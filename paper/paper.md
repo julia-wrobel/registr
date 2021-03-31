@@ -46,8 +46,8 @@ Moreover, most registration approaches are only applicable to completely observe
 comprise the underlying process from its very start to its very end.
 
 Basic routines for registering (Gaussian) data are implemented in R package
-[@R_fda]. Performing joint registration and clustering is possible with [@R_fdakma].
-The popular square-root velocity function (SRVF) framework for curve registration is implemented in [@R_fdasrvf]
+@R_fda. Performing joint registration and clustering is possible with @R_fdakma.
+The popular square-root velocity function (SRVF) framework for curve registration is implemented in @R_fdasrvf
 for completely observed curves on a regular grid. Similar to our approach the package
 allows for registering all curves to similar shapes which can be well represented
 by some low-rank basis.
