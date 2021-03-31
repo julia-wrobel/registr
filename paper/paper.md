@@ -39,11 +39,18 @@ can also be shifted for some months / years for individual subjects (i.e., _phas
 Observed curves often have to be preprocessed with a _registration method_ in
 order to separate phase and amplitude variation before analysis.
 
-Most registration methods can only handle continuous data or data with a gaussian
-structure. However, functional data are often non-gaussian or even categorical.
+Most registration methods can only handle continuous data or data with a Gaussian
+structure. However, functional data are often non-Gaussian or even categorical.
 E.g., function values could be binary indicators representing physical (in)activity of patients over time [@wrobel2019].
 Moreover, most registration approaches are only applicable to completely observed curves that
 comprise the underlying process from its very start to its very end.
+
+Basic routines for registering (Gaussian) data are implemented in R package
+[@R_fda]. Performing joint registration and clustering is possible with [@R_fdakma].
+The popular square-root velocity function (SRVF) framework for curve registration is implemented in [@R_fdasrvf]
+for completely observed curves on a regular grid. Similar to our approach the package
+allows for registering all curves to similar shapes which can be well represented
+by some low-rank basis.
 
 # Exponential Family-based Registration
 
@@ -72,7 +79,7 @@ approach for generalized functional principal component analysis (GFPCA).
 The overall model is estimated with function `register_fpca()`, which iterates 
 between the estimation of warping
 functions (implemented in function `registr()`)
-and GFPCA estimation (functions `fpca_gauss()` or `bfpca()` for gaussian or binomial data, respectively).
+and GFPCA estimation (functions `fpca_gauss()` or `bfpca()` for Gaussian or binomial data, respectively).
 This approach is consistent with earlier versions of the `registr` package [compare @wrobel2018].
 
 In version 2.0, the package now includes the _two-step GFPCA_ approach
