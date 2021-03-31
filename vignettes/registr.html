@@ -12,7 +12,7 @@
 
 <meta name="author" content="Julia Wrobel, Alexander Bauer and Erin McDonnell" />
 
-<meta name="date" content="2021-03-17" />
+<meta name="date" content="2021-03-31" />
 
 <title>registr: a vignette</title>
 
@@ -155,7 +155,7 @@ div.csl-indent {
 
 <h1 class="title toc-ignore">registr: a vignette</h1>
 <h4 class="author">Julia Wrobel, Alexander Bauer and Erin McDonnell</h4>
-<h4 class="date">2021-03-17</h4>
+<h4 class="date">2021-03-31</h4>
 
 
 <div id="TOC">
@@ -234,7 +234,7 @@ g\left[\mu_i(t)\right]&amp;=&amp; \alpha(t) + \sum_{k = 1}^K c_{ik}\psi_k(t).
 </div>
 <div id="the-registr-package" class="section level1" number="2">
 <h1 number="2"><span class="header-section-number">2</span> The <code>registr</code> package</h1>
-<p>The main function in the package is <code>register_fpca()</code>. It calls two sub-functions: a GFPCA function to implement <strong>step 1</strong> of the iterative algorithm, and <code>registr()</code>, a function to implement <strong>step 2</strong> of the algorithm. The function that calculates GFPCA can either be based on the variational EM approach outlined in <span class="citation">Wrobel et al. (2019)</span> or the two-step method outlined in <span class="citation">Gertheiss, Goldsmith, and Staicu (2017)</span>. In the former case, the called function depends on the family. For <code>family = &quot;binomial&quot;</code> and <code>family = &quot;gaussian&quot;</code> the functions <code>bfpca()</code> and <code>fpca_gauss()</code> are called for the GFPCA step, respectively. In the latter case, function <code>gfpca_twoStep()</code> is called, which also supports families <code>&quot;gamma&quot;</code> and <code>&quot;poisson&quot;</code>. The <code>register_fpca()</code> function iterates between the alignment and template calculation steps until curves are registered.</p>
+<p>The main function in the package is <code>register_fpca()</code>. It calls two sub-functions: a GFPCA function to implement <strong>step 1</strong> of the iterative algorithm, and <code>registr()</code>, a function to implement <strong>step 2</strong> of the algorithm. The function that calculates GFPCA can either be based on the variational EM approach outlined in <span class="citation">Wrobel et al. (2019)</span> or the two-step method outlined in <span class="citation">Gertheiss, Goldsmith, and Staicu (2017)</span>. In the former case, the called function depends on the family. For <code>family = &quot;gaussian&quot;</code> (for continuous data) and <code>family = &quot;binomial&quot;</code> (for binary data) the functions <code>bfpca()</code> and <code>fpca_gauss()</code> are called for the GFPCA step, respectively. In the latter case, function <code>gfpca_twoStep()</code> is called, which also supports families <code>&quot;gamma&quot;</code> (for strictly positive data where the variance depends on the mean) and <code>&quot;poisson&quot;</code> (for nonnegative count data). The <code>register_fpca()</code> function iterates between the alignment and template calculation steps until curves are registered.</p>
 <div id="a-note-on-data-formatting" class="section level2" number="2.1">
 <h2 number="2.1"><span class="header-section-number">2.1</span> A note on data formatting</h2>
 <p>Use of this package requires that data be in a specific format: a long-form data frame with variables <code>id</code>, <code>index</code>, and <code>value</code>, where the <code>value</code> column contains functional observations for all subjects, the <code>id</code> column identifies which observations belong to which subject, and <code>index</code> provides the grid (domain) over which the <code>value</code>s are observed.</p>
@@ -287,7 +287,7 @@ g\left[\mu_i(t)\right]&amp;=&amp; \alpha(t) + \sum_{k = 1}^K c_{ik}\psi_k(t).
 </div>
 <div id="joint-registration-and-gfpca-using-register_fpca" class="section level1" number="4">
 <h1 number="4"><span class="header-section-number">4</span> Joint registration and GFPCA using <code>register_fpca()</code></h1>
-<p><code>register_fpca()</code> is the main function for the <code>registr</code> package. Use the <code>family</code> argument to this function to specify what type of exponential family data you would like to align. The package supports <code>family = &quot;gaussian&quot;</code> for registering continuous data, <code>family = &quot;binomial&quot;</code> for registering binary data, <code>family = &quot;gamma&quot;</code> for strictly positive data with a Gamma structure and <code>family = &quot;poisson&quot;</code> for nonnegative data with a Poisson structure. The type of GFPCA is specified by the argument <code>fpca_type</code>, either calling the variational EM approach of <span class="citation">Wrobel et al. (2019)</span> (<code>fpca_type = &quot;variationalEM</code>; default) or the two-step approach of <span class="citation">Gertheiss, Goldsmith, and Staicu (2017)</span> (<code>fpca_type = &quot;two-step&quot;</code>).</p>
+<p><code>register_fpca()</code> is the main function for the <code>registr</code> package. Use the <code>family</code> argument to this function to specify what type of exponential family data you would like to align. The package supports <code>family = &quot;gaussian&quot;</code> for registering continuous data, <code>family = &quot;binomial&quot;</code> for registering binary data, <code>family = &quot;gamma&quot;</code> for strictly positive data where the variance depends on the mean and <code>family = &quot;poisson&quot;</code> for nonnegative count data. The type of GFPCA is specified by the argument <code>fpca_type</code>, either calling the variational EM approach of <span class="citation">Wrobel et al. (2019)</span> (<code>fpca_type = &quot;variationalEM</code>; default) or the two-step approach of <span class="citation">Gertheiss, Goldsmith, and Staicu (2017)</span> (<code>fpca_type = &quot;two-step&quot;</code>).</p>
 <div id="analyzing-binary-data" class="section level2" number="4.1">
 <h2 number="4.1"><span class="header-section-number">4.1</span> Analyzing binary data</h2>
 <p>To register binary data use the following code:</p>
@@ -331,21 +331,22 @@ g\left[\mu_i(t)\right]&amp;=&amp; \alpha(t) + \sum_{k = 1}^K c_{ik}\psi_k(t).
 <div id="estimating-the-registration-using-registr" class="section level1" number="6">
 <h1 number="6"><span class="header-section-number">6</span> Estimating the registration using <code>registr()</code></h1>
 <p>The registration step of <code>register_fpca()</code> calls the <code>registr</code> function. Though registration is intended to be performed through the <code>register_fpca()</code> function <code>registr()</code> can work as a standalone function. <code>registr()</code> uses constrained maximization of an exponential family likelihood function to estimate functions that align curves.</p>
-<p>The default option <code>gradient = TRUE</code> implements an analytic gradient for this optimization problem. Selecting <code>gradient = FALSE</code> implements a numeric gradient which is less computationally efficient. This is illustrated in the code below.</p>
+<p>The default option <code>gradient = TRUE</code> uses an analytic gradient for this optimization problem (available for families <code>&quot;gaussian&quot;</code> and <code>&quot;binomial&quot;</code>). For families <code>&quot;gamma&quot;</code> and <code>&quot;poisson&quot;</code>, the gradient is computed numerically and thus less computationally efficient. The difference in computation time between <code>gradient = TRUE</code> and <code>gradient = FALSE</code> is illustrated in the code below, for <code>family = &quot;binomial&quot;</code>.</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>data_test_gradient <span class="ot">=</span> <span class="fu">simulate_unregistered_curves</span>(<span class="at">I =</span> <span class="dv">50</span>, <span class="at">D =</span> <span class="dv">100</span>, <span class="at">seed =</span> <span class="dv">2018</span>)</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>start_time <span class="ot">=</span> <span class="fu">Sys.time</span>()</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>start_time   <span class="ot">=</span> <span class="fu">Sys.time</span>()</span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>reg_analytic <span class="ot">=</span> <span class="fu">registr</span>(<span class="at">Y =</span> data_test_gradient, <span class="at">family =</span> <span class="st">&quot;binomial&quot;</span>, <span class="at">gradient =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>end_time <span class="ot">=</span> <span class="fu">Sys.time</span>()</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>end_time     <span class="ot">=</span> <span class="fu">Sys.time</span>()</span>
 <span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>analytic_gradient <span class="ot">=</span> <span class="fu">as.numeric</span>(<span class="fu">round</span>((end_time <span class="sc">-</span> start_time), <span class="dv">2</span>))</span>
 <span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>start_time <span class="ot">=</span> <span class="fu">Sys.time</span>()</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>start_time  <span class="ot">=</span> <span class="fu">Sys.time</span>()</span>
 <span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>reg_numeric <span class="ot">=</span> <span class="fu">registr</span>(<span class="at">Y =</span> data_test_gradient, <span class="at">family =</span> <span class="st">&quot;binomial&quot;</span>, <span class="at">gradient =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>end_time <span class="ot">=</span> <span class="fu">Sys.time</span>()</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>end_time    <span class="ot">=</span> <span class="fu">Sys.time</span>()</span>
 <span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>numeric_gradient <span class="ot">=</span> <span class="fu">as.numeric</span>(<span class="fu">round</span>((end_time <span class="sc">-</span> start_time), <span class="dv">2</span>))</span></code></pre></div>
-<p>On a dataset with just 50 subjects and 100 time points per subject, the <code>registr()</code> function runs in 0.73 seconds with an analytic gradient and 1.74 seconds with a numeric gradient. Since the <code>register_fpca()</code> algorithm is iterative and calls the <code>registr()</code> function several times, using an analytic derivative drastically increases the computational efficiency, especially if number of subjects in the dataset is large.</p>
+<p>In this example with just 50 subjects and 100 time points per subject, the <code>registr()</code> function runs in 0.71 seconds with an analytic gradient and 0.93 seconds with a numeric gradient. Since the <code>register_fpca()</code> algorithm is iterative and calls the <code>registr()</code> function several times, using an analytic derivative drastically increases the computational efficiency, especially if the number of subjects in the data is large.</p>
+<p>Running the above example with 1000 subjects and 500 time points yields computation times of 14.8 seconds (for the analytic gradient) and 28.9 (for the numeric gradient).</p>
 <p>The registration step can further be parallelized by using the <code>cores</code> argument.</p>
 </div>
 <div id="additional-features" class="section level1" number="7">
