@@ -155,15 +155,15 @@ registr_helper = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "gaussi
   
   ### Calculate warping functions  
   args = list(obj            = obj,            Y            = Y,
-                  Kt             = Kt,             Kh           = Kh,
-                  family         = family,         gradient     = gradient,
-                  incompleteness = incompleteness, lambda_inc   = lambda_inc,
-                  beta           = beta,           t_min        = t_min,
-                  t_max          = t_max,          rows         = rows,
-                  periodic       = periodic,       warping      = warping,
-                  global_knots   = global_knots,   mean_coefs   = mean_coefs,
-                  gamma_scales   = gamma_scales,
-                  ...)
+              Kt             = Kt,             Kh           = Kh,
+              family         = family,         gradient     = gradient,
+              incompleteness = incompleteness, lambda_inc   = lambda_inc,
+              beta           = beta,           t_min        = t_min,
+              t_max          = t_max,          rows         = rows,
+              periodic       = periodic,       warping      = warping,
+              global_knots   = global_knots,   mean_coefs   = mean_coefs,
+              gamma_scales   = gamma_scales,
+              ...)
 
   # main function call
   ids = Y$id
@@ -531,6 +531,8 @@ registr_oneCurve = function(
   rm(Y)
   D_i           = nrow(Y_i)
   
+  loss_h_family = family
+  
   # spline basis on the curve-specific time interval.
   # Pre-calculate the knots (for setting up the curve-specific Theta_h spline
   # bases in registr_oneCurve) similarly to splines::bs to make the final splines::bs call faster.
@@ -583,9 +585,17 @@ registr_oneCurve = function(
     
   } else { # template function = current GFPCA representation
     
-    if (all(!is.na(mean_coefs))) { # GFPCA based on fpca_gauss or bfpca
+    if (obj$fpca_type == "variationalEM") { # GFPCA based on fpca_gauss or bfpca
       # In this case, the FPCA is explicitly based on the spline basis 'mean_basis'
       mean_coefs_i = mean_coefs
+      
+      if (family %in% c("gamma","poisson")) {
+        # special family only for loss_h since the variationalEM FPCA for Gamma/Poisson data
+        # is performed with Gaussian family, which raises the need to handle
+        # some FPCA results in loss_h a little differently.
+        loss_h_family = paste0(family,"-varEM")
+      }
+      
     } else { # GFPCA based on gfpca_twoStep
       # In this case, the FPCA is not based on the spline basis 'mean_basis'.
       # Accordingly, smooth over the GFPCA representation of the i'th function
@@ -605,6 +615,7 @@ registr_oneCurve = function(
         mean_dat_i$value = exp(mean_dat_i$value)
         # set very small positive values to some lowest threshold to prevent numerical problems
         mean_dat_i$value[mean_dat_i$value > 0 & mean_dat_i$value < 1e-4] = 1e-4
+        
       } else {
         mean_family = "gaussian"
       }
@@ -694,7 +705,7 @@ registr_oneCurve = function(
                   Theta_h        = Theta_h_i,
                   mean_coefs     = mean_coefs_i, 
                   knots          = global_knots, 
-                  family         = family,
+                  family         = loss_h_family,
                   incompleteness = incompleteness,
                   lambda_inc     = lambda_inc,
                   t_min          = t_min,

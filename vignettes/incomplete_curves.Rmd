@@ -285,6 +285,54 @@ if (have_ggplot2) {
 }
 ```
 
+### Choosing an optimal `lambda_inc`
+
+As outlined, $\lambda$ should be set to the smallest value that prevents unrealistic
+distortions of the time domain. The intuition of what kinds of distortions are _unrealistic_
+has to be based on subject knowledge.
+
+In the above example we see that `lambda_inc = 0` leads to extreme compressions of
+the time domain, which can clearly be viewed as unrealistic.
+These compressions can for example be prevented by setting `lambda_inc = 0.025`.
+
+```{r application 4}
+reg4 = registr(Y = dat, family = "gaussian",
+							 incompleteness = "full", lambda_inc = .025)
+
+if (have_ggplot2) {
+  ggplot(reg4$Y, aes(x = tstar, y = index, group = id)) + 
+    geom_line(alpha = 0.2) +
+    xlab("t* [observed]") + ylab("t [registered]") +
+    ggtitle("Estimated warping functions")
+}
+```
+
+Underlying functional principal components can be estimated jointly to the
+registration by calling `register_fpca()` and visualizing them with
+`registr:::plot.fpca()`.
+
+```{r application 4 joint}
+reg4_joint = register_fpca(Y = dat, family = "gaussian",
+                           incompleteness = "full", lambda_inc = .025,
+                           npc = 4)
+```
+
+```{r application 4 joint spaghetti}
+if (have_ggplot2) {
+  ggplot(reg4_joint$Y, aes(x = t_hat, y = value, group = id)) +
+    geom_line(alpha = 0.3) +
+    xlab("t [registered]") + ylab("Derivative") +
+    ggtitle("Registered curves")
+}
+```
+
+```{r application 4 joint FPC plot, fig.height=6, fig.width=7}
+if (have_ggplot2) {
+  plot(reg4_joint$fpca_obj, var_factor = 10)
+}
+```
+
+
 # Constraint matrices for the optimization
 
 Warping functions are estimated using the function `constrOptim()`.

@@ -5,7 +5,10 @@
 #' @param mean_coefs spline coefficient vector for mean curve.
 #' @param knots knot locations for B-spline basis used to estimate mean and FPC basis function.
 #' @param beta.inner spline coefficient vector to be estimated for warping function h.
-#' @param family \code{gaussian} or \code{binomial}.
+#' @param family One of \code{c("gaussian","binomial","gamma","poisson")}.
+#' For internal purposes, can also be set to \code{"gamma-varEM"} and
+#' \code{"poisson-varEM"} if the preceding FPCA step in \code{register_fpca} was
+#' performed with \code{fpca_type = "variationalEM"} which uses Gaussian family.
 #' @param t_min,t_max minimum and maximum value to be evaluated on the time domain. 
 #' @param t_min_curve,t_max_curve minimum and maximum value of the observed time domain of the
 #' (potentially incomplete) curve.
@@ -49,7 +52,7 @@ loss_h = function(Y, Theta_h, mean_coefs, knots, beta.inner, family, t_min, t_ma
 		warning("prior_sd supplied but priors = FALSE. No priors included.")
 	}
 	
-	if (family == "gamma") { # the last element of beta.inner is the scale parameter
+	if (family %in% c("gamma","gamma-varEM")) { # the last element of beta.inner is the scale parameter
 		scale      = tail(beta.inner, 1)
 		beta.inner = beta.inner[1:(length(beta.inner) - 1)]
 		if (scale <= 0) # ensure a positive scale value
@@ -110,8 +113,12 @@ loss_h = function(Y, Theta_h, mean_coefs, knots, beta.inner, family, t_min, t_ma
     pi_h = plogis(g_mu_t)
     loss = -1 * sum(Y * log(pi_h) + (1 - Y) * log(1 - pi_h))
     
-  } else if (family == "gamma") {
-  	mu_t  = as.vector(exp(g_mu_t))
+  } else if (family %in% c("gamma","gamma-varEM")) {
+    mu_t <- if (family == "gamma") { as.vector(exp(g_mu_t)) } else { as.vector(g_mu_t) }
+    if (family == "gamma-varEM") { # ensure positive values
+      if (any(mu_t < 1e-8))
+        mu_t[mu_t < 1e-8] <- 1e-8
+    }
   	n     = length(Y)
   	alpha = mu_t * scale
   	loss  = -1 * (
@@ -120,9 +127,14 @@ loss_h = function(Y, Theta_h, mean_coefs, knots, beta.inner, family, t_min, t_ma
   			log(scale) * scale * sum(mu_t) -
   			sum(log(gamma(alpha)))
   	)
-  } else if (family == "poisson") {
-  	mu_t = as.vector(exp(g_mu_t))
-  	n    = length(Y)
+  } else if (family %in% c("poisson","poisson-varEM")) {
+    mu_t <- if (family == "poisson") { as.vector(exp(g_mu_t)) } else { as.vector(g_mu_t) }
+    if (family == "poisson-varEM") { # ensure positive values
+      if (any(mu_t < 1e-8))
+        mu_t[mu_t < 1e-8] <- 1e-8
+    }
+    
+    n    = length(Y)
   	loss = -1 * sum(Y * log(mu_t) - log(factorial(Y)) - mu_t)
   }
 

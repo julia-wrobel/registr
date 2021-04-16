@@ -94,7 +94,7 @@ The methods implemented in `registr` are described in more detail in this [paper
 
 # The `registr` package
 
-The main function in the package is `register_fpca()`. It calls two sub-functions: a GFPCA function to implement **step 1** of the iterative algorithm, and `registr()`, a function to implement **step 2** of the algorithm. The function that calculates GFPCA can either be based on the variational EM approach outlined in @wrobel_2019 or the two-step method outlined in @gertheiss_2017. In the former case, the called function depends on the family. For `family = "binomial"` and `family = "gaussian"` the functions `bfpca()` and `fpca_gauss()` are called for the GFPCA step, respectively. In the latter case, function `gfpca_twoStep()` is called, which also supports families `"gamma"` and `"poisson"`. The `register_fpca()` function iterates between the alignment and template calculation steps until curves are registered. 
+The main function in the package is `register_fpca()`. It calls two sub-functions: a GFPCA function to implement **step 1** of the iterative algorithm, and `registr()`, a function to implement **step 2** of the algorithm. The function that calculates GFPCA can either be based on the variational EM approach outlined in @wrobel_2019 or the two-step method outlined in @gertheiss_2017. In the former case, the called function depends on the family. For `family = "gaussian"` (for continuous data) and `family = "binomial"` (for binary data) the functions `bfpca()` and `fpca_gauss()` are called for the GFPCA step, respectively. In the latter case, function `gfpca_twoStep()` is called, which also supports families `"gamma"` (for strictly positive data where the variance depends on the mean) and `"poisson"` (for nonnegative count data). The `register_fpca()` function iterates between the alignment and template calculation steps until curves are registered. 
 
 ## A note on data formatting
 
@@ -183,7 +183,7 @@ We can alter the score variance for the principal components using the arguments
 
 # Joint registration and GFPCA using `register_fpca()`
 
-`register_fpca()` is the main function for the `registr` package. Use the `family` argument to this function to specify what type of exponential family data you would like to align. The package supports `family = "gaussian"` for registering continuous data, `family = "binomial"` for registering binary data, `family = "gamma"` for strictly positive data with a Gamma structure and `family = "poisson"` for nonnegative data with a Poisson structure.
+`register_fpca()` is the main function for the `registr` package. Use the `family` argument to this function to specify what type of exponential family data you would like to align. The package supports `family = "gaussian"` for registering continuous data, `family = "binomial"` for registering binary data, `family = "gamma"` for strictly positive data where the variance depends on the mean and `family = "poisson"` for nonnegative count data.
 The type of GFPCA is specified by the argument `fpca_type`, either calling the variational EM approach of @wrobel_2019 (`fpca_type = "variationalEM`; default) or the two-step approach of @gertheiss_2017 (`fpca_type = "two-step"`).
 
 ## Analyzing binary data
@@ -301,26 +301,43 @@ thousands of curves.
 
 The registration step of `register_fpca()` calls the `registr` function. Though registration is intended to be performed through the `register_fpca()` function `registr()` can work as a standalone function. `registr()` uses constrained maximization of an exponential family likelihood function to estimate functions that align curves.
 
-The default option `gradient = TRUE` implements an analytic gradient for this optimization problem. Selecting `gradient = FALSE` implements a numeric gradient which is less computationally efficient. This is illustrated in the code below. 
+The default option `gradient = TRUE` uses an analytic gradient for this optimization problem (available for families `"gaussian"` and `"binomial"`). For families `"gamma"` and `"poisson"`, the gradient is computed numerically and thus less computationally efficient. The difference in computation time between `gradient = TRUE` and `gradient = FALSE` is illustrated in the code below, for `family = "binomial"`. 
 
 ```{r registr_function}
 data_test_gradient = simulate_unregistered_curves(I = 50, D = 100, seed = 2018)
+
+start_time   = Sys.time()
+reg_analytic = registr(Y = data_test_gradient, family = "binomial", gradient = TRUE)
+end_time     = Sys.time()
+
+analytic_gradient = as.numeric(round((end_time - start_time), 2))
+
+start_time  = Sys.time()
+reg_numeric = registr(Y = data_test_gradient, family = "binomial", gradient = FALSE)
+end_time    = Sys.time()
+
+numeric_gradient = as.numeric(round((end_time - start_time), 2))
+```
+
+In this example with just 50 subjects and 100 time points per subject, the `registr()` function runs in `r analytic_gradient` seconds with an analytic gradient and `r numeric_gradient` seconds with a numeric gradient. Since the `register_fpca()` algorithm is iterative and calls the `registr()` function several times, using an analytic derivative drastically increases the computational efficiency, especially if the number of subjects in the data is large.
+
+```{r registr_function gradient large data, include=FALSE}
+data_test_gradient = simulate_unregistered_curves(I = 1000, D = 500, seed = 2018)
 
 start_time = Sys.time()
 reg_analytic = registr(Y = data_test_gradient, family = "binomial", gradient = TRUE)
 end_time = Sys.time()
 
-analytic_gradient = as.numeric(round((end_time - start_time), 2))
+analytic_gradient_large = as.numeric(round((end_time - start_time), 1))
 
 start_time = Sys.time()
 reg_numeric = registr(Y = data_test_gradient, family = "binomial", gradient = FALSE)
 end_time = Sys.time()
 
-numeric_gradient = as.numeric(round((end_time - start_time), 2))
-
+numeric_gradient_large = as.numeric(round((end_time - start_time), 1))
 ```
 
-On a dataset with just 50 subjects and 100 time points per subject, the `registr()` function runs in `r analytic_gradient` seconds with an analytic gradient and `r numeric_gradient` seconds with a numeric gradient. Since the `register_fpca()` algorithm is iterative and calls the `registr()` function several times, using an analytic derivative drastically increases the computational efficiency, especially if number of subjects in the dataset is large.
+Running the above example with 1000 subjects and 500 time points yields computation times of `r analytic_gradient_large` seconds (for the analytic gradient) and `r numeric_gradient_large` (for the numeric gradient).
 
 The registration step can further be parallelized by using the `cores` argument.
 
