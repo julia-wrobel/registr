@@ -54,6 +54,8 @@ Keep this NULL if you are using standalone \code{register} function.}
 }
 \value{
 An object of class \code{fpca} containing:
+\item{fpca_type}{Information that FPCA was performed with the 'variationEM' approach,
+in contrast to registr::gfpca_twoStep.}
 \item{t_vec}{Time vector over which the mean \code{mu} was evaluated.}
 \item{knots}{Cutpoints for B-spline basis used to rebuild \code{alpha}.}
 \item{efunctions}{\eqn{D \times npc} matrix of estimated FPC basis functions.}

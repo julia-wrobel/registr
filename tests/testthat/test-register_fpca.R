@@ -91,16 +91,16 @@ test_that("register_fpca function forces gradient = FALSE in some situations",{
 								 "gradient = TRUE is only available for families 'gaussian' and 'binomial'. Setting gradient = FALSE.")
 })
 
-test_that("register_fpca function forces fpca_type = 'two-step' for families other than gaussian or binomial",{
+test_that("register_fpca function throws a warning when fpca_type = 'variationalEM' is called for families other than gaussian or binomial",{
 	Y = registr::growth_incomplete
 	Y$value = Y$value + 1 # make y values strictly positive for gamma and poisson family
 	
 	expect_warning(register_fpca(Y, family = "gamma", fpca_type = "variationalEM", gradient = FALSE,
 	                             max_iterations = 1, fpca_index_significantDigits = 2),
-								 "fpca_type = 'variationalEM' is only available for families 'gaussian' and 'binomial'. Setting fpca_type = 'two-step'.")
+								 "fpca_type = 'variationalEM' is only available for families 'gaussian' and 'binomial'. Calling variationalEM for 'gaussian' family.")
 	expect_warning(register_fpca(Y, family = "poisson", fpca_type = "variationalEM", gradient = FALSE,
 	                             max_iterations = 1, fpca_index_significantDigits = 2),
-								 "fpca_type = 'variationalEM' is only available for families 'gaussian' and 'binomial'. Setting fpca_type = 'two-step'.")
+								 "fpca_type = 'variationalEM' is only available for families 'gaussian' and 'binomial'. Calling variationalEM for 'gaussian' family.")
 })
 
 test_that("register_fpca function priors must be specified only when warping = piecewise_linear2 and family = binomial",{

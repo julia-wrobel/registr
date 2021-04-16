@@ -25,8 +25,8 @@
 #' is performed.
 #'
 #' @param family One of \code{c("gaussian","binomial","gamma","poisson")}.
-#' For \code{"gamma"} and \code{"poisson"}, the \code{fpca_type} is fixed to
-#' \code{"two-step"}. Defaults to \code{"gaussian"}.
+#' Families \code{"gamma"} and \code{"poisson"} are only supported by
+#' \code{fpca_type = "two-step"}. Defaults to \code{"gaussian"}.
 #' @param Y_template Optional dataframe with the same structure as \code{Y}.
 #' Only used for the initial registration step. If NULL,
 #' curves are registered to the overall mean of all curves in \code{Y} as template function.
@@ -181,8 +181,7 @@ register_fpca = function(Y, Kt = 8, Kh = 4, family = "gaussian",
   }
 	
 	if (family %in% c("gamma","poisson") && fpca_type == "variationalEM") {
-		warning("fpca_type = 'variationalEM' is only available for families 'gaussian' and 'binomial'. Setting fpca_type = 'two-step'.")
-		fpca_type = "two-step"
+		warning("fpca_type = 'variationalEM' is only available for families 'gaussian' and 'binomial'. Calling variationalEM for 'gaussian' family.")
 	}
 		
   if (verbose > 0) {
@@ -229,7 +228,7 @@ register_fpca = function(Y, Kt = 8, Kh = 4, family = "gaussian",
   		if (family == "binomial") {
   			fpca_step = bfpca(registr_step$Y, npc = npc, Kt = Kt, row_obj = rows, seed = fpca_seed, maxiter = fpca_maxiter, 
   												error_thresh = fpca_error_thresh, verbose = verbose, ...)
-  		} else if (family == "gaussian") {
+  		} else {
   			fpca_step = fpca_gauss(registr_step$Y, npc = npc, Kt = Kt, row_obj = rows, seed = fpca_seed, maxiter = fpca_maxiter,
   														 error_thresh = fpca_error_thresh,  verbose = verbose, ...)
   		}
@@ -287,7 +286,7 @@ register_fpca = function(Y, Kt = 8, Kh = 4, family = "gaussian",
   	if (family == "binomial") {
   		fpca_step = bfpca(registr_step$Y, npc = npc, Kt = Kt, row_obj = rows, seed = fpca_seed, maxiter = fpca_maxiter, 
   											error_thresh = fpca_error_thresh, verbose = verbose, ...)
-  	} else if (family == "gaussian") {
+  	} else {
   		fpca_step = fpca_gauss(registr_step$Y, npc = npc, Kt = Kt, row_obj = rows, seed = fpca_seed, maxiter = fpca_maxiter, 
   													 error_thresh = fpca_error_thresh, verbose = verbose, ...)
   	}

@@ -35,7 +35,10 @@ loss_h(
 
 \item{beta.inner}{spline coefficient vector to be estimated for warping function h.}
 
-\item{family}{\code{gaussian} or \code{binomial}.}
+\item{family}{One of \code{c("gaussian","binomial","gamma","poisson")}.
+For internal purposes, can also be set to \code{"gamma-varEM"} and
+\code{"poisson-varEM"} if the preceding FPCA step in \code{register_fpca} was
+performed with \code{fpca_type = "variationalEM"} which uses Gaussian family.}
 
 \item{t_min, t_max}{minimum and maximum value to be evaluated on the time domain.}
 

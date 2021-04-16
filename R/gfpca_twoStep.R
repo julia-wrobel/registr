@@ -39,6 +39,8 @@
 #' @inheritParams fpca_gauss
 #' 
 #' @return An object of class \code{fpca} containing:
+#' \item{fpca_type}{Information that FPCA was performed with the 'two-step' approach,
+#' in contrast to registr::fpca_gauss or registr::bfpca.}
 #' \item{t_vec}{Time vector over which the mean \code{mu} was evaluated.
 #' The resolution is can be specified by setting \code{index_significantDigits}.}
 #' \item{knots}{Cutpoints for B-spline basis used to rebuild \code{alpha}.}
@@ -244,7 +246,8 @@ gfpca_twoStep = function (Y, family = "gaussian", npc = 1, Kt = 8,
     value = as.vector(t(Yhat))
   )
   
-  ret = list(t_vec         = output_index,
+  ret = list(fpca_type     = "two-step",
+             t_vec         = output_index,
              knots         = knots,
              alpha         = matrix(alpha, ncol = 1), # return matrix for consistency with fpca_gauss()
              mu            = matrix(alpha, ncol = 1),

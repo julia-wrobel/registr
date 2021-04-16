@@ -60,6 +60,8 @@ results of the two-step GFPCA.}
 }
 \value{
 An object of class \code{fpca} containing:
+\item{fpca_type}{Information that FPCA was performed with the 'two-step' approach,
+in contrast to registr::fpca_gauss or registr::bfpca.}
 \item{t_vec}{Time vector over which the mean \code{mu} was evaluated.
 The resolution is can be specified by setting \code{index_significantDigits}.}
 \item{knots}{Cutpoints for B-spline basis used to rebuild \code{alpha}.}

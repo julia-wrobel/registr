@@ -29,6 +29,8 @@
 #' @importFrom stats rnorm quantile
 #' 
 #' @return An object of class \code{fpca} containing:
+#' \item{fpca_type}{Information that FPCA was performed with the 'variationEM' approach,
+#' in contrast to registr::gfpca_twoStep.}
 #' \item{t_vec}{Time vector over which the mean \code{mu} was evaluated.}
 #' \item{knots}{Cutpoints for B-spline basis used to rebuild \code{alpha}.}
 #' \item{efunctions}{\eqn{D \times npc} matrix of estimated FPC basis functions.}
@@ -236,6 +238,7 @@ fpca_gauss = function(Y, npc = 1, Kt = 8, maxiter = 20, t_min = NULL, t_max = NU
   scores     = scores %*% psi_svd$v
   
   ret = list(
+    fpca_type     = "variationalEM",
   	t_vec         = t_vec,
   	knots         = knots, 
   	alpha         = Theta_phi_mean %*% alpha_coefs,
