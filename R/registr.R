@@ -454,8 +454,8 @@ gather_results_list = function(results_list, Y, rows, t_max, family) {
   names(hinv_innerKnots) = rows$id
   hinv_beta              = sapply(results_list, function(x) x$hinv_beta)
   colnames(hinv_beta)    = rows$id
-  t_hat                  = unlist(sapply(results_list, function(x) as.vector(x$t_hat), simplify = FALSE))
-  loss_subjects          = unlist(sapply(results_list, function(x) as.vector(x$loss),  simplify = FALSE))
+  t_hat                  = unlist(sapply(results_list, function(x) as.vector(x$t_hat), simplify = FALSE), use.names = FALSE)
+  loss_subjects          = unlist(sapply(results_list, function(x) as.vector(x$loss),  simplify = FALSE), use.names = FALSE)
   
   Y$index        = t_hat
   Y$index_scaled = t_hat / t_max
