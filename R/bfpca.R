@@ -234,7 +234,8 @@ bfpca = function(Y, npc = 1, Kt = 8, maxiter = 50, t_min = NULL, t_max = NULL,
   psi_svd    = svd(Theta_phi_mean %*% psi_coefs)
   efunctions = psi_svd$u
   evalues    = ( psi_svd$d ) ^ 2
-  scores     = scores %*% psi_svd$v %*% diag(psi_svd$d)
+  d_diag     = if (length(psi_svd$d) == 1) { matrix(psi_svd$d) } else { diag(psi_svd$d) }
+  scores     = scores %*% psi_svd$v %*% d_diag
   
   ret = list(
     fpca_type     = "variationalEM",
