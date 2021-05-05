@@ -247,7 +247,7 @@ gfpca_twoStep = function (Y, family = "gaussian", npc = 1, Kt = 8,
   
   ## format output
   fittedVals = data.frame(
-    id    = rep(ids, each = D),
+    id    = factor(rep(ids, each = D), levels = ids),
     index = rep(output_index, I),
     value = as.vector(t(Yhat))
   )
