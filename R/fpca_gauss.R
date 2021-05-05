@@ -166,8 +166,6 @@ fpca_gauss = function(Y, npc = 1, Kt = 8, maxiter = 20, t_min = NULL, t_max = NU
   		Theta_i_quad = crossprod(Theta_i)
   		
   		# posterior scores
-  		mlist = expectedScores(Yi, temp_alpha_coefs, temp_psi_coefs, Theta_i, Theta_i_quad)
-  		
   		Ci = solve(1/sigma2 * crossprod(psi_coefs, Theta_i_quad) %*% psi_coefs + diag(npc))
   			
   		mi_inner = 1/sigma2 * (crossprod(Yi, Theta_i)  - crossprod(alpha_coefs, Theta_i_quad)) %*% psi_coefs
