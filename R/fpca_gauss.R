@@ -233,7 +233,7 @@ fpca_gauss = function(Y, npc = 1, Kt = 8, maxiter = 20, t_min = NULL, t_max = NU
   psi_svd    = svd(Theta_phi_mean %*% psi_coefs)
   efunctions = psi_svd$u
   evalues    = ( psi_svd$d ) ^ 2
-  scores     = scores %*% psi_svd$v
+  scores     = scores %*% psi_svd$v %*% diag(psi_svd$d)
   
   ret = list(
     fpca_type     = "variationalEM",
