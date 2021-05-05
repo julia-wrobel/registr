@@ -18,7 +18,9 @@
 #' @param periodic If TRUE, uses periodic b-spline basis functions. Default is FALSE.
 #' @param error_thresh Error threshold to end iterations. Defaults to 0.0001.
 #' @param ... Additional arguments passed to or from other functions
-#' @param verbose If TRUE, prints diagnostic messages. Defaults to FALSE.
+#' @param verbose Can be set to integers between 0 and 4 to control the level of
+#' detail of the printed diagnostic messages. Higher numbers lead to more detailed
+#' messages. Defaults to 1.
 #' @param subsample if the number of rows of the data is greater than 
 #' 10 million rows, the `id` values are subsampled to get the mean coefficients.
 #' 
@@ -59,7 +61,7 @@
 #' 
 fpca_gauss = function(Y, npc = 1, Kt = 8, maxiter = 20, t_min = NULL, t_max = NULL, 
 											print.iter = FALSE, row_obj= NULL, seed = 1988, periodic = FALSE, 
-											error_thresh = 0.0001, subsample = TRUE, verbose = FALSE, 
+											error_thresh = 0.0001, subsample = TRUE, verbose = 1, 
 											...){
 	
 	curr_iter = 1
@@ -105,7 +107,7 @@ fpca_gauss = function(Y, npc = 1, Kt = 8, maxiter = 20, t_min = NULL, t_max = NU
 
 	nrows_basis = nrow(Theta_phi)
 	if (subsample && nrows_basis > 1000000) {
-	  if (verbose) {
+	  if (verbose > 2) {
 	    message("fpca_gauss: Running Sub-sampling")
 	  }       
 	  uids = unique(Y$id)
@@ -123,7 +125,7 @@ fpca_gauss = function(Y, npc = 1, Kt = 8, maxiter = 20, t_min = NULL, t_max = NU
 	} else {
 	  subsampling_index = 1:nrows_basis
 	}
-	if (verbose) {
+	if (verbose > 2) {
 	  message("fpca_gauss: running GLM")
 	}    
 	if (requireNamespace("fastglm", quietly = TRUE)) {
@@ -131,10 +133,10 @@ fpca_gauss = function(Y, npc = 1, Kt = 8, maxiter = 20, t_min = NULL, t_max = NU
 	                             family = "gaussian", method=2)
 	} else {
 	  glm_obj = glm(Y$value[subsampling_index] ~ 0 + Theta_phi[subsampling_index,], family = "gaussian",
-	                control = list(trace = verbose > 0))
+	                control = list(trace = verbose > 3))
 	}
 	rm(subsampling_index)
-	if (verbose) {
+	if (verbose > 2) {
 	  message("fpca_gauss: GLM finished")
 	}    
 	alpha_coefs = coef(glm_obj)

@@ -22,7 +22,7 @@ registr_oneCurve(
   global_knots = NULL,
   mean_coefs = NULL,
   ...,
-  verbose = FALSE,
+  verbose = 1,
   just_return_list = FALSE
 )
 }
@@ -81,7 +81,9 @@ GFPCA based.  May extract from `obj` object}
 
 \item{...}{additional arguments passed to or from other functions}
 
-\item{verbose}{If \code{TRUE}, prints diagnostic messages. Defaults to \code{FALSE}}
+\item{verbose}{Can be set to integers between 0 and 4 to control the level of
+detail of the printed diagnostic messages. Higher numbers lead to more detailed
+messages. Defaults to 1.}
 
 \item{just_return_list}{Do not use.  For developers only}
 }

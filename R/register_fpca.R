@@ -171,7 +171,7 @@ register_fpca = function(Y, Kt = 8, Kh = 4, family = "gaussian",
 												 fpca_type = "variationalEM", fpca_maxiter = 50,
 												 fpca_seed = 1988, fpca_error_thresh = 0.0001,
 												 fpca_index_significantDigits = 4L, cores = 1L, 
-												 verbose = FALSE, 
+												 verbose = 1, 
 												 ...){
 	
   index = NULL
@@ -184,7 +184,7 @@ register_fpca = function(Y, Kt = 8, Kh = 4, family = "gaussian",
 		warning("fpca_type = 'variationalEM' is only available for families 'gaussian' and 'binomial'. Calling variationalEM for 'gaussian' family.")
 	}
 		
-  if (verbose > 0) {
+  if (verbose > 2) {
     message("Running data_clean")
   }
   data    = data_clean(Y)
@@ -197,8 +197,8 @@ register_fpca = function(Y, Kt = 8, Kh = 4, family = "gaussian",
   reg_loss          = rep(NA, max_iterations + 1)
 
   # first register values to the overall mean
-  if (verbose) {
-    message("Running registr step")
+  if (verbose > 0) {
+    message("Running initial registration step")
   }
   registr_step = registr(Y = Y, Kt = Kt, Kh = Kh, family = family,
   											 incompleteness = incompleteness,
@@ -218,10 +218,10 @@ register_fpca = function(Y, Kt = 8, Kh = 4, family = "gaussian",
   			 (iter < max_iterations && delta_index[iter] > convergence_threshold)) {
   	
   	iter = iter + 1
-  	if (verbose) {
+  	if (verbose > 0) {
   	  message("current iteration: ", iter)
   	}
-  	if (verbose) {
+  	if (verbose > 1) {
   	  message("FPCA Step")
   	}  	
   	if (fpca_type == "variationalEM") { # GFPCA after Wrobel et al. (2019)
@@ -249,8 +249,8 @@ register_fpca = function(Y, Kt = 8, Kh = 4, family = "gaussian",
   															estimation_accuracy     = estimation_accuracy,
   															start_params            = gamm4_startParams)
   	}
-  	if (verbose) {
-  	  message("Registr Step")
+  	if (verbose > 1) {
+  	  message("Registration step")
   	}  	
   	registr_step = registr(obj = fpca_step, Kt = Kt, Kh = Kh, family = family, 
   												 incompleteness = incompleteness,
@@ -271,15 +271,15 @@ register_fpca = function(Y, Kt = 8, Kh = 4, family = "gaussian",
   converged = (delta_index[iter] <= convergence_threshold)
   
   if(iter < max_iterations){
-  	if (verbose) {
+  	if (verbose > 1) {
   	  message("Registration converged.")
   	}
   } else{
   	warning("Convergence not reached. Try increasing max_iterations.")
   }
 
-  if (verbose) {
-    message("Final FPCA Step")
+  if (verbose > 0) {
+    message("Running final FPCA step")
   }  	
   # final fpca step
   if (fpca_type == "variationalEM") { # GFPCA after Wrobel et al. (2019)

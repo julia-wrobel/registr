@@ -135,7 +135,7 @@ Our software registers curves by estimating $t$. For this we use the function `r
 
 ```{r register_data, echo = TRUE, message = TRUE}
 binary_registration = register_fpca(Y = registration_data, family = "binomial", 
-                                    Kt = 6, Kh = 4, npc  = 1, verbose = FALSE)
+                                    Kt = 6, Kh = 4, npc  = 1)
 ```
 
 The plot below shows unregistered, true registered, and estimated registered binary curves for two subjects after fitting our method.

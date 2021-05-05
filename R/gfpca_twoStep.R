@@ -87,7 +87,7 @@ gfpca_twoStep = function (Y, family = "gaussian", npc = 1, Kt = 8,
                           t_min = NULL, t_max = NULL,
                           row_obj = NULL, index_significantDigits = 4L,
                           estimation_accuracy = "high", start_params = NULL,
-                          periodic = FALSE,
+                          periodic = FALSE, verbose = 1,
                           ...) {
   
   if (family == "gamma" & any(Y$value <= 0)) {
@@ -164,6 +164,9 @@ gfpca_twoStep = function (Y, family = "gaussian", npc = 1, Kt = 8,
   
   ### obtain eigenfunctions and eigenvalues
   # estimate the covariance matrix of the latent Gaussian process
+  if (verbose > 2) {
+    message("gfpca_twoStep: Estimating the covariance matrix")
+  }
   hmy_cov = cov_hall(Y, index_evalGrid = output_index, Kt = Kt,
                      family = family, diag_epsilon = 0.01, ...)
   
@@ -199,6 +202,9 @@ gfpca_twoStep = function (Y, family = "gaussian", npc = 1, Kt = 8,
   }
   
   # mixed model
+  if (verbose > 2) {
+    message("gfpca_twoStep: Estimating the mixed model")
+  }
   random.structure = paste(paste0("psi", 1:npc), collapse = "+")
   random.formula   = stats::formula(paste("~(0+", random.structure, "|| id)"))
   if (estimation_accuracy == "high") {

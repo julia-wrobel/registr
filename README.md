@@ -130,7 +130,10 @@ function `registration_fpca()`.
 
 ``` r
 binary_registration = register_fpca(Y = registration_data, family = "binomial", 
-                                    Kt = 6, Kh = 4, npc  = 1, verbose = FALSE)
+                                    Kt = 6, Kh = 4, npc  = 1)
+## Running initial registration step
+## current iteration: 1
+## Running final FPCA step
 ```
 
 The plot below shows unregistered, true registered, and estimated
