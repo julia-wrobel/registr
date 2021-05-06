@@ -26,7 +26,8 @@ bfpca(
 
 \item{npc}{Defaults to 1. Number of principal components to calculate.}
 
-\item{Kt}{Number of B-spline basis functions used to estimate mean functions. Default is 8.}
+\item{Kt}{Number of B-spline basis functions used to estimate the mean function
+and the functional principal components. Default is 8.}
 
 \item{maxiter}{Maximum number of iterations to perform for EM algorithm. Default is 50.}
 

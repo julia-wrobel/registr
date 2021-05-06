@@ -7,7 +7,8 @@
 #'
 #' @param Y Dataframe. Should have variables id, value, index. 
 #' @param npc Defaults to 1. Number of principal components to calculate.
-#' @param Kt Number of B-spline basis functions used to estimate mean functions. Default is 8.
+#' @param Kt Number of B-spline basis functions used to estimate the mean function
+#' and the functional principal components. Default is 8.
 #' @param maxiter Maximum number of iterations to perform for EM algorithm. Default is 50.
 #' @param t_min Minimum value to be evaluated on the time domain. 
 #' @param t_max Maximum value to be evaluated on the time domain.
