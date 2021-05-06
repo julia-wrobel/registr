@@ -11,7 +11,11 @@
 #' domain-preserving. This behavior can be changed by setting
 #' \code{incompleteness} to some other value than NULL and a reasonable \code{lambda_inc} value.
 #' For further details see the accompanying vignette. \cr \cr
-#' By specifying \code{cores > 1} the registration call can be parallelized.
+#' By specifying \code{cores > 1} the registration call can be parallelized. \cr \cr
+#' For \code{fpca_type = "variationalEM"} the number of functional principal
+#' components (FPCs) can only be set using argument \code{npc}. For
+#' \code{fpca_type = "two-step"} the number of FPCs can also be chosen based on
+#' the explained share of variance (see argument \code{fpca_varExplained}).
 #' 
 #' Requires input data \code{Y} to be a dataframe in long format with variables 
 #' \code{id}, \code{index}, and \code{value} to indicate subject IDs, 
@@ -25,7 +29,8 @@
 #' is performed.
 #'
 #' @param Kt Number of B-spline basis functions used to estimate mean functions
-#' and functional principal components. Default is 8.
+#' and functional principal components. Default is 8. If \code{npc_selection}
+#' is used, \code{Kt} is set to 20.
 #' @param family One of \code{c("gaussian","binomial","gamma","poisson")}.
 #' Families \code{"gamma"} and \code{"poisson"} are only supported by
 #' \code{fpca_type = "two-step"}. Defaults to \code{"gaussian"}.
@@ -35,7 +40,15 @@
 #' If specified, the template function is taken as the mean
 #' of all curves in \code{Y_template}. Defaults to NULL.
 #' @param max_iterations Number of iterations for overall algorithm. Defaults to 10.
-#' @param npc Number of principal components to calculate. Defaults to 1. 
+#' @param npc,npc_selection The number of functional principal components (FPCs)
+#' has to be specified either directly as \code{npc} or based on their explained
+#' share of variance. In the latter case, \code{npc_selection} has to be set
+#' to a vector with two elements for the targeted explained share of variance
+#' and a cut-off scree plot criterion, both between 0 and 1. E.g.,
+#' \code{npc_selection = c(0.9,0.02)} tries to choose the number of FPCs that
+#' explains at least 90% of variation, but only includes FPCs that explain at
+#' least 2\% of variation.
+#' The latter can only be used for \code{fpca_type = "two-step"}.
 #' @param fpca_type One of \code{c("variationalEM","two-step")}.
 #' Defaults to \code{"variationalEM"}.
 #' @param fpca_maxiter Only used if \code{fpca_type = "variationalEM"}. Number
@@ -169,7 +182,7 @@
 register_fpca = function(Y, Kt = 8, Kh = 4, family = "gaussian",
 												 incompleteness = NULL, lambda_inc = NULL,
 												 Y_template = NULL,
-												 max_iterations = 10, npc = 1,
+												 max_iterations = 10, npc = NULL, npc_selection = NULL,
 												 fpca_type = "variationalEM", fpca_maxiter = 50,
 												 fpca_seed = 1988, fpca_error_thresh = 0.0001,
 												 fpca_index_significantDigits = 4L, cores = 1L, 
@@ -185,6 +198,13 @@ register_fpca = function(Y, Kt = 8, Kh = 4, family = "gaussian",
 	if (family %in% c("gamma","poisson") && fpca_type == "variationalEM") {
 		warning("fpca_type = 'variationalEM' is only available for families 'gaussian' and 'binomial'. Calling variationalEM for 'gaussian' family.")
 	}
+  if (is.null(npc) & (is.null(npc_selection) || length(npc_selection) != 2)) {
+    stop("Please either specify 'npc' or 'npc_selection' appropriately.")
+  }
+  
+  if (!is.null(npc_selection)) { # set Kt to 20 since only 'Kt' FPCs can be extracted.
+    Kt = 20
+  }
 		
   if (verbose > 2) {
     message("Running data_clean")
@@ -216,6 +236,31 @@ register_fpca = function(Y, Kt = 8, Kh = 4, family = "gaussian",
   delta_index = rep(NA, max_iterations)
   convergence_threshold = 0.0001
   
+  # TODO define the following two helper functions outside of this function, including unit tests etc.
+  # helper function to estimate variationalEM FPCA (if needed)
+  estimate_fpca_varEM <- function(npc) {
+    if (family == "binomial") {
+      fpca_step = bfpca(registr_step$Y, npc = npc, Kt = Kt, row_obj = rows, seed = fpca_seed, maxiter = fpca_maxiter, 
+                        error_thresh = fpca_error_thresh, verbose = verbose, ...)
+    } else {
+      fpca_step = fpca_gauss(registr_step$Y, npc = npc, Kt = Kt, row_obj = rows, seed = fpca_seed, maxiter = fpca_maxiter,
+                             error_thresh = fpca_error_thresh,  verbose = verbose, ...)
+    }
+    return(fpca_step)
+  }
+  # helper function to determine the number of FPCs for the variationalEM FPCA if 'npc_selection' is used
+  get_npc_varEM <- function() {
+    fpca_initStep = estimate_fpca_varEM(npc = 20)
+    evalues       = fpca_initStep$evalues
+    evalues_varExplained = evalues / sum(evalues)
+    npc_criterion1 = which(cumsum(evalues_varExplained) >= npc_selection[1])[1]
+    npc_criterion2 = which(evalues_varExplained < npc_selection[2])[1] - 1
+    npc            = min(npc_criterion1, npc_criterion2)
+    return(list(npc              = npc,
+                npc_varExplained = cumsum(evalues_varExplained)[1:npc]))
+  }
+  
+  # main iterations
   while (iter == 0 ||
   			 (iter < max_iterations && delta_index[iter] > convergence_threshold)) {
   	
@@ -227,13 +272,17 @@ register_fpca = function(Y, Kt = 8, Kh = 4, family = "gaussian",
   	  message("FPCA Step")
   	}  	
   	if (fpca_type == "variationalEM") { # GFPCA after Wrobel et al. (2019)
-  		if (family == "binomial") {
-  			fpca_step = bfpca(registr_step$Y, npc = npc, Kt = Kt, row_obj = rows, seed = fpca_seed, maxiter = fpca_maxiter, 
-  												error_thresh = fpca_error_thresh, verbose = verbose, ...)
-  		} else {
-  			fpca_step = fpca_gauss(registr_step$Y, npc = npc, Kt = Kt, row_obj = rows, seed = fpca_seed, maxiter = fpca_maxiter,
-  														 error_thresh = fpca_error_thresh,  verbose = verbose, ...)
-  		}
+  	  
+  	  if (!is.null(npc_selection)) { # choose the number of FPCs before the main estimation step
+  	    res_list = get_npc_varEM()
+  	    npc      = res_list$npc
+  	    if (verbose > 0) {
+  	      message(paste0("Using the first ",res_list$npc," FPCs which explain ",
+  	                     round(sum(res_list$npc_varExplained) * 100, 1),"% of the total variance."))
+  	    }
+  	  }
+  	  # main estimation step
+  	  fpca_step = estimate_fpca_varEM(npc = npc)
   		
   	} else if (fpca_type == "two-step") { # Two-step GFPCA after Gertheiss et al. (2017)
   		
@@ -245,11 +294,13 @@ register_fpca = function(Y, Kt = 8, Kh = 4, family = "gaussian",
   			gamm4_startParams = fpca_step$gamm4_theta # parameters from last step
   		}
   		
-  		fpca_step = gfpca_twoStep(registr_step$Y, family = family, npc = npc,
+  		fpca_step = gfpca_twoStep(registr_step$Y, family = family,
+  		                          npc = npc, npc_selection = npc_selection,
   															Kt = Kt, row_obj = rows,
   															index_significantDigits = fpca_index_significantDigits,
   															estimation_accuracy     = estimation_accuracy,
-  															start_params            = gamm4_startParams)
+  															start_params            = gamm4_startParams,
+  															verbose                 = verbose)
   	}
   	if (verbose > 1) {
   	  message("Registration step")
@@ -283,22 +334,30 @@ register_fpca = function(Y, Kt = 8, Kh = 4, family = "gaussian",
   if (verbose > 0) {
     message("Running final FPCA step")
   }  	
-  # final fpca step
+  # final FPCA step
   if (fpca_type == "variationalEM") { # GFPCA after Wrobel et al. (2019)
-  	if (family == "binomial") {
-  		fpca_step = bfpca(registr_step$Y, npc = npc, Kt = Kt, row_obj = rows, seed = fpca_seed, maxiter = fpca_maxiter, 
-  											error_thresh = fpca_error_thresh, verbose = verbose, ...)
-  	} else {
-  		fpca_step = fpca_gauss(registr_step$Y, npc = npc, Kt = Kt, row_obj = rows, seed = fpca_seed, maxiter = fpca_maxiter, 
-  													 error_thresh = fpca_error_thresh, verbose = verbose, ...)
-  	}
+    
+    if (!is.null(npc_selection)) { # choose the number of FPCs before the main estimation step
+      res_list = get_npc_varEM()
+      npc      = res_list$npc
+      if (verbose > 0) {
+        message(paste0("Using the first ",res_list$npc," FPCs which explain ",
+                       round(sum(res_list$npc_varExplained) * 100, 1),"% of the total variance."))
+      }
+    }
+    # main estimation step
+    fpca_step = estimate_fpca_varEM(npc = npc)
+    if (!is.null(npc_selection))
+      fpca_step$var_explained <- res_list$npc_varExplained # TODO integrate this consistently with gfpca_twoStep()
   	
   } else if (fpca_type == "two-step") { # Two-step GFPCA after Gertheiss et al. (2017)
-  	fpca_step = gfpca_twoStep(registr_step$Y, family = family, npc = npc,
+  	fpca_step = gfpca_twoStep(registr_step$Y, family = family,
+  	                          npc = npc, npc_selection = npc_selection,
   														Kt = Kt, row_obj = rows,
   														index_significantDigits = fpca_index_significantDigits,
   														estimation_accuracy     = "high",
-  														start_params            = fpca_step$gamm4_theta)
+  														start_params            = fpca_step$gamm4_theta,
+  														verbose                 = verbose)
   	
   	# restrict the Yhat element to the individual registered domains
   	t_max_warped_i = sapply(rows$id, function(x) { max(registr_step$Y$index[registr_step$Y$id == x], na.rm = TRUE) })

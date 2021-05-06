@@ -6,6 +6,9 @@
 #' The method implements the `two-step approach` of Gertheiss et al. (2017)
 #' and is based on the approach of Hall et al. (2008) to estimate functional
 #' principal components. \cr \cr
+#' The number of functional principal components can either be specified
+#' directly (argument \code{npc}) or chosen based on the explained share of
+#' variance (\code{npc_selection}). \cr \cr
 #' This function is an adaptation of the implementation of Jan
 #' Gertheiss for Gertheiss et al. (2017), with focus on higher (RAM) efficiency
 #' for large data settings.
@@ -16,10 +19,21 @@
 #' underlying high-dimensional mixed model with continuous Poisson data based
 #' on the \code{\link{gamm4}} package.
 #' 
+#' If negative eigenvalues are present, the respective eigenfunctions are dropped
+#' and not considered further.
+#' 
 #' @param family One of \code{c("gaussian","binomial","gamma","poisson")}.
 #' Poisson data are rounded before performing
 #' the GFPCA to ensure integer data, see Details section below.
 #' Defaults to \code{"gaussian"}.
+#' @param npc,npc_selection The number of functional principal components (FPCs)
+#' has to be specified either directly as \code{npc} or based on their explained
+#' share of variance. In the latter case, \code{npc_selection} has to be set
+#' to a vector with two elements for the targeted explained share of variance
+#' and a cut-off scree plot criterion, both between 0 and 1. E.g.,
+#' \code{npc_selection = c(0.9,0.02)} tries to choose the number of FPCs that
+#' explains at least 90% of variation, but only includes FPCs that explain at
+#' least 2\% of variation (even if this means 90% explained variation is not reached).
 #' @param index_significantDigits Positive integer \code{>= 2}, stating the number
 #' of significant digits to which the index grid should be rounded. Coarsening the
 #' index grid is necessary since otherwise the covariance surface matrix
@@ -29,7 +43,8 @@
 #' @param estimation_accuracy One of \code{c("high","low")}. When set to \code{"low"},
 #' the mixed model estimation step in \code{lme4} is performed with lower
 #' accuracy, reducing computation time. Defaults to \code{"high"}.
-#' @param start_params Optional start values for gamm4.
+#' @param start_params Optional start values for gamm4. Not used if
+#' \code{npc_selection} is specified.
 #' @param periodic Only contained for full consistency with \code{fpca_gauss}
 #' and \code{bfpca}. If TRUE, returns the knots vector for periodic b-spline
 #' basis functions. Defaults to FALSE. This parameter does not change the
@@ -83,8 +98,8 @@
 #' fpca_obj = gfpca_twoStep(Y = growth_incomplete, npc = 2, family = "gaussian")
 #' plot(fpca_obj)
 #' 
-gfpca_twoStep = function (Y, family = "gaussian", npc = 1, Kt = 8,
-                          t_min = NULL, t_max = NULL,
+gfpca_twoStep = function (Y, family = "gaussian", npc = NULL, npc_selection = NULL,
+                          Kt = 8, t_min = NULL, t_max = NULL,
                           row_obj = NULL, index_significantDigits = 4L,
                           estimation_accuracy = "high", start_params = NULL,
                           periodic = FALSE, verbose = 1,
@@ -95,6 +110,14 @@ gfpca_twoStep = function (Y, family = "gaussian", npc = 1, Kt = 8,
   } else if (family == "poisson" & any(Y$value < 0)) {
     stop("family = 'poisson' can only be applied to nonnegative data.")
   }
+  
+  if (is.null(npc) & is.null(npc_selection))
+    stop("Please either specify 'npc' or 'npc_selection'.")
+  if (!is.null(npc_selection) &&
+      (length(npc_selection) != 2 || (any(npc_selection < 0) | any(npc_selection > 1))))
+    stop("'npc_selection' must be a numeric vector with two elements between 0 and 1.")
+  if (!is.null(npc) & !is.null(npc_selection))
+    message("Ignoring argument 'npc' since 'npc_selection' is specified.")
   
   # clean data
   if (is.null(row_obj)) {
@@ -176,16 +199,27 @@ gfpca_twoStep = function (Y, family = "gaussian", npc = 1, Kt = 8,
   fit.phi    = eigen_HMY$vectors
   
   # remove negative eigenvalues
-  if (any(fit.lambda[1:npc] < 0)) {
-    warning("The first 'npc' eigenvalues contained negative eigenvalues. These dimensions were removed from the output.")
+  if (any(fit.lambda < 0)) {
     wp         = which(fit.lambda > 0)
     fit.lambda = fit.lambda[wp]
     fit.phi    = fit.phi[,wp]
   }
   
-  efunctions  = fit.phi[,1:npc, drop = FALSE]
-  evalues     = fit.lambda[1:npc]
-  evalues_sum = sum(fit.lambda[fit.lambda > 0])
+  # choose the number of FPCs
+  evalues_sum = sum(fit.lambda)
+  if (!is.null(npc_selection)) { # choose number of FPCs based on explained variance
+    evalues_varExplained = evalues / evalues_sum
+    npc_criterion1 = which(cumsum(evalues_varExplained) >= npc_selection[1])[1]
+    npc_criterion2 = which(evalues_varExplained < npc_selection[2])[1] - 1
+    npc            = min(npc_criterion1, npc_criterion2)
+  }
+  efunctions       = fit.phi[,1:npc, drop = FALSE]
+  evalues          = fit.lambda[1:npc]
+  npc_varExplained = sum(evalues) / evalues_sum
+  if (verbose > 0) {
+    message(paste0("Using the first ",npc," FPCs which explain ",
+                   round(npc_varExplained * 100, 1),"% of the total variance."))
+  }
   
   # prepare data for mixed model estimation
   for (i in 1:npc) {
@@ -200,6 +234,10 @@ gfpca_twoStep = function (Y, family = "gaussian", npc = 1, Kt = 8,
   } else {
     family_mgcv = family
   }
+  
+  # do not use 'start_params' if argument 'npc_selection' is used
+  if (!is.null(start_params) && !is.null(npc_selection))
+    start_params <- NULL
   
   # mixed model
   if (verbose > 2) {
@@ -257,10 +295,11 @@ gfpca_twoStep = function (Y, family = "gaussian", npc = 1, Kt = 8,
              knots         = knots,
              alpha         = matrix(alpha, ncol = 1), # return matrix for consistency with fpca_gauss()
              mu            = matrix(alpha, ncol = 1),
+             npc           = npc,
+             var_explained = npc_varExplained,
              efunctions    = efunctions,
              evalues       = evalues,
              evalues_sum   = evalues_sum,
-             npc           = npc,
              scores        = scores,
              subject_coefs = NA,
              Yhat          = fittedVals,

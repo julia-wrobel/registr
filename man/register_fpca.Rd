@@ -13,7 +13,8 @@ register_fpca(
   lambda_inc = NULL,
   Y_template = NULL,
   max_iterations = 10,
-  npc = 1,
+  npc = NULL,
+  npc_selection = NULL,
   fpca_type = "variationalEM",
   fpca_maxiter = 50,
   fpca_seed = 1988,
@@ -28,7 +29,8 @@ register_fpca(
 \item{Y}{Dataframe. Should have values id, value, index.}
 
 \item{Kt}{Number of B-spline basis functions used to estimate mean functions
-and functional principal components. Default is 8.}
+and functional principal components. Default is 8. If \code{npc_selection}
+is used, \code{Kt} is set to 20.}
 
 \item{Kh}{Number of B-spline basis functions used to estimate warping functions \emph{h}. Default is 4.}
 
@@ -57,7 +59,15 @@ of all curves in \code{Y_template}. Defaults to NULL.}
 
 \item{max_iterations}{Number of iterations for overall algorithm. Defaults to 10.}
 
-\item{npc}{Number of principal components to calculate. Defaults to 1.}
+\item{npc, npc_selection}{The number of functional principal components (FPCs)
+has to be specified either directly as \code{npc} or based on their explained
+share of variance. In the latter case, \code{npc_selection} has to be set
+to a vector with two elements for the targeted explained share of variance
+and a cut-off scree plot criterion, both between 0 and 1. E.g.,
+\code{npc_selection = c(0.9,0.02)} tries to choose the number of FPCs that
+explains at least 90% of variation, but only includes FPCs that explain at
+least 2\% of variation.
+The latter can only be used for \code{fpca_type = "two-step"}.}
 
 \item{fpca_type}{One of \code{c("variationalEM","two-step")}.
 Defaults to \code{"variationalEM"}.}
@@ -141,7 +151,11 @@ Warping functions by default are forced to start and end on the diagonal to be
 domain-preserving. This behavior can be changed by setting
 \code{incompleteness} to some other value than NULL and a reasonable \code{lambda_inc} value.
 For further details see the accompanying vignette. \cr \cr
-By specifying \code{cores > 1} the registration call can be parallelized.
+By specifying \code{cores > 1} the registration call can be parallelized. \cr \cr
+For \code{fpca_type = "variationalEM"} the number of functional principal
+components (FPCs) can only be set using argument \code{npc}. For
+\code{fpca_type = "two-step"} the number of FPCs can also be chosen based on
+the explained share of variance (see argument \code{fpca_varExplained}).
 }
 \details{
 Requires input data \code{Y} to be a dataframe in long format with variables 
