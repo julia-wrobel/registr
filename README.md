@@ -12,7 +12,7 @@
 status](https://ci.appveyor.com/api/projects/status/github/julia-wrobel/registr?branch=master&svg=true)](https://ci.appveyor.com/project/julia-wrobel/registr)
 [![Codecov test
 coverage](https://codecov.io/gh/julia-wrobel/registr/branch/master/graph/badge.svg)](https://codecov.io/gh/julia-wrobel/registr/coverage.svg?branch=master)
-[![status](http://joss.theoj.org/papers/9c40c4f0ede1827cc5a9430c625d6494/status.svg)](http://joss.theoj.org/papers/9c40c4f0ede1827cc5a9430c625d6494)
+[![DOI](https://joss.theoj.org/papers/10.21105/joss.02964/status.svg)](https://doi.org/10.21105/joss.02964)
 [![R-CMD-check](https://github.com/julia-wrobel/registr/workflows/R-CMD-check/badge.svg)](https://github.com/julia-wrobel/registr/actions)
 <!-- badges: end -->
 
@@ -22,7 +22,7 @@ Registration for incomplete exponential family functional data.
     Bauer](https://www.en.stablab.stat.uni-muenchen.de/people/doktoranden/bauer1/index.html)
 -   License: [MIT](https://opensource.org/licenses/MIT). See the
     [LICENSE](LICENSE) file for details
--   Version: 2.0
+-   Version: 2.1
 
 ### What it does
 
