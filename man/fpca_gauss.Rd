@@ -17,7 +17,7 @@ fpca_gauss(
   periodic = FALSE,
   error_thresh = 1e-04,
   subsample = TRUE,
-  verbose = FALSE,
+  verbose = 1,
   ...
 )
 }
@@ -48,7 +48,9 @@ Keep this NULL if you are using standalone \code{register} function.}
 \item{subsample}{if the number of rows of the data is greater than 
 10 million rows, the `id` values are subsampled to get the mean coefficients.}
 
-\item{verbose}{If TRUE, prints diagnostic messages. Defaults to FALSE.}
+\item{verbose}{Can be set to integers between 0 and 4 to control the level of
+detail of the printed diagnostic messages. Higher numbers lead to more detailed
+messages. Defaults to 1.}
 
 \item{...}{Additional arguments passed to or from other functions}
 }

@@ -49,7 +49,7 @@
 bfpca = function(Y, npc = 1, Kt = 8, maxiter = 50, t_min = NULL, t_max = NULL, 
                  print.iter = FALSE, row_obj= NULL,
                  seed = 1988, periodic = FALSE, error_thresh = 0.0001,
-                 verbose = FALSE, subsample=TRUE,
+                 verbose = 1, subsample=TRUE,
                  ...){
   
   curr_iter = 1
@@ -101,7 +101,7 @@ bfpca = function(Y, npc = 1, Kt = 8, maxiter = 50, t_min = NULL, t_max = NULL,
   
   nrows_basis = nrow(Theta_phi)
   if (subsample && nrows_basis > 1000000) {
-    if (verbose) {
+    if (verbose > 2) {
       message("bfpca: Running Sub-sampling")
     }       
     uids = unique(Y$id)
@@ -119,17 +119,17 @@ bfpca = function(Y, npc = 1, Kt = 8, maxiter = 50, t_min = NULL, t_max = NULL,
   } else {
     subsampling_index = 1:nrows_basis
   }
-  if (verbose) {
+  if (verbose > 2) {
     message("bfpca: running GLM")
   }    
   if (requireNamespace("fastglm", quietly = TRUE)) {
     glm_obj = fastglm::fastglm(y = Y$value[subsampling_index], x = Theta_phi[subsampling_index,], family = "binomial", method=2)
   } else {
     glm_obj = glm(Y$value[subsampling_index] ~ 0 + Theta_phi[subsampling_index,], family = "binomial",
-                  control = list(trace = verbose > 0))
+                  control = list(trace = verbose > 3))
   }
   rm(subsampling_index)
-  if (verbose) {
+  if (verbose > 2) {
     message("bfpca: GLM finished")
   }    
   alpha_coefs = coef(glm_obj)
@@ -204,7 +204,7 @@ bfpca = function(Y, npc = 1, Kt = 8, maxiter = 50, t_min = NULL, t_max = NULL,
   } ## end while loop
   
   if (curr_iter < maxiter) {
-    if (verbose) {
+    if (verbose > 2) {
       message("BFPCA converged.")
     }
   } else {
@@ -234,7 +234,8 @@ bfpca = function(Y, npc = 1, Kt = 8, maxiter = 50, t_min = NULL, t_max = NULL,
   psi_svd    = svd(Theta_phi_mean %*% psi_coefs)
   efunctions = psi_svd$u
   evalues    = ( psi_svd$d ) ^ 2
-  scores     = scores %*% psi_svd$v
+  d_diag     = if (length(psi_svd$d) == 1) { matrix(psi_svd$d) } else { diag(psi_svd$d) }
+  scores     = scores %*% psi_svd$v %*% d_diag
   
   ret = list(
     fpca_type     = "variationalEM",

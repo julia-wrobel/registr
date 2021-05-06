@@ -8,7 +8,7 @@ cov_hall(
   Y,
   index_evalGrid,
   Kt = 25,
-  Kc = 8,
+  Kc = 10,
   family = "gaussian",
   diag_epsilon = 0.01,
   make_pd = TRUE
@@ -23,7 +23,7 @@ cov_hall(
 marginal mean. Defaults to 25.}
 
 \item{Kc}{Number of marginal P-spline basis functions for smoothing the
-covariance surface. Defaults to 8.}
+covariance surface. Defaults to 10.}
 
 \item{family}{One of \code{c("gaussian","binomial","gamma","poisson")}.
 Poisson data are rounded before performing

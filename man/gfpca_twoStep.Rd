@@ -16,6 +16,7 @@ gfpca_twoStep(
   estimation_accuracy = "high",
   start_params = NULL,
   periodic = FALSE,
+  verbose = 1,
   ...
 )
 }
@@ -55,6 +56,10 @@ accuracy, reducing computation time. Defaults to \code{"high"}.}
 and \code{bfpca}. If TRUE, returns the knots vector for periodic b-spline
 basis functions. Defaults to FALSE. This parameter does not change the
 results of the two-step GFPCA.}
+
+\item{verbose}{Can be set to integers between 0 and 4 to control the level of
+detail of the printed diagnostic messages. Higher numbers lead to more detailed
+messages. Defaults to 1.}
 
 \item{...}{Additional arguments passed to \code{\link{cov_hall}}.}
 }

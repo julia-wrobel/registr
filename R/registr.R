@@ -4,7 +4,7 @@ registr_helper = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "gaussi
                           beta = NULL, t_min = NULL, t_max = NULL, row_obj = NULL,
                           periodic = FALSE, warping = "nonparametric",
                           gamma_scales = NULL, cores = 1L,  subsample = TRUE,
-                          verbose = FALSE,
+                          verbose = 1,
                           ...){ 
   if (!is.null(incompleteness)) {
     if (warping != "nonparametric") {
@@ -85,7 +85,7 @@ registr_helper = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "gaussi
   } else { # template function = mean of all curves
     
     if (!is.null(Y_template)) {
-      if (verbose) {
+      if (verbose > 2) {
         message("Registr: Extracting Y_template")
       }
       if (!all(c("id", "index", "value") %in% names(Y_template))) {
@@ -99,8 +99,8 @@ registr_helper = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "gaussi
       mean_dat = Y
     }
     
-    if (verbose) {
-      message("Registr: Getting Knots and basis functions")
+    if (verbose > 2) {
+      message("Registr: Getting nnots and basis functions")
     }
     if (periodic) {
       # if periodic, then we want more global knots, because the resulting object from pbs 
@@ -123,7 +123,7 @@ registr_helper = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "gaussi
     nrows_basis = nrow(mean_basis)
     # if greater than 10M, subsample
     if (nrows_basis > 10000000 && subsample) {
-      if (verbose) {
+      if (verbose > 2) {
         message("Registr: Running Sub-sampling")
       }       
       uids = unique(mean_dat$id)
@@ -137,7 +137,7 @@ registr_helper = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "gaussi
       mean_basis = mean_basis[subsampling_index, ]
       rm(subsampling_index)
     }
-    if (verbose) {
+    if (verbose > 2) {
       message("Registr: Running GLM")
     }   
     if (requireNamespace("fastglm", quietly = TRUE)) {
@@ -147,7 +147,7 @@ registr_helper = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "gaussi
       mean_coefs = coef(mean_coefs)
     } else {
       mean_coefs = coef(glm(mean_dat$value ~ 0 + mean_basis, family = mean_family,
-                            control = list(trace = verbose > 0)))
+                            control = list(trace = verbose > 3)))
     }
     rm(mean_basis)
     rm(mean_dat)
@@ -261,7 +261,9 @@ registr_helper = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "gaussi
 #' call is parallelized by using \code{parallel::mclapply} (for Unix-based
 #' systems) or \code{parallel::parLapply} (for Windows). Defaults to 1,
 #' no parallelized call.
-#' @param verbose If \code{TRUE}, prints diagnostic messages. Defaults to \code{FALSE}
+#' @param verbose Can be set to integers between 0 and 4 to control the level of
+#' detail of the printed diagnostic messages. Higher numbers lead to more detailed
+#' messages. Defaults to 1.
 #' @param ... additional arguments passed to or from other functions
 #' @param subsample if the number of rows of the data is greater than 
 #' 10 million rows, the `id` values are subsampled to get the mean coefficients.
@@ -364,7 +366,7 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "gaussian", gr
                    beta = NULL, t_min = NULL, t_max = NULL, row_obj = NULL,
                    periodic = FALSE, warping = "nonparametric",
                    gamma_scales = NULL, cores = 1L,  subsample = TRUE,
-                   verbose = FALSE,
+                   verbose = 1,
                    ...){
   
   
@@ -452,8 +454,8 @@ gather_results_list = function(results_list, Y, rows, t_max, family) {
   names(hinv_innerKnots) = rows$id
   hinv_beta              = sapply(results_list, function(x) x$hinv_beta)
   colnames(hinv_beta)    = rows$id
-  t_hat                  = unlist(sapply(results_list, function(x) as.vector(x$t_hat), simplify = FALSE))
-  loss_subjects          = unlist(sapply(results_list, function(x) as.vector(x$loss),  simplify = FALSE))
+  t_hat                  = unlist(sapply(results_list, function(x) as.vector(x$t_hat), simplify = FALSE), use.names = FALSE)
+  loss_subjects          = unlist(sapply(results_list, function(x) as.vector(x$loss),  simplify = FALSE), use.names = FALSE)
   
   Y$index        = t_hat
   Y$index_scaled = t_hat / t_max
@@ -519,7 +521,7 @@ registr_oneCurve = function(
   global_knots = NULL,
   mean_coefs = NULL,
   ...,
-  verbose = FALSE,
+  verbose = 1,
   just_return_list = FALSE) {
   
   t_range_i     = range(Y$tstar)
@@ -544,8 +546,8 @@ registr_oneCurve = function(
     p_quantiles = seq.int(from = 0, to = 1, length.out = n_innerKnots + 2)[-c(1,n_innerKnots + 2)]
     hinv_innerKnots_i = quantile(tstar_cropped, probs = p_quantiles)
   }
-  if (verbose) {
-    message("Getting Spline Basis")
+  if (verbose > 2) {
+    message("Getting spline basis")
   }
   tstar_bs_i      = c(Y_i$tstar, range(tstar_cropped))
   Theta_h_i       = splines::bs(tstar_bs_i, knots = hinv_innerKnots_i, intercept = TRUE)
@@ -577,7 +579,7 @@ registr_oneCurve = function(
   }
   
   
-  if (verbose) {
+  if (verbose > 2) {
     message("Getting mean coefficients")
   }
   if (is.null(obj)) { # template function = mean of all curves
@@ -680,8 +682,8 @@ registr_oneCurve = function(
       scale = tail(beta_i, 1)
       beta_i = beta_i[1:(length(beta_i) - 1)]
     }
-    if (verbose) {
-      message("Ensuring Proper Beta")
+    if (verbose > 2) {
+      message("Ensuring proper beta")
     }
     beta_i = ensure_proper_beta(beta  = beta_i,
                                 t_min = ifelse(is.null(incompleteness) || incompleteness == "trailing",
@@ -693,8 +695,8 @@ registr_oneCurve = function(
       beta_i = c(beta_i, scale)
   }
   
-  if (verbose) {
-    message("Running Optimization")
+  if (verbose > 2) {
+    message("Running optimization")
   }
   out_args = list(theta          = beta_i,
                   f              = loss_h,
