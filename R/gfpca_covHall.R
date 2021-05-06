@@ -19,7 +19,7 @@
 #' @param Kt Number of P-spline basis functions for the estimation of the
 #' marginal mean. Defaults to 25.
 #' @param Kc Number of marginal P-spline basis functions for smoothing the
-#' covariance surface. Defaults to 8.
+#' covariance surface. Defaults to 10.
 #' @param diag_epsilon Small constant to which diagonal elements of the
 #' covariance matrix are set if they are smaller. Defaults to 0.01.
 #' @param make_pd Indicator if positive (semi-)definiteness of the returned
@@ -53,7 +53,7 @@
 #' index_grid = c(1.25, seq(from = 2, to = 18, by = 1))
 #' cov_matrix = registr:::cov_hall(growth_incomplete, index_evalGrid = index_grid)
 #' 
-cov_hall = function(Y, index_evalGrid, Kt = 25, Kc = 8, family = "gaussian",
+cov_hall = function(Y, index_evalGrid, Kt = 25, Kc = 10, family = "gaussian",
   diag_epsilon = 0.01, make_pd = TRUE){
   
   if (family == "gamma") {
