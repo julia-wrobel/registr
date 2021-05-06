@@ -24,6 +24,8 @@
 #' After convergence or \code{max_iterations} is reached, one final GFPCA step
 #' is performed.
 #'
+#' @param Kt Number of B-spline basis functions used to estimate mean functions
+#' and functional principal components. Default is 8.
 #' @param family One of \code{c("gaussian","binomial","gamma","poisson")}.
 #' Families \code{"gamma"} and \code{"poisson"} are only supported by
 #' \code{fpca_type = "two-step"}. Defaults to \code{"gaussian"}.

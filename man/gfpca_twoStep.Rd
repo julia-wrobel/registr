@@ -30,7 +30,8 @@ Defaults to \code{"gaussian"}.}
 
 \item{npc}{Number of principal components to calculate. Defaults to 1.}
 
-\item{Kt}{Number of B-spline basis functions used to estimate mean functions. Default is 8.}
+\item{Kt}{Number of B-spline basis functions used to estimate mean functions
+and functional principal components. Default is 8.}
 
 \item{t_min}{Minimum value to be evaluated on the time domain.}
 

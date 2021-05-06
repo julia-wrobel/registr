@@ -27,7 +27,8 @@ register_fpca(
 \arguments{
 \item{Y}{Dataframe. Should have values id, value, index.}
 
-\item{Kt}{Number of B-spline basis functions used to estimate mean functions. Default is 8.}
+\item{Kt}{Number of B-spline basis functions used to estimate mean functions
+and functional principal components. Default is 8.}
 
 \item{Kh}{Number of B-spline basis functions used to estimate warping functions \emph{h}. Default is 4.}
 
