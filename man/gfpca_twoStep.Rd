@@ -8,7 +8,7 @@ gfpca_twoStep(
   Y,
   family = "gaussian",
   npc = NULL,
-  npc_selection = NULL,
+  npc_criterion = NULL,
   Kt = 8,
   t_min = NULL,
   t_max = NULL,
@@ -29,17 +29,17 @@ Poisson data are rounded before performing
 the GFPCA to ensure integer data, see Details section below.
 Defaults to \code{"gaussian"}.}
 
-\item{npc, npc_selection}{The number of functional principal components (FPCs)
+\item{npc, npc_criterion}{The number of functional principal components (FPCs)
 has to be specified either directly as \code{npc} or based on their explained
-share of variance. In the latter case, \code{npc_selection} has to be set
+share of variance. In the latter case, \code{npc_criterion} has to be set
 to a vector with two elements for the targeted explained share of variance
 and a cut-off scree plot criterion, both between 0 and 1. E.g.,
-\code{npc_selection = c(0.9,0.02)} tries to choose the number of FPCs that
+\code{npc_criterion = c(0.9,0.02)} tries to choose the number of FPCs that
 explains at least 90% of variation, but only includes FPCs that explain at
 least 2\% of variation (even if this means 90% explained variation is not reached).}
 
 \item{Kt}{Number of B-spline basis functions used to estimate mean functions
-and functional principal components. Default is 8. If \code{npc_selection}
+and functional principal components. Default is 8. If \code{npc_criterion}
 is used, \code{Kt} is set to 20.}
 
 \item{t_min}{Minimum value to be evaluated on the time domain.}
@@ -61,7 +61,7 @@ the mixed model estimation step in \code{lme4} is performed with lower
 accuracy, reducing computation time. Defaults to \code{"high"}.}
 
 \item{start_params}{Optional start values for gamm4. Not used if
-\code{npc_selection} is specified.}
+\code{npc_criterion} is specified.}
 
 \item{periodic}{Only contained for full consistency with \code{fpca_gauss}
 and \code{bfpca}. If TRUE, returns the knots vector for periodic b-spline
@@ -106,7 +106,7 @@ and is based on the approach of Hall et al. (2008) to estimate functional
 principal components. \cr \cr
 The number of functional principal components can either be specified
 directly (argument \code{npc}) or chosen based on the explained share of
-variance (\code{npc_selection}). \cr \cr
+variance (\code{npc_criterion}). \cr \cr
 This function is an adaptation of the implementation of Jan
 Gertheiss for Gertheiss et al. (2017), with focus on higher (RAM) efficiency
 for large data settings.
