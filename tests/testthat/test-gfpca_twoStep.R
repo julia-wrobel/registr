@@ -186,3 +186,13 @@ test_that("crossprods_regular and crossprods_irregular work as expected",{
   expect_true(all(!is.na(cp1$cross)))
   expect_true(all(!is.na(cp2$cross)))
 })
+
+test_that("Helper function 'determine_npc()' works as expected",{
+  evalues = c(15,2,seq(0.5, 0.1, length.out = 20),0.0001,0)
+  
+  npc_criterion1 = 0.9
+  expect_equal(determine_npc(evalues, npc_criterion1), 11)
+  
+  npc_criterion2 = c(0.9, 0.02)
+  expect_equal(determine_npc(evalues, npc_criterion2), 4)
+})

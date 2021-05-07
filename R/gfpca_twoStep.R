@@ -28,10 +28,11 @@
 #' Defaults to \code{"gaussian"}.
 #' @param npc,npc_criterion The number of functional principal components (FPCs)
 #' has to be specified either directly as \code{npc} or based on their explained
-#' share of variance. In the latter case, \code{npc_criterion} has to be set
-#' to a vector with two elements for the targeted explained share of variance
-#' and a cut-off scree plot criterion, both between 0 and 1. E.g.,
-#' \code{npc_criterion = c(0.9,0.02)} tries to choose the number of FPCs that
+#' share of variance. In the latter case, \code{npc_criterion} can either be set
+#' to (i) a share between 0 and 1, or (ii) a vector with two elements for the
+#' targeted explained share of variance and a cut-off scree plot criterion,
+#' both between 0 and 1. For the latter, e.g.,
+#' \code{npc_criterion = c(0.9,0.02)} tries to choose a number of FPCs that
 #' explains at least 90% of variation, but only includes FPCs that explain at
 #' least 2\% of variation (even if this means 90% explained variation is not reached).
 #' @param index_significantDigits Positive integer \code{>= 2}, stating the number
@@ -61,8 +62,10 @@
 #' \item{knots}{Cutpoints for B-spline basis used to rebuild \code{alpha}.}
 #' \item{efunctions}{\eqn{D \times npc} matrix of estimated FPC basis functions.}
 #' \item{evalues}{Estimated variance of the FPC scores.}
-#' \item{evalues_sum}{Sum of all (nonnegative) eigenvalues, before restricting
-#' the \code{evalues} vector to the first \code{npc} elements.}
+#' \item{evalues_sum}{Sum of all (nonnegative) eigenvalues of the smoothed
+#' covariance surface estimated with \code{gfpca_covHall}. Can be used as an
+#' approximation for the total variance present in \code{Y} to compute the
+#' shares of explained variance of the FPC scores.}
 #' \item{npc}{number of FPCs.}
 #' \item{scores}{\eqn{I \times npc} matrix of estimated FPC scores.}
 #' \item{alpha}{Estimated population-level mean.}
@@ -114,8 +117,8 @@ gfpca_twoStep = function (Y, family = "gaussian", npc = NULL, npc_criterion = NU
   if (is.null(npc) & is.null(npc_criterion))
     stop("Please either specify 'npc' or 'npc_criterion'.")
   if (!is.null(npc_criterion) &&
-      (length(npc_criterion) != 2 || (any(npc_criterion < 0) | any(npc_criterion > 1))))
-    stop("'npc_criterion' must be a numeric vector with two elements between 0 and 1.")
+      (length(npc_criterion) > 2 || (any(npc_criterion < 0) | any(npc_criterion > 1))))
+    stop("'npc_criterion' must be a numeric vector of length one or two with elements between 0 and 1.")
   if (!is.null(npc) & !is.null(npc_criterion))
     message("Ignoring argument 'npc' since 'npc_criterion' is specified.")
   
@@ -208,17 +211,13 @@ gfpca_twoStep = function (Y, family = "gaussian", npc = NULL, npc_criterion = NU
   # choose the number of FPCs
   evalues_sum = sum(fit.lambda)
   if (!is.null(npc_criterion)) { # choose number of FPCs based on explained variance
-    evalues_varExplained = evalues / evalues_sum
-    npc_criterion1 = which(cumsum(evalues_varExplained) >= npc_criterion[1])[1]
-    npc_criterion2 = which(evalues_varExplained < npc_criterion[2])[1] - 1
-    npc            = min(npc_criterion1, npc_criterion2)
+    npc = determine_npc(evalues, npc_criterion)
   }
   efunctions       = fit.phi[,1:npc, drop = FALSE]
   evalues          = fit.lambda[1:npc]
-  npc_varExplained = sum(evalues) / evalues_sum
   if (verbose > 0) {
     message(paste0("Using the first ",npc," FPCs which explain ",
-                   round(npc_varExplained * 100, 1),"% of the total variance."))
+                   round(sum(evalues[1:npc]) / evalues_sum * 100, 1),"% of the total variance."))
   }
   
   # prepare data for mixed model estimation
@@ -296,7 +295,6 @@ gfpca_twoStep = function (Y, family = "gaussian", npc = NULL, npc_criterion = NU
              alpha         = matrix(alpha, ncol = 1), # return matrix for consistency with fpca_gauss()
              mu            = matrix(alpha, ncol = 1),
              npc           = npc,
-             var_explained = npc_varExplained,
              efunctions    = efunctions,
              evalues       = evalues,
              evalues_sum   = evalues_sum,
@@ -309,4 +307,35 @@ gfpca_twoStep = function (Y, family = "gaussian", npc = NULL, npc_criterion = NU
   class(ret) = "fpca"
   
   return(ret)
+}
+
+
+
+#' Determine the number of FPCs based on the share of explained variance
+#' 
+#' This internal function is called in \code{gfpca_twoStep}, \code{fpca_gauss}
+#' and \code{bfpca} to determine the number of functional principal components
+#' based on their share of explained variance.
+#' 
+#' @param evalues Vector of estimated variances of the FPC scores.
+#' @param npc_criterion Either (i) a share between 0 and 1, or (ii) a vector with
+#' two elements for the targeted explained share of variance and a cut-off scree
+#' plot criterion, both between 0 and 1. For the latter, e.g.,
+#' \code{npc_criterion = c(0.9,0.02)} tries to choose a number of FPCs that
+#' explains at least 90% of variation, but only includes FPCs that explain at
+#' least 2\% of variation (even if this means 90% explained variation is not reached).#
+#' 
+#' @return Integer for the number of fucntional principal components
+determine_npc <- function(evalues, npc_criterion) {
+  
+  evalues_varExplained = evalues / sum(evalues)
+  npc_criterion1 = which(cumsum(evalues_varExplained) >= npc_criterion[1])[1]
+  if (length(npc_criterion) == 1) {
+    npc = npc_criterion1
+  } else {
+    npc_criterion2 = which(evalues_varExplained < npc_criterion[2])[1] - 1
+    npc            = min(npc_criterion1, npc_criterion2)
+  }
+  
+  return(npc)
 }

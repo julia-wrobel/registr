@@ -31,10 +31,11 @@ Defaults to \code{"gaussian"}.}
 
 \item{npc, npc_criterion}{The number of functional principal components (FPCs)
 has to be specified either directly as \code{npc} or based on their explained
-share of variance. In the latter case, \code{npc_criterion} has to be set
-to a vector with two elements for the targeted explained share of variance
-and a cut-off scree plot criterion, both between 0 and 1. E.g.,
-\code{npc_criterion = c(0.9,0.02)} tries to choose the number of FPCs that
+share of variance. In the latter case, \code{npc_criterion} can either be set
+to (i) a share between 0 and 1, or (ii) a vector with two elements for the
+targeted explained share of variance and a cut-off scree plot criterion,
+both between 0 and 1. For the latter, e.g.,
+\code{npc_criterion = c(0.9,0.02)} tries to choose a number of FPCs that
 explains at least 90% of variation, but only includes FPCs that explain at
 least 2\% of variation (even if this means 90% explained variation is not reached).}
 
@@ -83,8 +84,10 @@ The resolution is can be specified by setting \code{index_significantDigits}.}
 \item{knots}{Cutpoints for B-spline basis used to rebuild \code{alpha}.}
 \item{efunctions}{\eqn{D \times npc} matrix of estimated FPC basis functions.}
 \item{evalues}{Estimated variance of the FPC scores.}
-\item{evalues_sum}{Sum of all (nonnegative) eigenvalues, before restricting
-the \code{evalues} vector to the first \code{npc} elements.}
+\item{evalues_sum}{Sum of all (nonnegative) eigenvalues of the smoothed
+covariance surface estimated with \code{gfpca_covHall}. Can be used as an
+approximation for the total variance present in \code{Y} to compute the
+shares of explained variance of the FPC scores.}
 \item{npc}{number of FPCs.}
 \item{scores}{\eqn{I \times npc} matrix of estimated FPC scores.}
 \item{alpha}{Estimated population-level mean.}
