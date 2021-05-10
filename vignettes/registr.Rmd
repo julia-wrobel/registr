@@ -194,7 +194,8 @@ To register binary data use the following code:
 registr_bin = register_fpca(Y = registration_data, family = "binomial", Kt = 8, Kh = 4, npc = 1, verbose = 2)
 ```
 
-The argument `Y` specifies the input dataset; this code uses the simulated `registration_data`. `Kt` and `Kh` specify number of B-spline basis functions for the subject-specific means and warping functions, respectively, and `npc` indicates the number of functional principal components to use.
+The argument `Y` specifies the input dataset; this code uses the simulated `registration_data`. `Kt` and `Kh` specify number of B-spline basis functions for the subject-specific means and warping functions, respectively, and `npc` indicates the number of functional principal components to use. The latter can also be chosen based on an explained share of variance, see argument
+`npc_varExplained`.
 
 ```{r plot_reg_bin, echo = FALSE, fig.show='hold', fig.width=2}
 Y = registr_bin$Y

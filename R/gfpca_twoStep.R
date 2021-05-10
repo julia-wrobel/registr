@@ -40,8 +40,8 @@
 #' the targeted explained share of variance and a cut-off scree plot criterion,
 #' both between 0 and 1. As an example for the latter,
 #' \code{npc_criterion = c(0.9,0.02)} tries to choose a number of FPCs that
-#' explains at least 90% of variation, but only includes FPCs that explain at
-#' least 2\% of variation (even if this means 90% explained variation is not reached).
+#' explains at least 90\% of variation, but only includes FPCs that explain at
+#' least 2\% of variation (even if this means 90\% explained variation is not reached).
 #' @param index_significantDigits Positive integer \code{>= 2}, stating the number
 #' of significant digits to which the index grid should be rounded. Coarsening the
 #' index grid is necessary since otherwise the covariance surface matrix
@@ -70,7 +70,7 @@
 #' \item{efunctions}{\eqn{D \times npc} matrix of estimated FPC basis functions.}
 #' \item{evalues}{Estimated variance of the FPC scores.}
 #' \item{evalues_sum}{Sum of all (nonnegative) eigenvalues of the smoothed
-#' covariance surface estimated with \code{gfpca_covHall}. Can be used as an
+#' covariance surface estimated with \code{\link{gfpca_covHall}}. Can be used as an
 #' approximation for the total variance present in \code{Y} to compute the
 #' shares of explained variance of the FPC scores.}
 #' \item{npc}{number of FPCs.}
@@ -334,8 +334,8 @@ gfpca_twoStep = function (Y, family = "gaussian", npc = NULL, npc_criterion = NU
 #' two elements for the targeted explained share of variance and a cut-off scree
 #' plot criterion, both between 0 and 1. For the latter, e.g.,
 #' \code{npc_criterion = c(0.9,0.02)} tries to choose a number of FPCs that
-#' explains at least 90% of variation, but only includes FPCs that explain at
-#' least 2\% of variation (even if this means 90% explained variation is not reached).#
+#' explains at least 90\% of variation, but only includes FPCs that explain at
+#' least 2\% of variation (even if this means 90\% explained variation is not reached).
 #' 
 #' @return Integer for the number of fucntional principal components
 determine_npc <- function(evalues, npc_criterion) {

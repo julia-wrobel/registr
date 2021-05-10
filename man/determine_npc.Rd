@@ -13,8 +13,8 @@ determine_npc(evalues, npc_criterion)
 two elements for the targeted explained share of variance and a cut-off scree
 plot criterion, both between 0 and 1. For the latter, e.g.,
 \code{npc_criterion = c(0.9,0.02)} tries to choose a number of FPCs that
-explains at least 90% of variation, but only includes FPCs that explain at
-least 2\% of variation (even if this means 90% explained variation is not reached).#}
+explains at least 90\% of variation, but only includes FPCs that explain at
+least 2\% of variation (even if this means 90\% explained variation is not reached).}
 }
 \value{
 Integer for the number of fucntional principal components

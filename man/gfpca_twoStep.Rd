@@ -36,8 +36,8 @@ to (i) a share between 0 and 1, or (ii) a vector with two elements comprising
 the targeted explained share of variance and a cut-off scree plot criterion,
 both between 0 and 1. As an example for the latter,
 \code{npc_criterion = c(0.9,0.02)} tries to choose a number of FPCs that
-explains at least 90% of variation, but only includes FPCs that explain at
-least 2\% of variation (even if this means 90% explained variation is not reached).}
+explains at least 90\% of variation, but only includes FPCs that explain at
+least 2\% of variation (even if this means 90\% explained variation is not reached).}
 
 \item{Kt}{Number of B-spline basis functions used to estimate mean functions
 and functional principal components. Default is 8. If
@@ -86,7 +86,7 @@ The resolution is can be specified by setting \code{index_significantDigits}.}
 \item{efunctions}{\eqn{D \times npc} matrix of estimated FPC basis functions.}
 \item{evalues}{Estimated variance of the FPC scores.}
 \item{evalues_sum}{Sum of all (nonnegative) eigenvalues of the smoothed
-covariance surface estimated with \code{gfpca_covHall}. Can be used as an
+covariance surface estimated with \code{\link{gfpca_covHall}}. Can be used as an
 approximation for the total variance present in \code{Y} to compute the
 shares of explained variance of the FPC scores.}
 \item{npc}{number of FPCs.}
