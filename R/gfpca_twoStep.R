@@ -6,13 +6,16 @@
 #' The method implements the `two-step approach` of Gertheiss et al. (2017)
 #' and is based on the approach of Hall et al. (2008) to estimate functional
 #' principal components. \cr \cr
-#' The number of functional principal components can either be specified
+#' The number of functional principal components (FPCs) can either be specified
 #' directly (argument \code{npc}) or chosen based on the explained share of
-#' variance (\code{npc_criterion}). Note that the Eigenvalue decomposition of the
-#' smoothed covariance surface estimated with \code{\link{gfpca_covHall}}
-#' sometimes leads to a long tail of small, subordinate dimensions, causing too
-#' many FPCs to be chosen. Such subordinate dimensions can be cut off by specifying
-#' the second element of argument \code{npc_criterion}. \cr \cr
+#' variance (\code{npc_criterion}). Using the latter, we approximate the overall
+#' variance in the data \code{Y} with the variance represented by the smoothed
+#' covariance surface estimated with \code{\link{gfpca_covHall}}.
+#' Note that the Eigenvalue decomposition of this covariance surface
+#' sometimes leads to a long tail of subordinate FPCs with small eigenvalues.
+#' Such subordinate dimensions seem to often represent phase rather than
+#' amplitude variation, and can be cut off by specifying the second element of
+#' argument \code{npc_criterion}. \cr \cr
 #' This function is an adaptation of the implementation of Jan
 #' Gertheiss for Gertheiss et al. (2017), with focus on higher (RAM) efficiency
 #' for large data settings.
@@ -33,9 +36,9 @@
 #' @param npc,npc_criterion The number of functional principal components (FPCs)
 #' has to be specified either directly as \code{npc} or based on their explained
 #' share of variance. In the latter case, \code{npc_criterion} can either be set
-#' to (i) a share between 0 and 1, or (ii) a vector with two elements for the
-#' targeted explained share of variance and a cut-off scree plot criterion,
-#' both between 0 and 1. For the latter, e.g.,
+#' to (i) a share between 0 and 1, or (ii) a vector with two elements comprising
+#' the targeted explained share of variance and a cut-off scree plot criterion,
+#' both between 0 and 1. As an example for the latter,
 #' \code{npc_criterion = c(0.9,0.02)} tries to choose a number of FPCs that
 #' explains at least 90% of variation, but only includes FPCs that explain at
 #' least 2\% of variation (even if this means 90% explained variation is not reached).
@@ -102,8 +105,13 @@
 #' @examples
 #' data(growth_incomplete)
 #' 
+#' # estimate 2 FPCs
 #' fpca_obj = gfpca_twoStep(Y = growth_incomplete, npc = 2, family = "gaussian")
 #' plot(fpca_obj)
+#' 
+#' # estimate npc adaptively, to explain 90% of the overall variation
+#' fpca_obj2 = gfpca_twoStep(Y = growth_incomplete, npc_criterion = 0.9, family = "gaussian")
+#' plot(fpca_obj2, plot_FPCs = 1:2)
 #' 
 gfpca_twoStep = function (Y, family = "gaussian", npc = NULL, npc_criterion = NULL,
                           Kt = 8, t_min = NULL, t_max = NULL,
@@ -215,7 +223,7 @@ gfpca_twoStep = function (Y, family = "gaussian", npc = NULL, npc_criterion = NU
   # choose the number of FPCs
   evalues_sum = sum(fit.lambda)
   if (!is.null(npc_criterion)) { # choose number of FPCs based on explained variance
-    npc = determine_npc(evalues, npc_criterion)
+    npc = determine_npc(evalues = fit.lambda, npc_criterion = npc_criterion)
   }
   efunctions       = fit.phi[,1:npc, drop = FALSE]
   evalues          = fit.lambda[1:npc]

@@ -25,12 +25,12 @@ fpca_gauss_optimization(
 \arguments{
 \item{npc}{The number of functional principal components (FPCs)
 has to be specified either directly as \code{npc} or based on their explained
-share of variance. In the latter case, \code{npc_criterion} has to be set
+share of variance. In the latter case, \code{npc_varExplained} has to be set
 to a share between 0 and 1.}
 
 \item{npc_varExplained}{The number of functional principal components (FPCs)
 has to be specified either directly as \code{npc} or based on their explained
-share of variance. In the latter case, \code{npc_criterion} has to be set
+share of variance. In the latter case, \code{npc_varExplained} has to be set
 to a share between 0 and 1.}
 
 \item{Kt}{Number of B-spline basis functions used to estimate mean functions
@@ -55,7 +55,7 @@ messages. Defaults to 1.}
 \code{fpca_gauss}.}
 }
 \value{
-list with elements \code{t_vec}, \code{Theta_phi_mean},
+list with elements \code{t_vec}, \code{Theta_phi_mean}, \code{alpha_coefs},
 \code{efunctions}, \code{evalues}, \code{evalues_sum}, \code{scores},
 \code{subject_coef}, \code{fittedVals}, \code{sigma2}. See documentation of
 \code{\link{fpca_gauss}} for details.

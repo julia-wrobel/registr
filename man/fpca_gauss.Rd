@@ -27,7 +27,7 @@ fpca_gauss(
 
 \item{npc, npc_varExplained}{The number of functional principal components (FPCs)
 has to be specified either directly as \code{npc} or based on their explained
-share of variance. In the latter case, \code{npc_criterion} has to be set
+share of variance. In the latter case, \code{npc_varExplained} has to be set
 to a share between 0 and 1.}
 
 \item{Kt}{Number of B-spline basis functions used to estimate mean functions
@@ -99,8 +99,13 @@ represented by the FPC basis with 20 FPCs.
 \examples{
 data(growth_incomplete)
 
+# estimate 2 FPCs
 fpca_obj = fpca_gauss(Y = growth_incomplete, npc = 2)
 plot(fpca_obj)
+
+# estimate npc adaptively, to explain 90\% of the overall variation
+fpca_obj2 = fpca_gauss(Y = growth_incomplete, npc_varExplained = 0.9)
+plot(fpca_obj, plot_FPCs = 1:2)
 
 }
 \references{

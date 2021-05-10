@@ -11,11 +11,10 @@
 #' domain-preserving. This behavior can be changed by setting
 #' \code{incompleteness} to some other value than NULL and a reasonable \code{lambda_inc} value.
 #' For further details see the accompanying vignette. \cr \cr
-#' By specifying \code{cores > 1} the registration call can be parallelized. \cr \cr
-#' For \code{fpca_type = "variationalEM"} the number of functional principal
-#' components (FPCs) can only be set using argument \code{npc}. For
-#' \code{fpca_type = "two-step"} the number of FPCs can also be chosen based on
-#' the explained share of variance (see argument \code{fpca_varExplained}).
+#' The number of functional principal components (FPCs) can either be specified
+#' directly (argument \code{npc}) or chosen based on the explained share of
+#' variance in each iteration (argument \code{npc_criterion}). \cr \cr
+#' By specifying \code{cores > 1} the registration call can be parallelized.
 #' 
 #' Requires input data \code{Y} to be a dataframe in long format with variables 
 #' \code{id}, \code{index}, and \code{value} to indicate subject IDs, 
@@ -29,8 +28,9 @@
 #' is performed.
 #'
 #' @param Kt Number of B-spline basis functions used to estimate mean functions
-#' and functional principal components. Default is 8. If \code{npc_criterion}
-#' is used, \code{Kt} is set to 20.
+#' and functional principal components. Default is 8. If
+#' \code{fpca_type = "variationalEM"} and \code{npc_criterion} is used,
+#' \code{Kt} is set to 20.
 #' @param family One of \code{c("gaussian","binomial","gamma","poisson")}.
 #' Families \code{"gamma"} and \code{"poisson"} are only supported by
 #' \code{fpca_type = "two-step"}. Defaults to \code{"gaussian"}.
@@ -43,12 +43,9 @@
 #' @param npc,npc_criterion The number of functional principal components (FPCs)
 #' has to be specified either directly as \code{npc} or based on their explained
 #' share of variance. In the latter case, \code{npc_criterion} has to be set
-#' to a vector with two elements for the targeted explained share of variance
-#' and a cut-off scree plot criterion, both between 0 and 1. E.g.,
-#' \code{npc_criterion = c(0.9,0.02)} tries to choose the number of FPCs that
-#' explains at least 90% of variation, but only includes FPCs that explain at
-#' least 2\% of variation.
-#' The latter can only be used for \code{fpca_type = "two-step"}.
+#' to a number between 0 and 1. For \code{fpca_type = "two-step"}, it is also
+#' possible to cut off potential tails of subordinate FPCs (see
+#' \code{\link{gfpca_twoStep}} for details).
 #' @param fpca_type One of \code{c("variationalEM","two-step")}.
 #' Defaults to \code{"variationalEM"}.
 #' @param fpca_maxiter Only used if \code{fpca_type = "variationalEM"}. Number
@@ -198,7 +195,7 @@ register_fpca = function(Y, Kt = 8, Kh = 4, family = "gaussian",
 	if (family %in% c("gamma","poisson") && fpca_type == "variationalEM") {
 		warning("fpca_type = 'variationalEM' is only available for families 'gaussian' and 'binomial'. Calling variationalEM for 'gaussian' family.")
 	}
-  if (is.null(npc) & (is.null(npc_criterion) || length(npc_criterion) != 2)) {
+  if (is.null(npc) & (is.null(npc_criterion) || length(npc_criterion) > 2)) {
     stop("Please either specify 'npc' or 'npc_criterion' appropriately.")
   }
   

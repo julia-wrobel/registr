@@ -15,7 +15,7 @@
 #' @param Y Dataframe. Should have variables id, value, index. 
 #' @param npc,npc_varExplained The number of functional principal components (FPCs)
 #' has to be specified either directly as \code{npc} or based on their explained
-#' share of variance. In the latter case, \code{npc_criterion} has to be set
+#' share of variance. In the latter case, \code{npc_varExplained} has to be set
 #' to a share between 0 and 1.
 #' @param Kt Number of B-spline basis functions used to estimate mean functions
 #' and functional principal components. Default is 8. If \code{npc_varExplained}
@@ -72,8 +72,13 @@
 #' @examples
 #' data(growth_incomplete)
 #' 
+#' # estimate 2 FPCs
 #' fpca_obj = fpca_gauss(Y = growth_incomplete, npc = 2)
 #' plot(fpca_obj)
+#' 
+#' # estimate npc adaptively, to explain 90% of the overall variation
+#' fpca_obj2 = fpca_gauss(Y = growth_incomplete, npc_varExplained = 0.9)
+#' plot(fpca_obj, plot_FPCs = 1:2)
 #' 
 fpca_gauss = function(Y, npc = NULL, npc_varExplained = NULL, Kt = 8, maxiter = 20,
                       t_min = NULL, t_max = NULL, 
@@ -302,6 +307,14 @@ fpca_gauss_optimization <- function(npc, npc_varExplained, Kt, maxiter, print.it
     temp_sigma2      = sigma2
     
   } # end while loop
+  
+  if (curr_iter < maxiter) {
+    if (verbose > 2) {
+      message("fpca_gauss converged.")
+    }
+  } else {
+    warning("fpca_gauss convergence not reached. Try increasing maxiter.")
+  }
   
   ## mean and eigenfunctions will have the same grid as the subject with most measurements
   id_mostObserved = names(sort(table(Y$id), decreasing = TRUE))[1]

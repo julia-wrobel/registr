@@ -27,12 +27,12 @@ bfpca(
 
 \item{npc}{The number of functional principal components (FPCs)
 has to be specified either directly as \code{npc} or based on their explained
-share of variance. In the latter case, \code{npc_criterion} has to be set
+share of variance. In the latter case, \code{npc_varExplained} has to be set
 to a share between 0 and 1.}
 
 \item{npc_varExplained}{The number of functional principal components (FPCs)
 has to be specified either directly as \code{npc} or based on their explained
-share of variance. In the latter case, \code{npc_criterion} has to be set
+share of variance. In the latter case, \code{npc_varExplained} has to be set
 to a share between 0 and 1.}
 
 \item{Kt}{Number of B-spline basis functions used to estimate mean functions
@@ -104,8 +104,13 @@ represented by the FPC basis with 20 FPCs.
 \examples{
 Y = simulate_functional_data()$Y
 
-bfpca_object = bfpca(Y, npc = 2, print.iter = TRUE)
-plot(bfpca_object)
+# estimate 2 FPCs
+bfpca_obj = bfpca(Y, npc = 2, print.iter = TRUE)
+plot(bfpca_obj)
+
+# estimate npc adaptively, to explain 90\% of the overall variation
+bfpca_obj2 = bfpca(Y, npc_varExplained = 0.9, print.iter = TRUE, maxiter = 100)
+plot(bfpca_obj2)
 
 }
 \references{
