@@ -6,7 +6,8 @@
 \usage{
 bfpca(
   Y,
-  npc = 1,
+  npc = NULL,
+  npc_varExplained = NULL,
   Kt = 8,
   maxiter = 50,
   t_min = NULL,
@@ -24,9 +25,19 @@ bfpca(
 \arguments{
 \item{Y}{Dataframe. Should have variables id, value, index.}
 
-\item{npc}{Defaults to 1. Number of principal components to calculate.}
+\item{npc}{The number of functional principal components (FPCs)
+has to be specified either directly as \code{npc} or based on their explained
+share of variance. In the latter case, \code{npc_varExplained} has to be set
+to a share between 0 and 1.}
 
-\item{Kt}{Number of B-spline basis functions used to estimate mean functions. Default is 8.}
+\item{npc_varExplained}{The number of functional principal components (FPCs)
+has to be specified either directly as \code{npc} or based on their explained
+share of variance. In the latter case, \code{npc_varExplained} has to be set
+to a share between 0 and 1.}
+
+\item{Kt}{Number of B-spline basis functions used to estimate mean functions
+and functional principal components. Default is 8. If \code{npc_varExplained}
+is used, \code{Kt} is set to 20.}
 
 \item{maxiter}{Maximum number of iterations to perform for EM algorithm. Default is 50.}
 
@@ -62,6 +73,9 @@ in contrast to registr::gfpca_twoStep.}
 \item{knots}{Cutpoints for B-spline basis used to rebuild \code{alpha}.}
 \item{efunctions}{\eqn{D \times npc} matrix of estimated FPC basis functions.}
 \item{evalues}{Estimated variance of the FPC scores.}
+\item{evalues_sum}{Approximation of the overall variance in \code{Y}, based
+on an initial run of the FPCA with \code{npc = 20}. Is \code{NULL} if
+\code{npc_varExplained} was not specified.}
 \item{npc}{number of FPCs.}
 \item{scores}{\eqn{I \times npc} matrix of estimated FPC scores.}
 \item{alpha}{Estimated population-level mean.}
@@ -78,13 +92,25 @@ For use in \code{registr()} function.}
 Function used in the FPCA step for registering binary functional data,
 called by \code{\link{register_fpca}} when \code{family = "binomial"}. 
 This method uses a variational EM algorithm to estimate scores and principal components for 
-binary functional data.
+binary functional data. \cr \cr
+The number of functional principal components (FPCs) can either be specified
+directly (argument \code{npc}) or chosen based on the explained share of
+variance (\code{npc_varExplained}). For the latter, the solution is based
+on running the FPCA with \code{npc = 20} (and correspondingly \code{Kt = 20})
+before reducing the solution to the relevant number of FPCs. Doing so,
+we approximate the overall variance in the data \code{Y} with the variance
+represented by the FPC basis with 20 FPCs.
 }
 \examples{
 Y = simulate_functional_data()$Y
 
-bfpca_object = bfpca(Y, npc = 2, print.iter = TRUE)
-plot(bfpca_object)
+# estimate 2 FPCs
+bfpca_obj = bfpca(Y, npc = 2, print.iter = TRUE)
+plot(bfpca_obj)
+
+# estimate npc adaptively, to explain 90\% of the overall variation
+bfpca_obj2 = bfpca(Y, npc_varExplained = 0.9, print.iter = TRUE, maxiter = 100)
+plot(bfpca_obj2)
 
 }
 \references{
@@ -98,5 +124,6 @@ Tipping, M. E. (1999). Probabilistic Visualisation of High-dimensional binary da
 }
 \author{
 Julia Wrobel \email{julia.wrobel@cuanschutz.edu},
-Jeff Goldsmith \email{ajg2202@cumc.columbia.edu}
+Jeff Goldsmith \email{ajg2202@cumc.columbia.edu},
+Alexander Bauer \email{alexander.bauer@stat.uni-muenchen.de}
 }

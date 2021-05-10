@@ -7,7 +7,8 @@
 gfpca_twoStep(
   Y,
   family = "gaussian",
-  npc = 1,
+  npc = NULL,
+  npc_criterion = NULL,
   Kt = 8,
   t_min = NULL,
   t_max = NULL,
@@ -28,9 +29,20 @@ Poisson data are rounded before performing
 the GFPCA to ensure integer data, see Details section below.
 Defaults to \code{"gaussian"}.}
 
-\item{npc}{Number of principal components to calculate. Defaults to 1.}
+\item{npc, npc_criterion}{The number of functional principal components (FPCs)
+has to be specified either directly as \code{npc} or based on their explained
+share of variance. In the latter case, \code{npc_criterion} can either be set
+to (i) a share between 0 and 1, or (ii) a vector with two elements comprising
+the targeted explained share of variance and a cut-off scree plot criterion,
+both between 0 and 1. As an example for the latter,
+\code{npc_criterion = c(0.9,0.02)} tries to choose a number of FPCs that
+explains at least 90\% of variation, but only includes FPCs that explain at
+least 2\% of variation (even if this means 90\% explained variation is not reached).}
 
-\item{Kt}{Number of B-spline basis functions used to estimate mean functions. Default is 8.}
+\item{Kt}{Number of B-spline basis functions used to estimate mean functions
+and functional principal components. Default is 8. If
+\code{fpca_type = "variationalEM"} and \code{npc_criterion} is used,
+\code{Kt} is set to 20.}
 
 \item{t_min}{Minimum value to be evaluated on the time domain.}
 
@@ -50,7 +62,8 @@ always the case after some registration step). Defaults to 4. Set to
 the mixed model estimation step in \code{lme4} is performed with lower
 accuracy, reducing computation time. Defaults to \code{"high"}.}
 
-\item{start_params}{Optional start values for gamm4.}
+\item{start_params}{Optional start values for gamm4. Not used if
+\code{npc_criterion} is specified.}
 
 \item{periodic}{Only contained for full consistency with \code{fpca_gauss}
 and \code{bfpca}. If TRUE, returns the knots vector for periodic b-spline
@@ -72,8 +85,10 @@ The resolution is can be specified by setting \code{index_significantDigits}.}
 \item{knots}{Cutpoints for B-spline basis used to rebuild \code{alpha}.}
 \item{efunctions}{\eqn{D \times npc} matrix of estimated FPC basis functions.}
 \item{evalues}{Estimated variance of the FPC scores.}
-\item{evalues_sum}{Sum of all (nonnegative) eigenvalues, before restricting
-the \code{evalues} vector to the first \code{npc} elements.}
+\item{evalues_sum}{Sum of all (nonnegative) eigenvalues of the smoothed
+covariance surface estimated with \code{\link{gfpca_covHall}}. Can be used as an
+approximation for the total variance present in \code{Y} to compute the
+shares of explained variance of the FPC scores.}
 \item{npc}{number of FPCs.}
 \item{scores}{\eqn{I \times npc} matrix of estimated FPC scores.}
 \item{alpha}{Estimated population-level mean.}
@@ -93,6 +108,16 @@ called by \code{\link{register_fpca}} when \code{fpca_type = "two-step"}. \cr \c
 The method implements the `two-step approach` of Gertheiss et al. (2017)
 and is based on the approach of Hall et al. (2008) to estimate functional
 principal components. \cr \cr
+The number of functional principal components (FPCs) can either be specified
+directly (argument \code{npc}) or chosen based on the explained share of
+variance (\code{npc_criterion}). Using the latter, we approximate the overall
+variance in the data \code{Y} with the variance represented by the smoothed
+covariance surface estimated with \code{\link{gfpca_covHall}}.
+Note that the Eigenvalue decomposition of this covariance surface
+sometimes leads to a long tail of subordinate FPCs with small eigenvalues.
+Such subordinate dimensions seem to often represent phase rather than
+amplitude variation, and can be cut off by specifying the second element of
+argument \code{npc_criterion}. \cr \cr
 This function is an adaptation of the implementation of Jan
 Gertheiss for Gertheiss et al. (2017), with focus on higher (RAM) efficiency
 for large data settings.
@@ -103,12 +128,20 @@ performing the GFPCA to ensure integer data. This is done to ensure reasonable
 computation times. Computation times tend to explode when estimating the
 underlying high-dimensional mixed model with continuous Poisson data based
 on the \code{\link{gamm4}} package.
+
+If negative eigenvalues are present, the respective eigenfunctions are dropped
+and not considered further.
 }
 \examples{
 data(growth_incomplete)
 
+# estimate 2 FPCs
 fpca_obj = gfpca_twoStep(Y = growth_incomplete, npc = 2, family = "gaussian")
 plot(fpca_obj)
+
+# estimate npc adaptively, to explain 90\% of the overall variation
+fpca_obj2 = gfpca_twoStep(Y = growth_incomplete, npc_criterion = 0.9, family = "gaussian")
+plot(fpca_obj2, plot_FPCs = 1:2)
 
 }
 \references{

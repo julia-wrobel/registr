@@ -50,29 +50,52 @@ test_that("gfpca_twoStep (Gaussian) output is a list with non-null items and cla
 	Y = simulate_functional_data(seed = 2020)$Y
 	Y$value = Y$latent_mean
 	
-	fpca_object = gfpca_twoStep(Y, npc = 2)
+	fpca_object  = gfpca_twoStep(Y, npc = 2)
+	fpca_object2 = gfpca_twoStep(Y, npc_criterion = 0.9)
+	fpca_object3 = gfpca_twoStep(Y, npc_criterion = c(0.9, 0.02))
 	
-	expect_equal(class(fpca_object), "fpca")
+	expect_equal(class(fpca_object),  "fpca")
+	expect_equal(class(fpca_object2), "fpca")
+	expect_equal(class(fpca_object3), "fpca")
 	expect_equal(fpca_object$family, "gaussian")
+	expect_equal(fpca_object2$family, "gaussian")
+	expect_equal(fpca_object3$family, "gaussian")
 	
 	expect_false(any(is.na(fpca_object$t_vec)))
+	expect_false(any(is.na(fpca_object2$t_vec)))
+	expect_false(any(is.na(fpca_object3$t_vec)))
 	expect_false(any(is.na(fpca_object$mu)))
+	expect_false(any(is.na(fpca_object2$mu)))
+	expect_false(any(is.na(fpca_object3$mu)))
 	expect_false(any(is.na(fpca_object$efunctions)))
+	expect_false(any(is.na(fpca_object2$efunctions)))
+	expect_false(any(is.na(fpca_object3$efunctions)))
 	expect_false(any(is.na(fpca_object$evalues)))
+	expect_false(any(is.na(fpca_object2$evalues)))
+	expect_false(any(is.na(fpca_object3$evalues)))
 	expect_false(any(is.na(fpca_object$scores)))
+	expect_false(any(is.na(fpca_object2$scores)))
+	expect_false(any(is.na(fpca_object3$scores)))
 })
 
 test_that("gfpca_twoStep (Gaussian) output has correct number of dimensions",{
 	Y = simulate_functional_data(I = 100, D = 200, seed = 2020)$Y
 	Kt = 8
-	fpca_object = gfpca_twoStep(Y, npc = 2, Kt = Kt, index_significantDigits = 4)
+	fpca_object  = gfpca_twoStep(Y, npc = 2, Kt = Kt, index_significantDigits = 4)
+	fpca_object2 = gfpca_twoStep(Y, npc_criterion = 0.9, Kt = Kt, index_significantDigits = 4)
 	
 	expect_equal(length(fpca_object$t_vec), 200)
+	expect_equal(length(fpca_object2$t_vec), 200)
 	expect_equal(dim(fpca_object$alpha), c(200, 1))
+	expect_equal(dim(fpca_object2$alpha), c(200, 1))
 	expect_equal(dim(fpca_object$efunctions), c(200, 2))
+	expect_equal(dim(fpca_object2$efunctions), c(200, 2))
 	expect_equal(length(fpca_object$evalues), 2)
+	expect_equal(length(fpca_object2$evalues), 2)
 	expect_equal(dim(fpca_object$scores), c(length(unique(Y$id)), 2))
+	expect_equal(dim(fpca_object2$scores), c(length(unique(Y$id)), 2))
 	expect_equal(length(fpca_object$knots), Kt - 4)
+	expect_equal(length(fpca_object2$knots), Kt - 4)
 	
 	fpca_object = gfpca_twoStep(Y, npc = 1, Kt = Kt, index_significantDigits = 4)
 	expect_equal(dim(fpca_object$efunctions), c(200, 1))
@@ -185,4 +208,14 @@ test_that("crossprods_regular and crossprods_irregular work as expected",{
   expect_equal(ncol(cp2), 4)
   expect_true(all(!is.na(cp1$cross)))
   expect_true(all(!is.na(cp2$cross)))
+})
+
+test_that("Helper function 'determine_npc()' works as expected",{
+  evalues = c(15,2,seq(0.5, 0.1, length.out = 20),0.0001,0)
+  
+  npc_criterion1 = 0.9
+  expect_equal(determine_npc(evalues, npc_criterion1), 11)
+  
+  npc_criterion2 = c(0.9, 0.02)
+  expect_equal(determine_npc(evalues, npc_criterion2), 4)
 })

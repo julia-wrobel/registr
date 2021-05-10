@@ -4,46 +4,61 @@ test_that("bfpca only accepts binary input values",{
 	Y = simulate_functional_data(seed = 2020)$Y
 	Y$value = Y$value + 2
 	
-	expect_that(bfpca(Y), 
+	expect_that(bfpca(Y, npc = 1), 
 							throws_error("'binomial' family requires data with binary values of 0 or 1"))
 	
 	Y$value = Y$latent_mean
 	
-	expect_that(bfpca(Y), 
+	expect_that(bfpca(Y, npc = 1), 
 							throws_error("'binomial' family requires data with binary values of 0 or 1"))
 })
 
 test_that("bfpca output is a list with non-null items and class fpca",{
 	Y = simulate_functional_data(seed = 2020)$Y
 	expect_warning({
-		bfpca_object = bfpca(Y, npc = 2, print.iter = TRUE)
+		bfpca_object = bfpca(Y, npc = 2)
+	}, "BFPCA convergence not reached. Try increasing maxiter.")
+	expect_warning({
+	  bfpca_object2 = bfpca(Y, npc_varExplained = 0.8, maxiter = 2)
 	}, "BFPCA convergence not reached. Try increasing maxiter.")
 	
-	expect_equal(class(bfpca_object), "fpca")
-	expect_equal(bfpca_object$family, "binomial")
+	expect_equal(class(bfpca_object),  "fpca")
+	expect_equal(class(bfpca_object2), "fpca")
+	expect_equal(bfpca_object$family,  "binomial")
+	expect_equal(bfpca_object2$family, "binomial")
 	
 	expect_false(any(is.na(bfpca_object$mu)))
+	expect_false(any(is.na(bfpca_object2$mu)))
 	expect_false(any(is.na(bfpca_object$efunctions)))
+	expect_false(any(is.na(bfpca_object2$efunctions)))
 	expect_false(any(is.na(bfpca_object$evalues)))
+	expect_false(any(is.na(bfpca_object2$evalues)))
 	expect_false(any(is.na(bfpca_object$scores)))
+	expect_false(any(is.na(bfpca_object2$scores)))
 })
 
 test_that("bfpca output has correct number of dimensions",{
 	Y = simulate_functional_data(I = 100, D = 200, seed = 2020)$Y
 	Kt = 8
 	expect_warning({
-		bfpca_object = bfpca(Y, npc = 4, Kt = Kt, print.iter = TRUE)
+		bfpca_object = bfpca(Y, npc = 4, Kt = Kt)
 	}, "BFPCA convergence not reached. Try increasing maxiter.")
-
-	expect_equal(dim(bfpca_object$alpha), c(200, 1))
-	expect_equal(dim(bfpca_object$efunctions), c(200, 4))
-	expect_equal(length(bfpca_object$evalues), 4)
-	expect_equal(dim(bfpca_object$scores), c(100, 4))
-	expect_equal(length(bfpca_object$knots), Kt - 4)
-	
 	expect_warning({
-		bfpca_object = bfpca(Y, npc = 1, Kt = Kt, print.iter = TRUE)
+	  bfpca_object2 = bfpca(Y, npc_varExplained = 0.8, Kt = Kt, maxiter = 2)
 	}, "BFPCA convergence not reached. Try increasing maxiter.")
+	
+	expect_equal(dim(bfpca_object$alpha),  c(200, 1))
+	expect_equal(dim(bfpca_object2$alpha), c(200, 1))
+	expect_equal(dim(bfpca_object$efunctions),  c(200, 4))
+	expect_equal(dim(bfpca_object2$efunctions), c(200, 4))
+	expect_equal(length(bfpca_object$evalues),  4)
+	expect_equal(length(bfpca_object2$evalues), 4)
+	expect_equal(dim(bfpca_object$scores),  c(100, 4))
+	expect_equal(dim(bfpca_object2$scores), c(100, 4))
+	expect_equal(length(bfpca_object$knots),  Kt - 4)
+	expect_equal(length(bfpca_object2$knots), 20 - 4)
+	
+	bfpca_object = bfpca(Y, npc = 1, Kt = Kt)
 	expect_equal(dim(bfpca_object$efunctions), c(200, 1))
 })
 
@@ -51,7 +66,7 @@ test_that("bfpca works for time domains other than (0, 1)",{
 	Y = simulate_functional_data(seed = 2020)$Y
 	Y$index = Y$index + 1
 	expect_warning({
-		bfpca_object = bfpca(Y, npc = 2, print.iter = TRUE)
+		bfpca_object = bfpca(Y, npc = 2)
 	}, "BFPCA convergence not reached. Try increasing maxiter.")
 	t_min = min(Y$index)
 	t_max = max(Y$index)
@@ -63,7 +78,9 @@ test_that("bfpca works for time domains other than (0, 1)",{
 
 test_that("bfpca works for subjects with different grid lengths",{
 	Y = simulate_functional_data(vary_D = TRUE, seed = 2020)$Y
-	bfpca_object = bfpca(Y, npc = 2, print.iter = TRUE)
+	expect_warning({
+	  bfpca_object = bfpca(Y, npc = 2)
+	}, "BFPCA convergence not reached. Try increasing maxiter.")
 	
 	expect_equal(class(bfpca_object), "fpca")
 	expect_true(length(unique(table(Y$id))) > 1)
@@ -74,16 +91,17 @@ test_that("bfpca works for different start seeds",{
 	Y = simulate_functional_data(vary_D = TRUE, seed = 2020)$Y
 	seeds = as.integer(runif(3, 10, 100))
 	
-	expect_error(bfpca(Y, npc = 2, print.iter = TRUE, seed = seeds[1]), NA)
-	expect_error(bfpca(Y, npc = 2, print.iter = TRUE, seed = seeds[2]), NA)
-	expect_warning(bfpca(Y, npc = 2, print.iter = TRUE, seed = seeds[3]),
-								 "BFPCA convergence not reached. Try increasing maxiter.")
+	expect_warning({
+	  expect_error(bfpca(Y, npc = 2, seed = seeds[1]), NA)
+	}, "BFPCA convergence not reached. Try increasing maxiter.")
+	expect_error(bfpca(Y, npc = 2, seed = seeds[2]), NA)
+	bfpca(Y, npc = 2, seed = seeds[3])
 })
 
 test_that("bfpca iterations are strictly decreasing",{
 	Y = simulate_functional_data(seed = 2020)$Y
 	expect_warning({
-		bfpca_object = bfpca(Y, npc = 2, print.iter = TRUE)
+		bfpca_object = bfpca(Y, npc = 2)
 	}, "BFPCA convergence not reached. Try increasing maxiter.")
 	
 	expect_true(all(diff(bfpca_object$error) < 0))
@@ -93,7 +111,7 @@ test_that("bfpca output has correct number of dimensions when periodic = TRUE ",
 	Y = simulate_functional_data(I = 100, D = 200, seed = 2020)$Y
 	Kt = 8
 	expect_warning({
-		bfpca_object = bfpca(Y, npc = 4, periodic = TRUE, Kt = Kt, print.iter = TRUE)
+		bfpca_object = bfpca(Y, npc = 4, periodic = TRUE, Kt = Kt)
 	}, "BFPCA convergence not reached. Try increasing maxiter.")
 	
 	expect_equal(dim(bfpca_object$alpha), c(200, 1))
@@ -103,7 +121,7 @@ test_that("bfpca output has correct number of dimensions when periodic = TRUE ",
 	expect_equal(length(bfpca_object$knots), Kt - 1)
 	
 	expect_warning({
-		bfpca_object = bfpca(Y, npc = 1, periodic = TRUE, print.iter = TRUE)
+		bfpca_object = bfpca(Y, npc = 1, periodic = TRUE)
 	}, "BFPCA convergence not reached. Try increasing maxiter.")
 	expect_equal(dim(bfpca_object$efunctions), c(200, 1))
 })
@@ -113,7 +131,9 @@ test_that("bfpca has correct number of dimensions when applied on incomplete cur
 	Y  = simulate_functional_data(I = 100, D = 200, seed = 2020)$Y
 	Y  = Y[!(Y$id %in% unique(Y$id)[1:50]) | (Y$index < 0.5),]
 	Kt = 8
-	fpca_object = bfpca(Y, npc = 2, Kt = Kt, print.iter = TRUE)
+	expect_warning({
+	  fpca_object = bfpca(Y, npc = 2, Kt = Kt)
+	}, "BFPCA convergence not reached. Try increasing maxiter.")
 	
 	expect_equal(dim(fpca_object$alpha), c(length(unique(Y$index)), 1))
 	expect_equal(dim(fpca_object$efunctions), c(length(unique(Y$index)), 2))
@@ -122,7 +142,7 @@ test_that("bfpca has correct number of dimensions when applied on incomplete cur
 	expect_equal(length(fpca_object$knots), Kt - 4)
 	
 	expect_warning({
-		fpca_object = bfpca(Y, npc = 1, Kt = Kt, print.iter = TRUE)
+		fpca_object = bfpca(Y, npc = 1, Kt = Kt)
 	}, "BFPCA convergence not reached. Try increasing maxiter.")
 	expect_equal(dim(fpca_object$efunctions), c(length(unique(Y$index)), 1))
 })

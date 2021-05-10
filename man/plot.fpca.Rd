@@ -52,8 +52,7 @@ Plot FPCA results by visualizing the variation of the individual FPCs around
 the global mean. based on an object created with function
 \code{\link{fpca_gauss}}, \code{\link{bfpca}} or \code{\link{gfpca_twoStep}}. \cr \cr
 The shares of explained variance are included in the plot titles if
-\code{x} contains an element \code{evalues_sum}. This is currently
-only the case for FPCA objects created with \code{\link{gfpca_twoStep}}.
+\code{x} contains an element \code{evalues_sum}.
 }
 \examples{
 data(growth_incomplete)
