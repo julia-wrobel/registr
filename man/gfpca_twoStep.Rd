@@ -109,7 +109,11 @@ and is based on the approach of Hall et al. (2008) to estimate functional
 principal components. \cr \cr
 The number of functional principal components can either be specified
 directly (argument \code{npc}) or chosen based on the explained share of
-variance (\code{npc_criterion}). \cr \cr
+variance (\code{npc_criterion}). Note that the Eigenvalue decomposition of the
+smoothed covariance surface estimated with \code{\link{gfpca_covHall}}
+sometimes leads to a long tail of small, subordinate dimensions, causing too
+many FPCs to be chosen. Such subordinate dimensions can be cut off by specifying
+the second element of argument \code{npc_criterion}. \cr \cr
 This function is an adaptation of the implementation of Jan
 Gertheiss for Gertheiss et al. (2017), with focus on higher (RAM) efficiency
 for large data settings.

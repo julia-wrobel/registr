@@ -202,10 +202,6 @@ register_fpca = function(Y, Kt = 8, Kh = 4, family = "gaussian",
     stop("Please either specify 'npc' or 'npc_criterion' appropriately.")
   }
   
-  if (!is.null(npc_criterion)) { # set Kt to 20 since only 'Kt' FPCs can be extracted.
-    Kt = 20
-  }
-		
   if (verbose > 2) {
     message("Running data_clean")
   }
@@ -236,30 +232,6 @@ register_fpca = function(Y, Kt = 8, Kh = 4, family = "gaussian",
   delta_index = rep(NA, max_iterations)
   convergence_threshold = 0.0001
   
-  # TODO define the following two helper functions outside of this function, including unit tests etc.
-  # helper function to estimate variationalEM FPCA (if needed)
-  estimate_fpca_varEM <- function(npc) {
-    if (family == "binomial") {
-      fpca_step = bfpca(registr_step$Y, npc = npc, Kt = Kt, row_obj = rows, seed = fpca_seed, maxiter = fpca_maxiter, 
-                        error_thresh = fpca_error_thresh, verbose = verbose, ...)
-    } else {
-      fpca_step = fpca_gauss(registr_step$Y, npc = npc, Kt = Kt, row_obj = rows, seed = fpca_seed, maxiter = fpca_maxiter,
-                             error_thresh = fpca_error_thresh,  verbose = verbose, ...)
-    }
-    return(fpca_step)
-  }
-  # helper function to determine the number of FPCs for the variationalEM FPCA if 'npc_criterion' is used
-  get_npc_varEM <- function() {
-    fpca_initStep = estimate_fpca_varEM(npc = 20)
-    evalues       = fpca_initStep$evalues
-    evalues_varExplained = evalues / sum(evalues)
-    npc_criterion1 = which(cumsum(evalues_varExplained) >= npc_criterion[1])[1]
-    npc_criterion2 = which(evalues_varExplained < npc_criterion[2])[1] - 1
-    npc            = min(npc_criterion1, npc_criterion2)
-    return(list(npc              = npc,
-                npc_varExplained = cumsum(evalues_varExplained)[1:npc]))
-  }
-  
   # main iterations
   while (iter == 0 ||
   			 (iter < max_iterations && delta_index[iter] > convergence_threshold)) {
@@ -272,17 +244,15 @@ register_fpca = function(Y, Kt = 8, Kh = 4, family = "gaussian",
   	  message("FPCA Step")
   	}  	
   	if (fpca_type == "variationalEM") { # GFPCA after Wrobel et al. (2019)
-  	  
-  	  if (!is.null(npc_criterion)) { # choose the number of FPCs before the main estimation step
-  	    res_list = get_npc_varEM()
-  	    npc      = res_list$npc
-  	    if (verbose > 0) {
-  	      message(paste0("Using the first ",res_list$npc," FPCs which explain ",
-  	                     round(sum(res_list$npc_varExplained) * 100, 1),"% of the total variance."))
-  	    }
+  	  if (family == "binomial") {
+  	    fpca_step = bfpca(registr_step$Y, npc = npc, npc_varExplained = npc_criterion[1],
+  	                      Kt = Kt, row_obj = rows, seed = fpca_seed, maxiter = fpca_maxiter, 
+  	                      error_thresh = fpca_error_thresh, verbose = verbose, ...)
+  	  } else {
+  	    fpca_step = fpca_gauss(registr_step$Y, npc = npc, npc_varExplained = npc_criterion[1],
+  	                           Kt = Kt, row_obj = rows, seed = fpca_seed, maxiter = fpca_maxiter,
+  	                           error_thresh = fpca_error_thresh,  verbose = verbose, ...)
   	  }
-  	  # main estimation step
-  	  fpca_step = estimate_fpca_varEM(npc = npc)
   		
   	} else if (fpca_type == "two-step") { # Two-step GFPCA after Gertheiss et al. (2017)
   		
@@ -336,19 +306,15 @@ register_fpca = function(Y, Kt = 8, Kh = 4, family = "gaussian",
   }  	
   # final FPCA step
   if (fpca_type == "variationalEM") { # GFPCA after Wrobel et al. (2019)
-    
-    if (!is.null(npc_criterion)) { # choose the number of FPCs before the main estimation step
-      res_list = get_npc_varEM()
-      npc      = res_list$npc
-      if (verbose > 0) {
-        message(paste0("Using the first ",res_list$npc," FPCs which explain ",
-                       round(sum(res_list$npc_varExplained) * 100, 1),"% of the total variance."))
-      }
+    if (family == "binomial") {
+      fpca_step = bfpca(registr_step$Y, npc = npc, npc_varExplained = npc_criterion[1],
+                        Kt = Kt, row_obj = rows, seed = fpca_seed, maxiter = fpca_maxiter, 
+                        error_thresh = fpca_error_thresh, verbose = verbose, ...)
+    } else {
+      fpca_step = fpca_gauss(registr_step$Y, npc = npc, npc_varExplained = npc_criterion[1],
+                             Kt = Kt, row_obj = rows, seed = fpca_seed, maxiter = fpca_maxiter,
+                             error_thresh = fpca_error_thresh,  verbose = verbose, ...)
     }
-    # main estimation step
-    fpca_step = estimate_fpca_varEM(npc = npc)
-    if (!is.null(npc_criterion))
-      fpca_step$var_explained <- res_list$npc_varExplained # TODO integrate this consistently with gfpca_twoStep()
   	
   } else if (fpca_type == "two-step") { # Two-step GFPCA after Gertheiss et al. (2017)
   	fpca_step = gfpca_twoStep(registr_step$Y, family = family,
