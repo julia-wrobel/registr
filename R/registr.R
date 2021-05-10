@@ -412,7 +412,7 @@ registr = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "gaussian", gr
     do.call(registr_oneCurve, args = args)
   }
   if (cores == 1) { # serial call
-    if (requireNamespace("pbapply", quietly = TRUE) && verbose) {
+    if (requireNamespace("pbapply", quietly = TRUE) && verbose > 1) {
       results_list = pbapply::pblapply(Y, run_one_curve)
     } else {
       results_list = lapply(Y, run_one_curve)
