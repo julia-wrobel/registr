@@ -188,8 +188,8 @@ fpca_gauss = function(Y, npc = NULL, npc_varExplained = NULL, Kt = 8, maxiter = 
     fpca_type     = "variationalEM",
   	t_vec         = fpca_resList$t_vec,
   	knots         = knots, 
-  	alpha         = fpca_resList$Theta_phi_mean %*% alpha_coefs,
-  	mu            = fpca_resList$Theta_phi_mean %*% alpha_coefs, # return this to be consistent with refund.shiny
+  	alpha         = fpca_resList$Theta_phi_mean %*% fpca_resList$alpha_coefs,
+  	mu            = fpca_resList$Theta_phi_mean %*% fpca_resList$alpha_coefs, # return this to be consistent with refund.shiny
   	efunctions    = fpca_resList$efunctions, 
   	evalues       = fpca_resList$evalues,
     evalues_sum   = fpca_resList$evalues_sum,
@@ -219,7 +219,7 @@ fpca_gauss = function(Y, npc = NULL, npc_varExplained = NULL, Kt = 8, maxiter = 
 #' @importFrom pbs pbs
 #' @importFrom stats rnorm
 #' 
-#' @return list with elements \code{t_vec}, \code{Theta_phi_mean},
+#' @return list with elements \code{t_vec}, \code{Theta_phi_mean}, \code{alpha_coefs},
 #' \code{efunctions}, \code{evalues}, \code{evalues_sum}, \code{scores},
 #' \code{subject_coef}, \code{fittedVals}, \code{sigma2}. See documentation of
 #' \code{\link{fpca_gauss}} for details.
@@ -356,6 +356,7 @@ fpca_gauss_optimization <- function(npc, npc_varExplained, Kt, maxiter, print.it
   
   return(list(t_vec          = t_vec,
               Theta_phi_mean = Theta_phi_mean,
+              alpha_coefs    = alpha_coefs,
               npc            = npc,
               efunctions     = efunctions,
               evalues        = evalues,

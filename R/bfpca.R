@@ -167,17 +167,18 @@ bfpca = function(Y, npc = NULL, npc_varExplained = NULL, Kt = 8, maxiter = 50,
                    I                = I,
                    knots            = knots,
                    Theta_phi        = Theta_phi,
+                   xi               = xi,
                    alpha_coefs      = alpha_coefs)
   
   # main optimization step
-  fpca_resList = do.call(fpca_gauss_optimization, args = arg_list)
+  fpca_resList = do.call(bfpca_optimization, args = arg_list)
   
   ret = list(
     fpca_type     = "variationalEM",
     t_vec         = fpca_resList$t_vec,
     knots         = knots, 
-    alpha         = fpca_resList$Theta_phi_mean %*% alpha_coefs,
-    mu            = fpca_resList$Theta_phi_mean %*% alpha_coefs, # return this to be consistent with refund.shiny
+    alpha         = fpca_resList$Theta_phi_mean %*% fpca_resList$alpha_coefs,
+    mu            = fpca_resList$Theta_phi_mean %*% fpca_resList$alpha_coefs, # return this to be consistent with refund.shiny
     efunctions    = fpca_resList$efunctions, 
     evalues       = fpca_resList$evalues,
     evalues_sum   = fpca_resList$evalues_sum,
@@ -198,20 +199,20 @@ bfpca = function(Y, npc = NULL, npc_varExplained = NULL, Kt = 8, maxiter = 50,
 #' Internal main optimization for bfpca
 #' 
 #' @inheritParams bfpca
-#' @param Y,rows,I,knots,Theta_phi,alpha_coefs Internal objects created in
+#' @param Y,rows,I,knots,Theta_phi,xi,alpha_coefs Internal objects created in
 #' \code{bfpca}.
 #' 
 #' @importFrom splines bs
 #' @importFrom pbs pbs
 #' @importFrom stats rnorm
 #' 
-#' @return list with elements \code{t_vec}, \code{Theta_phi_mean},
+#' @return list with elements \code{t_vec}, \code{Theta_phi_mean}, \code{alpha_coefs},
 #' \code{efunctions}, \code{evalues}, \code{evalues_sum}, \code{scores},
 #' \code{subject_coef}, \code{fittedVals}, \code{error}. See documentation of
 #' \code{\link{fpca_gauss}} for details.
 bfpca_optimization <- function(npc, npc_varExplained, Kt, maxiter, print.iter,
                                seed, periodic, error_thresh, verbose,
-                               Y, rows, I, knots, Theta_phi, alpha_coefs) {
+                               Y, rows, I, knots, Theta_phi, xi, alpha_coefs) {
   
   curr_iter = 1
   error     = rep(NA, maxiter)
@@ -344,6 +345,7 @@ bfpca_optimization <- function(npc, npc_varExplained, Kt, maxiter, print.iter,
 
   return(list(t_vec          = t_vec,
               Theta_phi_mean = Theta_phi_mean,
+              alpha_coefs    = alpha_coefs,
               npc            = npc,
               efunctions     = efunctions,
               evalues        = evalues,
