@@ -231,7 +231,7 @@ To register continuous data use the following code:
 
 ```{r register_gaussian, message = FALSE}
 registration_data$value = registration_data$latent_mean
-registr_gauss = register_fpca(Y = registration_data, family = "gaussian", Kt = 10)
+registr_gauss = register_fpca(Y = registration_data, family = "gaussian", npc = 1, Kt = 10)
 ```
 
 # Estimating the GFPCA
