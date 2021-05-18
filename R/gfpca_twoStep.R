@@ -10,7 +10,7 @@
 #' directly (argument \code{npc}) or chosen based on the explained share of
 #' variance (\code{npc_criterion}). Using the latter, we approximate the overall
 #' variance in the data \code{Y} with the variance represented by the smoothed
-#' covariance surface estimated with \code{\link{gfpca_covHall}}.
+#' covariance surface estimated with \code{\link{cov_hall}}.
 #' Note that the Eigenvalue decomposition of this covariance surface
 #' sometimes leads to a long tail of subordinate FPCs with small eigenvalues.
 #' Such subordinate dimensions seem to often represent phase rather than
@@ -70,7 +70,7 @@
 #' \item{efunctions}{\eqn{D \times npc} matrix of estimated FPC basis functions.}
 #' \item{evalues}{Estimated variance of the FPC scores.}
 #' \item{evalues_sum}{Sum of all (nonnegative) eigenvalues of the smoothed
-#' covariance surface estimated with \code{\link{gfpca_covHall}}. Can be used as an
+#' covariance surface estimated with \code{\link{cov_hall}}. Can be used as an
 #' approximation for the total variance present in \code{Y} to compute the
 #' shares of explained variance of the FPC scores.}
 #' \item{npc}{number of FPCs.}

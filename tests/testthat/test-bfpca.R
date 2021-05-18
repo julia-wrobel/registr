@@ -47,10 +47,10 @@ test_that("bfpca output has correct number of dimensions",{
 	  bfpca_object2 = bfpca(Y, npc_varExplained = 0.8, Kt = Kt, maxiter = 2)
 	}, "BFPCA convergence not reached. Try increasing maxiter.")
 	
-	expect_equal(dim(bfpca_object$alpha),  c(200, 1))
-	expect_equal(dim(bfpca_object2$alpha), c(200, 1))
-	expect_equal(dim(bfpca_object$efunctions),  c(200, 4))
-	expect_equal(dim(bfpca_object2$efunctions), c(200, 4))
+	expect_equal(dim(bfpca_object$alpha),  c(100, 1))
+	expect_equal(dim(bfpca_object2$alpha), c(100, 1))
+	expect_equal(dim(bfpca_object$efunctions),  c(100, 4))
+	expect_equal(dim(bfpca_object2$efunctions), c(100, 4))
 	expect_equal(length(bfpca_object$evalues),  4)
 	expect_equal(length(bfpca_object2$evalues), 4)
 	expect_equal(dim(bfpca_object$scores),  c(100, 4))
@@ -59,7 +59,7 @@ test_that("bfpca output has correct number of dimensions",{
 	expect_equal(length(bfpca_object2$knots), 20 - 4)
 	
 	bfpca_object = bfpca(Y, npc = 1, Kt = Kt)
-	expect_equal(dim(bfpca_object$efunctions), c(200, 1))
+	expect_equal(dim(bfpca_object$efunctions), c(100, 1))
 })
 
 test_that("bfpca works for time domains other than (0, 1)",{
@@ -114,8 +114,8 @@ test_that("bfpca output has correct number of dimensions when periodic = TRUE ",
 		bfpca_object = bfpca(Y, npc = 4, periodic = TRUE, Kt = Kt)
 	}, "BFPCA convergence not reached. Try increasing maxiter.")
 	
-	expect_equal(dim(bfpca_object$alpha), c(200, 1))
-	expect_equal(dim(bfpca_object$efunctions), c(200, 4))
+	expect_equal(dim(bfpca_object$alpha), c(100, 1))
+	expect_equal(dim(bfpca_object$efunctions), c(100, 4))
 	expect_equal(length(bfpca_object$evalues), 4)
 	expect_equal(dim(bfpca_object$scores), c(100, 4))
 	expect_equal(length(bfpca_object$knots), Kt - 1)
@@ -123,7 +123,7 @@ test_that("bfpca output has correct number of dimensions when periodic = TRUE ",
 	expect_warning({
 		bfpca_object = bfpca(Y, npc = 1, periodic = TRUE)
 	}, "BFPCA convergence not reached. Try increasing maxiter.")
-	expect_equal(dim(bfpca_object$efunctions), c(200, 1))
+	expect_equal(dim(bfpca_object$efunctions), c(100, 1))
 })
 
 test_that("bfpca has correct number of dimensions when applied on incomplete curves",{
@@ -135,8 +135,8 @@ test_that("bfpca has correct number of dimensions when applied on incomplete cur
 	  fpca_object = bfpca(Y, npc = 2, Kt = Kt)
 	}, "BFPCA convergence not reached. Try increasing maxiter.")
 	
-	expect_equal(dim(fpca_object$alpha), c(length(unique(Y$index)), 1))
-	expect_equal(dim(fpca_object$efunctions), c(length(unique(Y$index)), 2))
+	expect_equal(dim(fpca_object$alpha), c(100, 1))
+	expect_equal(dim(fpca_object$efunctions), c(100, 2))
 	expect_equal(length(fpca_object$evalues), 2)
 	expect_equal(dim(fpca_object$scores), c(length(unique(Y$id)), 2))
 	expect_equal(length(fpca_object$knots), Kt - 4)
@@ -144,5 +144,5 @@ test_that("bfpca has correct number of dimensions when applied on incomplete cur
 	expect_warning({
 		fpca_object = bfpca(Y, npc = 1, Kt = Kt)
 	}, "BFPCA convergence not reached. Try increasing maxiter.")
-	expect_equal(dim(fpca_object$efunctions), c(length(unique(Y$index)), 1))
+	expect_equal(dim(fpca_object$efunctions), c(100, 1))
 })

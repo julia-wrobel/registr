@@ -32,10 +32,11 @@ h3 { /* Header 3 */
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>",
-  message = FALSE,
-  warning = FALSE
+  collapse  = TRUE,
+  comment   = "#>",
+  message   = FALSE,
+  warning   = FALSE,
+  fig.width = 6
 )
 ```
 
@@ -52,9 +53,11 @@ found in the separate vignette `"incomplete_curves"`.
 library(registr)
 library(dplyr)
 have_ggplot2 = requireNamespace("ggplot2", quietly = TRUE)
-if (have_ggplot2)  {
+have_cowplot = requireNamespace("cowplot", quietly = TRUE)
+if (have_ggplot2 & have_cowplot)  {
   library(ggplot2)
   theme_set(theme_bw())
+  library(cowplot)
 }
 ```
 
@@ -121,16 +124,18 @@ The resulting object,`registration_data`, is a data frame with variables `id`, `
 
 The variables `index` and `t` are both time grids. Evaluated on the grid `index` the data is unregistered, and on the grid `t` the data is registered. Registered and unregistered curves are plotted below.
 
-```{r plot_sim2, echo = FALSE, fig.show='hold', eval = have_ggplot2}
-
-registration_data %>%
-	ggplot(aes(index, plogis(latent_mean), group = id)) + theme_bw() + 
-	geom_line(alpha = 0.25) + labs(y = "Pr(Y = 1)")
-
-registration_data %>%
-	ggplot(aes(t, plogis(latent_mean), group = id)) + theme_bw() + 
-	geom_line(alpha = 0.25) + labs(y = "Pr(Y = 1)")
-
+```{r plot_sim2, echo = FALSE, fig.show='hold'}
+if (have_ggplot2 & have_cowplot) {
+  gg1 <- registration_data %>%
+    ggplot(aes(index, plogis(latent_mean), group = id)) + theme_bw() + 
+    geom_line(alpha = 0.25) + labs(y = "Pr(Y = 1)")
+  
+  gg2 <- registration_data %>%
+    ggplot(aes(t, plogis(latent_mean), group = id)) + theme_bw() + 
+    geom_line(alpha = 0.25) + labs(y = "Pr(Y = 1)")
+  
+  cowplot::plot_grid(gg1, gg2, nrow = 1)
+}
 ```
 
 Each curve has one main peak, but the location of that peak is shifted. When curves are registered the peaks are aligned.
@@ -149,7 +154,7 @@ head(fpca_data$Y)
 
 The resulting object,`fpca_data`, is a list that contains the true population-level mean (`alpha`) and principal components (`psi1` and `psi2`), and a dataframe (`Y`). The dataframe `Y` contains variables `id`, `value`, `index` and `latent_mean`. This data is plotted below.
 
-```{r plot1_sim1, fig.show='hold', fig.width = 2, echo = FALSE}
+```{r plot1_sim1, fig.show='hold', echo = FALSE}
 
 Y = fpca_data$Y
 pc_df = data.frame(pop_mean = fpca_data$alpha, 
@@ -158,12 +163,14 @@ pc_df = data.frame(pop_mean = fpca_data$alpha,
 									 index = seq(0, 1, length.out = 200),
 									 id = 1)
 
-if (have_ggplot2) {
-  ggplot(Y, aes(index, latent_mean, group = id)) + theme_bw() +
+if (have_ggplot2 & have_cowplot) {
+  gg1 <- ggplot(Y, aes(index, latent_mean, group = id)) + theme_bw() +
     geom_line(alpha = 0.25) + geom_line(data = pc_df, aes(y = pop_mean), color = "red") 
   
-  ggplot(pc_df, aes(index, psi1)) + theme_bw() + geom_line(color = "blue") 
-  ggplot(pc_df, aes(index, psi2)) + theme_bw() + geom_line(color = "blue") 
+  gg2 <- ggplot(pc_df, aes(index, psi1)) + theme_bw() + geom_line(color = "blue") 
+  gg3 <- ggplot(pc_df, aes(index, psi2)) + theme_bw() + geom_line(color = "blue") 
+  
+  cowplot::plot_grid(gg1, gg2, gg3, nrow = 1)
 }
 ```
 
@@ -197,17 +204,19 @@ registr_bin = register_fpca(Y = registration_data, family = "binomial", Kt = 8, 
 The argument `Y` specifies the input dataset; this code uses the simulated `registration_data`. `Kt` and `Kh` specify number of B-spline basis functions for the subject-specific means and warping functions, respectively, and `npc` indicates the number of functional principal components to use. The latter can also be chosen based on an explained share of variance, see argument
 `npc_varExplained`.
 
-```{r plot_reg_bin, echo = FALSE, fig.show='hold', fig.width=2}
+```{r plot_reg_bin, echo = FALSE, fig.show='hold', fig.width=6}
 Y = registr_bin$Y
-if (have_ggplot2) {
-  ggplot(Y, aes(tstar, plogis(latent_mean), group = id)) + theme_bw() + 
+if (have_ggplot2 & have_cowplot) {
+  gg1 <- ggplot(Y, aes(tstar, plogis(latent_mean), group = id)) + theme_bw() + 
     geom_line(alpha = 0.25) + labs(y = "Pr(Y = 1)")
   
-  ggplot(Y, aes(t, plogis(latent_mean), group = id)) + theme_bw() + 
+  gg2 <- ggplot(Y, aes(t, plogis(latent_mean), group = id)) + theme_bw() + 
     geom_line(alpha = 0.25) + labs(y = "Pr(Y = 1)")
   
-  ggplot(Y, aes(t_hat, plogis(latent_mean), group = id)) + theme_bw() + 
+  gg3 <- ggplot(Y, aes(t_hat, plogis(latent_mean), group = id)) + theme_bw() + 
     geom_line(alpha = 0.25) + labs(y = "Pr(Y = 1)")
+  
+  cowplot::plot_grid(gg1, gg2, gg3, nrow = 1)
 }
 
 ```
@@ -215,12 +224,14 @@ if (have_ggplot2) {
 Underlying probabilities of the binary data are plotted above. At left probabilities on unregistered domain $t^*$, center are probabilities on true registered domain $t$, and at right are probabilities on estimated registered domain $\widehat{t}$. After registration the underlying probabilities are aligned -- though it is important to note that the algorithm registers based on the underlying binary observations, not the true probabilities.
 
 ```{r plot_reg_bin_warp, echo = FALSE, fig.show='hold'}
-if (have_ggplot2) {
-  ggplot(Y, aes(tstar, t, group = id)) + theme_bw() + 
+if (have_ggplot2 & have_cowplot) {
+  gg1 <- ggplot(Y, aes(tstar, t, group = id)) + theme_bw() + 
     geom_line(alpha = 0.25)
   
-  ggplot(Y, aes(tstar, t_hat, group = id)) + theme_bw() + 
+  gg2 <- ggplot(Y, aes(tstar, t_hat, group = id)) + theme_bw() + 
     geom_line(alpha = 0.25)
+  
+  cowplot::plot_grid(gg1, gg2, nrow = 1)
 }
 ```
 
@@ -255,20 +266,25 @@ bfpca_object = bfpca(fpca_data$Y, npc = 2, Kt = 8, print.iter = TRUE)
 
 The argument `print.iter = TRUE` prints the error after each iteration. The true and estimated population-level mean and FPCs are plotted below.
 
-```{r plot_bfpca, echo = FALSE, fig.show='hold', fig.width=2}
-pc_df = pc_df %>%
-  mutate(psi1_est = bfpca_object$efunctions[,1],
-         psi2_est = bfpca_object$efunctions[,2],
-         alpha_est = bfpca_object$alpha %>% as.vector())
-if (have_ggplot2) {
-  ggplot(pc_df, aes(index, pop_mean)) + theme_bw() + geom_line(color = "blue") +
-    geom_line(aes(y = alpha_est), linetype = 2, color = "red")
+```{r plot_bfpca, echo = FALSE, fig.show='hold'}
+epc_df = data.frame(index     = bfpca_object$t_vec,
+                    psi1_est  = bfpca_object$efunctions[,1],
+                    psi2_est  = bfpca_object$efunctions[,2],
+                    alpha_est = bfpca_object$alpha %>% as.vector())
+if (have_ggplot2 & have_cowplot) {
+  gg1 <- ggplot() + geom_line(data = pc_df, aes(index, pop_mean), color = "blue") +
+    geom_line(data = epc_df, aes(index, alpha_est), linetype = 2, color = "red") +
+    theme_bw()
   
-  ggplot(pc_df, aes(index, psi1)) + theme_bw() + geom_line(color = "blue") +
-    geom_line(aes(y = psi2_est), linetype = 2, color = "red")
+  gg2 <- ggplot() + geom_line(data = pc_df, aes(index, psi1), color = "blue") +
+    geom_line(data = epc_df, aes(index, psi2_est), linetype = 2, color = "red") +
+    theme_bw()
   
-  ggplot(pc_df, aes(index, psi2)) + theme_bw() + geom_line(color = "blue") +
-    geom_line(aes(y = psi1_est), linetype = 2, color = "red")
+  gg3 <- ggplot() + geom_line(data = pc_df, aes(index, psi2), color = "blue") +
+    geom_line(data = epc_df, aes(index, psi1_est), linetype = 2, color = "red") +
+    theme_bw()
+  
+  cowplot::plot_grid(gg1, gg2, gg3, nrow = 1)
 }
 ```
 
@@ -375,14 +391,16 @@ registr_parametric = register_fpca(Y = registration_data, family = "binomial",
 This argument works for all families. Note that the `gradient` option is currently unavailable for parametric inverse warping functions. Below are the resulting inverse warping functions from both the `nonparametric` (left) and `piecewise_linear2` (right) specifications. The slopes of the 3 line segments that make up one's parametric function can provide some interpretation about how that particular subject's data was warped to align with the population mean.
 
 ```{r register_parametric_plots, echo = FALSE, fig.show='hold', eval = have_ggplot2}
-if (have_ggplot2) {
-  ggplot(registr_gauss$Y, aes(x = tstar, y = t_hat, group = id)) +
+if (have_ggplot2 & have_cowplot) {
+  gg1 <- ggplot(registr_gauss$Y, aes(x = tstar, y = t_hat, group = id)) +
     geom_line() + 
     labs(title = "warping = nonparametric")
   
-  ggplot(registr_parametric$Y, aes(x = tstar, y = t_hat, group = id)) +
+  gg2 <- ggplot(registr_parametric$Y, aes(x = tstar, y = t_hat, group = id)) +
     geom_line() + 
     labs(title = "warping = piecewise_linear2")
+  
+  cowplot::plot_grid(gg1, gg2, nrow = 1)
 }
 ```
 
@@ -404,14 +422,16 @@ registr_par_priors2 = register_fpca(Y = registration_data, family = "binomial",
 																		warping = "piecewise_linear2",
                                     priors = TRUE, prior_sd = 0.01)
 
-if (have_ggplot2) {
-  ggplot(registr_par_priors$Y, aes(x = tstar, y = t_hat, group = id)) +
+if (have_ggplot2 & have_cowplot) {
+  gg1 <- ggplot(registr_par_priors$Y, aes(x = tstar, y = t_hat, group = id)) +
     geom_line() + 
     labs(title = "sd for all priors = 0.1")
   
-  ggplot(registr_par_priors2$Y, aes(x = tstar, y = t_hat, group = id)) +
+  gg2 <- ggplot(registr_par_priors2$Y, aes(x = tstar, y = t_hat, group = id)) +
     geom_line() + 
     labs(title = "sd for all priors = 0.01")
+  
+  cowplot::plot_grid(gg1, gg2, nrow = 1)
 }
 ```
 
@@ -436,22 +456,22 @@ The resulting population mean and principal component from registering the conti
 registr_non_periodic = register_fpca(Y = registration_data, family = "binomial", 
                                  Kt = 8, Kh = 4, npc = 1, gradient = FALSE,
                                  periodic = FALSE)
-if (have_ggplot2) {
-  tibble(mu = registr_non_periodic$fpca_obj$mu) %>%
+if (have_ggplot2 & have_cowplot) {
+  gg1 <- tibble(mu = registr_non_periodic$fpca_obj$mu) %>%
     mutate(time = row_number()) %>%
     ggplot(aes(x = time, y = mu)) + 
     theme_bw() + 
     geom_line() + 
     labs(y = "mu (non-periodic)")
   
-  tibble(psi1 = registr_non_periodic$fpca_obj$efunctions[,1]) %>%
+  gg2 <- tibble(psi1 = registr_non_periodic$fpca_obj$efunctions[,1]) %>%
     mutate(time = row_number()) %>%
     ggplot(aes(x = time, y = psi1)) + 
     theme_bw() + 
     geom_line() + 
     labs(y = "psi1 (non-periodic)")
   
-  tibble(mu = registr_periodic$fpca_obj$mu) %>%
+  gg3 <- tibble(mu = registr_periodic$fpca_obj$mu) %>%
     mutate(time = row_number()) %>%
     ggplot(aes(x = time, y = mu)) + 
     theme_bw() + 
@@ -459,13 +479,15 @@ if (have_ggplot2) {
     geom_hline(yintercept = registr_periodic$fpca_obj$mu[1], lty = "dotted") + 
     labs(y = "mu (periodic)")
   
-  tibble(psi1 = registr_periodic$fpca_obj$efunctions[,1]) %>%
+  gg4 <- tibble(psi1 = registr_periodic$fpca_obj$efunctions[,1]) %>%
     mutate(time = row_number()) %>%
     ggplot(aes(x = time, y = psi1)) + 
     theme_bw() + 
     geom_line() + 
     geom_hline(yintercept = registr_periodic$fpca_obj$efunctions[1,1], lty = "dotted") + 
     labs(y = "psi1 (periodic)")
+  
+  cowplot::plot_grid(gg1, gg2, gg3, gg4, nrow = 2)
 }
 ```
 
