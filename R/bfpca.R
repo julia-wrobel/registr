@@ -24,7 +24,8 @@
 #' @return An object of class \code{fpca} containing:
 #' \item{fpca_type}{Information that FPCA was performed with the 'variationEM' approach,
 #' in contrast to registr::gfpca_twoStep.}
-#' \item{t_vec}{Time vector over which the mean \code{mu} was evaluated.}
+#' \item{t_vec}{Time vector over which the mean \code{mu} and the functional principal
+#' components \code{efunctions} were evaluated.}
 #' \item{knots}{Cutpoints for B-spline basis used to rebuild \code{alpha}.}
 #' \item{efunctions}{\eqn{D \times npc} matrix of estimated FPC basis functions.}
 #' \item{evalues}{Estimated variance of the FPC scores.}
@@ -298,9 +299,8 @@ bfpca_optimization <- function(npc, npc_varExplained, Kt, maxiter, print.iter,
     warning("BFPCA convergence not reached. Try increasing maxiter.")
   }
   
-  ## mean and eigenfunctions will have the same grid as the subject with most measurements
-  id_mostObserved = names(sort(table(Y$id), decreasing = TRUE))[1]
-  t_vec           = sort(Y$index[Y$id == id_mostObserved])
+  ## evaluate mean and eigenfunctions on a grid of length 100
+  t_vec = seq(min(Y$index), max(Y$index), length.out = 100)
   if (periodic) {
     Theta_phi_mean = pbs(t_vec, knots = knots, intercept = TRUE)
   } else {

@@ -34,10 +34,10 @@ test_that("fpca_gauss output has correct number of dimensions",{
 	  fpca_object2 = fpca_gauss(Y, npc_varExplained = 0.9, maxiter = 2)
 	}, "fpca_gauss convergence not reached. Try increasing maxiter.")
 	
-	expect_equal(dim(fpca_object$alpha),  c(200, 1))
-	expect_equal(dim(fpca_object2$alpha), c(200, 1))
-	expect_equal(dim(fpca_object$efunctions),  c(200, 2))
-	expect_equal(dim(fpca_object2$efunctions), c(200, 2))
+	expect_equal(dim(fpca_object$alpha),  c(100, 1))
+	expect_equal(dim(fpca_object2$alpha), c(100, 1))
+	expect_equal(dim(fpca_object$efunctions),  c(100, 2))
+	expect_equal(dim(fpca_object2$efunctions), c(100, 2))
 	expect_equal(length(fpca_object$evalues),  2)
 	expect_equal(length(fpca_object2$evalues), 2)
 	expect_equal(dim(fpca_object$scores),  c(100, 2))
@@ -48,7 +48,7 @@ test_that("fpca_gauss output has correct number of dimensions",{
 	expect_warning({
 	  fpca_object = fpca_gauss(Y, npc = 1, Kt = Kt)
 	}, "fpca_gauss convergence not reached. Try increasing maxiter.")
-	expect_equal(dim(fpca_object$efunctions), c(200, 1))
+	expect_equal(dim(fpca_object$efunctions), c(100, 1))
 })
 
 test_that("fpca_gauss output has correct number of dimensions when periodic = TRUE",{
@@ -58,8 +58,8 @@ test_that("fpca_gauss output has correct number of dimensions when periodic = TR
 	  fpca_object = fpca_gauss(Y, npc = 2, Kt = Kt, periodic = TRUE)
 	}, "fpca_gauss convergence not reached. Try increasing maxiter.")
 	
-	expect_equal(dim(fpca_object$alpha), c(200, 1))
-	expect_equal(dim(fpca_object$efunctions), c(200, 2))
+	expect_equal(dim(fpca_object$alpha), c(100, 1))
+	expect_equal(dim(fpca_object$efunctions), c(100, 2))
 	expect_equal(length(fpca_object$evalues), 2)
 	expect_equal(dim(fpca_object$scores), c(100, 2))
 	expect_equal(length(fpca_object$knots), Kt - 1)
@@ -67,7 +67,7 @@ test_that("fpca_gauss output has correct number of dimensions when periodic = TR
 	expect_warning({
 	  fpca_object = fpca_gauss(Y, npc = 1, Kt = Kt, periodic = TRUE)
 	}, "fpca_gauss convergence not reached. Try increasing maxiter.")
-	expect_equal(dim(fpca_object$efunctions), c(200, 1))
+	expect_equal(dim(fpca_object$efunctions), c(100, 1))
 })
 
 test_that("fpca_gauss has correct number of dimensions when applied on incomplete curves",{
@@ -77,8 +77,8 @@ test_that("fpca_gauss has correct number of dimensions when applied on incomplet
 	  fpca_object = fpca_gauss(Y, npc = 2, Kt = Kt)
 	}, "fpca_gauss convergence not reached. Try increasing maxiter.")
 	
-	expect_equal(dim(fpca_object$alpha), c(length(unique(Y$index)), 1))
-	expect_equal(dim(fpca_object$efunctions), c(length(unique(Y$index)), 2))
+	expect_equal(dim(fpca_object$alpha), c(100, 1))
+	expect_equal(dim(fpca_object$efunctions), c(100, 2))
 	expect_equal(length(fpca_object$evalues), 2)
 	expect_equal(dim(fpca_object$scores), c(length(unique(Y$id)), 2))
 	expect_equal(length(fpca_object$knots), Kt - 4)
@@ -86,5 +86,5 @@ test_that("fpca_gauss has correct number of dimensions when applied on incomplet
 	expect_warning({
 	  fpca_object = fpca_gauss(Y, npc = 1, Kt = Kt)
 	}, "fpca_gauss convergence not reached. Try increasing maxiter.")
-	expect_equal(dim(fpca_object$efunctions), c(length(unique(Y$index)), 1))
+	expect_equal(dim(fpca_object$efunctions), c(100, 1))
 })
