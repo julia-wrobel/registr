@@ -84,7 +84,8 @@ on an initial run of the FPCA with \code{npc = 20}. Is \code{NULL} if
 with \code{refund.shiny} package.}
 \item{subject_coefs}{B-spline basis coefficients used to construct subject-specific means. 
 For use in \code{registr()} function.}
-\item{Yhat}{FPC approximation of subject-specific means.}
+\item{Yhat}{FPC approximation of subject-specific means, before applying the
+response function.}
 \item{Y}{The observed data.}
 \item{family}{\code{binomial}, for compatibility with \code{refund.shiny} package.}
 \item{error}{vector containing error for each iteration of the algorithm.}
