@@ -80,7 +80,8 @@
 #' with \code{refund.shiny} package.}
 #' \item{subject_coefs}{Always \code{NA} but included for full consistency
 #' with \code{fpca_gauss} and \code{bfpca}.} 
-#' \item{Yhat}{FPC approximation of subject-specific means.}
+#' \item{Yhat}{FPC approximation of subject-specific means, before applying the
+#' response function.}
 #' \item{Y}{The observed data.}
 #' \item{family}{\code{binomial}, for compatibility with \code{refund.shiny} package.}
 #' \item{gamm4_theta}{Estimated parameters of the mixed model.}
