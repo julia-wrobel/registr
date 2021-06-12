@@ -6,7 +6,7 @@
 \usage{
 bfpca_optimization(
   npc,
-  npc_varExplained,
+  npc_varExplained = NULL,
   Kt,
   maxiter,
   print.iter,
@@ -62,5 +62,9 @@ list with elements \code{t_vec}, \code{Theta_phi_mean}, \code{alpha_coefs},
 \code{\link{fpca_gauss}} for details.
 }
 \description{
-Internal main optimization for bfpca
+Main optimization function for \code{bfpca}. If \code{npc_varExplained}
+is specified, the function simply returns a list with elements \code{npc}
+(chosen number of FPCs), \code{evalues} (estimated variances of the first 'npc'
+FPCs) and \code{evalues_sum} (sum of the estimated variances of the first 20
+FPCs, as approximation of the overall variance).
 }
