@@ -91,11 +91,12 @@ Parameters estimated based on probabilistic PCA framework originally
 introduced by Tipping and Bishop in 1999. \cr \cr
 The number of functional principal components (FPCs) can either be specified
 directly (argument \code{npc}) or chosen based on the explained share of
-variance (\code{npc_varExplained}). For the latter, the solution is based
-on running the FPCA with \code{npc = 20} (and correspondingly \code{Kt = 20})
-before reducing the solution to the relevant number of FPCs. Doing so,
-we approximate the overall variance in the data \code{Y} with the variance
-represented by the FPC basis with 20 FPCs.
+variance (\code{npc_varExplained}). In the latter case, the explained share of
+variance and accordingly the number of FPCs is estimated before the main
+estimation step by once running the FPCA with \code{npc = 20} (and
+correspondingly \code{Kt = 20}). Doing so, we approximate the overall
+variance in the data \code{Y} with the variance represented by the FPC basis
+with 20 FPCs.
 }
 \examples{
 data(growth_incomplete)

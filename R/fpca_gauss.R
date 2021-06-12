@@ -6,11 +6,12 @@
 #' introduced by Tipping and Bishop in 1999. \cr \cr
 #' The number of functional principal components (FPCs) can either be specified
 #' directly (argument \code{npc}) or chosen based on the explained share of
-#' variance (\code{npc_varExplained}). For the latter, the solution is based
-#' on running the FPCA with \code{npc = 20} (and correspondingly \code{Kt = 20})
-#' before reducing the solution to the relevant number of FPCs. Doing so,
-#' we approximate the overall variance in the data \code{Y} with the variance
-#' represented by the FPC basis with 20 FPCs.
+#' variance (\code{npc_varExplained}). In the latter case, the explained share of
+#' variance and accordingly the number of FPCs is estimated before the main
+#' estimation step by once running the FPCA with \code{npc = 20} (and
+#' correspondingly \code{Kt = 20}). Doing so, we approximate the overall
+#' variance in the data \code{Y} with the variance represented by the FPC basis
+#' with 20 FPCs.
 #'
 #' @param Y Dataframe. Should have variables id, value, index. 
 #' @param npc,npc_varExplained The number of functional principal components (FPCs)
@@ -39,8 +40,6 @@
 #' @author Julia Wrobel \email{julia.wrobel@@cuanschutz.edu},
 #' Jeff Goldsmith \email{ajg2202@@cumc.columbia.edu},
 #' Alexander Bauer \email{alexander.bauer@@stat.uni-muenchen.de}
-#' @importFrom splines bs
-#' @importFrom pbs pbs
 #' @importFrom stats quantile
 #' 
 #' @return An object of class \code{fpca} containing:
@@ -95,8 +94,7 @@ fpca_gauss = function(Y, npc = NULL, npc_varExplained = NULL, Kt = 8, maxiter = 
     message("Ignoring argument 'npc' since 'npc_varExplained' is specified.")
   
   if (!is.null(npc_varExplained)) {
-    npc = 20
-    Kt  = 20
+    Kt = 20
   }
   
 	## clean data
@@ -116,61 +114,22 @@ fpca_gauss = function(Y, npc = NULL, npc_varExplained = NULL, Kt = 8, maxiter = 
 	
 	time = Y$index
 	
-	## construct theta matrix
 	if (is.null(t_min)) { t_min = min(time) }
 	if (is.null(t_max)) { t_max = max(time) }
 	
-	if (periodic) {
-		# if periodic, then we want more global knots, because the resulting object from pbs 
-		# only has (knots+intercept) columns.
-		knots = quantile(time, probs = seq(0, 1, length = Kt + 1))[-c(1, Kt + 1)]
-		Theta_phi = pbs(c(t_min, t_max, time), knots = knots, intercept = TRUE)[-(1:2),]
-	} else {
-		# if not periodic, then we want fewer global knots, because the resulting object from bs
-		# has (knots+degree+intercept) columns, and degree is set to 3 by default.
-		knots = quantile(time, probs = seq(0, 1, length = Kt - 2))[-c(1, Kt - 2)]
-		Theta_phi =  bs(c(t_min, t_max, time), knots = knots, intercept = TRUE)[-(1:2),]
-	}
+	# prepare the arguments for the main optimization step
+	prep_arg_list = list(Y         = Y,
+	                     Kt        = Kt,
+	                     time      = time,
+	                     t_min     = t_min,
+	                     t_max     = t_max,
+	                     periodic  = periodic,
+	                     seed      = seed,
+	                     subsample = subsample,
+	                     verbose   = verbose)
+	prepared_args = do.call(fpca_gauss_argPreparation, args = prep_arg_list)
 	
-	## initialize all parameters
-	set.seed(seed)
-	nrows_basis = nrow(Theta_phi)
-	if (subsample && nrows_basis > 1000000) {
-	  if (verbose > 2) {
-	    message("fpca_gauss: Running Sub-sampling")
-	  }       
-	  uids = unique(Y$id)
-	  nids = length(uids)
-	  avg_rows_per_id = nrows_basis / nids
-	  size = round(1000000 / avg_rows_per_id)
-	  if(nids > size){
-	    ids = sample(uids, size = size, replace = FALSE)
-	  } else {
-	    ids = uids  
-	  } 
-	  subsampling_index = which(Y$id %in% ids)      
-	  rm(uids,nids)
-	  rm(ids)
-	} else {
-	  subsampling_index = 1:nrows_basis
-	}
-	if (verbose > 2) {
-	  message("fpca_gauss: running GLM")
-	}    
-	if (requireNamespace("fastglm", quietly = TRUE)) {
-	  glm_obj = fastglm::fastglm(y = Y$value[subsampling_index], x = Theta_phi[subsampling_index,], 
-	                             family = "gaussian", method=2)
-	} else {
-	  glm_obj = glm(Y$value[subsampling_index] ~ 0 + Theta_phi[subsampling_index,], family = "gaussian",
-	                control = list(trace = verbose > 3))
-	}
-	rm(subsampling_index)
-	if (verbose > 2) {
-	  message("fpca_gauss: GLM finished")
-	}    
-	alpha_coefs = coef(glm_obj)
-	alpha_coefs = matrix(alpha_coefs, Kt, 1)
-	
+	# arguments for the main optimization step
 	arg_list <- list(npc              = npc,
 	                 npc_varExplained = npc_varExplained,
 	                 Kt               = Kt,
@@ -183,17 +142,41 @@ fpca_gauss = function(Y, npc = NULL, npc_varExplained = NULL, Kt = 8, maxiter = 
 	                 Y                = Y,
 	                 rows             = rows,
 	                 I                = I,
-	                 knots            = knots,
-	                 Theta_phi        = Theta_phi,
-	                 alpha_coefs      = alpha_coefs)
+	                 knots            = prepared_args$knots,
+	                 Theta_phi        = prepared_args$Theta_phi,
+	                 alpha_coefs      = prepared_args$alpha_coefs)
+	
+	# choose the number of FPCs based on the explained share of variance
+	if (!is.null(npc_varExplained)) {
+	  prep_arg_list_vexp    = prep_arg_list
+	  prep_arg_list_vexp$Kt = 20
+	  prepared_args_vexp    = do.call(fpca_gauss_argPreparation, args = prep_arg_list_vexp)
+	  
+	  arg_list_vexp     = arg_list
+	  arg_list_vexp$npc = 20
+	  arg_list_vexp$Kt  = 20
+	  arg_list_vexp$knots       = prepared_args_vexp$knots
+	  arg_list_vexp$Theta_phi   = prepared_args_vexp$Theta_phi
+	  arg_list_vexp$alpha_coefs = prepared_args_vexp$alpha_coefs
+	  
+	  list_npcChoice    = do.call(fpca_gauss_optimization, args = arg_list_vexp)
+	  arg_list$npc      = list_npcChoice$npc
+	  arg_list$npc_varExplained = NULL
+	}
 	
 	# main optimization step
 	fpca_resList = do.call(fpca_gauss_optimization, args = arg_list)
   
+	if (!is.null(npc_varExplained)) { # use (approximated) shares of variance
+	  fpca_resList$evalues     = list_npcChoice$evalues
+	  fpca_resList$evalues_sum = list_npcChoice$evalues_sum
+	}
+	
+	
   ret = list(
     fpca_type     = "variationalEM",
   	t_vec         = fpca_resList$t_vec,
-  	knots         = knots, 
+  	knots         = prepared_args$knots, 
   	alpha         = fpca_resList$Theta_phi_mean %*% fpca_resList$alpha_coefs,
   	mu            = fpca_resList$Theta_phi_mean %*% fpca_resList$alpha_coefs, # return this to be consistent with refund.shiny
   	efunctions    = fpca_resList$efunctions, 
@@ -215,7 +198,83 @@ fpca_gauss = function(Y, npc = NULL, npc_varExplained = NULL, Kt = 8, maxiter = 
 
 
 
+#' Internal main preparation function for fpca_gauss
+#' 
+#' @inheritParams fpca_gauss
+#' @param Y,time,t_min,t_max Internal objects created in \code{fpca_gauss}.
+#' 
+#' @importFrom splines bs
+#' @importFrom pbs pbs
+#' 
+#' @return List with elements \code{knots}, \code{Theta_phi}, \code{alpha_coefs}.
+fpca_gauss_argPreparation = function(Y, Kt, time, t_min, t_max, periodic, seed,
+                                     subsample, verbose) {
+  
+  if (periodic) {
+    # if periodic, then we want more global knots, because the resulting object from pbs 
+    # only has (knots+intercept) columns.
+    knots = quantile(time, probs = seq(0, 1, length = Kt + 1))[-c(1, Kt + 1)]
+    Theta_phi = pbs(c(t_min, t_max, time), knots = knots, intercept = TRUE)[-(1:2),]
+  } else {
+    # if not periodic, then we want fewer global knots, because the resulting object from bs
+    # has (knots+degree+intercept) columns, and degree is set to 3 by default.
+    knots = quantile(time, probs = seq(0, 1, length = Kt - 2))[-c(1, Kt - 2)]
+    Theta_phi =  bs(c(t_min, t_max, time), knots = knots, intercept = TRUE)[-(1:2),]
+  }
+  
+  ## initialize all parameters
+  set.seed(seed)
+  nrows_basis = nrow(Theta_phi)
+  if (subsample && nrows_basis > 1000000) {
+    if (verbose > 2) {
+      message("fpca_gauss: Running Sub-sampling")
+    }       
+    uids = unique(Y$id)
+    nids = length(uids)
+    avg_rows_per_id = nrows_basis / nids
+    size = round(1000000 / avg_rows_per_id)
+    if(nids > size){
+      ids = sample(uids, size = size, replace = FALSE)
+    } else {
+      ids = uids  
+    } 
+    subsampling_index = which(Y$id %in% ids)      
+    rm(uids,nids)
+    rm(ids)
+  } else {
+    subsampling_index = 1:nrows_basis
+  }
+  if (verbose > 2) {
+    message("fpca_gauss: running GLM")
+  }    
+  if (requireNamespace("fastglm", quietly = TRUE)) {
+    glm_obj = fastglm::fastglm(y = Y$value[subsampling_index], x = Theta_phi[subsampling_index,], 
+                               family = "gaussian", method=2)
+  } else {
+    glm_obj = glm(Y$value[subsampling_index] ~ 0 + Theta_phi[subsampling_index,], family = "gaussian",
+                  control = list(trace = verbose > 3))
+  }
+  rm(subsampling_index)
+  if (verbose > 2) {
+    message("fpca_gauss: GLM finished")
+  }    
+  alpha_coefs = coef(glm_obj)
+  alpha_coefs = matrix(alpha_coefs, Kt, 1)
+  
+  return(list(knots       = knots,
+              Theta_phi   = Theta_phi,
+              alpha_coefs = alpha_coefs))
+}
+
+
+
 #' Internal main optimization for fpca_gauss
+#' 
+#' Main optimization function for \code{fpca_gauss}. If \code{npc_varExplained}
+#' is specified, the function simply returns a list with elements \code{npc}
+#' (chosen number of FPCs), \code{evalues} (estimated variances of the first 'npc'
+#' FPCs) and \code{evalues_sum} (sum of the estimated variances of the first 20
+#' FPCs, as approximation of the overall variance).
 #' 
 #' @inheritParams fpca_gauss
 #' @param Y,rows,I,knots,Theta_phi,alpha_coefs Internal objects created in
@@ -229,7 +288,7 @@ fpca_gauss = function(Y, npc = NULL, npc_varExplained = NULL, Kt = 8, maxiter = 
 #' \code{efunctions}, \code{evalues}, \code{evalues_sum}, \code{scores},
 #' \code{subject_coef}, \code{fittedVals}, \code{sigma2}. See documentation of
 #' \code{\link{fpca_gauss}} for details.
-fpca_gauss_optimization <- function(npc, npc_varExplained, Kt, maxiter, print.iter,
+fpca_gauss_optimization <- function(npc, npc_varExplained = NULL, Kt, maxiter, print.iter,
                                     seed, periodic, error_thresh, verbose,
                                     Y, rows, I, knots, Theta_phi, alpha_coefs) {
   
@@ -341,20 +400,14 @@ fpca_gauss_optimization <- function(npc, npc_varExplained, Kt, maxiter, print.it
       message(paste0("Using the first ",npc," FPCs which explain ",
                      round(sum(evalues[1:npc]) / evalues_sum * 100, 1),"% of the (approximated) total variance."))
     }
-    # restrict some elements to the first npc dimensions
-    efunctions = efunctions[, 1:npc, drop=FALSE]
-    evalues    = evalues[1:npc]
+    return(list(npc         = npc,
+                evalues     = evalues[1:npc],
+                evalues_sum = evalues_sum))
   }
   
   # orthogonalize scores
   d_diag     = if (length(psi_svd$d) == 1) { matrix(psi_svd$d) } else { diag(psi_svd$d) }
   scores     = scores_unorthogonal %*% psi_svd$v %*% d_diag
-  
-  if (!is.null(npc_varExplained)) { # restrict further elements to npc dimensions
-    scores_unorthogonal = scores_unorthogonal[, 1:npc, drop=FALSE]
-    scores              = scores[, 1:npc, drop=FALSE]
-    psi_coefs           = psi_coefs[, 1:npc, drop=FALSE]
-  }
   
   # calculate the fitted values on Theta_phi for compatibility with registr()
   fits         = rep(NA, dim(Y)[1])

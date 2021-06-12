@@ -199,6 +199,10 @@ register_fpca = function(Y, Kt = 8, Kh = 4, family = "gaussian",
     stop("Please either specify 'npc' or 'npc_criterion' appropriately.")
   }
   
+  if (fpca_type == "variationalEM" & !is.null(npc_criterion)) {
+    Kt = 20
+  }
+  
   if (verbose > 2) {
     message("Running data_clean")
   }
