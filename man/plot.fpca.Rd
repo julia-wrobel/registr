@@ -7,7 +7,7 @@
 \method{plot}{fpca}(
   x,
   plot_FPCs = 1:x$npc,
-  var_factor = NULL,
+  sd_factor = 2,
   response_function = NULL,
   subtitle = TRUE,
   xlim = NULL,
@@ -23,16 +23,16 @@
 \item{plot_FPCs}{Optional index vector of the FPCs to be plotted.
 Defaults to all FPCs contained in \code{x}.}
 
-\item{var_factor}{Numeric factor with which the FPC's are multiplied
-to display their variation in the plots. Defaults to NULL, which uses
-two times the standard deviation of the scores of each selected FPC.}
+\item{sd_factor}{Numeric factor with which the standard deviations of each
+FPC's scores are multiplied to display its variation in the plots.
+Defaults to 2.}
 
 \item{response_function}{Optional response function to be applied before
 plotting the curves. Defaults to \code{NULL}, i.e. the identity function if
 \code{x$family} is one of \code{c("gaussian","binomial")} or
 \code{exp()} if \code{x$family} is one of \code{c("gamma","poisson")}.}
 
-\item{subtitle}{If TRUE (default) the parameter \code{var_factor}
+\item{subtitle}{If TRUE (default) the parameter \code{sd_factor}
 is displayed in the plot subtitle.}
 
 \item{xlim, ylim}{Optional numeric vectors with limits for the x and y axis.}
