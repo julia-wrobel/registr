@@ -11,14 +11,14 @@
 #' @param x Object of class \code{"fpca"}.
 #' @param plot_FPCs Optional index vector of the FPCs to be plotted.
 #' Defaults to all FPCs contained in \code{x}.
-#' @param var_factor Numeric factor with which the FPC's are multiplied
-#' to display their variation in the plots. Defaults to NULL, which uses
-#' two times the standard deviation of the scores of each selected FPC.
+#' @param sd_factor Numeric factor with which the standard deviations of each
+#' FPC's scores are multiplied to display its variation in the plots.
+#' Defaults to 2.
 #' @param response_function Optional response function to be applied before
 #' plotting the curves. Defaults to \code{NULL}, i.e. the identity function if
 #' \code{x$family} is one of \code{c("gaussian","binomial")} or
 #' \code{exp()} if \code{x$family} is one of \code{c("gamma","poisson")}.
-#' @param subtitle If TRUE (default) the parameter \code{var_factor}
+#' @param subtitle If TRUE (default) the parameter \code{sd_factor}
 #' is displayed in the plot subtitle.
 #' @param xlim,ylim Optional numeric vectors with limits for the x and y axis.
 #' @param xlab,ylab Optional titles for the x and y axis.
@@ -43,7 +43,7 @@
 #' plot(fpca_obj)
 #' }
 #' 
-plot.fpca = function(x, plot_FPCs = 1:x$npc, var_factor = NULL,
+plot.fpca = function(x, plot_FPCs = 1:x$npc, sd_factor = 2,
                      response_function = NULL,
                      subtitle = TRUE, xlim = NULL, ylim = NULL,
                      xlab = "t [registered]", ylab = "y", ...) {
@@ -64,13 +64,8 @@ plot.fpca = function(x, plot_FPCs = 1:x$npc, var_factor = NULL,
     }
   }
   
-  # determine the var_factor values
-  varFactor_label <- ifelse(is.null(var_factor), "2*sd", var_factor)
-  if (is.null(var_factor)) {
-    var_factors <- apply(x$scores, 2, sd)
-  } else {
-    var_factors <- rep(var_factor, length(plot_FPCs))
-  }
+  # determine the standard deviation of each FPC's scores
+  FPC_sdVec <- apply(x$scores, 2, sd)
   
   # data preparation
   mean_dat = data.frame(t    = x$t_vec,
@@ -92,27 +87,27 @@ plot.fpca = function(x, plot_FPCs = 1:x$npc, var_factor = NULL,
   
   # create a list with one ggplot object per principal components
   plotDat_list = lapply(plot_FPCs, function(i) {
-    var_factor_i <- var_factors[match(i, plot_FPCs)]
-    # dataset with mean +/- <var_factor>*FPC
+    sd_factor_i <- sd_factor * FPC_sdVec[match(i, plot_FPCs)]
+    # dataset with mean +/- <sd_factor_i>*FPC
     plot_dat = fpc_dat %>%
       dplyr::filter(id == i) %>%
       dplyr::arrange(t) %>%
       dplyr::left_join(mean_dat, by = "t") %>%
-      dplyr::mutate(mean_plusFPC  = response_function(mean + var_factor_i*fpc_value),
-                    mean_minusFPC = response_function(mean - var_factor_i*fpc_value))
+      dplyr::mutate(mean_plusFPC  = response_function(mean + sd_factor_i*fpc_value),
+                    mean_minusFPC = response_function(mean - sd_factor_i*fpc_value))
     plot_dat = data.frame(id    = unique(plot_dat$id),
                           t     = rep(plot_dat$t, times = 3),
                           value = c(plot_dat$mean_y,
                                     plot_dat$mean_plusFPC,
                                     plot_dat$mean_minusFPC),
                           type = rep(c("mean curve",
-                                       paste0("mean + ",varFactor_label,"*FPC"),
-                                       paste0("mean - ",varFactor_label,"*FPC")), 
+                                       paste0("mean + ",sd_factor,"*sd*FPC"),
+                                       paste0("mean - ",sd_factor,"*sd*FPC")), 
                                      each = nrow(plot_dat)),
                           stringsAsFactors = FALSE) %>%
       dplyr::mutate(type = factor(type, levels = c("mean curve",
-                                            paste0("mean + ",varFactor_label,"*FPC"),
-                                            paste0("mean - ",varFactor_label,"*FPC"))))
+                                            paste0("mean + ",sd_factor,"*sd*FPC"),
+                                            paste0("mean - ",sd_factor,"*sd*FPC"))))
   })
   
   if (is.null(xlim))
@@ -134,8 +129,8 @@ plot.fpca = function(x, plot_FPCs = 1:x$npc, var_factor = NULL,
     t_symbols = unique(plotDat_list[[fpc_index]]$t)[round(seq(1, length(unique(plotDat_list[[fpc_index]]$t)), 
                                                               length.out = n_symbols))]
     symbol_dat      = plotDat_list[[fpc_index]] %>% filter(t %in% t_symbols)
-    symbolPlus_dat  = symbol_dat %>% filter(type == paste0("mean + ",varFactor_label,"*FPC"))
-    symbolMinus_dat = symbol_dat %>% filter(type == paste0("mean - ",varFactor_label,"*FPC"))
+    symbolPlus_dat  = symbol_dat %>% filter(type == paste0("mean + ",sd_factor,"*sd*FPC"))
+    symbolMinus_dat = symbol_dat %>% filter(type == paste0("mean - ",sd_factor,"*sd*FPC"))
     
     # plot
     
@@ -150,7 +145,7 @@ plot.fpca = function(x, plot_FPCs = 1:x$npc, var_factor = NULL,
       ggplot2::xlab(xlab) + 
       ggplot2::ylab(ylab) +
       ggplot2::ggtitle(paste0("FPC ", i, ifelse(!is.null(x$evalues_sum), ev_info[i], ""),
-                              ifelse(subtitle, paste0("\n(mean +/- ",varFactor_label,"*FPC)"), ""))) +
+                              ifelse(subtitle, paste0("\n(mean +/- ",sd_factor,"*sd*FPC)"), ""))) +
       ggplot2::theme(legend.position  = "none",
                      panel.grid.minor = ggplot2::element_blank(),
                      plot.title       = ggplot2::element_text(hjust = 0.5),
