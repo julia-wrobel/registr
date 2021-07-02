@@ -328,7 +328,7 @@ if (have_ggplot2) {
 
 ```{r application 4 joint FPC plot, fig.height=6, fig.width=7}
 if (have_ggplot2) {
-  plot(reg4_joint$fpca_obj, var_factor = 10)
+  plot(reg4_joint$fpca_obj)
 }
 ```
 
