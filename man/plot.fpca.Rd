@@ -7,7 +7,7 @@
 \method{plot}{fpca}(
   x,
   plot_FPCs = 1:x$npc,
-  var_factor = 2,
+  var_factor = NULL,
   response_function = NULL,
   subtitle = TRUE,
   xlim = NULL,
@@ -24,8 +24,8 @@
 Defaults to all FPCs contained in \code{x}.}
 
 \item{var_factor}{Numeric factor with which the FPC's are multiplied
-to display their variation in the plots. Defaults to 2, but can be set to
-2 times the standard deviation of the obtained FPC scores.}
+to display their variation in the plots. Defaults to NULL, which uses
+two times the standard deviation of the scores of each selected FPC.}
 
 \item{response_function}{Optional response function to be applied before
 plotting the curves. Defaults to \code{NULL}, i.e. the identity function if
