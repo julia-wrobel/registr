@@ -9,6 +9,7 @@
   plot_FPCs = 1:x$npc,
   sd_factor = 2,
   response_function = NULL,
+  add_symbols = TRUE,
   subtitle = TRUE,
   xlim = NULL,
   ylim = NULL,
@@ -31,6 +32,9 @@ Defaults to 2.}
 plotting the curves. Defaults to \code{NULL}, i.e. the identity function if
 \code{x$family} is one of \code{c("gaussian","binomial")} or
 \code{exp()} if \code{x$family} is one of \code{c("gamma","poisson")}.}
+
+\item{add_symbols}{Indicator if '+' and '-' symbols should be added to the
+plot to highlight the direction of the displayed FPCs. Defaults to TRUE.}
 
 \item{subtitle}{If TRUE (default) the parameter \code{sd_factor}
 is displayed in the plot subtitle.}

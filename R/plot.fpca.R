@@ -18,6 +18,8 @@
 #' plotting the curves. Defaults to \code{NULL}, i.e. the identity function if
 #' \code{x$family} is one of \code{c("gaussian","binomial")} or
 #' \code{exp()} if \code{x$family} is one of \code{c("gamma","poisson")}.
+#' @param add_symbols Indicator if '+' and '-' symbols should be added to the
+#' plot to highlight the direction of the displayed FPCs. Defaults to TRUE.
 #' @param subtitle If TRUE (default) the parameter \code{sd_factor}
 #' is displayed in the plot subtitle.
 #' @param xlim,ylim Optional numeric vectors with limits for the x and y axis.
@@ -44,7 +46,7 @@
 #' }
 #' 
 plot.fpca = function(x, plot_FPCs = 1:x$npc, sd_factor = 2,
-                     response_function = NULL,
+                     response_function = NULL, add_symbols = TRUE,
                      subtitle = TRUE, xlim = NULL, ylim = NULL,
                      xlab = "t [registered]", ylab = "y", ...) {
   id = NULL
@@ -124,22 +126,11 @@ plot.fpca = function(x, plot_FPCs = 1:x$npc, sd_factor = 2,
     
     fpc_index <- match(i, plot_FPCs)
     
-    # plot '+' and '-' symbols along the curves
-    n_symbols = 4 # only plot the symbols this many times along each line
-    t_symbols = unique(plotDat_list[[fpc_index]]$t)[round(seq(1, length(unique(plotDat_list[[fpc_index]]$t)), 
-                                                              length.out = n_symbols))]
-    symbol_dat      = plotDat_list[[fpc_index]] %>% filter(t %in% t_symbols)
-    symbolPlus_dat  = symbol_dat %>% filter(type == paste0("mean + ",sd_factor,"*sd*FPC"))
-    symbolMinus_dat = symbol_dat %>% filter(type == paste0("mean - ",sd_factor,"*sd*FPC"))
-    
     # plot
-    
-    ggplot2::ggplot(mapping = ggplot2::aes(x = t, y = value, col = type, lty = type)) +
+    gg <- ggplot2::ggplot(mapping = ggplot2::aes(x = t, y = value, col = type, lty = type)) +
       ggplot2::geom_line(data = plotDat_list[[fpc_index]]) +
       ggplot2::scale_color_manual(values = c("black", "gray70", "gray60")) +
       ggplot2::scale_linetype_manual(values = c(1, 2, 3)) +
-      ggplot2::geom_text(data = symbolPlus_dat,  label = "+", size = 7, col = "gray40") +
-      ggplot2::geom_text(data = symbolMinus_dat, label = "-", size = 7, col = "gray40") +
       ggplot2::xlim(xlim) + 
       ggplot2::ylim(ylim) + 
       ggplot2::xlab(xlab) + 
@@ -150,6 +141,21 @@ plot.fpca = function(x, plot_FPCs = 1:x$npc, sd_factor = 2,
                      panel.grid.minor = ggplot2::element_blank(),
                      plot.title       = ggplot2::element_text(hjust = 0.5),
                      ...)
+    
+    if (add_symbols) { # plot '+' and '-' symbols along the curves
+      n_symbols = 4 # only plot the symbols this many times along each line
+      t_symbols = unique(plotDat_list[[fpc_index]]$t)[round(seq(1, length(unique(plotDat_list[[fpc_index]]$t)), 
+                                                                length.out = n_symbols))]
+      symbol_dat      = plotDat_list[[fpc_index]] %>% filter(t %in% t_symbols)
+      symbolPlus_dat  = symbol_dat %>% filter(type == paste0("mean + ",sd_factor,"*sd*FPC"))
+      symbolMinus_dat = symbol_dat %>% filter(type == paste0("mean - ",sd_factor,"*sd*FPC"))
+
+      gg <- gg +
+        ggplot2::geom_text(data = symbolPlus_dat,  label = "+", size = 7, col = "gray40") +
+        ggplot2::geom_text(data = symbolMinus_dat, label = "-", size = 7, col = "gray40")
+    }
+    
+    return(gg)
   })
   
   # plot grid
