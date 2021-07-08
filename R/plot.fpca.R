@@ -89,7 +89,7 @@ plot.fpca = function(x, plot_FPCs = 1:x$npc, sd_factor = 2,
   
   # create a list with one ggplot object per principal components
   plotDat_list = lapply(plot_FPCs, function(i) {
-    sd_factor_i <- sd_factor * FPC_sdVec[match(i, plot_FPCs)]
+    sd_factor_i <- sd_factor * FPC_sdVec[i]
     # dataset with mean +/- <sd_factor_i>*FPC
     plot_dat = fpc_dat %>%
       dplyr::filter(id == i) %>%
