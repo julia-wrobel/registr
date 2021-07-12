@@ -3,7 +3,6 @@
 #' Function used for data cleaning.
 #'
 #' @param data Dataframe. Should have values id, value, index.
-#' @param family \code{gaussian} or \code{binomial}.
 #' 
 #' @importFrom dplyr mutate group_by filter select ungroup arrange
 #' @importFrom tidyr spread
@@ -15,7 +14,7 @@
 #' 
 #' @export
 #' 
-data_clean = function(data, family = "binomial"){
+data_clean = function(data){
   
 	## NULLify global values called by tidyverse functions
 	value = index = NULL
