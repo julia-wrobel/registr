@@ -4,12 +4,10 @@
 \alias{data_clean}
 \title{Convert data to a \code{refund} object}
 \usage{
-data_clean(data, family = "binomial")
+data_clean(data)
 }
 \arguments{
 \item{data}{Dataframe. Should have values id, value, index.}
-
-\item{family}{\code{gaussian} or \code{binomial}.}
 }
 \value{
 An list containing:
