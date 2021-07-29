@@ -42,6 +42,8 @@
 #' \code{npc_criterion = c(0.9,0.02)} tries to choose a number of FPCs that
 #' explains at least 90\% of variation, but only includes FPCs that explain at
 #' least 2\% of variation (even if this means 90\% explained variation is not reached).
+#' @param Kt Number of B-spline basis functions used to estimate mean functions
+#' and functional principal components. Default is 8.
 #' @param index_significantDigits Positive integer \code{>= 2}, stating the number
 #' of significant digits to which the index grid should be rounded. Coarsening the
 #' index grid is necessary since otherwise the covariance surface matrix

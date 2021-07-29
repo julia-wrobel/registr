@@ -40,9 +40,7 @@ explains at least 90\% of variation, but only includes FPCs that explain at
 least 2\% of variation (even if this means 90\% explained variation is not reached).}
 
 \item{Kt}{Number of B-spline basis functions used to estimate mean functions
-and functional principal components. Default is 8. If
-\code{fpca_type = "variationalEM"} and \code{npc_criterion} is used,
-\code{Kt} is set to 20.}
+and functional principal components. Default is 8.}
 
 \item{t_min}{Minimum value to be evaluated on the time domain.}
 
