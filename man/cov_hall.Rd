@@ -56,6 +56,12 @@ of computing and smoothing the surface of crossproducts of uncentered
 observations and subsequently subtracting the (crossproducts of the) mean
 function. The former seems to yield smoother eigenfunctions and 
 fewer non-positive-definite covariance estimates.
+
+If the data \code{Y} or the crossproduct matrix contain more than
+\code{100,000} rows or elements, the estimation of the marginal mean or
+the smoothing step of the covariance matrix are performed by
+using the discretization-based estimation algorithm in \code{\link[mgcv]{bam}}
+rather than the \code{\link[mgcv]{gam}} estimation algorithm.
 }
 \examples{
 data(growth_incomplete)
