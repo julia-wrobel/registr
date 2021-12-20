@@ -27,6 +27,7 @@
 #' @param ... Additional arguments passed to \code{\link[ggplot2]{theme}}.
 #' 
 #' @importFrom dplyr bind_rows
+#' @importFrom stats sd
 #' @export
 #' 
 #' @return @return If multiple FPCs are plotted, returns a grid of \code{ggplot}
@@ -67,7 +68,7 @@ plot.fpca = function(x, plot_FPCs = 1:x$npc, sd_factor = 2,
   }
   
   # determine the standard deviation of each FPC's scores
-  FPC_sdVec <- apply(x$scores, 2, sd)
+  FPC_sdVec <- apply(x$scores, 2, stats::sd)
   
   # data preparation
   mean_dat = data.frame(t    = x$t_vec,

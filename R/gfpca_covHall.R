@@ -141,6 +141,11 @@ cov_hall = function(Y, index_evalGrid, Kt = 25, Kc = 10, family = "gaussian",
 #' @param Y Dataframe with the centered observations.
 #' Should have values id, centered, index.
 crossprods_irregular = function(Y) {
+  
+  # some NULL variable definitions to appease CRAN package checks regarding the use of ggplot2
+  crossprods = NULL
+  
+  
   Y_crossprods = select(Y, .data$id, .data$index, .data$centered) %>% 
     nest(data = c(.data$index, .data$centered)) %>% 
     mutate(crossprods = map(.data$data, ~ {
