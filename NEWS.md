@@ -33,3 +33,6 @@ Preparing things below
 * penalization for optimization (not sure how to choose best sigma)
 * parallelization? 
 
+# registr 2.1.0
+
+* Notes fixes for R update
