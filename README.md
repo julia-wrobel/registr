@@ -19,7 +19,9 @@ coverage](https://codecov.io/gh/julia-wrobel/registr/branch/master/graph/badge.s
 Registration for incomplete exponential family functional data.
 
 -   Authors: [Julia Wrobel](http://juliawrobel.com), [Alexander
-    Bauer](https://www.en.stablab.stat.uni-muenchen.de/people/doktoranden/bauer1/index.html)
+    Bauer](https://www.en.stablab.stat.uni-muenchen.de/people/doktoranden/bauer1/index.html),
+    [Erin McDonnell](http://eimcdonnell.com/), and [Jeff
+    Goldsmith](https://jeffgoldsmith.com/)
 -   License: [MIT](https://opensource.org/licenses/MIT). See the
     [LICENSE](LICENSE) file for details
 -   Version: 2.1
@@ -102,7 +104,7 @@ the package can be found in the vignettes mentioned above.
 
 The code below uses `registr::simulate_unregistered_curves()` to
 simulate curves for 100 subjects with 200 timepoints each, observed over
-domain (0, 1). All curves have similar structure but the location of the
+domain (0,1). All curves have similar structure but the location of the
 peak is shifted. On the observed domain *t*<sup>\*</sup> the curves are
 unregistered (misaligned). On the domain *t* the curves are registered
 (aligned).
@@ -148,13 +150,25 @@ latest `CRAN` version of the package with `BibTeX`, use
 
     @Manual{,
         title = {registr: Registration for Exponential Family Functional Data},
-        author = {Julia Wrobel and Erin McDonnell and Jeff Goldsmith},
-        year = {2020},
-        note = {R package version 1.0.0},
+        author = {Julia Wrobel and Alexander Bauer and Erin McDonnell and Jeff Goldsmith},
+        year = {2022},
+        note = {R package version 2.1.0},
         url = {https://CRAN.R-project.org/package=registr},
       }
 
-To cite the Journal of Open Source Software paper, use
+To cite the 2021 Journal of Open Source Software paper, use
+
+    @article{wrobel2021registr,
+      title={registr 2.0: Incomplete Curve Registration for Exponential Family Functional Data},
+      author={Wrobel, Julia and Bauer, Alexander},
+      journal={Journal of Open Source Software},
+      volume={6},
+      number={61},
+      pages={2964},
+      year={2021}
+    }
+
+To cite the 2018 Journal of Open Source Software paper, use
 
     @article{wrobel2018regis,
       title={registr: Registration for Exponential Family Functional Data},
