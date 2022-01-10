@@ -34,7 +34,7 @@
 * Added argument 'npc_varExplained' to functions 'fpca_gauss' and 'bfpca' to choose the number of FPCs based on the share of explained variation.
 * All 'verbose' arguments now take values between 0-4 to better control the level of detail of info messages.
 * A lot of minor fixes and refinements.
-
+* Updated potentially invalid URLs
 
 
 Preparing things below

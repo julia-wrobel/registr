@@ -309,7 +309,7 @@ biased GFPCA approaches, this two-step approach can be seen as a
 *"quick-fix" for the marginal approach* of @hall_2008 that *works well in practice*.
 
 Our implementation is based on the codebase accompanying their paper which can
-be found at [github.com/jeff-goldsmith/gfpca](https://www.github.com/jeff-goldsmith/gfpca).
+be found at [github.com/jeff-goldsmith/gfpca](https://github.com/jeff-goldsmith/gfpca).
 We further adapted the functions to work more efficiently both regarding the 
 need for computation time and RAM, especially for large data settings with
 thousands of curves.

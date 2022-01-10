@@ -6,6 +6,11 @@
 
 using namespace Rcpp;
 
+#ifdef RCPP_USE_GLOBAL_ROSTREAM
+Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
+Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
+#endif
+
 // expectedScores
 List expectedScores(arma::vec Y, arma::vec mu, arma::mat psi, arma::mat theta, arma::mat theta_quad);
 RcppExport SEXP _registr_expectedScores(SEXP YSEXP, SEXP muSEXP, SEXP psiSEXP, SEXP thetaSEXP, SEXP theta_quadSEXP) {
