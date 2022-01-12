@@ -92,7 +92,7 @@ The plot below shows the unregistered curves and registered curves.
 
 ```{r plot_sim_data, fig.align='center', fig.height=3, fig.width=9}
 library(tidyverse)
-library(gridExtra)
+library(cowplot)
 
 unreg = ggplot(registration_data, aes(x = index, y = boot::inv.logit(latent_mean),
 																			group = id)) +
@@ -105,8 +105,7 @@ reg = ggplot(registration_data, aes(x = t, y = boot::inv.logit(latent_mean),
 	geom_path(alpha = .25) + theme_bw() + 
 	labs(x = "t", y = "Prob(Y = 1)")
 
-grid.arrange(unreg, reg, ncol = 2)
-
+cowplot::plot_grid(unreg, reg, ncol = 2)
 ```
 
 
@@ -129,7 +128,7 @@ reg = ggplot(sub_data, aes(x = t, y = boot::inv.logit(latent_mean),
 	geom_point(aes(y = value), alpha = 0.25, size = 0.25) +
 	labs(x = "t", y = "Prob(Y = 1)")
 
-grid.arrange(unreg, reg, ncol = 2)
+cowplot::plot_grid(unreg, reg, ncol = 2)
 ```
 
 Our software registers curves by estimating $t$. For this we use the function `registration_fpca()`.
@@ -163,7 +162,7 @@ reg_hat = ggplot(sub_data, aes(x = t_hat, y = boot::inv.logit(latent_mean),
 	geom_point(aes(y = value), alpha = 0.25, size = 0.25) +
 	labs(x = "t", y = "Prob(Y = 1)")
 
-grid.arrange(unreg, reg, reg_hat, ncol = 3)
+cowplot::plot_grid(unreg, reg, reg_hat, ncol = 3)
 
 ```
 
