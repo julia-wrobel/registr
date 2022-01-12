@@ -1,7 +1,7 @@
 context("bfpca")
 
 test_that("bfpca only accepts binary input values",{
-	Y = simulate_functional_data(seed = 2020)$Y
+	Y = simulate_functional_data(seed = 2020, I = 10, D = 50)$Y
 	Y$value = Y$value + 2
 	
 	expect_that(bfpca(Y, npc = 1), 
@@ -14,7 +14,7 @@ test_that("bfpca only accepts binary input values",{
 })
 
 test_that("bfpca output is a list with non-null items and class fpca",{
-	Y = simulate_functional_data(seed = 2020)$Y
+	Y = simulate_functional_data(seed = 2020, I = 10, D = 50)$Y
 	expect_warning({
 		bfpca_object = bfpca(Y, npc = 2)
 	}, "BFPCA convergence not reached. Try increasing maxiter.")
@@ -63,7 +63,7 @@ test_that("bfpca output has correct number of dimensions",{
 })
 
 test_that("bfpca works for time domains other than (0, 1)",{
-	Y = simulate_functional_data(seed = 2020)$Y
+	Y = simulate_functional_data(seed = 2020, I = 10, D = 50)$Y
 	Y$index = Y$index + 1
 	expect_warning({
 		bfpca_object = bfpca(Y, npc = 2)
@@ -98,14 +98,6 @@ test_that("bfpca works for different start seeds",{
 	bfpca(Y, npc = 2, seed = seeds[3])
 })
 
-test_that("bfpca iterations are strictly decreasing",{
-	Y = simulate_functional_data(seed = 2020)$Y
-	expect_warning({
-		bfpca_object = bfpca(Y, npc = 2)
-	}, "BFPCA convergence not reached. Try increasing maxiter.")
-	
-	expect_true(all(diff(bfpca_object$error) < 0))
-})
 
 test_that("bfpca output has correct number of dimensions when periodic = TRUE ",{
 	Y = simulate_functional_data(I = 100, D = 200, seed = 2020)$Y
@@ -146,3 +138,4 @@ test_that("bfpca has correct number of dimensions when applied on incomplete cur
 	}, "BFPCA convergence not reached. Try increasing maxiter.")
 	expect_equal(dim(fpca_object$efunctions), c(100, 1))
 })
+

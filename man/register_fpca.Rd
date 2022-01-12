@@ -174,10 +174,6 @@ Y = simulate_unregistered_curves(I = 20, D = 200)
 # estimation based on Wrobel et al. (2019)
 reg = register_fpca(Y, npc = 2, family = "binomial",
                     fpca_type = "variationalEM", max_iterations = 5)
-# estimation based on Gertheiss et al. (2017)
-reg2 = register_fpca(Y, npc = 2, family = "binomial",
-                     fpca_type = "two-step", max_iterations = 5,
-                     fpca_index_significantDigits = 4)
 
 if (requireNamespace("ggplot2", quietly = TRUE)) {
   library(ggplot2)
@@ -189,7 +185,13 @@ if (requireNamespace("ggplot2", quietly = TRUE)) {
 }
 
 
-\donttest{ 
+\donttest{
+
+# estimation based on Gertheiss et al. (2017)
+reg2 = register_fpca(Y, npc = 2, family = "binomial",
+                     fpca_type = "two-step", max_iterations = 5,
+                     fpca_index_significantDigits = 4)
+                     
 # example using accelerometer data from nhanes 2003-2004 study
 data(nhanes)
 nhanes_short = nhanes[nhanes$id \%in\% unique(nhanes$id)[1:5],]

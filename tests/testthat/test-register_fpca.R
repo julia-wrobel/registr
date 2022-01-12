@@ -2,7 +2,7 @@ context("register_fpca")
 
 
 test_that("code only accepts supported family of distributions", {
-	Y = simulate_unregistered_curves(seed = 2020)
+	Y = simulate_unregistered_curves(seed = 2020, I = 10, D = 50)
 	
 	register_fpca(Y, npc = 1, family = "binomial", max_iterations = 5)
 	register_fpca(Y, npc = 1, family = "gaussian", max_iterations = 5)
@@ -58,6 +58,7 @@ test_that("registering poisson data throws no errors",{
 })
 
 test_that("register_fpca output is a list with non-null items and class registration",{
+  skip_on_cran()
 	Y = simulate_unregistered_curves(seed = 1001)
 	registr_object1  = register_fpca(Y, npc = 1, family = "binomial", fpca_type = "variationalEM", max_iterations = 2)
 	registr_object1a = register_fpca(Y, npc_criterion = 0.5, family = "binomial", fpca_type = "variationalEM", max_iterations = 2)
@@ -88,6 +89,7 @@ test_that("register_fpca output is a list with non-null items and class registra
 })
 
 test_that("register_fpca function forces gradient = FALSE in some situations",{
+  skip_on_cran()
 	Y       = simulate_unregistered_curves(seed = 2020)
 	data    = data_clean(Y)
 	Y       = data$Y
@@ -105,6 +107,7 @@ test_that("register_fpca function forces gradient = FALSE in some situations",{
 })
 
 test_that("register_fpca function throws a warning when fpca_type = 'variationalEM' is called for families other than gaussian or binomial",{
+  skip_on_cran()
 	Y = registr::growth_incomplete
 	Y$value = Y$value + 1 # make y values strictly positive for gamma and poisson family
 	
@@ -117,7 +120,8 @@ test_that("register_fpca function throws a warning when fpca_type = 'variational
 })
 
 test_that("register_fpca function priors must be specified only when warping = piecewise_linear2 and family = binomial",{
-	Y = simulate_unregistered_curves(seed = 2020)
+  skip_on_cran()
+  Y = simulate_unregistered_curves(seed = 2020)
 	data = data_clean(Y)
 	Y = data$Y
 	
@@ -131,7 +135,8 @@ test_that("register_fpca function priors must be specified only when warping = p
 })
 
 test_that("register_fpca function with priors on the piecewise_linear2 warping functions works as expected",{
-	Y = simulate_unregistered_curves(seed = 2020)
+  skip_on_cran()
+  Y = simulate_unregistered_curves(seed = 2020)
 	data = data_clean(Y)
 	Y = data$Y
 	
@@ -158,24 +163,6 @@ test_that("register_fpca function with priors on the piecewise_linear2 warping f
 	expect_true(all(rowMeans(abs(test2$hinv_beta[c(3:4),] - 0.75)) < rowMeans(abs(test1$hinv_beta[c(3:4),] - 0.75))))
 })
 
-test_that("register_fpca for binary data with parametric warping functions and/or periodic basis functions throws no errors",{
-	Y = simulate_unregistered_curves(seed = 2020)
-	data = data_clean(Y)
-	Y = data$Y
-	
-	expect_error({
-	  expect_warning({
-	    register_fpca(Y, npc = 1, family = "binomial", periodic = TRUE,  warping = "nonparametric", gradient = FALSE, max_iterations = 1)
-	  }, "Convergence not reached. Try increasing max_iterations.")}, NA)
-	expect_error({
-	  expect_warning({
-	    expect_error(register_fpca(Y, npc = 1, family = "binomial", periodic = FALSE, warping = "piecewise_linear2", gradient = FALSE, max_iterations = 1), NA)
-	  }, "Convergence not reached. Try increasing max_iterations.")}, NA)
-	expect_error({
-	  expect_warning({
-	    expect_error(register_fpca(Y, npc = 1, family = "binomial", periodic = TRUE,  warping = "piecewise_linear2", gradient = FALSE, max_iterations = 1), NA)
-	  }, "Convergence not reached. Try increasing max_iterations.")}, NA)
-})
 
 test_that("register_fpca with incompleteness = NULL leads to starting points and endpoints on the diagonal",{
 	Y   = registr::growth_incomplete
@@ -192,7 +179,8 @@ test_that("register_fpca with incompleteness = NULL leads to starting points and
 })
 
 test_that("register_fpca with incompleteness != NULL and lambda_inc = 0: warping functions do not exceed the overall time domain",{
-	Y   = registr::growth_incomplete
+  skip_on_cran()
+  Y   = registr::growth_incomplete
 	expect_warning({
 		reg1 = register_fpca(Y = Y, npc = 1, family = "gaussian", incompleteness = "leading", lambda_inc = 0, max_iterations = 1)
 	}, "Convergence not reached. Try increasing max_iterations.")
@@ -234,25 +222,6 @@ test_that("register_fpca with incompleteness = 'full': higher lambda_inc values 
 	expect_gt(MSE_reg1, expected = MSE_reg2)
 })
 
-test_that("register_fpca for gamma data throws no error",{
-	Y       = registr::growth_incomplete
-	Y$value = Y$value + 1 # make y values strictly positive for gamma family
-	
-	expect_warning({
-		reg = register_fpca(Y, npc = 1, family = "gamma",fpca_type = "two-step", max_iterations = 1, fpca_index_significantDigits = 2, gradient = FALSE)
-	}, "Convergence not reached. Try increasing max_iterations.")
-	expect_identical(class(reg), "registration")
-})
-
-test_that("register_fpca for poisson data throws no error",{
-	Y       = registr::growth_incomplete
-	Y$value = Y$value + 1 # make y values nonnegative for poisson family
-	
-	expect_warning({
-		reg = register_fpca(Y, npc = 1, family = "poisson",fpca_type = "two-step", max_iterations = 1, fpca_index_significantDigits = 2, gradient = FALSE)
-	}, "Convergence not reached. Try increasing max_iterations.")
-	expect_identical(class(reg), "registration")
-})
 
 test_that("register_fpca only accepts Y_template if it has the correct format.",{
 	Y = registr::growth_incomplete

@@ -88,3 +88,4 @@ test_that("fpca_gauss has correct number of dimensions when applied on incomplet
 	}, "fpca_gauss convergence not reached. Try increasing maxiter.")
 	expect_equal(dim(fpca_object$efunctions), c(100, 1))
 })
+

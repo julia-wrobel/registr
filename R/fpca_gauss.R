@@ -77,8 +77,10 @@
 #' plot(fpca_obj)
 #' 
 #' # estimate npc adaptively, to explain 90% of the overall variation
+#' \donttest{
 #' fpca_obj2 = fpca_gauss(Y = growth_incomplete, npc_varExplained = 0.9)
 #' plot(fpca_obj, plot_FPCs = 1:2)
+#' }
 #' 
 fpca_gauss = function(Y, npc = NULL, npc_varExplained = NULL, Kt = 8, maxiter = 20,
                       t_min = NULL, t_max = NULL, 

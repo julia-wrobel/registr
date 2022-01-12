@@ -56,13 +56,16 @@
 #' Y = simulate_functional_data()$Y
 #' 
 #' # estimate 2 FPCs
-#' bfpca_obj = bfpca(Y, npc = 2, print.iter = TRUE)
+#' bfpca_obj = bfpca(Y, npc = 2, print.iter = TRUE, maxiter = 25)
+#' 
+#' 
+#' \donttest{
 #' plot(bfpca_obj)
 #' 
 #' # estimate npc adaptively, to explain 90% of the overall variation
-#' bfpca_obj2 = bfpca(Y, npc_varExplained = 0.9, print.iter = TRUE, maxiter = 100)
+#' bfpca_obj2 = bfpca(Y, npc_varExplained = 0.9, print.iter = TRUE, maxiter = 30)
 #' plot(bfpca_obj2)
-#'
+#'}
 bfpca = function(Y, npc = NULL, npc_varExplained = NULL, Kt = 8, maxiter = 50,
                  t_min = NULL, t_max = NULL, print.iter = FALSE, row_obj= NULL,
                  seed = 1988, periodic = FALSE, error_thresh = 0.0001,
