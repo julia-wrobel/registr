@@ -36,6 +36,8 @@ Imports:
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
+URL: https://github.com/julia-wrobel/registr
+BugReports: https://github.com/julia-wrobel/registr/issues
 RoxygenNote: 7.1.2
 LinkingTo: Rcpp, RcppArmadillo
 Suggests: 
