@@ -3,7 +3,7 @@ Title: Curve Registration for Exponential Family Functional Data
 Version: 2.1.0
 Authors@R: c(
     person("Julia", "Wrobel", role = c("aut", "cre"), 
-    email = "julia.wrobel@cuanschutz.edu",
+    email = "julia.wrobel@emory.edu",
     comment = c(ORCID = "0000-0001-6783-1421")),
     person("Alexander", "Bauer", role = "aut", email = "alexander.bauer@stat.uni-muenchen.de"),
     person("Erin", "McDonnell", role = "aut", email = "eim2117@cumc.columbia.edu"),
