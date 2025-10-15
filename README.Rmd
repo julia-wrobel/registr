@@ -39,7 +39,7 @@ Classic functional data analysis assumes that each curve is continuous or comes 
 
 Often in a functional dataset curves have similar underlying patterns but the main features of each curve, such as the minimum and maximum, have shifts such that the data appear misaligned. This misalignment can obscure patterns shared across curves and produce messy summary statistics. Registration methods reduce variability in functional data and clarify underlying patterns by aligning curves.
 
-This package implements statistical methods for registering exponential family functional data. The basic methods are described in more detail in our [paper](http://juliawrobel.com/Downloads/registration_ef.pdf) and were further adapted to (potentially) incomplete curve settings where (some) curves
+This package implements statistical methods for registering exponential family functional data. The basic methods are described in more detail in our [paper](https:/julia-wrobel.github.io/Downloads/registration_ef.pdf) and were further adapted to (potentially) incomplete curve settings where (some) curves
 are not observed from the very beginning and/or until the very end of the common domain.
 For details on the incomplete curve methodology and how to use it see the corresponding package vignette.
 Instructions for installing the software and using it to register simulated binary data are provided below.

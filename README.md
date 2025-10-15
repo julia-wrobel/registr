@@ -10,7 +10,7 @@
 [![Codecov test
 coverage](https://codecov.io/gh/julia-wrobel/registr/branch/master/graph/badge.svg)](https://codecov.io/gh/julia-wrobel/registr/coverage.svg?branch=master)
 [![DOI](https://joss.theoj.org/papers/10.21105/joss.02964/status.svg)](https://doi.org/10.21105/joss.02964)
-[![R-CMD-check](https://github.com/julia-wrobel/registr/workflows/R-CMD-check/badge.svg)](https://github.com/julia-wrobel/registr/actions)
+
 <!-- badges: end -->
 
 Registration for incomplete exponential family functional data.
@@ -57,7 +57,8 @@ and clarify underlying patterns by aligning curves.
 
 This package implements statistical methods for registering exponential
 family functional data. The basic methods are described in more detail
-in our [paper](http://juliawrobel.com/Downloads/registration_ef.pdf) and
+in our
+[paper](https:/julia-wrobel.github.io/Downloads/registration_ef.pdf) and
 were further adapted to (potentially) incomplete curve settings where
 (some) curves are not observed from the very beginning and/or until the
 very end of the common domain. For details on the incomplete curve
