@@ -25,12 +25,7 @@ bfpca(
 \arguments{
 \item{Y}{Dataframe. Should have variables id, value, index.}
 
-\item{npc}{The number of functional principal components (FPCs)
-has to be specified either directly as \code{npc} or based on their explained
-share of variance. In the latter case, \code{npc_varExplained} has to be set
-to a share between 0 and 1.}
-
-\item{npc_varExplained}{The number of functional principal components (FPCs)
+\item{npc, npc_varExplained}{The number of functional principal components (FPCs)
 has to be specified either directly as \code{npc} or based on their explained
 share of variance. In the latter case, \code{npc_varExplained} has to be set
 to a share between 0 and 1.}

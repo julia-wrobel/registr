@@ -48,14 +48,9 @@ The higher this lambda, the more the registered domains are forced to have the
 same length as the observed domains.
 Only used if \code{incompleteness} is not NULL.}
 
-\item{t_min}{minimum and maximum value to be evaluated on the time domain.}
+\item{t_min, t_max}{minimum and maximum value to be evaluated on the time domain.}
 
-\item{t_max}{minimum and maximum value to be evaluated on the time domain.}
-
-\item{t_min_curve}{minimum and maximum value of the observed time domain of the
-(potentially incomplete) curve.}
-
-\item{t_max_curve}{minimum and maximum value of the observed time domain of the
+\item{t_min_curve, t_max_curve}{minimum and maximum value of the observed time domain of the
 (potentially incomplete) curve.}
 
 \item{Kt}{Number of B-spline basis functions used to estimate mean functions. Default is 8.}
