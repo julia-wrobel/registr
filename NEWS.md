@@ -41,3 +41,9 @@ Preparing things below
 
 * mgcv spline choices
 * penalization for optimization (not sure how to choose best sigma)
+
+# registr 2.1.1
+
+* Bug fixes to address source code pointing to old GCC compiler
+* Updated email address of maintainer
+* Minor documentation fixes

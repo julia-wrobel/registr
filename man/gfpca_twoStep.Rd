@@ -111,7 +111,7 @@ The number of functional principal components (FPCs) can either be specified
 directly (argument \code{npc}) or chosen based on the explained share of
 variance (\code{npc_criterion}). Using the latter, we approximate the overall
 variance in the data \code{Y} with the variance represented by the smoothed
-covariance surface estimated with \code{\link{cov_hall}}.
+covariance surface estimated with \code{cov_hall}.
 Note that the Eigenvalue decomposition of this covariance surface
 sometimes leads to a long tail of subordinate FPCs with small eigenvalues.
 Such subordinate dimensions seem to often represent phase rather than
@@ -126,7 +126,7 @@ For \code{family = "poisson"} the values in \code{Y} are rounded before
 performing the GFPCA to ensure integer data. This is done to ensure reasonable
 computation times. Computation times tend to explode when estimating the
 underlying high-dimensional mixed model with continuous Poisson data based
-on the \code{\link{gamm4}} package.
+on the \code{\link[gamm4:gamm4]{gamm4()}} package.
 
 If negative eigenvalues are present, the respective eigenfunctions are dropped
 and not considered further.

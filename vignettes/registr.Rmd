@@ -92,7 +92,7 @@ The `registr` algorithm is based on this model and iterates between the followin
 
 
 
-The methods implemented in `registr` are described in more detail in this [paper](http://juliawrobel.com/Downloads/registration_ef.pdf).
+The methods implemented in `registr` are described in more detail in this [paper](https://julia-wrobel.github.io/Downloads/registration_ef.pdf).
 
 
 # The `registr` package

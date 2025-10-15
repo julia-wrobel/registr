@@ -7,9 +7,6 @@
 
 [![](https://www.r-pkg.org/badges/version/registr)](https://cran.r-project.org/package=registr)
 [![](http://cranlogs.r-pkg.org/badges/grand-total/registr?color=green)](https://cran.r-project.org/package=registr)
-[![](https://travis-ci.org/julia-wrobel/registr.svg?branch=master)](https://travis-ci.org/julia-wrobel/registr)
-[![AppVeyor build
-status](https://ci.appveyor.com/api/projects/status/github/julia-wrobel/registr?branch=master&svg=true)](https://ci.appveyor.com/project/julia-wrobel/registr)
 [![Codecov test
 coverage](https://codecov.io/gh/julia-wrobel/registr/branch/master/graph/badge.svg)](https://codecov.io/gh/julia-wrobel/registr/coverage.svg?branch=master)
 [![DOI](https://joss.theoj.org/papers/10.21105/joss.02964/status.svg)](https://doi.org/10.21105/joss.02964)
@@ -18,13 +15,12 @@ coverage](https://codecov.io/gh/julia-wrobel/registr/branch/master/graph/badge.s
 
 Registration for incomplete exponential family functional data.
 
--   Authors: [Julia Wrobel](http://juliawrobel.com), [Alexander
-    Bauer](https://www.en.stablab.stat.uni-muenchen.de/people/doktoranden/bauer1/index.html),
-    [Erin McDonnell](http://eimcdonnell.com/), and [Jeff
-    Goldsmith](https://jeffgoldsmith.com/)
--   License: [MIT](https://opensource.org/licenses/MIT). See the
-    [LICENSE](LICENSE) file for details
--   Version: 2.1
+- Authors: [Julia Wrobel](https://julia-wrobel.github.io/), Alexander
+  Bauer, [Erin McDonnell](http://eimcdonnell.com/), and [Jeff
+  Goldsmith](https://jeffgoldsmith.com/)
+- License: [MIT](https://opensource.org/licenses/MIT). See the
+  [LICENSE](LICENSE) file for details
+- Version: 2.1
 
 ### What it does
 
@@ -104,9 +100,9 @@ the package can be found in the vignettes mentioned above.
 
 The code below uses `registr::simulate_unregistered_curves()` to
 simulate curves for 100 subjects with 200 timepoints each, observed over
-domain (0,1). All curves have similar structure but the location of the
-peak is shifted. On the observed domain *t*<sup>\*</sup> the curves are
-unregistered (misaligned). On the domain *t* the curves are registered
+domain $(0, 1)$. All curves have similar structure but the location of
+the peak is shifted. On the observed domain $t^*$ the curves are
+unregistered (misaligned). On the domain $t$ the curves are registered
 (aligned).
 
 ``` r
@@ -127,7 +123,7 @@ binary curves for two subjects are shown below.
 
 <img src="README_files/figure-gfm/plot_2subjs-1.png" style="display: block; margin: auto;" />
 
-Our software registers curves by estimating *t*. For this we use the
+Our software registers curves by estimating $t$. For this we use the
 function `registration_fpca()`.
 
 ``` r
