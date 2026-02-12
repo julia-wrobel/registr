@@ -47,3 +47,7 @@ Preparing things below
 * Bug fixes to address source code pointing to old GCC compiler
 * Updated email address of maintainer
 * Minor documentation fixes
+
+# registr 2.2.0
+
+* New submission after package was archived
