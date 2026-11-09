@@ -29,6 +29,103 @@ expectedXi <- function(theta, mu, mi, psi, Ci) {
     .Call('_registr_expectedXi', PACKAGE = 'registr', theta, mu, mi, psi, Ci)
 }
 
+#' Compute subject-level response crossproducts.
+#'
+#' Calculates the time-basis crossproducts with centered binary responses.
+#'
+#' @param B_full Observation-level B-spline design matrix.
+#' @param Y Binary observations.
+#' @param first0 Zero-based first row index for each subject.
+#' @param last0 Zero-based last row index for each subject.
+#' @param cores Number of threads when OpenMP is available.
+#' @return A matrix of subject-specific crossproducts.
+#' @author Linlin Wu (\email{linlin.wu@emory.edu}),
+#'   Jeff Goldsmith (\email{ajg2202@cumc.columbia.edu}),
+#'   Julia Wrobel (\email{julia.wrobel@emory.edu})
+subject_BtYhalf_cpp <- function(B_full, Y, first0, last0, cores = 1L) {
+    .Call('_registr_subject_BtYhalf_cpp', PACKAGE = 'registr', B_full, Y, first0, last0, cores)
+}
+
+#' Compute subject-specific fitted linear predictors.
+#'
+#' @param B_full Observation-level B-spline design matrix.
+#' @param subject_coefs Matrix of subject-specific time-basis coefficients.
+#' @param first0 Zero-based first row index for each subject.
+#' @param last0 Zero-based last row index for each subject.
+#' @param cores Number of threads when OpenMP is available.
+#' @return Vector of fitted linear predictors at the observed times.
+#' @author Linlin Wu (\email{linlin.wu@emory.edu}),
+#' Jeff Goldsmith (\email{ajg2202@cumc.columbia.edu}),
+#' Julia Wrobel (\email{julia.wrobel@emory.edu})
+fitted_values_by_subject_cpp <- function(B_full, subject_coefs, first0, last0, cores = 1L) {
+    .Call('_registr_fitted_values_by_subject_cpp', PACKAGE = 'registr', B_full, subject_coefs, first0, last0, cores)
+}
+
+#' Perform one variational EM update for VL-FoSR.
+#'
+#' Updates the subject scores, variational parameters, and spline coefficients.
+#'
+#' @param B_full Observation-level B-spline design matrix.
+#' @param Y Binary observations.
+#' @param zeta_in Current variational parameters.
+#' @param Q_by_id Subject-level fixed-effect design matrix.
+#' @param alpha_mat Current fixed-effect spline coefficient matrix.
+#' @param psi_coefs Current random-effect spline coefficient matrix.
+#' @param BtYhalf Precomputed subject-level response crossproducts.
+#' @param first0 Zero-based first row index for each subject.
+#' @param last0 Zero-based last row index for each subject.
+#' @param cores Number of threads when OpenMP is available.
+#' @return A list with updated coefficients (phi_vec), subject scores,
+#'   variational parameters (zeta), and accumulated EM matrices (H_all, g_all).
+#' @author Linlin Wu (\email{linlin.wu@emory.edu}),
+#' Jeff Goldsmith (\email{ajg2202@cumc.columbia.edu}),
+#' Julia Wrobel (\email{julia.wrobel@emory.edu})
+em_iteration_structured_cpp <- function(B_full, Y, zeta_in, Q_by_id, alpha_mat, psi_coefs, BtYhalf, first0, last0, cores = 1L) {
+    .Call('_registr_em_iteration_structured_cpp', PACKAGE = 'registr', B_full, Y, zeta_in, Q_by_id, alpha_mat, psi_coefs, BtYhalf, first0, last0, cores)
+}
+
+#' Calculate Bernoulli loss for a candidate inverse warping function.
+#'
+#' Evaluates the subject-specific template at the warped times, with
+#' an optional penalty for incomplete endpoint constraints.
+#'
+#' @param Y Binary observations for one subject.
+#' @param Theta_h Warping B-spline design matrix.
+#' @param mean_coefs Subject-specific template spline coefficients.
+#' @param template_knots_full Complete knot sequence for the template.
+#' @param beta_inner Candidate warping coefficients, with endpoint entries
+#'   determined by inc_mode.
+#' @param t_min_curve Lower endpoint of the subject's time range.
+#' @param t_max_curve Upper endpoint of the subject's time range.
+#' @param inc_mode Endpoint mode: 0 = both fixed, 1 = leading free,
+#'   2 = trailing free, 3 = both free.
+#' @param lambda_inc Penalty weight for free endpoints.
+#' @return Bernoulli negative log-likelihood plus any endpoint penalty.
+#' @author Linlin Wu (\email{linlin.wu@emory.edu}),
+#' Jeff Goldsmith (\email{ajg2202@cumc.columbia.edu}),
+#' Julia Wrobel (\email{julia.wrobel@emory.edu})
+loss_h_binomial_nonparametric_cpp <- function(Y, Theta_h, mean_coefs, template_knots_full, beta_inner, t_min_curve, t_max_curve, inc_mode = 0L, lambda_inc = 0.0) {
+    .Call('_registr_loss_h_binomial_nonparametric_cpp', PACKAGE = 'registr', Y, Theta_h, mean_coefs, template_knots_full, beta_inner, t_min_curve, t_max_curve, inc_mode, lambda_inc)
+}
+
+#' Evaluate template quantities for MM registration.
+#'
+#' Computes the linear predictor, its derivative, and the quantities
+#' needed for the quadratic MM update.
+#'
+#' @param t_vec Candidate registered time points.
+#' @param knots_full Complete B-spline knot sequence for the template.
+#' @param alpha Template spline coefficients.
+#' @param ord B-spline order; default is 4 for cubic splines.
+#' @param eps Lower bound for nonzero derivative magnitudes.
+#' @return A list containing eta, deta, mu, w, and W2.
+#' @author Linlin Wu (\email{linlin.wu@emory.edu}),
+#' Jeff Goldsmith (\email{ajg2202@cumc.columbia.edu}),
+#' Julia Wrobel (\email{julia.wrobel@emory.edu})
+eval_mm_quantities_cpp <- function(t_vec, knots_full, alpha, ord = 4L, eps = 1e-8) {
+    .Call('_registr_eval_mm_quantities_cpp', PACKAGE = 'registr', t_vec, knots_full, alpha, ord, eps)
+}
+
 #' Apply lambda transformation of variational parameter.
 #'
 #' Simple function for use within other C++ functions.

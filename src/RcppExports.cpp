@@ -41,6 +41,90 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// subject_BtYhalf_cpp
+arma::mat subject_BtYhalf_cpp(const arma::mat& B_full, const arma::vec& Y, const arma::uvec& first0, const arma::uvec& last0, const int cores);
+RcppExport SEXP _registr_subject_BtYhalf_cpp(SEXP B_fullSEXP, SEXP YSEXP, SEXP first0SEXP, SEXP last0SEXP, SEXP coresSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type B_full(B_fullSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< const arma::uvec& >::type first0(first0SEXP);
+    Rcpp::traits::input_parameter< const arma::uvec& >::type last0(last0SEXP);
+    Rcpp::traits::input_parameter< const int >::type cores(coresSEXP);
+    rcpp_result_gen = Rcpp::wrap(subject_BtYhalf_cpp(B_full, Y, first0, last0, cores));
+    return rcpp_result_gen;
+END_RCPP
+}
+// fitted_values_by_subject_cpp
+arma::vec fitted_values_by_subject_cpp(const arma::mat& B_full, const arma::mat& subject_coefs, const arma::uvec& first0, const arma::uvec& last0, const int cores);
+RcppExport SEXP _registr_fitted_values_by_subject_cpp(SEXP B_fullSEXP, SEXP subject_coefsSEXP, SEXP first0SEXP, SEXP last0SEXP, SEXP coresSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type B_full(B_fullSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type subject_coefs(subject_coefsSEXP);
+    Rcpp::traits::input_parameter< const arma::uvec& >::type first0(first0SEXP);
+    Rcpp::traits::input_parameter< const arma::uvec& >::type last0(last0SEXP);
+    Rcpp::traits::input_parameter< const int >::type cores(coresSEXP);
+    rcpp_result_gen = Rcpp::wrap(fitted_values_by_subject_cpp(B_full, subject_coefs, first0, last0, cores));
+    return rcpp_result_gen;
+END_RCPP
+}
+// em_iteration_structured_cpp
+Rcpp::List em_iteration_structured_cpp(const arma::mat& B_full, const arma::vec& Y, const arma::vec& zeta_in, const arma::mat& Q_by_id, const arma::mat& alpha_mat, const arma::mat& psi_coefs, const arma::mat& BtYhalf, const arma::uvec& first0, const arma::uvec& last0, const int cores);
+RcppExport SEXP _registr_em_iteration_structured_cpp(SEXP B_fullSEXP, SEXP YSEXP, SEXP zeta_inSEXP, SEXP Q_by_idSEXP, SEXP alpha_matSEXP, SEXP psi_coefsSEXP, SEXP BtYhalfSEXP, SEXP first0SEXP, SEXP last0SEXP, SEXP coresSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type B_full(B_fullSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type zeta_in(zeta_inSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type Q_by_id(Q_by_idSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type alpha_mat(alpha_matSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type psi_coefs(psi_coefsSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type BtYhalf(BtYhalfSEXP);
+    Rcpp::traits::input_parameter< const arma::uvec& >::type first0(first0SEXP);
+    Rcpp::traits::input_parameter< const arma::uvec& >::type last0(last0SEXP);
+    Rcpp::traits::input_parameter< const int >::type cores(coresSEXP);
+    rcpp_result_gen = Rcpp::wrap(em_iteration_structured_cpp(B_full, Y, zeta_in, Q_by_id, alpha_mat, psi_coefs, BtYhalf, first0, last0, cores));
+    return rcpp_result_gen;
+END_RCPP
+}
+// loss_h_binomial_nonparametric_cpp
+double loss_h_binomial_nonparametric_cpp(const arma::vec& Y, const arma::mat& Theta_h, const arma::vec& mean_coefs, const arma::vec& template_knots_full, const arma::vec& beta_inner, const double t_min_curve, const double t_max_curve, const int inc_mode, const double lambda_inc);
+RcppExport SEXP _registr_loss_h_binomial_nonparametric_cpp(SEXP YSEXP, SEXP Theta_hSEXP, SEXP mean_coefsSEXP, SEXP template_knots_fullSEXP, SEXP beta_innerSEXP, SEXP t_min_curveSEXP, SEXP t_max_curveSEXP, SEXP inc_modeSEXP, SEXP lambda_incSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::vec& >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type Theta_h(Theta_hSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type mean_coefs(mean_coefsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type template_knots_full(template_knots_fullSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type beta_inner(beta_innerSEXP);
+    Rcpp::traits::input_parameter< const double >::type t_min_curve(t_min_curveSEXP);
+    Rcpp::traits::input_parameter< const double >::type t_max_curve(t_max_curveSEXP);
+    Rcpp::traits::input_parameter< const int >::type inc_mode(inc_modeSEXP);
+    Rcpp::traits::input_parameter< const double >::type lambda_inc(lambda_incSEXP);
+    rcpp_result_gen = Rcpp::wrap(loss_h_binomial_nonparametric_cpp(Y, Theta_h, mean_coefs, template_knots_full, beta_inner, t_min_curve, t_max_curve, inc_mode, lambda_inc));
+    return rcpp_result_gen;
+END_RCPP
+}
+// eval_mm_quantities_cpp
+Rcpp::List eval_mm_quantities_cpp(const arma::vec& t_vec, const arma::vec& knots_full, const arma::vec& alpha, const int ord, const double eps);
+RcppExport SEXP _registr_eval_mm_quantities_cpp(SEXP t_vecSEXP, SEXP knots_fullSEXP, SEXP alphaSEXP, SEXP ordSEXP, SEXP epsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::vec& >::type t_vec(t_vecSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type knots_full(knots_fullSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type alpha(alphaSEXP);
+    Rcpp::traits::input_parameter< const int >::type ord(ordSEXP);
+    Rcpp::traits::input_parameter< const double >::type eps(epsSEXP);
+    rcpp_result_gen = Rcpp::wrap(eval_mm_quantities_cpp(t_vec, knots_full, alpha, ord, eps));
+    return rcpp_result_gen;
+END_RCPP
+}
 // lambdaF
 double lambdaF(double x);
 RcppExport SEXP _registr_lambdaF(SEXP xSEXP) {
@@ -68,6 +152,11 @@ END_RCPP
 static const R_CallMethodDef CallEntries[] = {
     {"_registr_expectedScores", (DL_FUNC) &_registr_expectedScores, 5},
     {"_registr_expectedXi", (DL_FUNC) &_registr_expectedXi, 5},
+    {"_registr_subject_BtYhalf_cpp", (DL_FUNC) &_registr_subject_BtYhalf_cpp, 5},
+    {"_registr_fitted_values_by_subject_cpp", (DL_FUNC) &_registr_fitted_values_by_subject_cpp, 5},
+    {"_registr_em_iteration_structured_cpp", (DL_FUNC) &_registr_em_iteration_structured_cpp, 10},
+    {"_registr_loss_h_binomial_nonparametric_cpp", (DL_FUNC) &_registr_loss_h_binomial_nonparametric_cpp, 9},
+    {"_registr_eval_mm_quantities_cpp", (DL_FUNC) &_registr_eval_mm_quantities_cpp, 5},
     {"_registr_lambdaF", (DL_FUNC) &_registr_lambdaF, 1},
     {"_registr_squareTheta", (DL_FUNC) &_registr_squareTheta, 2},
     {NULL, NULL, 0}

@@ -32,7 +32,9 @@ Imports:
     lme4,
     mgcv,
     purrr,
-    Matrix
+    Matrix,
+    glmnet, 
+    quadprog
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
