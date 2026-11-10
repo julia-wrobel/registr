@@ -69,6 +69,6 @@ A numeric vector of spline coefficients for the gradient of the loss function.
 Gradient of loss function for registration step
 }
 \author{
-Julia Wrobel \email{julia.wrobel@cuanschutz.edu},
+Julia Wrobel \email{julia.wrobel@emory.edu},
 Alexander Bauer \email{alexander.bauer@stat.uni-muenchen.de}
 }

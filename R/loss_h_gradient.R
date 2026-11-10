@@ -8,7 +8,7 @@
 #' \code{loss_h_gradient()} is currently only available for \code{warping = "nonparametric"}.
 #' @inheritParams loss_h
 #' 
-#' @author Julia Wrobel \email{julia.wrobel@@cuanschutz.edu},
+#' @author Julia Wrobel \email{julia.wrobel@@emory.edu},
 #' Alexander Bauer \email{alexander.bauer@@stat.uni-muenchen.de}
 #' 
 #' @importFrom stats plogis

@@ -203,7 +203,7 @@ if (requireNamespace("ggplot2", quietly = TRUE)) {
 
 }
 \author{
-Julia Wrobel \email{julia.wrobel@cuanschutz.edu},
+Julia Wrobel \email{julia.wrobel@emory.edu},
 Erin McDonnell \email{eim2117@cumc.columbia.edu},
 Alexander Bauer \email{alexander.bauer@stat.uni-muenchen.de}
 }

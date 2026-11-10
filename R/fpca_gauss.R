@@ -37,7 +37,7 @@
 #' @param subsample if the number of rows of the data is greater than 
 #' 10 million rows, the `id` values are subsampled to get the mean coefficients.
 #' 
-#' @author Julia Wrobel \email{julia.wrobel@@cuanschutz.edu},
+#' @author Julia Wrobel \email{julia.wrobel@@emory.edu},
 #' Jeff Goldsmith \email{ajg2202@@cumc.columbia.edu},
 #' Alexander Bauer \email{alexander.bauer@@stat.uni-muenchen.de}
 #' @importFrom stats quantile

@@ -280,7 +280,7 @@ registr_helper = function(obj = NULL, Y = NULL, Kt = 8, Kh = 4, family = "gaussi
 #' reconstruct a warping function based on \code{hinv_innerKnots} and
 #' \code{hinv_beta}.}
 #' 
-#' @author Julia Wrobel \email{julia.wrobel@@cuanschutz.edu},
+#' @author Julia Wrobel \email{julia.wrobel@@emory.edu},
 #' Erin McDonnell \email{eim2117@@cumc.columbia.edu},
 #' Alexander Bauer \email{alexander.bauer@@stat.uni-muenchen.de}
 #' @export
@@ -495,7 +495,7 @@ gather_results_list = function(results_list, Y, rows, t_max, family) {
 #' \item{t_hat}{Vector of registered time domain.}
 #' \item{loss}{Loss of the optimal solution.}
 #' 
-#' @author Julia Wrobel \email{julia.wrobel@@cuanschutz.edu},
+#' @author Julia Wrobel \email{julia.wrobel@@emory.edu},
 #' Erin McDonnell \email{eim2117@@cumc.columbia.edu},
 #' Alexander Bauer \email{alexander.bauer@@stat.uni-muenchen.de}
 #' 

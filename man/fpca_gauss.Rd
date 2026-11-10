@@ -117,7 +117,7 @@ Tipping, M. E. and Bishop, C (1999). Probabilistic Principal Component Analysis.
 \emph{Journal of the Royal Statistical Society Series B,}, 592--598.
 }
 \author{
-Julia Wrobel \email{julia.wrobel@cuanschutz.edu},
+Julia Wrobel \email{julia.wrobel@emory.edu},
 Jeff Goldsmith \email{ajg2202@cumc.columbia.edu},
 Alexander Bauer \email{alexander.bauer@stat.uni-muenchen.de}
 }

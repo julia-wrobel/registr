@@ -67,7 +67,7 @@
 #' (if \code{fpca_type = "variationalEM"}).
 #' @inheritParams registr
 #'
-#' @author Julia Wrobel \email{julia.wrobel@@cuanschutz.edu}
+#' @author Julia Wrobel \email{julia.wrobel@@emory.edu}
 #' Jeff Goldsmith \email{ajg2202@@cumc.columbia.edu},
 #' Alexander Bauer \email{alexander.bauer@@stat.uni-muenchen.de}
 #' @export

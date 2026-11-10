@@ -26,6 +26,6 @@ Constraints ensure monotonicity of spline coefficients for warping functions
 for use with \code{constrOptim()} function.
 }
 \author{
-Julia Wrobel \email{julia.wrobel@cuanschutz.edu},
+Julia Wrobel \email{julia.wrobel@emory.edu},
 Erin McDonnell \email{eim2117@cumc.columbia.edu}
 }

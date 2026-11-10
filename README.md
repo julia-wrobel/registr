@@ -182,5 +182,5 @@ To cite the 2018 Journal of Open Source Software paper, use
 If you find small bugs, larger issues, or have suggestions, please file
 them using the [issue
 tracker](https://github.com/julia-wrobel/registr/issues) or email the
-maintainer at <julia.wrobel@cuanschutz.edu>. Contributions (via pull
+maintainer at <julia.wrobel@emory.edu>. Contributions (via pull
 requests or otherwise) are welcome.
