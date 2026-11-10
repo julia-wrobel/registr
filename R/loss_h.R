@@ -21,7 +21,7 @@
 #' (single value applied to all 4 knot priors).
 #' @inheritParams registr
 #' 
-#' @author Julia Wrobel \email{julia.wrobel@@cuanschutz.edu},
+#' @author Julia Wrobel \email{julia.wrobel@@emory.edu},
 #' Erin McDonnell \email{eim2117@@cumc.columbia.edu},
 #' Alexander Bauer \email{alexander.bauer@@stat.uni-muenchen.de}
 #' 

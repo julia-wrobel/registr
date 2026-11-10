@@ -54,3 +54,4 @@ Preparing things below
 * Dropped C++11 specification and added `-DARMA_USE_CURRENT` to support RcppArmadillo 15+
 * Fixed Rd cross-reference for `gamm4` (added package anchor)
 * Fixed R CMD check NOTE for NSE global variable `id`
+* Updated maintainer email address to julia.wrobel@emory.edu in documentation and README

@@ -237,7 +237,7 @@ registr_gamma = register_fpca(Y, npc = 2, family = "gamma", fpca_type = "two-ste
 
 }
 \author{
-Julia Wrobel \email{julia.wrobel@cuanschutz.edu}
+Julia Wrobel \email{julia.wrobel@emory.edu}
 Jeff Goldsmith \email{ajg2202@cumc.columbia.edu},
 Alexander Bauer \email{alexander.bauer@stat.uni-muenchen.de}
 }
