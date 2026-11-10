@@ -49,9 +49,9 @@
 #' 
 #' @import mgcv
 #' @importFrom Matrix nearPD
-#' @importFrom tidyr nest unnest
+#' @importFrom tidyr nest unnest expand_grid
 #' @importFrom dplyr select mutate filter n_distinct
-#' @importFrom purrr map cross_df
+#' @importFrom purrr map
 #' @importFrom stats na.omit predict
 #' @examples
 #' data(growth_incomplete)
@@ -149,11 +149,8 @@ crossprods_irregular = function(Y) {
   Y_crossprods = select(Y, .data$id, .data$index, .data$centered) %>% 
     nest(data = c(.data$index, .data$centered)) %>% 
     mutate(crossprods = map(.data$data, ~ {
-      cross_df(list(i1 = .x$index, i2 = .x$index)) %>% 
-        mutate(cross = 
-            cross_df(list(v1 = .x$centered, v2 = .x$centered)) %>% 
-            {.[, 1] * .[, 2]} %>% unlist
-        )
+      expand_grid(i2 = .x$index, i1 = .x$index)[, c("i1", "i2")] %>% 
+        mutate(cross = as.vector(outer(.x$centered, .x$centered)))
     })) %>% select(.data$id, .data$crossprods) %>% unnest(cols = crossprods) %>% 
     # drop diagonal
     filter(.data$i1 != .data$i2)
